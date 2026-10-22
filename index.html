@@ -931,13 +931,9 @@
 
         playerWrapper.addEventListener('mousemove', showControls);
         
-        // MOUSE LEAVE: Esconde instantaneamente se NÃO estiver em tela cheia
+        // MOUSE LEAVE: Sempre usa o timer padrão de 5,5s (igual ao hover)
         playerWrapper.addEventListener('mouseleave', () => {
-            if (!document.fullscreenElement) {
-                hideControls(); // Instantâneo
-            } else {
-                resetControlsTimer(); // Em tela cheia, espera os 5.5s normais
-            }
+            resetControlsTimer();
         });
 
         // Clique na área do player (fora dos botões) alterna o Play/Pause
