@@ -136,39 +136,62 @@
 
         /* ==================== PLAYER ==================== */
         #playerScreen {
-            position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.95);
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            /* Mesmo background do site com um leve blur para destacar o player */
+            background: linear-gradient(135deg, rgba(11, 15, 25, 0.95) 0%, rgba(26, 26, 46, 0.95) 50%, rgba(22, 33, 62, 0.95) 100%);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
             z-index: 2000; display: flex; align-items: center; justify-content: center;
             opacity: 0; visibility: hidden; transition: opacity 0.4s ease, visibility 0.4s;
-            backdrop-filter: blur(10px);
         }
         #playerScreen.active { opacity: 1; visibility: visible; }
 
         .player-wrapper {
             width: 95%; max-width: 1200px; aspect-ratio: 16 / 9; background: #000;
             border-radius: 12px; overflow: hidden; position: relative;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.8); border: 1px solid #2d2d44;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.8);
+            /* Borda branca removida */
+        }
+        
+        /* Sombra no topo do player para contraste */
+        .player-wrapper::before {
+            content: '';
+            position: absolute; top: 0; left: 0; right: 0;
+            height: 120px;
+            background: linear-gradient(to bottom, rgba(0,0,0,0.8) 0%, transparent 100%);
+            z-index: 10;
+            pointer-events: none;
+        }
+
+        /* Sombra na base do player para contraste */
+        .player-wrapper::after {
+            content: '';
+            position: absolute; bottom: 0; left: 0; right: 0;
+            height: 120px;
+            background: linear-gradient(to top, rgba(0,0,0,0.9) 0%, transparent 100%);
+            z-index: 10;
+            pointer-events: none;
         }
         
         .player-wrapper iframe { 
             width: 100%; height: 100%; display: block; border: none; 
-            position: absolute; top: 0; left: 0; 
+            position: absolute; top: 0; left: 0; z-index: 1;
         }
 
         /* Botão Fechar no Topo Esquerdo */
         .close-player-btn {
-            position: absolute; top: 15px; left: 15px; background: rgba(0,0,0,0.6);
-            border: 1px solid rgba(255,255,255,0.2); color: #fff; width: 40px; height: 40px;
-            border-radius: 50%; font-size: 1.2rem; cursor: pointer; z-index: 100;
+            position: absolute; top: 15px; left: 15px; background: rgba(0,0,0,0.4);
+            border: none; color: #fff; width: 40px; height: 40px;
+            border-radius: 50%; font-size: 1.2rem; cursor: pointer; z-index: 20;
             display: flex; align-items: center; justify-content: center; transition: all 0.2s;
-            backdrop-filter: blur(5px);
         }
-        .close-player-btn:hover { background: #e74c3c; border-color: #e74c3c; transform: scale(1.1); }
+        .close-player-btn:hover { background: #e74c3c; transform: scale(1.1); }
 
         /* Votos no Topo Direito */
         .player-vote-container {
-            position: absolute; top: 15px; right: 15px; display: flex; gap: 10px; z-index: 100;
-            background: rgba(0, 0, 0, 0.6); padding: 8px 12px; border-radius: 25px;
-            backdrop-filter: blur(5px); border: 1px solid rgba(255,255,255,0.1);
+            position: absolute; top: 15px; right: 15px; display: flex; gap: 10px; z-index: 20;
+            background: rgba(0, 0, 0, 0.5); padding: 8px 12px; border-radius: 25px;
+            border: 1px solid rgba(255,255,255,0.1);
         }
         .player-vote-btn {
             background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.15); color: #fff;
@@ -182,9 +205,8 @@
         /* Barra de Controles Embaixo */
         .player-controls {
             position: absolute; bottom: 0; left: 0; right: 0;
-            background: linear-gradient(to top, rgba(0,0,0,0.95), transparent);
-            padding: 30px 20px 15px; display: flex; align-items: center; gap: 15px;
-            z-index: 100; opacity: 1; /* Deixei sempre visível para você não se irritar com o hover */
+            padding: 20px 20px 15px; display: flex; align-items: center; gap: 15px;
+            z-index: 20; opacity: 1;
         }
 
         .control-btn {
@@ -296,7 +318,7 @@
             <div id="youtubePlayer"></div>
             
             <div class="player-controls">
-                <button class="control-btn" id="playPauseBtn" title="Play/Pause">▶</button>
+                <!-- Botão Play/Pause customizado removido -->
                 <button class="control-btn" id="btnRewind10" title="-10s">-10s</button>
                 <button class="control-btn" id="btnForward10" title="+10s">+10s</button>
                 
@@ -327,7 +349,6 @@
 
         const ADMIN_EMAIL = 'playtronicpublisher@mail.com';
         let currentPlayerVideoId = null;
-        let isPlaying = false;
 
         // ============================================================
         // 2. LISTA DE CURTAS
@@ -685,6 +706,7 @@
                         <button class="favorite-btn ${isFav ? 'active' : ''}" title="Favoritar">
                             ${isFav ? '❤️' : '🤍'}
                         </button>
+                        <button class="edit-poster-btn" title="Editar Pôster (Admin)">✏️ Pôster</button>
                     </div>
                     <div class="card-info">
                         <h3 class="card-title">${item.titulo}</h3>
@@ -700,6 +722,12 @@
                     localStorage.setItem(`fav_${item.id}`, isFav);
                 });
 
+                card.querySelector('.edit-poster-btn').addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const imgEl = card.querySelector(`#poster-${item.id}`);
+                    editarPoster(item.id, item.titulo, imgEl);
+                });
+
                 card.querySelector('.watch-btn').addEventListener('click', () => openPlayer(item));
 
                 catalogGrid.appendChild(card);
@@ -712,10 +740,9 @@
         // ============================================================
         const playerScreen = document.getElementById('playerScreen');
         const closePlayerBtn = document.getElementById('closePlayerBtn');
-        const playPauseBtn = document.getElementById('playPauseBtn');
+        const fullscreenBtn = document.getElementById('fullscreenBtn');
         const btnRewind10 = document.getElementById('btnRewind10');
         const btnForward10 = document.getElementById('btnForward10');
-        const fullscreenBtn = document.getElementById('fullscreenBtn');
         const progressFill = document.getElementById('progressFill');
         const progressTrack = document.getElementById('progressTrack');
         const timeLabel = document.getElementById('timeLabel');
@@ -734,7 +761,6 @@
 
             if (player) { player.destroy(); player = null; }
             playerReady = false;
-            isPlaying = false;
 
             currentPlayerVideoId = curta.id;
             atualizarPlayerUI(curta.id);
@@ -762,16 +788,7 @@
         }
 
         function onPlayerStateChange(event) {
-            if (event.data === 1) { // playing
-                isPlaying = true;
-                playPauseBtn.textContent = '⏸';
-            } else if (event.data === 2) { // paused
-                isPlaying = false;
-                playPauseBtn.textContent = '▶';
-            } else if (event.data === 0) { // ended
-                isPlaying = false;
-                playPauseBtn.textContent = '▶';
-            }
+            // Como removemos o botão customizado, o YouTube lida com o Play/Pause central
         }
 
         function closePlayer() {
@@ -787,25 +804,15 @@
 
         closePlayerBtn.addEventListener('click', closePlayer);
         
-        // Play/Pause
-        playPauseBtn.addEventListener('click', () => {
-            if (!playerReady || !player) return;
-            if (isPlaying) {
-                player.pauseVideo();
-            } else {
-                player.playVideo();
-            }
-        });
-
         // Fullscreen
         fullscreenBtn.addEventListener('click', () => {
             const wrapper = document.querySelector('.player-wrapper');
             if (!document.fullscreenElement) {
                 if (wrapper.requestFullscreen) {
                     wrapper.requestFullscreen();
-                } else if (wrapper.webkitRequestFullscreen) { /* Safari */
+                } else if (wrapper.webkitRequestFullscreen) {
                     wrapper.webkitRequestFullscreen();
-                } else if (wrapper.msRequestFullscreen) { /* IE11 */
+                } else if (wrapper.msRequestFullscreen) {
                     wrapper.msRequestFullscreen();
                 }
             } else {
