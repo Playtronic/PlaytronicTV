@@ -4,7 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Playtronic TV - Clássicos da Animação</title>
-    <link rel="icon" href="https://raw.githubusercontent.com/Playtronic/tv/refs/heads/main/template/favicon.png" type="image/png">
+    
+    <!-- FAVICON DINÂMICO DO YOUTUBE -->
+    <link rel="icon" href="https://unavatar.io/youtube/playtronicgames772" type="image/png">
 
     <!-- SDKs do Firebase -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
@@ -22,7 +24,10 @@
             color: #e0e0e0;
             padding: 20px;
             min-height: 100vh;
+            display: flex;
+            flex-direction: column;
         }
+        #catalogScreen { flex: 1; }
 
         /* ==================== CABEÇALHO ==================== */
         .header {
@@ -33,13 +38,26 @@
             margin: 0 auto 30px;
             padding-bottom: 15px;
             border-bottom: 1px solid #222;
+            width: 100%;
         }
-        .header-title h1 {
+        
+        .header-title { display: flex; align-items: center; gap: 15px; }
+        
+        .header-logo {
+            width: 55px; 
+            height: 55px; 
+            border-radius: 50%; 
+            border: 2px solid #fdbb2d;
+            object-fit: cover;
+        }
+
+        .header-text h1 {
             font-size: 1.8rem;
             color: #fdbb2d;
             text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
+            line-height: 1.2;
         }
-        .header-title p { font-size: 0.95rem; color: #888; margin-top: 4px; }
+        .header-text p { font-size: 0.95rem; color: #888; margin-top: 4px; }
 
         /* ==================== AUTENTICAÇÃO ==================== */
         .auth-area { display: flex; align-items: center; gap: 12px; }
@@ -84,7 +102,7 @@
         
         .card-poster {
             position: relative; width: 100%; 
-            aspect-ratio: 16 / 9 !important; /* FORÇANDO RETANGULAR */
+            aspect-ratio: 16 / 9 !important;
             overflow: hidden; background: #222;
         }
         .card-poster img {
@@ -208,8 +226,22 @@
         .loading { text-align: center; padding: 40px; color: #fdbb2d; font-size: 1.2rem; }
         .empty-state { text-align: center; padding: 60px; color: #666; }
 
+        /* ==================== RODAPÉ ==================== */
+        .footer-credits {
+            text-align: center; 
+            font-size: 0.8rem; 
+            color: #666; 
+            margin-top: 40px; 
+            padding-top: 20px;
+            border-top: 1px solid #222;
+            width: 100%;
+        }
+        .footer-credits a { color: #666; text-decoration: none; }
+        .footer-credits a:hover { color: #fdbb2d; }
+
         @media (max-width: 600px) {
             .header { flex-direction: column; gap: 15px; text-align: center; }
+            .header-title { flex-direction: column; text-align: center; }
             .catalog-grid { grid-template-columns: repeat(auto-fill, 160px) !important; gap: 15px !important; }
             .card { width: 160px !important; }
             .player-wrapper { width: 100%; border-radius: 0; }
@@ -220,10 +252,13 @@
 
     <div id="catalogScreen">
         <div class="header">
+            <!-- LOGO E TEXTO DO CABEÇALHO -->
             <div class="header-title">
-                <h1>Playtronic TV</h1>
-                <!-- AQUI ESTÁ A PROVA DE QUE O CÓDIGO NOVO CARREGOU -->
-                <p style="color: #2ecc71; font-weight: bold; font-size: 1.2rem;">VERSÃO 2.0 - FORMATO RETANGULAR 16:9</p>
+                <img src="https://unavatar.io/youtube/playtronicgames772" alt="Logo Playtronic TV" class="header-logo">
+                <div class="header-text">
+                    <h1>Playtronic TV</h1>
+                    <p style="color: #2ecc71; font-weight: bold;">VERSÃO 3.0 - LOGO DINÂMICA</p>
+                </div>
             </div>
             <div class="auth-area">
                 <button class="login-btn" id="loginBtn">
@@ -244,6 +279,11 @@
         <div id="loadingMsg" class="loading">Carregando catálogo...</div>
         <div id="catalogGrid" class="catalog-grid"></div>
         <div id="emptyState" class="empty-state" style="display: none;">Nenhum curta encontrado.</div>
+    </div>
+
+    <!-- ATRIBUIÇÃO DO UNAVATAR (OBRIGATÓRIO PELO USO GRATUITO) -->
+    <div class="footer-credits">
+        <p><a href="https://unavatar.io" target="_blank">Avatares fornecidos por Unavatar</a></p>
     </div>
 
     <div id="playerScreen">
@@ -470,7 +510,6 @@
                 userName.textContent = user.displayName || 'Usuário';
                 userEmail.textContent = user.email || '';
 
-                // Libera o botão de editar pôster APENAS para o admin
                 if (user.email === ADMIN_EMAIL) {
                     document.body.classList.add('is-admin');
                 } else {
@@ -550,7 +589,6 @@
             if (dislikeBtn) dislikeBtn.classList.toggle('active', userVote === 'dislike');
         }
 
-        // --- Função para Admin alterar o pôster ---
         async function editarPoster(videoId, titulo, imgElement) {
             const urlAtual = imgElement.src;
             const novaUrl = prompt(`Editar pôster de "${titulo}":\n\nInsira a URL da imagem (deixe em branco para restaurar o padrão do YouTube):`, urlAtual.includes('youtube.com') ? '' : urlAtual);
@@ -561,7 +599,7 @@
                 const ref = rtdb.ref('vod_posters/' + videoId);
                 if (novaUrl.trim() === '') {
                     await ref.remove();
-                    imgElement.src = `https://img.youtube.com/vi/${videoId}/mqdefault.jpg`; // Imagem sem tarjas
+                    imgElement.src = `https://img.youtube.com/vi/${videoId}/mqdefault.jpg`;
                     alert('Pôster restaurado para o padrão.');
                 } else {
                     await ref.set(novaUrl.trim());
@@ -607,7 +645,6 @@
                 card.className = 'card';
                 card.dataset.id = item.id;
 
-                // Usando mqdefault.jpg que não tem tarjas pretas em cima/embaixo
                 const defaultPoster = `https://img.youtube.com/vi/${item.id}/mqdefault.jpg`;
                 const posterUrl = customPosters[item.id] || defaultPoster;
                 const isFav = localStorage.getItem(`fav_${item.id}`) === 'true';
