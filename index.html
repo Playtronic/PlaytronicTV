@@ -756,17 +756,8 @@
 
         catalogGrid.innerHTML = '';
 
-        if (videos.length === 0) {
-            emptyState.textContent = isAdmin()
-                ? 'Nenhum vídeo cadastrado. Use o botão "➕ Adicionar Vídeo".'
-                : 'Nenhum vídeo disponível.';
-            emptyState.style.display = 'block';
-            return;
-        }
-
-        if (filtered.length === 0) {
-            emptyState.textContent = 'Nenhum vídeo encontrado para esta busca.';
-            emptyState.style.display = 'block';
+        if (videos.length === 0 || filtered.length === 0) {
+            emptyState.style.display = 'none';
             return;
         }
         emptyState.style.display = 'none';
