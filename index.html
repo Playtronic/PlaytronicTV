@@ -151,7 +151,6 @@
             box-shadow: 0 20px 50px rgba(0,0,0,0.8);
         }
         
-        /* Sombra Reforçada no topo */
         .player-wrapper::before {
             content: '';
             position: absolute; top: 0; left: 0; right: 0;
@@ -160,7 +159,6 @@
             z-index: 10; pointer-events: none;
         }
 
-        /* Sombra Reforçada na base */
         .player-wrapper::after {
             content: '';
             position: absolute; bottom: 0; left: 0; right: 0;
@@ -863,7 +861,6 @@
         }
 
         function hideControls() {
-            // Não esconde se o mouse estiver em cima dos controles (opcional)
             playerControls.classList.add('player-ui-hidden');
             playerVoteContainer.classList.add('player-ui-hidden');
             closePlayerBtn.classList.add('player-ui-hidden');
@@ -871,7 +868,8 @@
 
         function resetControlsTimer() {
             clearTimeout(controlsTimeout);
-            controlsTimeout = setTimeout(hideControls, 3000); // 3 segundos
+            // AGORA O TEMPO É DE 5.5 SEGUNDOS (5500 MILISSEGUNDOS)
+            controlsTimeout = setTimeout(hideControls, 5500); 
         }
 
         // Eventos de mouse para mostrar/esconder controles
