@@ -63,21 +63,23 @@
         .user-email { font-size: 0.8rem; color: #aaa; margin-bottom: 10px; }
         .logout-btn { background: #e74c3c; color: #fff; border: none; padding: 8px; border-radius: 6px; cursor: pointer; font-weight: bold; }
 
-        /* ==================== GRID DE CARDS (METADE DO TAMANHO) ==================== */
+        /* ==================== GRID DE CARDS (TAMANHO FIXO) ==================== */
         .catalog-grid {
             display: grid;
-            /* Reduzido para 120px. Isso força os cards a ficarem bem menores */
-            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-            gap: 16px; 
+            /* Aqui está a mágica: tamanho exato de 140px, centralizado */
+            grid-template-columns: repeat(auto-fill, 140px);
+            justify-content: center; 
+            gap: 20px; 
             max-width: 1400px; 
             margin: 0 auto;
         }
         .card {
             background: #141414; 
-            border-radius: 18px; /* Cantos bem arredondados */
+            border-radius: 16px; /* Cantos bem arredondados */
             overflow: hidden;
             transition: transform 0.3s ease, box-shadow 0.3s ease;
             display: flex; flex-direction: column; position: relative;
+            width: 140px; /* Largura fixa */
         }
         .card:hover { transform: translateY(-4px); box-shadow: 0 8px 20px rgba(0,0,0,0.8); }
         
@@ -208,7 +210,8 @@
 
         @media (max-width: 600px) {
             .header { flex-direction: column; gap: 15px; text-align: center; }
-            .catalog-grid { grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 10px; }
+            .catalog-grid { grid-template-columns: repeat(auto-fill, 120px); gap: 10px; }
+            .card { width: 120px; }
             .player-wrapper { width: 100%; border-radius: 0; }
         }
     </style>
@@ -557,7 +560,7 @@
                 const ref = rtdb.ref('vod_posters/' + videoId);
                 if (novaUrl.trim() === '') {
                     await ref.remove();
-                    imgElement.src = `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
+                    imgElement.src = `https://img.youtube.com/vi/${videoId}/mqdefault.jpg`; // Imagem sem tarjas
                     alert('Pôster restaurado para o padrão.');
                 } else {
                     await ref.set(novaUrl.trim());
@@ -589,7 +592,6 @@
 
             let customPosters = {};
             try {
-                // Timeout de segurança para não travar o site se o Firebase falhar
                 const snap = await Promise.race([
                     rtdb.ref('vod_posters').once('value'),
                     new Promise((_, reject) => setTimeout(() => reject(new Error('Timeout')), 3000))
@@ -604,7 +606,8 @@
                 card.className = 'card';
                 card.dataset.id = item.id;
 
-                const defaultPoster = `https://img.youtube.com/vi/${item.id}/hqdefault.jpg`;
+                // Usando mqdefault.jpg que não tem tarjas pretas em cima/embaixo
+                const defaultPoster = `https://img.youtube.com/vi/${item.id}/mqdefault.jpg`;
                 const posterUrl = customPosters[item.id] || defaultPoster;
                 const isFav = localStorage.getItem(`fav_${item.id}`) === 'true';
 
@@ -627,7 +630,6 @@
                     </div>
                 `;
 
-                // Evento: Favoritar
                 const favBtn = card.querySelector('.favorite-btn');
                 favBtn.addEventListener('click', (e) => {
                     e.stopPropagation();
@@ -636,7 +638,6 @@
                     localStorage.setItem(`fav_${item.id}`, isFav);
                 });
 
-                // Evento: Votar
                 card.querySelector('.vote-btn.like').addEventListener('click', (e) => {
                     e.stopPropagation(); votar(item.id, 'like');
                 });
@@ -644,14 +645,12 @@
                     e.stopPropagation(); votar(item.id, 'dislike');
                 });
 
-                // Evento: Editar Pôster
                 card.querySelector('.edit-poster-btn').addEventListener('click', (e) => {
                     e.stopPropagation();
                     const imgEl = card.querySelector(`#poster-${item.id}`);
                     editarPoster(item.id, item.titulo, imgEl);
                 });
 
-                // Evento: Assistir
                 card.querySelector('.watch-btn').addEventListener('click', () => openPlayer(item));
 
                 catalogGrid.appendChild(card);
