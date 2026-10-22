@@ -5,23 +5,18 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Playtronic TV</title>
     
-    <!-- FAVICON MANTIDO -->
     <link rel="icon" href="https://i.ibb.co/21gS8VzM/1330.png" type="image/png">
 
-    <!-- SDKs do Firebase -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
-    <!-- API do IFrame do YouTube -->
     <script src="https://www.youtube.com/iframe_api"></script>
 
     <style>
-        /* ==================== RESET E FUNDO ESCURO PREMIUM ==================== */
         * { margin: 0; padding: 0; box-sizing: border-box; }
         
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            /* Fundo Azul Meia-Noite para Roxo Escuro */
             background: linear-gradient(135deg, #0b0f19 0%, #1a1a2e 50%, #16213e 100%);
             background-attachment: fixed;
             color: #e2e8f0;
@@ -33,100 +28,46 @@
             flex-direction: column;
         }
 
-        /* ==================== TOPO FIXO (HEADER) ==================== */
         .header {
-            position: fixed;
-            top: 0; left: 0; width: 100%;
-            height: 110px; 
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
+            position: fixed; top: 0; left: 0; width: 100%; height: 110px; 
+            display: flex; align-items: center; justify-content: space-between;
             padding: 0 40px;
-            /* 30% MAIS ESCURO E MAIS TRANSLÚCIDO */
             background: rgba(21, 41, 97, 0.75); 
             backdrop-filter: blur(12px);
             -webkit-backdrop-filter: blur(12px);
             border-bottom: 1px solid rgba(255,255,255,0.08);
-            z-index: 1000;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+            z-index: 1000; box-shadow: 0 4px 20px rgba(0,0,0,0.5);
         }
 
-        .header-brand {
-            display: flex;
-            align-items: center;
-            width: 350px; 
-        }
+        .header-brand { display: flex; align-items: center; width: 350px; }
+        .logo-link { display: flex; align-items: center; text-decoration: none; cursor: pointer; }
+        .header-logo { height: 80px; width: auto; object-fit: contain; transition: transform 0.3s, opacity 0.3s; }
+        .logo-link:hover .header-logo { transform: scale(1.05); opacity: 0.85; }
 
-        /* LOGO DO TOPO COM HOVER E CLIQUE */
-        .logo-link {
-            display: flex;
-            align-items: center;
-            text-decoration: none;
-            cursor: pointer;
-        }
-
-        .header-logo {
-            height: 80px; 
-            width: auto;
-            object-fit: contain;
-            transition: transform 0.3s ease, opacity 0.3s ease;
-        }
-
-        .logo-link:hover .header-logo {
-            transform: scale(1.05);
-            opacity: 0.85;
-        }
-
-        /* ==================== CAMPO DE BUSCA ==================== */
-        .search-container {
-            flex: 1;
-            max-width: 500px;
-            margin: 0 20px;
-        }
-
+        .search-container { flex: 1; max-width: 500px; margin: 0 20px; }
         .search-container input {
-            width: 100%;
-            background-color: rgba(255,255,255,0.1);
-            border: 1px solid rgba(255,255,255,0.2);
-            color: #fff;
-            padding: 12px 20px 12px 42px; 
-            border-radius: 25px;
-            font-size: 1rem;
-            outline: none;
+            width: 100%; background-color: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2);
+            color: #fff; padding: 12px 20px 12px 42px; border-radius: 25px; font-size: 1rem; outline: none;
             transition: all 0.3s ease;
-            
             background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="%23a0aec0" viewBox="0 0 16 16"><path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z"/></svg>');
-            background-repeat: no-repeat;
-            background-position: 15px center;
+            background-repeat: no-repeat; background-position: 15px center;
         }
-
-        .search-container input:focus {
-            background-color: rgba(255,255,255,0.15);
-            border-color: #fdbb2d;
-            box-shadow: 0 0 15px rgba(253, 187, 45, 0.2);
-        }
-
+        .search-container input:focus { background-color: rgba(255,255,255,0.15); border-color: #fdbb2d; box-shadow: 0 0 15px rgba(253, 187, 45, 0.2); }
         .search-container input::placeholder { color: #cbd5e1; }
 
-        /* ==================== AUTENTICAÇÃO ==================== */
         .auth-area { display: flex; align-items: center; gap: 12px; width: 250px; justify-content: flex-end; }
-        
-        /* BOTÃO DE LOGIN AZUL (PADRÃO GOOGLE) */
         .login-btn {
-            background: #4285f4; color: #fff; border: none; padding: 10px 18px;
-            border-radius: 8px; font-weight: bold; cursor: pointer; display: flex;
-            align-items: center; gap: 8px; transition: background 0.3s;
+            background: #4285f4; color: #fff; border: none; padding: 10px 18px; border-radius: 8px;
+            font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: background 0.3s;
         }
         .login-btn:hover { background: #3367d6; }
 
         .user-info { display: none; align-items: center; gap: 10px; cursor: pointer; position: relative; }
         .user-info.active { display: flex; }
         .user-avatar { width: 40px; height: 40px; border-radius: 50%; border: 2px solid #fdbb2d; }
-        
         .user-card {
-            position: absolute; top: 55px; right: 0; background: #152961;
-            border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; padding: 15px;
-            min-width: 220px; display: none; flex-direction: column; z-index: 100;
+            position: absolute; top: 55px; right: 0; background: #152961; border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 10px; padding: 15px; min-width: 220px; display: none; flex-direction: column; z-index: 100;
             box-shadow: 0 8px 24px rgba(0,0,0,0.6);
         }
         .user-card.active { display: flex; }
@@ -135,49 +76,26 @@
         .logout-btn { background: #ef4444; color: #fff; border: none; padding: 8px; border-radius: 6px; cursor: pointer; font-weight: bold; }
         .logout-btn:hover { background: #dc2626; }
 
-        /* ==================== CONTEÚDO PRINCIPAL ==================== */
         #catalogScreen { flex: 1; padding-bottom: 40px; }
 
-        /* ==================== GRID DE CARDS (MÁX 5 POR LINHA) ==================== */
         .catalog-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-            gap: 30px; 
-            max-width: 1400px; 
-            margin: 0 auto;
-            width: 100%;
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 30px; max-width: 1400px; margin: 0 auto; width: 100%;
         }
 
         .card {
-            background: #16213e; 
-            border: 1px solid #1f2a4a;
-            border-radius: 12px;
-            overflow: hidden;
+            background: #16213e; border: 1px solid #1f2a4a; border-radius: 12px; overflow: hidden;
             transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
-            display: flex; flex-direction: column; position: relative;
-            width: 100%; 
+            display: flex; flex-direction: column; position: relative; width: 100%; 
         }
-        .card:hover { 
-            transform: translateY(-5px); 
-            box-shadow: 0 12px 30px rgba(0,0,0,0.5); 
-            border-color: #4a5568;
-        }
+        .card:hover { transform: translateY(-5px); box-shadow: 0 12px 30px rgba(0,0,0,0.5); border-color: #4a5568; }
         
-        .card-poster {
-            position: relative; width: 100%; 
-            aspect-ratio: 16 / 9;
-            overflow: hidden; background: #0b0f19;
-        }
-        .card-poster img {
-            width: 100%; height: 100%; object-fit: cover;
-            display: block; transition: transform 0.4s ease;
-        }
+        .card-poster { position: relative; width: 100%; aspect-ratio: 16 / 9; overflow: hidden; background: #0b0f19; }
+        .card-poster img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform 0.4s ease; }
         .card:hover .card-poster img { transform: scale(1.05); }
-        
         .card-poster::after {
             content: ''; position: absolute; bottom: 0; left: 0; right: 0;
-            height: 35%; background: linear-gradient(to top, #16213e, transparent);
-            pointer-events: none;
+            height: 35%; background: linear-gradient(to top, #16213e, transparent); pointer-events: none;
         }
         
         .rating-badge {
@@ -190,40 +108,29 @@
         .favorite-btn {
             position: absolute; top: 10px; right: 10px; background: rgba(0,0,0,0.6);
             border: none; color: #fff; font-size: 1.1rem; width: 34px; height: 34px;
-            border-radius: 50%; cursor: pointer; display: flex; align-items: center;
-            justify-content: center; z-index: 3; transition: background 0.2s, transform 0.2s;
-            backdrop-filter: blur(4px);
+            border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center;
+            z-index: 3; transition: background 0.2s, transform 0.2s; backdrop-filter: blur(4px);
         }
         .favorite-btn:hover { background: rgba(253,187,45,0.3); transform: scale(1.1); }
         .favorite-btn.active { color: #ff4757; }
 
-        /* ==================== BOTÃO DE EDITAR PÔSTER (ADMIN) ==================== */
         .edit-poster-btn {
             position: absolute; bottom: 10px; right: 10px; background: rgba(253,187,45,0.9);
-            border: none; color: #000; font-size: 0.7rem; padding: 4px 8px;
-            border-radius: 4px; cursor: pointer; display: none; z-index: 5;
-            font-weight: bold; transition: background 0.2s;
+            border: none; color: #000; font-size: 0.7rem; padding: 4px 8px; border-radius: 4px;
+            cursor: pointer; display: none; z-index: 5; font-weight: bold; transition: background 0.2s;
         }
         .edit-poster-btn:hover { background: #fdbb2d; }
         body.is-admin .edit-poster-btn { display: block; }
 
-        .card-info {
-            padding: 15px; display: flex; flex-direction: column;
-            flex: 1; justify-content: space-between; z-index: 2;
-        }
+        .card-info { padding: 15px; display: flex; flex-direction: column; flex: 1; justify-content: space-between; z-index: 2; }
         .card-title {
-            font-size: 1rem; 
-            font-weight: 600; color: #f8fafc; line-height: 1.3;
-            margin-bottom: 12px; display: -webkit-box; -webkit-line-clamp: 2;
-            -webkit-box-orient: vertical; overflow: hidden;
-            text-align: left;
-            min-height: 2.6em; /* Mantém os cards alinhados */
+            font-size: 1rem; font-weight: 600; color: #f8fafc; line-height: 1.3; margin-bottom: 12px;
+            display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; text-align: left; min-height: 2.6em;
         }
 
         .watch-btn {
-            background: #fdbb2d; color: #000; border: none; padding: 10px;
-            border-radius: 6px; font-weight: bold; font-size: 0.95rem; cursor: pointer;
-            transition: background 0.2s, transform 0.1s; width: 100%;
+            background: #fdbb2d; color: #000; border: none; padding: 10px; border-radius: 6px;
+            font-weight: bold; font-size: 0.95rem; cursor: pointer; transition: background 0.2s, transform 0.1s; width: 100%;
         }
         .watch-btn:hover { background: #ffcc44; transform: scale(1.02); }
 
@@ -237,141 +144,82 @@
         #playerScreen.active { opacity: 1; visibility: visible; }
 
         .player-wrapper {
-            width: 90%; max-width: 1100px; aspect-ratio: 16 / 9; background: #000;
+            width: 95%; max-width: 1200px; aspect-ratio: 16 / 9; background: #000;
             border-radius: 12px; overflow: hidden; position: relative;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.8);
-            border: 1px solid #2d2d44;
-        }
-        .player-wrapper iframe { width: 100%; height: 100%; display: block; border: none; pointer-events: none; }
-
-        /* ==================== VOTOS NO PLAYER ==================== */
-        .player-vote-container {
-            position: absolute;
-            top: 15px;
-            right: 15px;
-            display: flex;
-            gap: 10px;
-            z-index: 50;
-            background: rgba(0, 0, 0, 0.6);
-            padding: 8px 12px;
-            border-radius: 25px;
-            backdrop-filter: blur(5px);
-            border: 1px solid rgba(255,255,255,0.1);
-            transition: opacity 0.3s;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.8); border: 1px solid #2d2d44;
         }
         
+        .player-wrapper iframe { 
+            width: 100%; height: 100%; display: block; border: none; 
+            position: absolute; top: 0; left: 0; 
+        }
+
+        /* Botão Fechar no Topo Esquerdo */
+        .close-player-btn {
+            position: absolute; top: 15px; left: 15px; background: rgba(0,0,0,0.6);
+            border: 1px solid rgba(255,255,255,0.2); color: #fff; width: 40px; height: 40px;
+            border-radius: 50%; font-size: 1.2rem; cursor: pointer; z-index: 100;
+            display: flex; align-items: center; justify-content: center; transition: all 0.2s;
+            backdrop-filter: blur(5px);
+        }
+        .close-player-btn:hover { background: #e74c3c; border-color: #e74c3c; transform: scale(1.1); }
+
+        /* Votos no Topo Direito */
+        .player-vote-container {
+            position: absolute; top: 15px; right: 15px; display: flex; gap: 10px; z-index: 100;
+            background: rgba(0, 0, 0, 0.6); padding: 8px 12px; border-radius: 25px;
+            backdrop-filter: blur(5px); border: 1px solid rgba(255,255,255,0.1);
+        }
         .player-vote-btn {
-            background: rgba(255,255,255,0.1);
-            border: 1px solid rgba(255,255,255,0.15);
-            color: #fff;
-            padding: 6px 12px;
-            border-radius: 15px;
-            cursor: pointer;
-            font-weight: bold;
-            font-size: 0.9rem;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            transition: all 0.2s;
+            background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.15); color: #fff;
+            padding: 6px 12px; border-radius: 15px; cursor: pointer; font-weight: bold;
+            font-size: 0.9rem; display: flex; align-items: center; gap: 6px; transition: all 0.2s;
         }
-        .player-vote-btn:hover {
-            background: rgba(255,255,255,0.25);
-        }
+        .player-vote-btn:hover { background: rgba(255,255,255,0.25); }
         .player-vote-btn.like.active { background: #2ecc71; border-color: #2ecc71; color: #fff; }
         .player-vote-btn.dislike.active { background: #e74c3c; border-color: #e74c3c; color: #fff; }
 
+        /* Barra de Controles Embaixo */
         .player-controls {
             position: absolute; bottom: 0; left: 0; right: 0;
             background: linear-gradient(to top, rgba(0,0,0,0.95), transparent);
-            padding: 25px 20px 20px; display: flex; align-items: center; gap: 15px;
-            opacity: 0; transition: opacity 0.3s; z-index: 10;
+            padding: 30px 20px 15px; display: flex; align-items: center; gap: 15px;
+            z-index: 100; opacity: 1; /* Deixei sempre visível para você não se irritar com o hover */
         }
-        .player-wrapper:hover .player-controls { opacity: 1; }
-        .player-wrapper:hover .player-vote-container { opacity: 1; }
 
         .control-btn {
-            background: rgba(255,255,255,0.15); border: none; color: #fff;
-            padding: 8px 15px; border-radius: 6px; cursor: pointer; font-size: 0.9rem;
-            font-weight: bold; transition: background 0.2s; white-space: nowrap;
+            background: none; border: none; color: #fff; padding: 5px;
+            cursor: pointer; font-size: 1.2rem; font-weight: bold; transition: transform 0.2s;
+            display: flex; align-items: center; justify-content: center;
         }
-        .control-btn:hover { background: rgba(255,255,255,0.3); }
+        .control-btn:hover { transform: scale(1.2); color: #fdbb2d; }
 
         .progress-track {
-            flex: 1; height: 8px; background: rgba(255,255,255,0.2);
-            border-radius: 4px; cursor: pointer; position: relative; margin: 0 10px;
+            flex: 1; height: 6px; background: rgba(255,255,255,0.2);
+            border-radius: 3px; cursor: pointer; position: relative; margin: 0 10px;
         }
         .progress-fill {
-            height: 100%; background: #fdbb2d; border-radius: 4px;
+            height: 100%; background: #fdbb2d; border-radius: 3px;
             width: 0%; transition: width 0.1s linear;
         }
-        .time-label { font-family: monospace; font-size: 0.9rem; color: #ddd; min-width: 110px; text-align: right; }
-
-        .close-player-btn {
-            position: absolute; top: -50px; right: 0; background: rgba(255,255,255,0.1);
-            border: 2px solid rgba(255,255,255,0.3); color: #fff; width: 40px; height: 40px;
-            border-radius: 50%; font-size: 1.2rem; cursor: pointer; z-index: 20;
-            display: flex; align-items: center; justify-content: center; transition: all 0.2s;
-        }
-        .close-player-btn:hover { background: #da3633; border-color: #da3633; transform: scale(1.1); }
+        .time-label { font-family: monospace; font-size: 0.85rem; color: #ddd; min-width: 100px; text-align: right; }
 
         .loading { text-align: center; padding: 60px; color: #fdbb2d; font-size: 1.2rem; font-weight: bold; }
         .empty-state { text-align: center; padding: 60px; color: #a0aec0; font-size: 1.1rem; display: none; }
 
         /* ==================== RODAPÉ (FOOTER) ==================== */
         .site-footer {
-            background-color: #101c36; 
-            text-align: center;
-            padding: 35px 20px;
-            margin-top: auto; 
-            border-top: 1px solid rgba(255,255,255,0.08);
-            width: 100%;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
+            background-color: #101c36; text-align: center; padding: 35px 20px;
+            margin-top: auto; border-top: 1px solid rgba(255,255,255,0.08);
+            width: 100%; display: flex; flex-direction: column; align-items: center;
         }
-
-        .site-footer p {
-            color: #a0aec0;
-            margin-bottom: 10px;
-            font-size: 0.85rem;
-            letter-spacing: 0.5px;
-            text-transform: uppercase;
-        }
-
-        .site-footer strong {
-            color: #e2e8f0;
-            font-weight: 700;
-        }
-
-        .site-footer a.contact-link {
-            color: #fdbb2d;
-            text-decoration: none;
-            font-weight: bold;
-            transition: color 0.2s;
-        }
-
-        .site-footer a.contact-link:hover {
-            color: #ffcc44;
-            text-decoration: underline;
-        }
-
-        .footer-logo-link {
-            display: inline-block;
-            margin-top: 15px;
-            transition: transform 0.3s ease, filter 0.3s ease;
-        }
-
-        .footer-logo-link:hover {
-            transform: scale(1.1);
-            filter: brightness(1.3) drop-shadow(0 0 10px rgba(255, 0, 0, 0.4));
-        }
-
-        .footer-logo {
-            height: 25px; 
-            max-width: 150px; 
-            width: auto;
-            object-fit: contain;
-        }
+        .site-footer p { color: #a0aec0; margin-bottom: 10px; font-size: 0.85rem; letter-spacing: 0.5px; text-transform: uppercase; }
+        .site-footer strong { color: #e2e8f0; font-weight: 700; }
+        .site-footer a.contact-link { color: #fdbb2d; text-decoration: none; font-weight: bold; transition: color 0.2s; }
+        .site-footer a.contact-link:hover { color: #ffcc44; text-decoration: underline; }
+        .footer-logo-link { display: inline-block; margin-top: 15px; transition: transform 0.3s, filter 0.3s; }
+        .footer-logo-link:hover { transform: scale(1.1); filter: brightness(1.3) drop-shadow(0 0 10px rgba(255, 0, 0, 0.4)); }
+        .footer-logo { height: 25px; max-width: 150px; width: auto; object-fit: contain; }
 
         /* ==================== MEDIA QUERIES ==================== */
         @media (max-width: 900px) {
@@ -382,30 +230,16 @@
             .auth-area { position: absolute; top: 15px; right: 15px; width: auto; }
             body { padding-top: 180px; }
             .catalog-grid { grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 20px; }
-        }
-
-        @media (max-width: 600px) {
-            .catalog-grid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 15px; }
             .player-wrapper { width: 100%; border-radius: 0; border-left: none; border-right: none; }
-            .close-player-btn { top: 10px; right: 10px; background: rgba(0,0,0,0.7); }
-            .card-title { font-size: 0.9rem; }
-            .watch-btn { font-size: 0.85rem; padding: 8px; }
-            
-            .player-vote-container {
-                top: 10px;
-                right: 10px;
-                transform: scale(0.85);
-                transform-origin: top right;
-            }
+            .player-vote-container { top: 10px; right: 10px; transform: scale(0.85); transform-origin: top right; }
+            .close-player-btn { top: 10px; left: 10px; }
         }
     </style>
 </head>
 <body>
 
-    <!-- HEADER FIXO -->
     <header class="header">
         <div class="header-brand">
-            <!-- LOGO CLICÁVEL (ATUALIZA A PÁGINA) -->
             <a href="javascript:void(0);" onclick="window.location.reload();" class="logo-link" title="Atualizar página">
                 <img src="https://i.ibb.co/rRgV3n8d/playtronictv.png" alt="Playtronic TV" class="header-logo">
             </a>
@@ -431,14 +265,12 @@
         </div>
     </header>
 
-    <!-- CONTEÚDO PRINCIPAL -->
     <div id="catalogScreen">
         <div id="loadingMsg" class="loading">Carregando catálogo...</div>
         <div id="catalogGrid" class="catalog-grid"></div>
         <div id="emptyState" class="empty-state">Nenhum vídeo encontrado para esta busca.</div>
     </div>
 
-    <!-- RODAPÉ -->
     <footer class="site-footer">
         <p><strong>Playtronic TV+</strong> - TODOS OS DIREITOS RESERVADOS</p>
         <p>Contato: <a href="mailto:playtronic@mail.com" class="contact-link">playtronic@mail.com</a></p>
@@ -450,9 +282,8 @@
     <!-- PLAYER -->
     <div id="playerScreen">
         <div class="player-wrapper">
-            <button class="close-player-btn" id="closePlayerBtn" title="Fechar player">&times;</button>
+            <button class="close-player-btn" id="closePlayerBtn" title="Fechar player">✖</button>
             
-            <!-- SISTEMA DE VOTOS NO PLAYER -->
             <div class="player-vote-container" id="playerVoteContainer">
                 <button class="player-vote-btn like" id="playerLikeBtn" title="Curtir">
                     👍 <span id="playerLikeCount">0</span>
@@ -463,11 +294,16 @@
             </div>
 
             <div id="youtubePlayer"></div>
+            
             <div class="player-controls">
-                <button class="control-btn" id="btnRewind10">-10s</button>
-                <button class="control-btn" id="btnForward10">+10s</button>
+                <button class="control-btn" id="playPauseBtn" title="Play/Pause">▶</button>
+                <button class="control-btn" id="btnRewind10" title="-10s">-10s</button>
+                <button class="control-btn" id="btnForward10" title="+10s">+10s</button>
+                
                 <div class="progress-track" id="progressTrack"><div class="progress-fill" id="progressFill"></div></div>
                 <span class="time-label" id="timeLabel">0:00 / 0:00</span>
+                
+                <button class="control-btn" id="fullscreenBtn" title="Tela Cheia">⛶</button>
             </div>
         </div>
     </div>
@@ -490,7 +326,8 @@
         const rtdb = firebase.database();
 
         const ADMIN_EMAIL = 'playtronicpublisher@mail.com';
-        let currentPlayerVideoId = null; // Guarda o ID do vídeo atual no player
+        let currentPlayerVideoId = null;
+        let isPlaying = false;
 
         // ============================================================
         // 2. LISTA DE CURTAS
@@ -698,7 +535,7 @@
         });
 
         // ============================================================
-        // 4. SISTEMA DE VOTOS E PÔSTERES
+        // 4. SISTEMA DE VOTOS
         // ============================================================
         function getVotesRef(videoId) { return rtdb.ref('vod_votes/' + videoId); }
 
@@ -783,36 +620,12 @@
             }
         }
 
-        // Eventos dos botões de voto no player
         document.getElementById('playerLikeBtn').addEventListener('click', () => {
             if (currentPlayerVideoId) votar(currentPlayerVideoId, 'like');
         });
         document.getElementById('playerDislikeBtn').addEventListener('click', () => {
             if (currentPlayerVideoId) votar(currentPlayerVideoId, 'dislike');
         });
-
-        async function editarPoster(videoId, titulo, imgElement) {
-            const urlAtual = imgElement.src;
-            const novaUrl = prompt(`Editar pôster de "${titulo}":\n\nInsira a URL da imagem (deixe em branco para restaurar o padrão do YouTube):`, urlAtual.includes('youtube.com') ? '' : urlAtual);
-            
-            if (novaUrl === null) return;
-
-            try {
-                const ref = rtdb.ref('vod_posters/' + videoId);
-                if (novaUrl.trim() === '') {
-                    await ref.remove();
-                    imgElement.src = `https://img.youtube.com/vi/${videoId}/mqdefault.jpg`;
-                    alert('Pôster restaurado para o padrão.');
-                } else {
-                    await ref.set(novaUrl.trim());
-                    imgElement.src = novaUrl.trim();
-                    alert('Pôster atualizado com sucesso!');
-                }
-            } catch (e) {
-                console.error('Erro ao salvar pôster:', e);
-                alert('Erro ao salvar o pôster.');
-            }
-        }
 
         // ============================================================
         // 5. RENDERIZAÇÃO E BUSCA
@@ -840,7 +653,6 @@
             renderCards(CURTAS);
             loadingMsg.style.display = 'none';
 
-            // Listener de Busca
             searchInput.addEventListener('input', (e) => {
                 const termo = e.target.value.toLowerCase().trim();
                 const filtrados = CURTAS.filter(item => item.titulo.toLowerCase().includes(termo));
@@ -866,7 +678,6 @@
                 const posterUrl = customPosters[item.id] || defaultPoster;
                 const isFav = localStorage.getItem(`fav_${item.id}`) === 'true';
 
-                // Cards limpos: Apenas Imagem, Estrela, Favorito, Título e Assistir
                 card.innerHTML = `
                     <div class="card-poster">
                         <img src="${posterUrl}" alt="Capa de ${item.titulo}" loading="lazy" id="poster-${item.id}">
@@ -874,7 +685,6 @@
                         <button class="favorite-btn ${isFav ? 'active' : ''}" title="Favoritar">
                             ${isFav ? '❤️' : '🤍'}
                         </button>
-                        <button class="edit-poster-btn" title="Editar Pôster (Admin)">✏️ Pôster</button>
                     </div>
                     <div class="card-info">
                         <h3 class="card-title">${item.titulo}</h3>
@@ -890,16 +700,10 @@
                     localStorage.setItem(`fav_${item.id}`, isFav);
                 });
 
-                card.querySelector('.edit-poster-btn').addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    const imgEl = card.querySelector(`#poster-${item.id}`);
-                    editarPoster(item.id, item.titulo, imgEl);
-                });
-
                 card.querySelector('.watch-btn').addEventListener('click', () => openPlayer(item));
 
                 catalogGrid.appendChild(card);
-                atualizarCardUI(item.id); // Carrega a estrela apenas
+                atualizarCardUI(item.id);
             });
         }
 
@@ -908,8 +712,10 @@
         // ============================================================
         const playerScreen = document.getElementById('playerScreen');
         const closePlayerBtn = document.getElementById('closePlayerBtn');
+        const playPauseBtn = document.getElementById('playPauseBtn');
         const btnRewind10 = document.getElementById('btnRewind10');
         const btnForward10 = document.getElementById('btnForward10');
+        const fullscreenBtn = document.getElementById('fullscreenBtn');
         const progressFill = document.getElementById('progressFill');
         const progressTrack = document.getElementById('progressTrack');
         const timeLabel = document.getElementById('timeLabel');
@@ -928,12 +734,13 @@
 
             if (player) { player.destroy(); player = null; }
             playerReady = false;
+            isPlaying = false;
 
             currentPlayerVideoId = curta.id;
-            atualizarPlayerUI(curta.id); // Carrega os votos para o player
+            atualizarPlayerUI(curta.id);
 
             const container = document.getElementById('youtubePlayer');
-            container.innerHTML = '<div id="ytPlayerDiv"></div>';
+            container.innerHTML = '<div id="ytPlayerDiv" style="width:100%; height:100%;"></div>';
 
             player = new YT.Player('ytPlayerDiv', {
                 height: '100%', width: '100%', videoId: curta.id,
@@ -954,7 +761,18 @@
             startProgressTracker();
         }
 
-        function onPlayerStateChange(event) {}
+        function onPlayerStateChange(event) {
+            if (event.data === 1) { // playing
+                isPlaying = true;
+                playPauseBtn.textContent = '⏸';
+            } else if (event.data === 2) { // paused
+                isPlaying = false;
+                playPauseBtn.textContent = '▶';
+            } else if (event.data === 0) { // ended
+                isPlaying = false;
+                playPauseBtn.textContent = '▶';
+            }
+        }
 
         function closePlayer() {
             if (progressInterval) { clearInterval(progressInterval); progressInterval = null; }
@@ -968,6 +786,39 @@
         }
 
         closePlayerBtn.addEventListener('click', closePlayer);
+        
+        // Play/Pause
+        playPauseBtn.addEventListener('click', () => {
+            if (!playerReady || !player) return;
+            if (isPlaying) {
+                player.pauseVideo();
+            } else {
+                player.playVideo();
+            }
+        });
+
+        // Fullscreen
+        fullscreenBtn.addEventListener('click', () => {
+            const wrapper = document.querySelector('.player-wrapper');
+            if (!document.fullscreenElement) {
+                if (wrapper.requestFullscreen) {
+                    wrapper.requestFullscreen();
+                } else if (wrapper.webkitRequestFullscreen) { /* Safari */
+                    wrapper.webkitRequestFullscreen();
+                } else if (wrapper.msRequestFullscreen) { /* IE11 */
+                    wrapper.msRequestFullscreen();
+                }
+            } else {
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                } else if (document.webkitExitFullscreen) {
+                    document.webkitExitFullscreen();
+                } else if (document.msExitFullscreen) {
+                    document.msExitFullscreen();
+                }
+            }
+        });
+
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape' && playerScreen.classList.contains('active')) closePlayer();
         });
