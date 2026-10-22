@@ -148,6 +148,12 @@
         .tag-pago { background: #f59e0b; color: #000; }
         .tag-ad { background: #dc2626; color: #fff; }
 
+        .card-meta {
+            font-size: 0.8rem; color: #94a3b8; line-height: 1.5;
+            margin-bottom: 10px;
+        }
+        .card-meta-line { display: block; }
+
         .watch-btn {
             background: #fdbb2d; color: #000; border: none; padding: 10px; border-radius: 6px;
             font-weight: bold; font-size: 0.95rem; cursor: pointer; transition: background 0.2s, transform 0.1s; width: 100%;
@@ -425,6 +431,10 @@
             <div class="url-hint" id="urlHint"></div>
             <label>Título</label>
             <input type="text" id="videoTitleInput" placeholder="Título do vídeo" autocomplete="off">
+            <label>Produtora</label>
+            <input type="text" id="videoProdutoraInput" placeholder="Ex.: Walt Disney Productions" autocomplete="off">
+            <label>Ano</label>
+            <input type="text" id="videoAnoInput" placeholder="Ex.: 1950" inputmode="numeric" maxlength="4" autocomplete="off">
             <label>Idioma</label>
             <select id="videoLangInput">
                 <option value="">Nenhum</option>
@@ -717,6 +727,12 @@
             if (item.lang === 'ENG') tags.push('<span class="tag tag-eng">ENG</span>');
             const tagsHtml = tags.length ? `<div class="card-tags">${tags.join('')}</div>` : '<div class="card-tags"></div>';
 
+            const produtora = (item.produtora || '').trim();
+            const ano = (item.ano != null && item.ano !== '') ? item.ano : null;
+            const produtoraHtml = produtora ? `<span class="card-meta-line">${escapeHtml(produtora)}</span>` : '';
+            const anoHtml = ano !== null ? `<span class="card-meta-line">Ano: ${escapeHtml(String(ano))}</span>` : '';
+            const metaHtml = (produtoraHtml || anoHtml) ? `<div class="card-meta">${produtoraHtml}${anoHtml}</div>` : '';
+
             card.innerHTML = `
                 <div class="card-poster">
                     <img src="${posterUrl}" alt="Capa de ${titulo}" loading="lazy">
@@ -729,6 +745,7 @@
                 </div>
                 <div class="card-info">
                     <h3 class="card-title">${titulo}</h3>
+                    ${metaHtml}
                     ${tagsHtml}
                     <button class="watch-btn">▶ Assistir</button>
                 </div>
@@ -775,6 +792,8 @@
     const videoUrlInput = document.getElementById('videoUrlInput');
     const videoTitleInput = document.getElementById('videoTitleInput');
     const videoLangInput = document.getElementById('videoLangInput');
+    const videoProdutoraInput = document.getElementById('videoProdutoraInput');
+    const videoAnoInput = document.getElementById('videoAnoInput');
     const urlHint = document.getElementById('urlHint');
 
     videoUrlInput.addEventListener('input', () => {
@@ -800,6 +819,8 @@
             videoModalSub.textContent = 'O vídeo ficará visível para todos os usuários.';
             videoUrlInput.value = '';
             videoTitleInput.value = '';
+            videoProdutoraInput.value = '';
+            videoAnoInput.value = '';
             videoLangInput.value = '';
             const noneMarker = document.querySelector('input[name="videoMarker"][value=""]');
             if (noneMarker) noneMarker.checked = true;
@@ -810,6 +831,8 @@
             videoModalSub.textContent = 'Altere as informações do vídeo.';
             videoUrlInput.value = `https://www.youtube.com/watch?v=${video.youtubeId}`;
             videoTitleInput.value = video.titulo || '';
+            videoProdutoraInput.value = video.produtora || '';
+            videoAnoInput.value = video.ano != null ? String(video.ano) : '';
             videoLangInput.value = video.lang || '';
             const currentMarker = video.pago ? 'pago' : (video.ad ? 'ad' : '');
             const markerEl = document.querySelector(`input[name="videoMarker"][value="${currentMarker}"]`);
@@ -836,6 +859,8 @@
     document.getElementById('confirmVideoBtn').addEventListener('click', async () => {
         const urlRaw = videoUrlInput.value.trim();
         const titulo = videoTitleInput.value.trim();
+        const produtora = videoProdutoraInput.value.trim();
+        const anoRaw = videoAnoInput.value.trim();
         const lang = videoLangInput.value;
         const markerEl = document.querySelector('input[name="videoMarker"]:checked');
         const marker = markerEl ? markerEl.value : '';
@@ -844,6 +869,15 @@
 
         if (!urlRaw) { alert('Informe a URL do YouTube.'); return; }
         if (!titulo) { alert('Informe o título.'); return; }
+
+        let ano = null;
+        if (anoRaw) {
+            if (!/^\d{4}$/.test(anoRaw)) {
+                alert('Ano inválido. Use 4 dígitos (ex.: 1950).');
+                return;
+            }
+            ano = parseInt(anoRaw, 10);
+        }
 
         const youtubeId = extractYouTubeId(urlRaw);
         if (!youtubeId) { alert('URL do YouTube inválida.'); return; }
@@ -855,24 +889,21 @@
         }
 
         try {
+            const payload = {
+                youtubeId,
+                titulo,
+                produtora: produtora || null,
+                ano: ano,
+                lang: lang || null,
+                pago: !!pago,
+                ad: !!ad
+            };
             if (videoModalMode === 'add') {
+                payload.order = Date.now();
                 const ref = rtdb.ref('vod_videos').push();
-                await ref.set({
-                    youtubeId,
-                    titulo,
-                    lang: lang || null,
-                    pago: !!pago,
-                    ad: !!ad,
-                    order: Date.now()
-                });
+                await ref.set(payload);
             } else {
-                await rtdb.ref('vod_videos/' + editingVideoKey).update({
-                    youtubeId,
-                    titulo,
-                    lang: lang || null,
-                    pago: !!pago,
-                    ad: !!ad
-                });
+                await rtdb.ref('vod_videos/' + editingVideoKey).update(payload);
             }
             closeVideoModal();
         } catch (err) {
