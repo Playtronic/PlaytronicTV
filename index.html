@@ -217,18 +217,8 @@
             margin-bottom: 12px; display: -webkit-box; -webkit-line-clamp: 2;
             -webkit-box-orient: vertical; overflow: hidden;
             text-align: left;
+            min-height: 2.6em; /* Mantém os cards alinhados */
         }
-
-        /* ==================== SISTEMA DE VOTOS ==================== */
-        .vote-bar { display: flex; align-items: center; justify-content: flex-start; gap: 8px; margin-bottom: 15px; font-size: 0.85rem; }
-        .vote-btn {
-            background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: #a0aec0; padding: 5px 10px;
-            border-radius: 6px; cursor: pointer; font-weight: bold;
-            transition: background 0.2s, color 0.2s, border-color 0.2s; display: flex; align-items: center; gap: 4px;
-        }
-        .vote-btn:hover { background: rgba(255,255,255,0.1); color: #fff; }
-        .vote-btn.like.active { background: #238636; color: #fff; border-color: #238636; }
-        .vote-btn.dislike.active { background: #da3633; color: #fff; border-color: #da3633; }
 
         .watch-btn {
             background: #fdbb2d; color: #000; border: none; padding: 10px;
@@ -254,6 +244,42 @@
         }
         .player-wrapper iframe { width: 100%; height: 100%; display: block; border: none; pointer-events: none; }
 
+        /* ==================== VOTOS NO PLAYER ==================== */
+        .player-vote-container {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            display: flex;
+            gap: 10px;
+            z-index: 50;
+            background: rgba(0, 0, 0, 0.6);
+            padding: 8px 12px;
+            border-radius: 25px;
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(255,255,255,0.1);
+            transition: opacity 0.3s;
+        }
+        
+        .player-vote-btn {
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.15);
+            color: #fff;
+            padding: 6px 12px;
+            border-radius: 15px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s;
+        }
+        .player-vote-btn:hover {
+            background: rgba(255,255,255,0.25);
+        }
+        .player-vote-btn.like.active { background: #2ecc71; border-color: #2ecc71; color: #fff; }
+        .player-vote-btn.dislike.active { background: #e74c3c; border-color: #e74c3c; color: #fff; }
+
         .player-controls {
             position: absolute; bottom: 0; left: 0; right: 0;
             background: linear-gradient(to top, rgba(0,0,0,0.95), transparent);
@@ -261,6 +287,7 @@
             opacity: 0; transition: opacity 0.3s; z-index: 10;
         }
         .player-wrapper:hover .player-controls { opacity: 1; }
+        .player-wrapper:hover .player-vote-container { opacity: 1; }
 
         .control-btn {
             background: rgba(255,255,255,0.15); border: none; color: #fff;
@@ -363,6 +390,13 @@
             .close-player-btn { top: 10px; right: 10px; background: rgba(0,0,0,0.7); }
             .card-title { font-size: 0.9rem; }
             .watch-btn { font-size: 0.85rem; padding: 8px; }
+            
+            .player-vote-container {
+                top: 10px;
+                right: 10px;
+                transform: scale(0.85);
+                transform-origin: top right;
+            }
         }
     </style>
 </head>
@@ -417,6 +451,17 @@
     <div id="playerScreen">
         <div class="player-wrapper">
             <button class="close-player-btn" id="closePlayerBtn" title="Fechar player">&times;</button>
+            
+            <!-- SISTEMA DE VOTOS NO PLAYER -->
+            <div class="player-vote-container" id="playerVoteContainer">
+                <button class="player-vote-btn like" id="playerLikeBtn" title="Curtir">
+                    👍 <span id="playerLikeCount">0</span>
+                </button>
+                <button class="player-vote-btn dislike" id="playerDislikeBtn" title="Descurtir">
+                    👎 <span id="playerDislikeCount">0</span>
+                </button>
+            </div>
+
             <div id="youtubePlayer"></div>
             <div class="player-controls">
                 <button class="control-btn" id="btnRewind10">-10s</button>
@@ -445,6 +490,7 @@
         const rtdb = firebase.database();
 
         const ADMIN_EMAIL = 'playtronicpublisher@mail.com';
+        let currentPlayerVideoId = null; // Guarda o ID do vídeo atual no player
 
         // ============================================================
         // 2. LISTA DE CURTAS
@@ -697,6 +743,9 @@
                     await ref.child(tipo === 'like' ? 'likes' : 'dislikes').transaction((c) => (c || 0) + 1);
                 }
                 await atualizarCardUI(videoId);
+                if (currentPlayerVideoId === videoId) {
+                    atualizarPlayerUI(videoId);
+                }
             } catch (e) {
                 console.error('Erro ao votar:', e);
             }
@@ -709,13 +758,38 @@
             const nota = await calcularNota(videoId);
             const badge = card.querySelector('.rating-badge');
             if (badge) badge.textContent = `⭐ ${nota}`;
-
-            const userVote = await getUserVote(videoId);
-            const likeBtn = card.querySelector('.vote-btn.like');
-            const dislikeBtn = card.querySelector('.vote-btn.dislike');
-            if (likeBtn) likeBtn.classList.toggle('active', userVote === 'like');
-            if (dislikeBtn) dislikeBtn.classList.toggle('active', userVote === 'dislike');
         }
+
+        async function atualizarPlayerUI(videoId) {
+            const likeBtn = document.getElementById('playerLikeBtn');
+            const dislikeBtn = document.getElementById('playerDislikeBtn');
+            const likeCount = document.getElementById('playerLikeCount');
+            const dislikeCount = document.getElementById('playerDislikeCount');
+
+            if (!likeBtn || !dislikeBtn) return;
+
+            try {
+                const snap = await getVotesRef(videoId).once('value');
+                const data = snap.exists() ? snap.val() : {};
+                likeCount.textContent = data.likes || 0;
+                dislikeCount.textContent = data.dislikes || 0;
+
+                const userVote = await getUserVote(videoId);
+                likeBtn.classList.toggle('active', userVote === 'like');
+                dislikeBtn.classList.toggle('active', userVote === 'dislike');
+            } catch (e) {
+                likeCount.textContent = '0';
+                dislikeCount.textContent = '0';
+            }
+        }
+
+        // Eventos dos botões de voto no player
+        document.getElementById('playerLikeBtn').addEventListener('click', () => {
+            if (currentPlayerVideoId) votar(currentPlayerVideoId, 'like');
+        });
+        document.getElementById('playerDislikeBtn').addEventListener('click', () => {
+            if (currentPlayerVideoId) votar(currentPlayerVideoId, 'dislike');
+        });
 
         async function editarPoster(videoId, titulo, imgElement) {
             const urlAtual = imgElement.src;
@@ -792,6 +866,7 @@
                 const posterUrl = customPosters[item.id] || defaultPoster;
                 const isFav = localStorage.getItem(`fav_${item.id}`) === 'true';
 
+                // Cards limpos: Apenas Imagem, Estrela, Favorito, Título e Assistir
                 card.innerHTML = `
                     <div class="card-poster">
                         <img src="${posterUrl}" alt="Capa de ${item.titulo}" loading="lazy" id="poster-${item.id}">
@@ -803,10 +878,6 @@
                     </div>
                     <div class="card-info">
                         <h3 class="card-title">${item.titulo}</h3>
-                        <div class="vote-bar">
-                            <button class="vote-btn like" data-id="${item.id}" title="Curtir">👍 <span class="like-count">0</span></button>
-                            <button class="vote-btn dislike" data-id="${item.id}" title="Descurtir">👎 <span class="dislike-count">0</span></button>
-                        </div>
                         <button class="watch-btn">▶ Assistir</button>
                     </div>
                 `;
@@ -819,13 +890,6 @@
                     localStorage.setItem(`fav_${item.id}`, isFav);
                 });
 
-                card.querySelector('.vote-btn.like').addEventListener('click', (e) => {
-                    e.stopPropagation(); votar(item.id, 'like');
-                });
-                card.querySelector('.vote-btn.dislike').addEventListener('click', (e) => {
-                    e.stopPropagation(); votar(item.id, 'dislike');
-                });
-
                 card.querySelector('.edit-poster-btn').addEventListener('click', (e) => {
                     e.stopPropagation();
                     const imgEl = card.querySelector(`#poster-${item.id}`);
@@ -835,7 +899,7 @@
                 card.querySelector('.watch-btn').addEventListener('click', () => openPlayer(item));
 
                 catalogGrid.appendChild(card);
-                atualizarCardUI(item.id);
+                atualizarCardUI(item.id); // Carrega a estrela apenas
             });
         }
 
@@ -865,6 +929,9 @@
             if (player) { player.destroy(); player = null; }
             playerReady = false;
 
+            currentPlayerVideoId = curta.id;
+            atualizarPlayerUI(curta.id); // Carrega os votos para o player
+
             const container = document.getElementById('youtubePlayer');
             container.innerHTML = '<div id="ytPlayerDiv"></div>';
 
@@ -893,6 +960,7 @@
             if (progressInterval) { clearInterval(progressInterval); progressInterval = null; }
             if (player) { player.destroy(); player = null; }
             playerReady = false;
+            currentPlayerVideoId = null;
             playerScreen.classList.remove('active');
             document.body.style.overflow = '';
             progressFill.style.width = '0%';
