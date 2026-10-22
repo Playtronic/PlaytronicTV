@@ -220,24 +220,26 @@
         .player-vote-btn.like.active { background: #2ecc71; border-color: #2ecc71; color: #fff; }
         .player-vote-btn.dislike.active { background: #e74c3c; border-color: #e74c3c; color: #fff; }
 
-        /* Botão Central Play/Pause */
+        /* Botão Central Play/Pause - SEM TRANSPARÊNCIA */
         .center-play-btn {
             position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
             width: 80px; height: 80px; border-radius: 50%;
-            background: rgba(0, 0, 0, 0.6); border: 2px solid rgba(255, 255, 255, 0.4);
+            background: #000000; /* Preto sólido */
+            border: 2px solid #ffffff; /* Borda branca sólida */
             color: #fff; font-size: 2.2rem; display: flex; align-items: center; justify-content: center;
             cursor: pointer; z-index: 25; pointer-events: auto;
             transition: opacity 0.3s ease, transform 0.3s ease, background 0.2s;
-            padding-left: 6px; /* Ajuste para o ícone de play ficar centralizado visualmente */
+            padding-left: 6px; 
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.8);
         }
         .center-play-btn:hover {
-            background: rgba(253, 187, 45, 0.9);
-            color: #000;
+            background: #fdbb2d; /* Amarelo sólido */
+            color: #000; 
             border-color: #fdbb2d;
             transform: translate(-50%, -50%) scale(1.1);
         }
         .center-play-btn.playing-state {
-            padding-left: 0; /* Ajuste para o ícone de pause */
+            padding-left: 0; 
         }
 
         /* Barra de Controles Embaixo */
@@ -377,7 +379,6 @@
                 <button class="center-play-btn" id="centerPlayPauseBtn" title="Play/Pause">▶</button>
                 
                 <div class="player-controls">
-                    <!-- Play/Pause removido daqui -->
                     <button class="control-btn" id="btnRewind10" title="-10s">-10s</button>
                     <button class="control-btn" id="btnForward10" title="+10s">+10s</button>
                     
@@ -929,7 +930,15 @@
         }
 
         playerWrapper.addEventListener('mousemove', showControls);
-        playerWrapper.addEventListener('mouseleave', hideControls);
+        
+        // MOUSE LEAVE: Esconde instantaneamente se NÃO estiver em tela cheia
+        playerWrapper.addEventListener('mouseleave', () => {
+            if (!document.fullscreenElement) {
+                hideControls(); // Instantâneo
+            } else {
+                resetControlsTimer(); // Em tela cheia, espera os 5.5s normais
+            }
+        });
 
         // Clique na área do player (fora dos botões) alterna o Play/Pause
         playerWrapper.addEventListener('click', (e) => {
