@@ -137,7 +137,6 @@
         /* ==================== PLAYER ==================== */
         #playerScreen {
             position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-            /* Mesmo background do site com um leve blur para destacar o player */
             background: linear-gradient(135deg, rgba(11, 15, 25, 0.95) 0%, rgba(26, 26, 46, 0.95) 50%, rgba(22, 33, 62, 0.95) 100%);
             backdrop-filter: blur(10px);
             -webkit-backdrop-filter: blur(10px);
@@ -150,27 +149,24 @@
             width: 95%; max-width: 1200px; aspect-ratio: 16 / 9; background: #000;
             border-radius: 12px; overflow: hidden; position: relative;
             box-shadow: 0 20px 50px rgba(0,0,0,0.8);
-            /* Borda branca removida */
         }
         
-        /* Sombra no topo do player para contraste */
+        /* Sombra Reforçada no topo */
         .player-wrapper::before {
             content: '';
             position: absolute; top: 0; left: 0; right: 0;
-            height: 120px;
-            background: linear-gradient(to bottom, rgba(0,0,0,0.8) 0%, transparent 100%);
-            z-index: 10;
-            pointer-events: none;
+            height: 150px;
+            background: linear-gradient(to bottom, rgba(0,0,0,0.95) 0%, transparent 100%);
+            z-index: 10; pointer-events: none;
         }
 
-        /* Sombra na base do player para contraste */
+        /* Sombra Reforçada na base */
         .player-wrapper::after {
             content: '';
             position: absolute; bottom: 0; left: 0; right: 0;
-            height: 120px;
-            background: linear-gradient(to top, rgba(0,0,0,0.9) 0%, transparent 100%);
-            z-index: 10;
-            pointer-events: none;
+            height: 180px;
+            background: linear-gradient(to top, rgba(0,0,0,0.95) 0%, transparent 100%);
+            z-index: 10; pointer-events: none;
         }
         
         .player-wrapper iframe { 
@@ -178,20 +174,26 @@
             position: absolute; top: 0; left: 0; z-index: 1;
         }
 
-        /* Botão Fechar no Topo Esquerdo */
+        /* Classe para ocultar os controles */
+        .player-ui-hidden {
+            opacity: 0 !important;
+            pointer-events: none !important;
+        }
+
+        /* Botão Fechar */
         .close-player-btn {
-            position: absolute; top: 15px; left: 15px; background: rgba(0,0,0,0.4);
-            border: none; color: #fff; width: 40px; height: 40px;
+            position: absolute; top: 15px; left: 15px; background: rgba(0,0,0,0.5);
+            border: 1px solid rgba(255,255,255,0.2); color: #fff; width: 40px; height: 40px;
             border-radius: 50%; font-size: 1.2rem; cursor: pointer; z-index: 20;
-            display: flex; align-items: center; justify-content: center; transition: all 0.2s;
+            display: flex; align-items: center; justify-content: center; transition: all 0.3s ease;
         }
         .close-player-btn:hover { background: #e74c3c; transform: scale(1.1); }
 
         /* Votos no Topo Direito */
         .player-vote-container {
             position: absolute; top: 15px; right: 15px; display: flex; gap: 10px; z-index: 20;
-            background: rgba(0, 0, 0, 0.5); padding: 8px 12px; border-radius: 25px;
-            border: 1px solid rgba(255,255,255,0.1);
+            background: rgba(0, 0, 0, 0.6); padding: 8px 12px; border-radius: 25px;
+            border: 1px solid rgba(255,255,255,0.1); transition: opacity 0.3s ease;
         }
         .player-vote-btn {
             background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.15); color: #fff;
@@ -206,7 +208,7 @@
         .player-controls {
             position: absolute; bottom: 0; left: 0; right: 0;
             padding: 20px 20px 15px; display: flex; align-items: center; gap: 15px;
-            z-index: 20; opacity: 1;
+            z-index: 20; transition: opacity 0.3s ease;
         }
 
         .control-btn {
@@ -225,6 +227,19 @@
             width: 0%; transition: width 0.1s linear;
         }
         .time-label { font-family: monospace; font-size: 0.85rem; color: #ddd; min-width: 100px; text-align: right; }
+
+        /* Controle de Volume */
+        .volume-container {
+            display: flex; align-items: center; gap: 8px;
+        }
+        .volume-slider {
+            -webkit-appearance: none; width: 80px; height: 4px;
+            background: rgba(255,255,255,0.3); border-radius: 2px; outline: none; cursor: pointer;
+        }
+        .volume-slider::-webkit-slider-thumb {
+            -webkit-appearance: none; width: 12px; height: 12px;
+            border-radius: 50%; background: #fdbb2d; cursor: pointer;
+        }
 
         .loading { text-align: center; padding: 60px; color: #fdbb2d; font-size: 1.2rem; font-weight: bold; }
         .empty-state { text-align: center; padding: 60px; color: #a0aec0; font-size: 1.1rem; display: none; }
@@ -255,6 +270,10 @@
             .player-wrapper { width: 100%; border-radius: 0; border-left: none; border-right: none; }
             .player-vote-container { top: 10px; right: 10px; transform: scale(0.85); transform-origin: top right; }
             .close-player-btn { top: 10px; left: 10px; }
+            
+            .volume-slider { width: 50px; }
+            .player-controls { flex-wrap: wrap; gap: 10px; }
+            .progress-track { order: -1; width: 100%; flex: 0 0 100%; margin: 0 0 5px 0; }
         }
     </style>
 </head>
@@ -303,7 +322,7 @@
 
     <!-- PLAYER -->
     <div id="playerScreen">
-        <div class="player-wrapper">
+        <div class="player-wrapper" id="playerWrapper">
             <button class="close-player-btn" id="closePlayerBtn" title="Fechar player">✖</button>
             
             <div class="player-vote-container" id="playerVoteContainer">
@@ -317,10 +336,15 @@
 
             <div id="youtubePlayer"></div>
             
-            <div class="player-controls">
-                <!-- Botão Play/Pause customizado removido -->
+            <div class="player-controls" id="playerControls">
                 <button class="control-btn" id="btnRewind10" title="-10s">-10s</button>
                 <button class="control-btn" id="btnForward10" title="+10s">+10s</button>
+                
+                <!-- CONTROLE DE VOLUME -->
+                <div class="volume-container">
+                    <button class="control-btn" id="muteBtn" title="Mudo">🔊</button>
+                    <input type="range" class="volume-slider" id="volumeSlider" min="0" max="100" value="100">
+                </div>
                 
                 <div class="progress-track" id="progressTrack"><div class="progress-fill" id="progressFill"></div></div>
                 <span class="time-label" id="timeLabel">0:00 / 0:00</span>
@@ -739,17 +763,27 @@
         // 6. LÓGICA DO PLAYER
         // ============================================================
         const playerScreen = document.getElementById('playerScreen');
+        const playerWrapper = document.getElementById('playerWrapper');
         const closePlayerBtn = document.getElementById('closePlayerBtn');
+        const playerControls = document.getElementById('playerControls');
+        const playerVoteContainer = document.getElementById('playerVoteContainer');
         const fullscreenBtn = document.getElementById('fullscreenBtn');
         const btnRewind10 = document.getElementById('btnRewind10');
         const btnForward10 = document.getElementById('btnForward10');
         const progressFill = document.getElementById('progressFill');
         const progressTrack = document.getElementById('progressTrack');
         const timeLabel = document.getElementById('timeLabel');
+        
+        // Controles de Volume
+        const muteBtn = document.getElementById('muteBtn');
+        const volumeSlider = document.getElementById('volumeSlider');
 
         let player = null;
         let playerReady = false;
         let progressInterval = null;
+        let controlsTimeout = null;
+        let isMuted = false;
+        let currentVolume = 100;
 
         window.onYouTubeIframeAPIReady = function() {
             console.log('YouTube API pronta');
@@ -764,6 +798,7 @@
 
             currentPlayerVideoId = curta.id;
             atualizarPlayerUI(curta.id);
+            resetControlsTimer(); // Inicia o timer para esconder os controles
 
             const container = document.getElementById('youtubePlayer');
             container.innerHTML = '<div id="ytPlayerDiv" style="width:100%; height:100%;"></div>';
@@ -771,8 +806,15 @@
             player = new YT.Player('ytPlayerDiv', {
                 height: '100%', width: '100%', videoId: curta.id,
                 playerVars: {
-                    'autoplay': 1, 'controls': 0, 'modestbranding': 1, 'rel': 0,
-                    'showinfo': 0, 'iv_load_policy': 3, 'playsinline': 1, 'cc_load_policy': 0, 'fs': 0
+                    'autoplay': 1, 
+                    'controls': 0, 
+                    'modestbranding': 1, 
+                    'rel': 0,
+                    'showinfo': 0, 
+                    'iv_load_policy': 3, 
+                    'playsinline': 1, 
+                    'cc_load_policy': 0, // Desabilita legendas
+                    'fs': 0
                 },
                 events: {
                     'onReady': onPlayerReady,
@@ -785,12 +827,100 @@
             playerReady = true;
             event.target.playVideo();
             startProgressTracker();
+            
+            // Ajusta o volume inicial
+            event.target.setVolume(currentVolume);
+            updateVolumeUI(currentVolume);
+            
+            // Força a remoção de legendas
+            removeCaptions(event.target);
         }
 
         function onPlayerStateChange(event) {
-            // Como removemos o botão customizado, o YouTube lida com o Play/Pause central
+            // Remove legendas toda vez que o vídeo começar a tocar ou der buffer
+            if (event.data === 1 || event.data === 3) {
+                removeCaptions(event.target);
+            }
         }
 
+        function removeCaptions(target) {
+            try {
+                target.unloadModule('captions');
+                target.unloadModule('cc');
+                target.setOption('captions', 'track', {});
+                target.setOption('cc', 'track', {});
+            } catch (e) {
+                // Ignora erros se o módulo não existir
+            }
+        }
+
+        // ==================== CONTROLES DE VISIBILIDADE ====================
+        function showControls() {
+            playerControls.classList.remove('player-ui-hidden');
+            playerVoteContainer.classList.remove('player-ui-hidden');
+            closePlayerBtn.classList.remove('player-ui-hidden');
+            resetControlsTimer();
+        }
+
+        function hideControls() {
+            // Não esconde se o mouse estiver em cima dos controles (opcional)
+            playerControls.classList.add('player-ui-hidden');
+            playerVoteContainer.classList.add('player-ui-hidden');
+            closePlayerBtn.classList.add('player-ui-hidden');
+        }
+
+        function resetControlsTimer() {
+            clearTimeout(controlsTimeout);
+            controlsTimeout = setTimeout(hideControls, 3000); // 3 segundos
+        }
+
+        // Eventos de mouse para mostrar/esconder controles
+        playerWrapper.addEventListener('mousemove', showControls);
+        playerWrapper.addEventListener('mouseleave', hideControls);
+
+        // ==================== CONTROLES DE VOLUME ====================
+        function updateVolumeUI(val) {
+            volumeSlider.value = val;
+            if (val == 0) {
+                muteBtn.textContent = '🔇';
+                isMuted = true;
+            } else if (val < 50) {
+                muteBtn.textContent = '🔈';
+                isMuted = false;
+            } else {
+                muteBtn.textContent = '🔊';
+                isMuted = false;
+            }
+        }
+
+        muteBtn.addEventListener('click', () => {
+            if (!playerReady || !player) return;
+            if (isMuted) {
+                player.unMute();
+                player.setVolume(currentVolume);
+                updateVolumeUI(currentVolume);
+            } else {
+                player.mute();
+                updateVolumeUI(0);
+            }
+        });
+
+        volumeSlider.addEventListener('input', (e) => {
+            if (!playerReady || !player) return;
+            const val = parseInt(e.target.value);
+            if (val > 0) currentVolume = val;
+            
+            if (val == 0) {
+                player.mute();
+            } else {
+                player.unMute();
+                player.setVolume(val);
+            }
+            updateVolumeUI(val);
+            resetControlsTimer();
+        });
+
+        // ==================== OUTROS CONTROLES ====================
         function closePlayer() {
             if (progressInterval) { clearInterval(progressInterval); progressInterval = null; }
             if (player) { player.destroy(); player = null; }
@@ -800,20 +930,20 @@
             document.body.style.overflow = '';
             progressFill.style.width = '0%';
             timeLabel.textContent = '0:00 / 0:00';
+            clearTimeout(controlsTimeout);
         }
 
         closePlayerBtn.addEventListener('click', closePlayer);
         
         // Fullscreen
         fullscreenBtn.addEventListener('click', () => {
-            const wrapper = document.querySelector('.player-wrapper');
             if (!document.fullscreenElement) {
-                if (wrapper.requestFullscreen) {
-                    wrapper.requestFullscreen();
-                } else if (wrapper.webkitRequestFullscreen) {
-                    wrapper.webkitRequestFullscreen();
-                } else if (wrapper.msRequestFullscreen) {
-                    wrapper.msRequestFullscreen();
+                if (playerWrapper.requestFullscreen) {
+                    playerWrapper.requestFullscreen();
+                } else if (playerWrapper.webkitRequestFullscreen) {
+                    playerWrapper.webkitRequestFullscreen();
+                } else if (playerWrapper.msRequestFullscreen) {
+                    playerWrapper.msRequestFullscreen();
                 }
             } else {
                 if (document.exitFullscreen) {
@@ -824,6 +954,7 @@
                     document.msExitFullscreen();
                 }
             }
+            showControls();
         });
 
         document.addEventListener('keydown', (e) => {
@@ -858,11 +989,13 @@
         btnForward10.addEventListener('click', () => {
             if (!playerReady || !player || typeof player.seekTo !== 'function') return;
             player.seekTo(Math.min(player.getDuration(), player.getCurrentTime() + 10), true);
+            resetControlsTimer();
         });
 
         btnRewind10.addEventListener('click', () => {
             if (!playerReady || !player || typeof player.seekTo !== 'function') return;
             player.seekTo(Math.max(0, player.getCurrentTime() - 10), true);
+            resetControlsTimer();
         });
 
         progressTrack.addEventListener('click', (e) => {
@@ -870,6 +1003,7 @@
             const rect = progressTrack.getBoundingClientRect();
             const percent = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
             player.seekTo(percent * player.getDuration(), true);
+            resetControlsTimer();
         });
 
         document.addEventListener('DOMContentLoaded', initApp);
