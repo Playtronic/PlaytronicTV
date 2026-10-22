@@ -63,29 +63,28 @@
         .user-email { font-size: 0.8rem; color: #aaa; margin-bottom: 10px; }
         .logout-btn { background: #e74c3c; color: #fff; border: none; padding: 8px; border-radius: 6px; cursor: pointer; font-weight: bold; }
 
-        /* ==================== GRID DE CARDS (FORMATO RETANGULAR) ==================== */
+        /* ==================== GRID DE CARDS (FORMATO RETANGULAR FORÇADO) ==================== */
         .catalog-grid {
             display: grid;
-            /* 200px de largura para caber bem o formato 16:9 */
-            grid-template-columns: repeat(auto-fill, 200px);
-            justify-content: center; 
-            gap: 20px; 
+            grid-template-columns: repeat(auto-fill, 200px) !important;
+            justify-content: center !important; 
+            gap: 20px !important; 
             max-width: 1400px; 
             margin: 0 auto;
         }
         .card {
             background: #141414; 
-            border-radius: 10px; /* Arredondamento sutil */
+            border-radius: 10px !important;
             overflow: hidden;
             transition: transform 0.3s ease, box-shadow 0.3s ease;
             display: flex; flex-direction: column; position: relative;
-            width: 200px; 
+            width: 200px !important; 
         }
         .card:hover { transform: translateY(-4px); box-shadow: 0 8px 20px rgba(0,0,0,0.8); }
         
         .card-poster {
             position: relative; width: 100%; 
-            aspect-ratio: 16 / 9; /* Formato retangular igual YouTube */
+            aspect-ratio: 16 / 9 !important; /* FORÇANDO RETANGULAR */
             overflow: hidden; background: #222;
         }
         .card-poster img {
@@ -211,9 +210,8 @@
 
         @media (max-width: 600px) {
             .header { flex-direction: column; gap: 15px; text-align: center; }
-            /* Cards um pouco menores no celular, mas mantendo o 16:9 */
-            .catalog-grid { grid-template-columns: repeat(auto-fill, 160px); gap: 15px; }
-            .card { width: 160px; }
+            .catalog-grid { grid-template-columns: repeat(auto-fill, 160px) !important; gap: 15px !important; }
+            .card { width: 160px !important; }
             .player-wrapper { width: 100%; border-radius: 0; }
         }
     </style>
@@ -224,7 +222,8 @@
         <div class="header">
             <div class="header-title">
                 <h1>Playtronic TV</h1>
-                <p>Clássicos da Animação. Favorite, vote e assista quando quiser.</p>
+                <!-- AQUI ESTÁ A PROVA DE QUE O CÓDIGO NOVO CARREGOU -->
+                <p style="color: #2ecc71; font-weight: bold; font-size: 1.2rem;">VERSÃO 2.0 - FORMATO RETANGULAR 16:9</p>
             </div>
             <div class="auth-area">
                 <button class="login-btn" id="loginBtn">
