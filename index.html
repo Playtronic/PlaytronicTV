@@ -3,7 +3,6 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- Título limpo, sem descrição -->
     <title>Playtronic TV</title>
     
     <!-- FAVICON MANTIDO -->
@@ -38,7 +37,7 @@
         .header {
             position: fixed;
             top: 0; left: 0; width: 100%;
-            height: 110px; /* Mantido o mesmo tamanho da barra */
+            height: 110px; 
             display: flex;
             align-items: center;
             justify-content: space-between;
@@ -49,25 +48,19 @@
             border-bottom: 1px solid rgba(255,255,255,0.08);
             z-index: 1000;
             box-shadow: 0 4px 20px rgba(0,0,0,0.4);
-            /* Permite que a logo vaze um pouco sem ser cortada */
-            overflow: visible; 
         }
 
         .header-brand {
             display: flex;
             align-items: center;
-            width: 250px;
+            width: 350px; /* Aumentado para dar espaço à logo maior */
         }
 
-        /* Logo aumentada em 50% (80px -> 120px) */
+        /* Logo Maior e sem limitação de largura */
         .header-logo {
-            height: 120px; 
+            height: 80px; 
             width: auto;
-            max-width: 100%;
             object-fit: contain;
-            /* Centraliza verticalmente caso vaze */
-            position: relative;
-            top: 0;
         }
 
         /* ==================== CAMPO DE BUSCA ==================== */
@@ -281,9 +274,9 @@
 
         /* ==================== MEDIA QUERIES ==================== */
         @media (max-width: 900px) {
-            .header { flex-wrap: wrap; height: auto; padding: 15px; gap: 15px; overflow: hidden; }
+            .header { flex-wrap: wrap; height: auto; padding: 15px; gap: 15px; }
             .header-brand { width: 100%; justify-content: center; }
-            .header-logo { height: 70px; } /* Reduz no mobile para não quebrar */
+            .header-logo { height: 60px; } /* Reduz no mobile */
             .search-container { width: 100%; max-width: 100%; margin: 0; order: 3; }
             .auth-area { position: absolute; top: 15px; right: 15px; width: auto; }
             body { padding-top: 180px; }
