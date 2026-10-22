@@ -151,27 +151,27 @@
             box-shadow: 0 20px 50px rgba(0,0,0,0.8);
         }
         
-        /* Sombra no topo */
+        /* Sombra MUITO MAIS INTENSA NO TOPO */
         .player-wrapper::before {
             content: '';
             position: absolute; top: 0; left: 0; right: 0;
-            height: 150px;
-            background: linear-gradient(to bottom, rgba(0,0,0,0.95) 0%, transparent 100%);
-            z-index: 10; pointer-events: none;
+            height: 200px;
+            background: linear-gradient(to bottom, rgba(0,0,0,1) 0%, rgba(0,0,0,0.7) 40%, transparent 100%);
+            z-index: 5; pointer-events: none;
             transition: opacity 0.3s ease;
         }
 
-        /* Sombra na base */
+        /* Sombra MUITO MAIS INTENSA NA BASE */
         .player-wrapper::after {
             content: '';
             position: absolute; bottom: 0; left: 0; right: 0;
-            height: 180px;
-            background: linear-gradient(to top, rgba(0,0,0,0.95) 0%, transparent 100%);
-            z-index: 10; pointer-events: none;
+            height: 250px;
+            background: linear-gradient(to top, rgba(0,0,0,1) 0%, rgba(0,0,0,0.8) 40%, transparent 100%);
+            z-index: 5; pointer-events: none;
             transition: opacity 0.3s ease;
         }
         
-        /* CLASSE ESPECÍFICA PARA ESCONDER AS SOMBRAS (SEM AFETAR O VÍDEO) */
+        /* CLASSE PARA ESCONDER AS SOMBRAS */
         .player-wrapper.hide-shadows::before,
         .player-wrapper.hide-shadows::after {
             opacity: 0;
@@ -182,26 +182,34 @@
             position: absolute; top: 0; left: 0; z-index: 1;
         }
 
-        /* Classe para ocultar os CONTROLES (botões) */
-        .player-ui-hidden {
+        /* ==================== WRAPPER DE TODOS OS CONTROLES ==================== */
+        .custom-ui {
+            position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+            z-index: 20; pointer-events: none;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+
+        /* Quando essa classe é ativada, TUDO dentro do custom-ui desaparece */
+        .custom-ui.player-ui-hidden {
             opacity: 0 !important;
-            pointer-events: none !important;
+            visibility: hidden !important;
         }
 
         /* Botão Fechar */
         .close-player-btn {
             position: absolute; top: 15px; left: 15px; background: rgba(0,0,0,0.5);
             border: 1px solid rgba(255,255,255,0.2); color: #fff; width: 40px; height: 40px;
-            border-radius: 50%; font-size: 1.2rem; cursor: pointer; z-index: 20;
+            border-radius: 50%; font-size: 1.2rem; cursor: pointer;
             display: flex; align-items: center; justify-content: center; transition: all 0.3s ease;
+            pointer-events: auto;
         }
         .close-player-btn:hover { background: #e74c3c; transform: scale(1.1); }
 
         /* Votos no Topo Direito */
         .player-vote-container {
-            position: absolute; top: 15px; right: 15px; display: flex; gap: 10px; z-index: 20;
+            position: absolute; top: 15px; right: 15px; display: flex; gap: 10px;
             background: rgba(0, 0, 0, 0.6); padding: 8px 12px; border-radius: 25px;
-            border: 1px solid rgba(255,255,255,0.1); transition: opacity 0.3s ease;
+            border: 1px solid rgba(255,255,255,0.1); pointer-events: auto;
         }
         .player-vote-btn {
             background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.15); color: #fff;
@@ -216,7 +224,7 @@
         .player-controls {
             position: absolute; bottom: 0; left: 0; right: 0;
             padding: 20px 20px 15px; display: flex; align-items: center; gap: 15px;
-            z-index: 20; transition: opacity 0.3s ease;
+            pointer-events: auto;
         }
 
         .control-btn {
@@ -331,34 +339,37 @@
     <!-- PLAYER -->
     <div id="playerScreen">
         <div class="player-wrapper" id="playerWrapper">
-            <button class="close-player-btn" id="closePlayerBtn" title="Fechar player">✖</button>
             
-            <div class="player-vote-container" id="playerVoteContainer">
-                <button class="player-vote-btn like" id="playerLikeBtn" title="Curtir">
-                    👍 <span id="playerLikeCount">0</span>
-                </button>
-                <button class="player-vote-btn dislike" id="playerDislikeBtn" title="Descurtir">
-                    👎 <span id="playerDislikeCount">0</span>
-                </button>
+            <!-- WRAPPER DE CONTROLES UNIFICADO -->
+            <div class="custom-ui" id="customUI">
+                <button class="close-player-btn" id="closePlayerBtn" title="Fechar player">✖</button>
+                
+                <div class="player-vote-container">
+                    <button class="player-vote-btn like" id="playerLikeBtn" title="Curtir">
+                        👍 <span id="playerLikeCount">0</span>
+                    </button>
+                    <button class="player-vote-btn dislike" id="playerDislikeBtn" title="Descurtir">
+                        👎 <span id="playerDislikeCount">0</span>
+                    </button>
+                </div>
+                
+                <div class="player-controls">
+                    <button class="control-btn" id="btnRewind10" title="-10s">-10s</button>
+                    <button class="control-btn" id="btnForward10" title="+10s">+10s</button>
+                    
+                    <div class="volume-container">
+                        <button class="control-btn" id="muteBtn" title="Mudo">🔊</button>
+                        <input type="range" class="volume-slider" id="volumeSlider" min="0" max="100" value="100">
+                    </div>
+                    
+                    <div class="progress-track" id="progressTrack"><div class="progress-fill" id="progressFill"></div></div>
+                    <span class="time-label" id="timeLabel">0:00 / 0:00</span>
+                    
+                    <button class="control-btn" id="fullscreenBtn" title="Tela Cheia">⛶</button>
+                </div>
             </div>
 
             <div id="youtubePlayer"></div>
-            
-            <div class="player-controls" id="playerControls">
-                <button class="control-btn" id="btnRewind10" title="-10s">-10s</button>
-                <button class="control-btn" id="btnForward10" title="+10s">+10s</button>
-                
-                <!-- CONTROLE DE VOLUME -->
-                <div class="volume-container">
-                    <button class="control-btn" id="muteBtn" title="Mudo">🔊</button>
-                    <input type="range" class="volume-slider" id="volumeSlider" min="0" max="100" value="100">
-                </div>
-                
-                <div class="progress-track" id="progressTrack"><div class="progress-fill" id="progressFill"></div></div>
-                <span class="time-label" id="timeLabel">0:00 / 0:00</span>
-                
-                <button class="control-btn" id="fullscreenBtn" title="Tela Cheia">⛶</button>
-            </div>
         </div>
     </div>
 
@@ -772,9 +783,7 @@
         // ============================================================
         const playerScreen = document.getElementById('playerScreen');
         const playerWrapper = document.getElementById('playerWrapper');
-        const closePlayerBtn = document.getElementById('closePlayerBtn');
-        const playerControls = document.getElementById('playerControls');
-        const playerVoteContainer = document.getElementById('playerVoteContainer');
+        const customUI = document.getElementById('customUI'); // Pega o wrapper de todos os controles
         const fullscreenBtn = document.getElementById('fullscreenBtn');
         const btnRewind10 = document.getElementById('btnRewind10');
         const btnForward10 = document.getElementById('btnForward10');
@@ -806,7 +815,11 @@
 
             currentPlayerVideoId = curta.id;
             atualizarPlayerUI(curta.id);
-            resetControlsTimer(); // Inicia o timer para esconder os controles
+            
+            // MOSTRA OS CONTROLES AO ABRIR
+            customUI.classList.remove('player-ui-hidden');
+            playerWrapper.classList.remove('hide-shadows');
+            resetControlsTimer(); 
 
             const container = document.getElementById('youtubePlayer');
             container.innerHTML = '<div id="ytPlayerDiv" style="width:100%; height:100%;"></div>';
@@ -864,18 +877,14 @@
 
         // ==================== CONTROLES DE VISIBILIDADE ====================
         function showControls() {
-            playerControls.classList.remove('player-ui-hidden');
-            playerVoteContainer.classList.remove('player-ui-hidden');
-            closePlayerBtn.classList.remove('player-ui-hidden');
-            playerWrapper.classList.remove('hide-shadows'); // MOSTRA AS SOMBRAS
+            customUI.classList.remove('player-ui-hidden'); // Mostra TUDO junto
+            playerWrapper.classList.remove('hide-shadows'); // Mostra as sombras
             resetControlsTimer();
         }
 
         function hideControls() {
-            playerControls.classList.add('player-ui-hidden');
-            playerVoteContainer.classList.add('player-ui-hidden');
-            closePlayerBtn.classList.add('player-ui-hidden');
-            playerWrapper.classList.add('hide-shadows'); // ESCONDE AS SOMBRAS
+            customUI.classList.add('player-ui-hidden'); // Esconde TUDO junto
+            playerWrapper.classList.add('hide-shadows'); // Esconde as sombras
         }
 
         function resetControlsTimer() {
@@ -943,7 +952,7 @@
             clearTimeout(controlsTimeout);
         }
 
-        closePlayerBtn.addEventListener('click', closePlayer);
+        document.getElementById('closePlayerBtn').addEventListener('click', closePlayer);
         
         // Fullscreen
         fullscreenBtn.addEventListener('click', () => {
