@@ -216,7 +216,8 @@
             margin: 0; text-transform: none; letter-spacing: 0;
             font-size: 0.9rem; color: #e2e8f0; cursor: pointer;
         }
-        .modal-checkbox-row input[type="checkbox"] {
+        .modal-checkbox-row input[type="checkbox"],
+        .modal-checkbox-row input[type="radio"] {
             width: 18px; height: 18px; accent-color: #fdbb2d; cursor: pointer;
         }
 
@@ -431,8 +432,9 @@
                 <option value="ENG">ENG</option>
             </select>
             <div class="modal-checkbox-row">
-                <label><input type="checkbox" id="videoPagoInput"> PAGO</label>
-                <label><input type="checkbox" id="videoAdInput"> AD</label>
+                <label><input type="radio" name="videoMarker" value=""> Nenhum</label>
+                <label><input type="radio" name="videoMarker" value="pago"> PAGO</label>
+                <label><input type="radio" name="videoMarker" value="ad"> AD</label>
             </div>
             <div class="modal-actions">
                 <button class="secondary" id="cancelVideoBtn">Cancelar</button>
@@ -713,8 +715,6 @@
             const tags = [];
             if (item.lang === 'BRA') tags.push('<span class="tag tag-bra">BRA</span>');
             if (item.lang === 'ENG') tags.push('<span class="tag tag-eng">ENG</span>');
-            if (item.pago) tags.push('<span class="tag tag-pago">PAGO</span>');
-            if (item.ad) tags.push('<span class="tag tag-ad">AD</span>');
             const tagsHtml = tags.length ? `<div class="card-tags">${tags.join('')}</div>` : '<div class="card-tags"></div>';
 
             card.innerHTML = `
@@ -775,8 +775,6 @@
     const videoUrlInput = document.getElementById('videoUrlInput');
     const videoTitleInput = document.getElementById('videoTitleInput');
     const videoLangInput = document.getElementById('videoLangInput');
-    const videoPagoInput = document.getElementById('videoPagoInput');
-    const videoAdInput = document.getElementById('videoAdInput');
     const urlHint = document.getElementById('urlHint');
 
     videoUrlInput.addEventListener('input', () => {
@@ -803,8 +801,8 @@
             videoUrlInput.value = '';
             videoTitleInput.value = '';
             videoLangInput.value = '';
-            videoPagoInput.checked = false;
-            videoAdInput.checked = false;
+            const noneMarker = document.querySelector('input[name="videoMarker"][value=""]');
+            if (noneMarker) noneMarker.checked = true;
             urlHint.textContent = '';
             urlHint.className = 'url-hint';
         } else {
@@ -813,8 +811,9 @@
             videoUrlInput.value = `https://www.youtube.com/watch?v=${video.youtubeId}`;
             videoTitleInput.value = video.titulo || '';
             videoLangInput.value = video.lang || '';
-            videoPagoInput.checked = !!video.pago;
-            videoAdInput.checked = !!video.ad;
+            const currentMarker = video.pago ? 'pago' : (video.ad ? 'ad' : '');
+            const markerEl = document.querySelector(`input[name="videoMarker"][value="${currentMarker}"]`);
+            if (markerEl) markerEl.checked = true;
             urlHint.textContent = `ID atual: ${video.youtubeId}`;
             urlHint.className = 'url-hint ok';
         }
@@ -838,8 +837,10 @@
         const urlRaw = videoUrlInput.value.trim();
         const titulo = videoTitleInput.value.trim();
         const lang = videoLangInput.value;
-        const pago = videoPagoInput.checked;
-        const ad = videoAdInput.checked;
+        const markerEl = document.querySelector('input[name="videoMarker"]:checked');
+        const marker = markerEl ? markerEl.value : '';
+        const pago = marker === 'pago';
+        const ad = marker === 'ad';
 
         if (!urlRaw) { alert('Informe a URL do YouTube.'); return; }
         if (!titulo) { alert('Informe o título.'); return; }
