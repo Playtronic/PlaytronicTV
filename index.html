@@ -501,6 +501,52 @@
     let currentPlayerVideoId = null;
     let videoModalMode = 'add';
     let editingVideoKey = null;
+    let favoritesRef = null;
+    let userFavorites = {};
+
+    function updateAllFavoritesUI() {
+        document.querySelectorAll('.card').forEach(card => {
+            const videoId = card.dataset.ytid;
+            if (!videoId) return;
+            const favBtn = card.querySelector('.favorite-btn');
+            if (!favBtn) return;
+            const isFav = !!userFavorites[videoId];
+            favBtn.classList.toggle('active', isFav);
+            favBtn.textContent = isFav ? '❤️' : '🤍';
+            favBtn.title = isFav ? 'Remover dos favoritos' : 'Adicionar aos favoritos';
+        });
+    }
+
+    async function toggleFavorite(videoId) {
+        if (!currentUser) {
+            try {
+                const provider = new firebase.auth.GoogleAuthProvider();
+                provider.addScope('profile');
+                provider.addScope('email');
+                provider.setCustomParameters({ prompt: 'select_account' });
+                const result = await auth.signInWithPopup(provider);
+                const uid = result.user.uid;
+                const ref = rtdb.ref('vod_favorites/' + uid + '/' + videoId);
+                await ref.set(true);
+            } catch (err) {
+                if (err.code !== 'auth/popup-closed-by-user' && err.code !== 'auth/cancelled-popup-request') {
+                    alert('Erro ao entrar/favoritar: ' + err.message);
+                }
+            }
+            return;
+        }
+        const ref = rtdb.ref('vod_favorites/' + currentUser.uid + '/' + videoId);
+        try {
+            const isFav = !!userFavorites[videoId];
+            if (isFav) {
+                await ref.remove();
+            } else {
+                await ref.set(true);
+            }
+        } catch (err) {
+            alert('Erro ao favoritar: ' + err.message);
+        }
+    }
 
     function isAdmin() {
         return currentUser && currentUser.email === ADMIN_EMAIL;
@@ -569,6 +615,13 @@
 
     auth.onAuthStateChanged((user) => {
         currentUser = user;
+
+        if (favoritesRef) {
+            favoritesRef.off();
+            favoritesRef = null;
+        }
+        userFavorites = {};
+
         if (user) {
             loginBtn.style.display = 'none';
             userInfo.classList.add('active');
@@ -581,6 +634,12 @@
             } else {
                 document.body.classList.remove('is-admin');
             }
+
+            favoritesRef = rtdb.ref('vod_favorites/' + user.uid);
+            favoritesRef.on('value', (snap) => {
+                userFavorites = snap.val() || {};
+                updateAllFavoritesUI();
+            });
         } else {
             loginBtn.style.display = 'flex';
             userInfo.classList.remove('active');
@@ -721,7 +780,7 @@
             const ytid = escapeHtml(item.youtubeId);
             const titulo = escapeHtml(item.titulo || '');
             const posterUrl = `https://img.youtube.com/vi/${ytid}/mqdefault.jpg`;
-            const isFav = localStorage.getItem(`fav_${item.youtubeId}`) === 'true';
+            const isFav = !!userFavorites[item.youtubeId];
 
             const tags = [];
             if (item.lang === 'BRA') tags.push('<span class="tag tag-bra">BRA</span>');
@@ -755,9 +814,7 @@
             const favBtn = card.querySelector('.favorite-btn');
             favBtn.addEventListener('click', (e) => {
                 e.stopPropagation();
-                const isFavNow = favBtn.classList.toggle('active');
-                favBtn.textContent = isFavNow ? '❤️' : '🤍';
-                localStorage.setItem(`fav_${item.youtubeId}`, isFavNow);
+                toggleFavorite(item.youtubeId);
             });
 
             card.querySelector('.edit').addEventListener('click', (e) => {
