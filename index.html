@@ -151,22 +151,32 @@
             box-shadow: 0 20px 50px rgba(0,0,0,0.8);
         }
         
+        /* Sombra no topo com transição */
         .player-wrapper::before {
             content: '';
             position: absolute; top: 0; left: 0; right: 0;
             height: 150px;
             background: linear-gradient(to bottom, rgba(0,0,0,0.95) 0%, transparent 100%);
             z-index: 10; pointer-events: none;
+            transition: opacity 0.3s ease;
         }
 
+        /* Sombra na base com transição */
         .player-wrapper::after {
             content: '';
             position: absolute; bottom: 0; left: 0; right: 0;
             height: 180px;
             background: linear-gradient(to top, rgba(0,0,0,0.95) 0%, transparent 100%);
             z-index: 10; pointer-events: none;
+            transition: opacity 0.3s ease;
         }
         
+        /* Esconde as sombras quando os controles estiverem ocultos */
+        .player-wrapper.player-ui-hidden::before,
+        .player-wrapper.player-ui-hidden::after {
+            opacity: 0;
+        }
+
         .player-wrapper iframe { 
             width: 100%; height: 100%; display: block; border: none; 
             position: absolute; top: 0; left: 0; z-index: 1;
@@ -857,6 +867,7 @@
             playerControls.classList.remove('player-ui-hidden');
             playerVoteContainer.classList.remove('player-ui-hidden');
             closePlayerBtn.classList.remove('player-ui-hidden');
+            playerWrapper.classList.remove('player-ui-hidden'); // Mostra as sombras novamente
             resetControlsTimer();
         }
 
@@ -864,11 +875,12 @@
             playerControls.classList.add('player-ui-hidden');
             playerVoteContainer.classList.add('player-ui-hidden');
             closePlayerBtn.classList.add('player-ui-hidden');
+            playerWrapper.classList.add('player-ui-hidden'); // Esconde as sombras
         }
 
         function resetControlsTimer() {
             clearTimeout(controlsTimeout);
-            // AGORA O TEMPO É DE 5.5 SEGUNDOS (5500 MILISSEGUNDOS)
+            // TEMPO DE 5.5 SEGUNDOS (5500 MILISSEGUNDOS)
             controlsTimeout = setTimeout(hideControls, 5500); 
         }
 
