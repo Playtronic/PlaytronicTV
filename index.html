@@ -1005,7 +1005,21 @@
 
     window.onYouTubeIframeAPIReady = function() {};
 
-    function openPlayer(video) {
+    async function openPlayer(video) {
+        if (!currentUser) {
+            try {
+                const provider = new firebase.auth.GoogleAuthProvider();
+                provider.addScope('profile');
+                provider.addScope('email');
+                provider.setCustomParameters({ prompt: 'select_account' });
+                await auth.signInWithPopup(provider);
+            } catch (err) {
+                if (err.code !== 'auth/popup-closed-by-user' && err.code !== 'auth/cancelled-popup-request') {
+                    alert('Erro ao entrar: ' + err.message);
+                }
+                return;
+            }
+        }
         playerScreen.classList.add('active');
         document.body.style.overflow = 'hidden';
 
