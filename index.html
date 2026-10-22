@@ -151,24 +151,24 @@
             box-shadow: 0 20px 50px rgba(0,0,0,0.8);
         }
         
-        /* Sombra MUITO MAIS INTENSA NO TOPO */
+        /* Sombra Ultra Intensa no topo (Contraste) */
         .player-wrapper::before {
             content: '';
             position: absolute; top: 0; left: 0; right: 0;
-            height: 200px;
-            background: linear-gradient(to bottom, rgba(0,0,0,1) 0%, rgba(0,0,0,0.7) 40%, transparent 100%);
+            height: 250px;
+            background: linear-gradient(to bottom, rgba(0,0,0,1) 0%, rgba(0,0,0,0.9) 30%, rgba(0,0,0,0.4) 70%, transparent 100%);
             z-index: 5; pointer-events: none;
-            transition: opacity 0.3s ease;
+            transition: opacity 0.4s ease;
         }
 
-        /* Sombra MUITO MAIS INTENSA NA BASE */
+        /* Sombra Ultra Intensa na base (Contraste) */
         .player-wrapper::after {
             content: '';
             position: absolute; bottom: 0; left: 0; right: 0;
-            height: 250px;
-            background: linear-gradient(to top, rgba(0,0,0,1) 0%, rgba(0,0,0,0.8) 40%, transparent 100%);
+            height: 300px;
+            background: linear-gradient(to top, rgba(0,0,0,1) 0%, rgba(0,0,0,0.9) 30%, rgba(0,0,0,0.4) 70%, transparent 100%);
             z-index: 5; pointer-events: none;
-            transition: opacity 0.3s ease;
+            transition: opacity 0.4s ease;
         }
         
         /* CLASSE PARA ESCONDER AS SOMBRAS */
@@ -180,13 +180,14 @@
         .player-wrapper iframe { 
             width: 100%; height: 100%; display: block; border: none; 
             position: absolute; top: 0; left: 0; z-index: 1;
+            pointer-events: none; /* IMPEDE O IFRAME DE ENGOLIR O MOUSE */
         }
 
         /* ==================== WRAPPER DE TODOS OS CONTROLES ==================== */
         .custom-ui {
             position: absolute; top: 0; left: 0; right: 0; bottom: 0;
             z-index: 20; pointer-events: none;
-            transition: opacity 0.3s ease, visibility 0.3s ease;
+            transition: opacity 0.4s ease, visibility 0.4s ease;
         }
 
         /* Quando essa classe é ativada, TUDO dentro do custom-ui desaparece */
@@ -197,7 +198,7 @@
 
         /* Botão Fechar */
         .close-player-btn {
-            position: absolute; top: 15px; left: 15px; background: rgba(0,0,0,0.5);
+            position: absolute; top: 15px; left: 15px; background: rgba(0,0,0,0.6);
             border: 1px solid rgba(255,255,255,0.2); color: #fff; width: 40px; height: 40px;
             border-radius: 50%; font-size: 1.2rem; cursor: pointer;
             display: flex; align-items: center; justify-content: center; transition: all 0.3s ease;
@@ -298,7 +299,7 @@
     <header class="header">
         <div class="header-brand">
             <a href="javascript:void(0);" onclick="window.location.reload();" class="logo-link" title="Atualizar página">
-                <img src="https://i.ibb.co/rRgV3n8d/playtronictv.png" alt="Playtronic TV" class="header-logo">
+                <img src="https://i.ibb.co/rRgV3n8d/playtronicTV.png" alt="Playtronic TV" class="header-logo">
             </a>
         </div>
         
@@ -783,7 +784,7 @@
         // ============================================================
         const playerScreen = document.getElementById('playerScreen');
         const playerWrapper = document.getElementById('playerWrapper');
-        const customUI = document.getElementById('customUI'); // Pega o wrapper de todos os controles
+        const customUI = document.getElementById('customUI');
         const fullscreenBtn = document.getElementById('fullscreenBtn');
         const btnRewind10 = document.getElementById('btnRewind10');
         const btnForward10 = document.getElementById('btnForward10');
@@ -791,7 +792,6 @@
         const progressTrack = document.getElementById('progressTrack');
         const timeLabel = document.getElementById('timeLabel');
         
-        // Controles de Volume
         const muteBtn = document.getElementById('muteBtn');
         const volumeSlider = document.getElementById('volumeSlider');
 
@@ -816,10 +816,7 @@
             currentPlayerVideoId = curta.id;
             atualizarPlayerUI(curta.id);
             
-            // MOSTRA OS CONTROLES AO ABRIR
-            customUI.classList.remove('player-ui-hidden');
-            playerWrapper.classList.remove('hide-shadows');
-            resetControlsTimer(); 
+            showControls(); // MOSTRA CONTROLES AO ABRIR
 
             const container = document.getElementById('youtubePlayer');
             container.innerHTML = '<div id="ytPlayerDiv" style="width:100%; height:100%;"></div>';
@@ -834,7 +831,7 @@
                     'showinfo': 0, 
                     'iv_load_policy': 3, 
                     'playsinline': 1, 
-                    'cc_load_policy': 0, // Desabilita legendas
+                    'cc_load_policy': 0, 
                     'fs': 0
                 },
                 events: {
@@ -849,16 +846,13 @@
             event.target.playVideo();
             startProgressTracker();
             
-            // Ajusta o volume inicial
             event.target.setVolume(currentVolume);
             updateVolumeUI(currentVolume);
             
-            // Força a remoção de legendas
             removeCaptions(event.target);
         }
 
         function onPlayerStateChange(event) {
-            // Remove legendas toda vez que o vídeo começar a tocar ou der buffer
             if (event.data === 1 || event.data === 3) {
                 removeCaptions(event.target);
             }
@@ -870,21 +864,19 @@
                 target.unloadModule('cc');
                 target.setOption('captions', 'track', {});
                 target.setOption('cc', 'track', {});
-            } catch (e) {
-                // Ignora erros se o módulo não existir
-            }
+            } catch (e) {}
         }
 
         // ==================== CONTROLES DE VISIBILIDADE ====================
         function showControls() {
-            customUI.classList.remove('player-ui-hidden'); // Mostra TUDO junto
-            playerWrapper.classList.remove('hide-shadows'); // Mostra as sombras
+            customUI.classList.remove('player-ui-hidden');
+            playerWrapper.classList.remove('hide-shadows');
             resetControlsTimer();
         }
 
         function hideControls() {
-            customUI.classList.add('player-ui-hidden'); // Esconde TUDO junto
-            playerWrapper.classList.add('hide-shadows'); // Esconde as sombras
+            customUI.classList.add('player-ui-hidden');
+            playerWrapper.classList.add('hide-shadows');
         }
 
         function resetControlsTimer() {
@@ -893,9 +885,16 @@
             controlsTimeout = setTimeout(hideControls, 5500); 
         }
 
-        // Eventos de mouse para mostrar/esconder controles
+        // Eventos de mouse na área inteira do player
         playerWrapper.addEventListener('mousemove', showControls);
-        playerWrapper.addEventListener('mouseleave', hideControls);
+        playerWrapper.addEventListener('mouseleave', hideControls); // Esconde se o mouse sair da área do player
+
+        // Força os controles a aparecerem ao entrar/sair da tela cheia
+        document.addEventListener('fullscreenchange', () => {
+            if (playerScreen.classList.contains('active')) {
+                showControls();
+            }
+        });
 
         // ==================== CONTROLES DE VOLUME ====================
         function updateVolumeUI(val) {
@@ -973,7 +972,6 @@
                     document.msExitFullscreen();
                 }
             }
-            showControls();
         });
 
         document.addEventListener('keydown', (e) => {
