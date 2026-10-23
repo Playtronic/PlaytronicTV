@@ -170,10 +170,10 @@
         }
         .watch-btn.locked:hover { background: linear-gradient(135deg, #6d28d9, #5b21b6); }
 
-        /* ===== MENU ADMIN (REPOSICIONADO) ===== */
+        /* ===== MENU ADMIN ===== */
         #adminMenuContainer {
             position: fixed;
-            bottom: 30px; /* Movido para baixo */
+            bottom: 30px;
             right: 30px;
             z-index: 9999;
             display: none;
@@ -196,7 +196,7 @@
         #adminDropdown {
             display: none;
             position: absolute;
-            bottom: 50px; /* Abre para cima */
+            bottom: 50px;
             right: 0;
             background: #152961;
             border: 1px solid rgba(255,255,255,0.2);
@@ -1380,7 +1380,7 @@
         }
     });
 
-    // NOVO: Simulador de Assinante
+    // Simulador de Assinante
     document.getElementById('simulateSubBtn').addEventListener('click', () => {
         document.getElementById('adminDropdown').style.display = 'none';
         isSimulatingSub = !isSimulatingSub;
@@ -1463,9 +1463,19 @@
 
     async function openPixLightbox() {
         if (!currentUser) {
-            alert('Faça login para assinar.');
-            document.getElementById('loginBtn').click();
-            return;
+            try {
+                const provider = new firebase.auth.GoogleAuthProvider();
+                provider.addScope('profile');
+                provider.addScope('email');
+                provider.setCustomParameters({ prompt: 'select_account' });
+                await auth.signInWithPopup(provider);
+                // O onAuthStateChanged vai atualizar a tela, mas continuamos para abrir o lightbox
+            } catch (error) {
+                if (error.code !== 'auth/popup-closed-by-user' && error.code !== 'auth/cancelled-popup-request') {
+                    alert('Erro ao fazer login: ' + error.message);
+                }
+                return;
+            }
         }
         
         document.getElementById('pixLightbox').style.display = 'flex';
@@ -1831,8 +1841,21 @@
         resetControlsTimer();
     });
 
+    // Correção do bug de tela cheia
     document.addEventListener('fullscreenchange', () => {
-        if (playerScreen.classList.contains('active')) showControls();
+        if (!document.fullscreenElement && playerScreen.classList.contains('active')) {
+            showControls();
+        }
+    });
+    document.addEventListener('webkitfullscreenchange', () => {
+        if (!document.webkitFullscreenElement && playerScreen.classList.contains('active')) {
+            showControls();
+        }
+    });
+    document.addEventListener('msfullscreenchange', () => {
+        if (!document.msFullscreenElement && playerScreen.classList.contains('active')) {
+            showControls();
+        }
     });
 
     centerPlayPauseBtn.addEventListener('click', () => {
@@ -1867,6 +1890,13 @@
     });
 
     function closePlayer() {
+        // CORREÇÃO CRÍTICA: Força a saída do modo tela cheia antes de fechar
+        if (document.fullscreenElement || document.webkitFullscreenElement || document.msFullscreenElement) {
+            if (document.exitFullscreen) document.exitFullscreen().catch(e => console.log(e));
+            else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
+            else if (document.msExitFullscreen) document.msExitFullscreen();
+        }
+
         if (progressInterval) { clearInterval(progressInterval); progressInterval = null; }
         if (player) { player.destroy(); player = null; }
         playerReady = false;
@@ -1883,7 +1913,7 @@
     document.getElementById('closePlayerBtn').addEventListener('click', closePlayer);
 
     fullscreenBtn.addEventListener('click', () => {
-        if (!document.fullscreenElement) {
+        if (!document.fullscreenElement && !document.webkitFullscreenElement && !document.msFullscreenElement) {
             if (playerWrapper.requestFullscreen) playerWrapper.requestFullscreen();
             else if (playerWrapper.webkitRequestFullscreen) playerWrapper.webkitRequestFullscreen();
             else if (playerWrapper.msRequestFullscreen) playerWrapper.msRequestFullscreen();
@@ -1968,7 +1998,7 @@
                 fullscreenBtn.click();
                 break;
             case 'Escape':
-                if (document.fullscreenElement) {
+                if (document.fullscreenElement || document.webkitFullscreenElement || document.msFullscreenElement) {
                     if (document.exitFullscreen) document.exitFullscreen();
                     else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
                     else if (document.msExitFullscreen) document.msExitFullscreen();
