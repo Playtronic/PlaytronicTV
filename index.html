@@ -773,11 +773,13 @@
     }
 
     async function atualizarCardUI(videoId) {
-        const card = document.querySelector(`.card[data-ytid="${CSS.escape(videoId)}"]`);
-        if (!card) return;
+        const cards = document.querySelectorAll(`.card[data-ytid="${CSS.escape(videoId)}"]`);
+        if (cards.length === 0) return;
         const nota = await calcularNota(videoId);
-        const badge = card.querySelector('.rating-badge');
-        if (badge) badge.textContent = `⭐ ${nota}`;
+        cards.forEach(card => {
+            const badge = card.querySelector('.rating-badge');
+            if (badge) badge.textContent = `⭐ ${nota}`;
+        });
     }
 
     async function atualizarPlayerUI(videoId) {
@@ -897,7 +899,6 @@
 
             card.querySelector('.watch-btn').addEventListener('click', () => openPlayer(item));
 
-            atualizarCardUI(item.youtubeId);
             return card;
         };
 
@@ -908,6 +909,8 @@
                 favTrack.appendChild(buildCard(item));
                 favCount++;
             }
+            
+            atualizarCardUI(item.youtubeId);
         });
 
         if (favSection) {
