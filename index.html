@@ -344,55 +344,57 @@
             border-radius: 50%; background: #fdbb2d; cursor: pointer;
         }
 
-        /* ESTILOS DO INTERSTICIAL TAKEOVER */
+        /* ===== ESTILOS DO INTERSTICIAL TAKEOVER ===== */
         #adInterstitialModal {
-            position: fixed; inset: 0; background: rgba(0, 0, 0, 0.92);
-            z-index: 9999; display: none; align-items: center; justify-content: center;
-            backdrop-filter: blur(8px);
+            position: fixed; inset: 0; background: rgba(0, 0, 0, 0.95);
+            z-index: 99999; display: none; align-items: center; justify-content: center;
+            backdrop-filter: blur(6px); padding: 20px;
         }
         #adInterstitialModal.active { display: flex; }
         
         .ad-interstitial-wrapper {
             background: #152961; border: 2px solid #fdbb2d; border-radius: 12px;
-            width: 95%; max-width: 1300px; display: flex; flex-direction: column;
-            box-shadow: 0 0 50px rgba(253,187,45,0.2); overflow: hidden;
+            width: 100%; max-width: 1200px; max-height: 95vh;
+            display: flex; flex-direction: column; overflow: hidden;
+            box-shadow: 0 0 60px rgba(253,187,45,0.2);
         }
         
         .ad-interstitial-header {
-            background: rgba(253,187,45,0.1); padding: 15px 20px;
+            background: rgba(253,187,45,0.1); padding: 15px 25px;
             display: flex; justify-content: space-between; align-items: center;
             border-bottom: 1px solid rgba(255,255,255,0.1); color: #fdbb2d;
-            font-weight: bold; font-size: 1rem;
+            font-weight: bold; font-size: 1rem; flex-shrink: 0;
         }
         
         .ad-takeover-container {
             display: flex; align-items: center; justify-content: center;
-            gap: 20px; padding: 20px; width: 100%;
+            gap: 20px; padding: 20px; flex: 1; overflow: hidden;
         }
         
         .ad-side-banner {
-            width: 250px; min-height: 600px;
-            background: rgba(255,255,255,0.03); border: 1px dashed rgba(255,255,255,0.1);
+            width: 250px; height: 550px; flex-shrink: 0;
+            background: rgba(255,255,255,0.03); border: 1px dashed rgba(255,255,255,0.15);
             display: flex; flex-direction: column; align-items: center; justify-content: center;
-            color: #475569; font-size: 0.8rem; text-align: center;
-            overflow: hidden; border-radius: 8px;
+            color: #475569; font-size: 0.85rem; text-align: center; border-radius: 8px;
+            overflow: hidden; position: relative;
         }
         
         .ad-center-wrapper {
-            flex: 1; max-width: 800px; aspect-ratio: 16 / 9;
+            flex: 1; max-width: 650px; aspect-ratio: 16 / 9;
             background: #0b0f19; border: 2px solid #1f2a4a; border-radius: 12px;
             display: flex; align-items: center; justify-content: center;
-            overflow: hidden; position: relative;
+            overflow: hidden; flex-shrink: 0;
         }
-        .ad-center-wrapper img { width: 100%; height: 100%; object-fit: cover; }
+        .ad-center-wrapper img { width: 100%; height: 100%; object-fit: contain; }
 
         .ad-interstitial-footer {
-            padding: 20px; text-align: center;
-            border-top: 1px solid rgba(255,255,255,0.1);
+            padding: 15px 20px; text-align: center;
+            border-top: 1px solid rgba(255,255,255,0.1); flex-shrink: 0;
+            background: rgba(0,0,0,0.2);
         }
         
         .ad-close-btn {
-            background: #ef4444; color: #fff; border: none; padding: 12px 30px;
+            background: #ef4444; color: #fff; border: none; padding: 12px 40px;
             border-radius: 8px; font-weight: bold; font-size: 1rem; cursor: pointer;
             transition: 0.3s; opacity: 0.5; cursor: not-allowed;
         }
@@ -449,13 +451,8 @@
             padding: 10px;
             width: 100%;
         }
-        .carousel-track::-webkit-scrollbar {
-            display: none;
-        }
-        .carousel-track .card {
-            flex: 0 0 250px;
-            width: 250px;
-        }
+        .carousel-track::-webkit-scrollbar { display: none; }
+        .carousel-track .card { flex: 0 0 250px; width: 250px; }
         .carousel-arrow {
             position: absolute;
             top: 50%;
@@ -474,11 +471,7 @@
             justify-content: center;
             transition: 0.2s;
         }
-        .carousel-arrow:hover {
-            background: #fdbb2d;
-            color: #000;
-            border-color: #fdbb2d;
-        }
+        .carousel-arrow:hover { background: #fdbb2d; color: #000; border-color: #fdbb2d; }
         .carousel-arrow.left { left: -15px; }
         .carousel-arrow.right { right: -15px; }
 
@@ -595,35 +588,27 @@
             </div>
             
             <div class="ad-takeover-container">
+                <!-- BANNER ESQUERDO -->
                 <div class="ad-side-banner">
                     [ Banner 250x600 Esquerdo ]<br><br>
                     (Insira a tag do seu anúncio aqui)
                 </div>
 
+                <!-- IMAGEM CENTRAL -->
                 <div class="ad-center-wrapper">
                     <a href="https://playtronicgames.com.br" target="_blank" style="display:block; width:100%; height:100%;">
-                        <img src="https://i.ibb.co/rRgV3n8d/playtronictv.png" alt="Publicidade" style="object-fit: contain; background: #0b0f19; padding: 20px;">
+                        <img src="https://i.ibb.co/rRgV3n8d/playtronictv.png" alt="Publicidade">
                     </a>
                 </div>
 
-                <div class="ad-side-banner" id="ad-side-right" style="padding: 0; border: none; background: transparent;">
-                    <iframe style="width: 100%; height: 100%; border: none; overflow: hidden; border-radius: 8px;" srcdoc='
-                        <!DOCTYPE html>
-                        <html>
-                        <head>
-                            <style>
-                                body { margin: 0; padding: 0; background: transparent; display: flex; justify-content: center; }
-                            </style>
-                        </head>
-                        <body>
-                            <script async="async" data-cfasync="false" src="https://dcengg.org/21/efe34bd92ca74a51f85465ca14314dc7"><\/script>
-                            <div id="container-efe34bd92ca74a51f85465ca14314dc7"></div>
-                        </body>
-                        </html>
-                    '></iframe>
+                <!-- BANNER DIREITO (Adsterra Native) -->
+                <div class="ad-side-banner" id="ad-side-right">
+                    <script async="async" data-cfasync="false" src="https://dcengg.org/21/efe34bd92ca74a51f85465ca14314dc7"></script>
+                    <div id="container-efe34bd92ca74a51f85465ca14314dc7"></div>
                 </div>
             </div>
 
+            <!-- BOTÃO DE FECHAR -->
             <div class="ad-interstitial-footer">
                 <button id="closeInterstitialBtn" class="ad-close-btn" disabled>Fechar e Assistir</button>
             </div>
