@@ -1062,11 +1062,13 @@
 
     function onPlayerStateChange(event) {
         if (event.data === 1) {
+            isEnded = false;
             isPlaying = true;
             centerPlayPauseBtn.innerHTML = '⏸';
             centerPlayPauseBtn.classList.add('playing-state');
             removeCaptions(event.target);
         } else if (event.data === 2) {
+            isEnded = false;
             isPlaying = false;
             centerPlayPauseBtn.innerHTML = '▶';
             centerPlayPauseBtn.classList.remove('playing-state');
@@ -1099,11 +1101,13 @@
     }
 
     function hideControls() {
+            if (isEnded) return;
         customUI.classList.add('player-ui-hidden');
         playerWrapper.classList.add('hide-shadows');
     }
 
     function resetControlsTimer() {
+            if (isEnded) return;
         clearTimeout(controlsTimeout);
         controlsTimeout = setTimeout(hideControls, 5500);
     }
