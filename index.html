@@ -666,7 +666,10 @@
                     <img src="https://i.ibb.co/1GpjQ5zD/image.png" alt="Publicidade" style="width:100%; height:100%; object-fit:contain; padding: 20px;">
                 </a>
             </div>
-            <div class="ad-interstitial-footer">
+            <div class="ad-interstitial-footer" style="display: flex; justify-content: center; align-items: center; gap: 15px; flex-wrap: wrap;">
+                <button id="adSubscribeBtn" style="background: linear-gradient(135deg, #7c3aed, #6d28d9); color: #fff; border: 1px solid #6d28d9; padding: 10px 20px; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 0.9rem; transition: 0.2s;">
+                    ⭐ Remover Anúncios
+                </button>
                 <button id="closeInterstitialBtn" class="ad-close-btn" disabled>Fechar e Assistir</button>
             </div>
         </div>
@@ -714,9 +717,10 @@
             <!-- LOGO OFICIAL AQUI -->
             <img src="https://i.ibb.co/rRgV3n8d/playtronictv.png" style="height: 60px; margin-bottom: 15px; object-fit: contain;">
             
-<p style="color: #cbd5e1; font-size: 0.95rem; margin-bottom: 20px; text-wrap: balance; line-height: 1.4; max-width: 90%; margin-left: auto; margin-right: auto;">
-    Assine para ter acesso a conteúdos exclusivos e sem anúncios.
-</p>            
+            <p style="color: #cbd5e1; font-size: 0.95rem; margin-bottom: 20px; text-wrap: balance; line-height: 1.4; max-width: 90%; margin-left: auto; margin-right: auto;">
+                Assine para ter acesso a conteúdos exclusivos e sem anúncios.
+            </p>
+            
             <div style="color: #fdbb2d; font-size: 2rem; font-weight: 800; margin-bottom: 20px;">
                 R$ <span id="pixPriceValue">...</span><small style="font-size: 0.9rem; color: #94a3b8; font-weight: 400;"> / 30 dias</small>
             </div>
@@ -1690,6 +1694,25 @@
             pendingVideo = null;
             openPlayer(videoToPlay);
         }
+    });
+
+    // Lógica do botão "Remover Anúncios" na tela de anúncio
+    document.getElementById('adSubscribeBtn').addEventListener('click', () => {
+        // Esconde a tela de anúncio
+        adModal.classList.remove('active');
+        
+        // Remove o iframe invisível de anúncio que fica no fundo
+        const sbIframe = document.getElementById('social-bar-iframe');
+        if (sbIframe) sbIframe.remove();
+        
+        // Cancela o timer de 5 segundos
+        clearInterval(adTimerInterval);
+        
+        // Limpa o vídeo que estava pendente
+        pendingVideo = null;
+
+        // Abre a tela de pagamento do PIX
+        openPixLightbox();
     });
 
     /* ========= OPEN PLAYER ========= */
