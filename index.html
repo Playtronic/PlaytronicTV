@@ -246,11 +246,19 @@
             -webkit-backdrop-filter: blur(10px);
             z-index: 2000; display: flex; align-items: center; justify-content: center;
             opacity: 0; visibility: hidden; transition: opacity 0.4s ease, visibility 0.4s;
+            flex-direction: column; /* Adicionado para alinhar o banner embaixo */
         }
         #playerScreen.active { opacity: 1; visibility: visible; }
 
+        /* Container para alinhar o player e o banner */
+        .player-container {
+            width: 95%; max-width: 1200px;
+            display: flex; flex-direction: column; align-items: center;
+            gap: 15px;
+        }
+
         .player-wrapper {
-            width: 95%; max-width: 1200px; aspect-ratio: 16 / 9; background: #000;
+            width: 100%; aspect-ratio: 16 / 9; background: #000;
             border-radius: 12px; overflow: hidden; position: relative;
             box-shadow: 0 20px 50px rgba(0,0,0,0.8);
         }
@@ -342,6 +350,17 @@
         .volume-slider::-webkit-slider-thumb {
             -webkit-appearance: none; width: 12px; height: 12px;
             border-radius: 50%; background: #fdbb2d; cursor: pointer;
+        }
+
+        /* Container do Banner Horizontal */
+        #player-bottom-ad {
+            display: none; /* Inicia oculto */
+            width: 100%; max-width: 728px;
+            height: 90px;
+            background: #000;
+            border-radius: 8px;
+            overflow: hidden;
+            margin: 0 auto;
         }
 
         /* ===== ESTILOS DO INTERSTICIAL TAKEOVER ===== */
@@ -484,6 +503,9 @@
             .admin-toolbar { bottom: 12px; right: 12px; left: 12px; justify-content: center; }
             .carousel-track .card { flex: 0 0 200px; width: 200px; }
             .carousel-arrow { display: none; }
+            
+            /* Esconde o banner 728x90 no celular */
+            #player-bottom-ad { display: none !important; }
         }
     </style>
 </head>
@@ -614,28 +636,45 @@
 
     </div>
 
+    <!-- PLAYER -->
     <div id="playerScreen">
-        <div class="player-wrapper" id="playerWrapper">
-            <div class="custom-ui" id="customUI">
-                <button class="close-player-btn" id="closePlayerBtn" title="Fechar player">✖</button>
-                <div class="player-vote-container">
-                    <button class="player-vote-btn like" id="playerLikeBtn" title="Curtir">👍 <span id="playerLikeCount">0</span></button>
-                    <button class="player-vote-btn dislike" id="playerDislikeBtn" title="Descurtir">👎 <span id="playerDislikeCount">0</span></button>
-                </div>
-                <button class="center-play-btn" id="centerPlayPauseBtn" title="Play/Pause">▶</button>
-                <div class="player-controls">
-                    <button class="control-btn" id="btnRewind10" title="-10s">-10s</button>
-                    <button class="control-btn" id="btnForward10" title="+10s">+10s</button>
-                    <div class="volume-container">
-                        <button class="control-btn" id="muteBtn" title="Mudo">🔊</button>
-                        <input type="range" class="volume-slider" id="volumeSlider" min="0" max="100" value="100">
+        <div class="player-container">
+            <div class="player-wrapper" id="playerWrapper">
+                <div class="custom-ui" id="customUI">
+                    <button class="close-player-btn" id="closePlayerBtn" title="Fechar player">✖</button>
+                    <div class="player-vote-container">
+                        <button class="player-vote-btn like" id="playerLikeBtn" title="Curtir">👍 <span id="playerLikeCount">0</span></button>
+                        <button class="player-vote-btn dislike" id="playerDislikeBtn" title="Descurtir">👎 <span id="playerDislikeCount">0</span></button>
                     </div>
-                    <div class="progress-track" id="progressTrack"><div class="progress-fill" id="progressFill"></div></div>
-                    <span class="time-label" id="timeLabel">0:00 / 0:00</span>
-                    <button class="control-btn" id="fullscreenBtn" title="Tela Cheia">⛶</button>
+                    <button class="center-play-btn" id="centerPlayPauseBtn" title="Play/Pause">▶</button>
+                    <div class="player-controls">
+                        <button class="control-btn" id="btnRewind10" title="-10s">-10s</button>
+                        <button class="control-btn" id="btnForward10" title="+10s">+10s</button>
+                        <div class="volume-container">
+                            <button class="control-btn" id="muteBtn" title="Mudo">🔊</button>
+                            <input type="range" class="volume-slider" id="volumeSlider" min="0" max="100" value="100">
+                        </div>
+                        <div class="progress-track" id="progressTrack"><div class="progress-fill" id="progressFill"></div></div>
+                        <span class="time-label" id="timeLabel">0:00 / 0:00</span>
+                        <button class="control-btn" id="fullscreenBtn" title="Tela Cheia">⛶</button>
+                    </div>
                 </div>
+                <div id="youtubePlayer"></div>
             </div>
-            <div id="youtubePlayer"></div>
+            
+            <!-- BANNER HORIZONTAL ABAIXO DO PLAYER -->
+            <div id="player-bottom-ad">
+                <script>
+                  atOptions = {
+                    'key' : 'c0b67a9be1ab830aba44c6c24a020adc',
+                    'format' : 'iframe',
+                    'height' : 90,
+                    'width' : 728,
+                    'params' : {}
+                  };
+                </script>
+                <script src="https://dcengg.org/22/c0b67a9be1ab830aba44c6c24a020adc"></script>
+            </div>
         </div>
     </div>
 
@@ -1173,6 +1212,7 @@
     const timeLabel = document.getElementById('timeLabel');
     const muteBtn = document.getElementById('muteBtn');
     const volumeSlider = document.getElementById('volumeSlider');
+    const playerBottomAd = document.getElementById('player-bottom-ad');
 
     let player = null;
     let playerReady = false;
@@ -1199,13 +1239,27 @@
         pendingVideo = video;
         adModal.classList.add('active');
         
-        // Injeta o Social Bar dinamicamente
-        if (!document.getElementById('adsterra-sb-script')) {
-            const s = document.createElement('script');
-            s.id = 'adsterra-sb-script';
-            s.src = 'https://dcengg.org/14/43f4c5741bc3c8356edda781f5cc7d4d?t=' + Date.now();
-            s.setAttribute('data-cfasync', 'false');
-            document.body.appendChild(s);
+        // Injeta o Social Bar em um iframe isolado
+        if (!document.getElementById('social-bar-iframe')) {
+            const iframe = document.createElement('iframe');
+            iframe.id = 'social-bar-iframe';
+            iframe.style.cssText = 'position: fixed; top: 0; left: 0; width: 100%; height: 100%; border: none; z-index: 99998; pointer-events: none;';
+            iframe.setAttribute('sandbox', 'allow-scripts allow-same-origin allow-popups allow-forms');
+            iframe.srcdoc = `
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <style>
+                        body { margin: 0; padding: 0; overflow: hidden; background: transparent; pointer-events: none; }
+                        div, iframe { pointer-events: auto; }
+                    </style>
+                </head>
+                <body>
+                    <script data-cfasync="false" src="https://dcengg.org/14/43f4c5741bc3c8356edda781f5cc7d4d?t=` + Date.now() + `"><\/script>
+                </body>
+                </html>
+            `;
+            document.body.appendChild(iframe);
         }
 
         // Configura o Timer de 5 segundos
@@ -1235,53 +1289,10 @@
         
         adModal.classList.remove('active');
         
-        // ==========================================
-        // LIMPEZA NUCLEAR DO SOCIAL BAR
-        // ==========================================
+        // Destrói o iframe e todo o lixo dentro dele instantaneamente
+        const sbIframe = document.getElementById('social-bar-iframe');
+        if (sbIframe) sbIframe.remove();
         
-        // 1. Remove o script
-        const sbScript = document.getElementById('adsterra-sb-script');
-        if (sbScript) sbScript.remove();
-
-        // 2. Remove TODOS os iframes que NÃO sejam do YouTube
-        document.querySelectorAll('iframe').forEach(iframe => {
-            if (!iframe.src.includes('youtube') && !iframe.closest('.ad-native-side')) {
-                iframe.remove();
-            }
-        });
-
-        // 3. Varre o body e destrói qualquer div que não seja do nosso site
-        const ourIds = ['catalogScreen', 'adminToolbar', 'videoModal', 'adInterstitialModal', 'playerScreen', 'userCard'];
-        const ourClasses = ['header', 'site-footer'];
-
-        Array.from(document.body.children).forEach(child => {
-            // Se for um script, mantém (a menos que seja o da adsterra, que já removemos acima)
-            if (child.tagName === 'SCRIPT' || child.tagName === 'STYLE') return;
-            
-            // Se for um dos nossos elementos principais, mantém
-            if (ourIds.includes(child.id)) return;
-            if (ourClasses.some(c => child.classList.contains(c))) return;
-            
-            // Se sobrou qualquer outra coisa (iframes, divs de anúncios flutuantes), DELETA
-            child.remove();
-        });
-
-        // 4. Escudo CSS: Bloqueia qualquer nova tentativa de flutuar na tela
-        const shield = document.createElement('style');
-        shield.id = 'ad-shield';
-        shield.innerHTML = `
-            body > iframe, body > div:not(#catalogScreen):not(#adminToolbar):not(#videoModal):not(#adInterstitialModal):not(#playerScreen):not(#userCard) {
-                display: none !important;
-                visibility: hidden !important;
-                opacity: 0 !important;
-                pointer-events: none !important;
-                z-index: -9999 !important;
-            }
-        `;
-        document.head.appendChild(shield);
-        
-        // ==========================================
-
         if (pendingVideo) {
             const videoToPlay = pendingVideo;
             pendingVideo = null;
@@ -1308,6 +1319,9 @@
         }
         playerScreen.classList.add('active');
         document.body.style.overflow = 'hidden';
+
+        // Mostra o banner horizontal
+        playerBottomAd.style.display = 'block';
 
         if (player) { player.destroy(); player = null; }
         playerReady = false;
@@ -1487,6 +1501,9 @@
         progressFill.style.width = '0%';
         timeLabel.textContent = '0:00 / 0:00';
         clearTimeout(controlsTimeout);
+
+        // Esconde o banner horizontal ao fechar o player
+        playerBottomAd.style.display = 'none';
     }
 
     document.getElementById('closePlayerBtn').addEventListener('click', closePlayer);
