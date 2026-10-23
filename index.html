@@ -344,38 +344,54 @@
             border-radius: 50%; background: #fdbb2d; cursor: pointer;
         }
 
-        /* ESTILOS DO INTERSTICIAL */
+        /* ESTILOS DO INTERSTICIAL TAKEOVER */
         #adInterstitialModal {
-            position: fixed; inset: 0; background: rgba(0,0,0,0.95);
+            position: fixed; inset: 0; background: rgba(0, 0, 0, 0.92);
             z-index: 9999; display: none; align-items: center; justify-content: center;
-            flex-direction: column; backdrop-filter: blur(5px);
+            backdrop-filter: blur(8px);
         }
         #adInterstitialModal.active { display: flex; }
-        .ad-interstitial-wrapper {
-            background: #0b0f19; border: 2px solid #fdbb2d; border-radius: 12px;
-            width: 90%; max-width: 800px; min-height: 400px;
-            display: flex; flex-direction: column; overflow: hidden;
-            box-shadow: 0 0 50px rgba(253,187,45,0.2); position: relative;
+        
+        .ad-takeover-container {
+            display: flex; align-items: center; justify-content: center;
+            gap: 20px; width: 100%; max-width: 1300px; padding: 20px;
+            position: relative;
         }
-        .ad-interstitial-header {
-            background: rgba(253,187,45,0.1); padding: 10px 20px;
-            display: flex; justify-content: space-between; align-items: center;
-            border-bottom: 1px solid rgba(255,255,255,0.1); color: #fdbb2d;
+        
+        .ad-side-banner {
+            width: 160px; min-height: 600px;
+            background: rgba(255,255,255,0.03); border: 1px dashed rgba(255,255,255,0.1);
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            color: #475569; font-size: 0.8rem; text-align: center;
+            overflow: hidden;
         }
-        .ad-interstitial-header span { font-weight: bold; font-size: 0.9rem; }
-        .ad-interstitial-content {
-            flex: 1; display: flex; align-items: center; justify-content: center;
-            padding: 20px; position: relative;
+        .ad-side-banner iframe, .ad-side-banner img { max-width: 100%; border-radius: 8px; }
+        
+        .ad-center-wrapper {
+            flex: 1; max-width: 800px; aspect-ratio: 16 / 9;
+            background: #0b0f19; border: 2px solid #1f2a4a; border-radius: 12px;
+            display: flex; align-items: center; justify-content: center;
+            overflow: hidden; position: relative;
+            box-shadow: 0 0 40px rgba(0,0,0,0.8);
         }
+        .ad-center-wrapper img { width: 100%; height: 100%; object-fit: cover; }
+
         .ad-close-btn {
-            background: #ef4444; color: #fff; border: none; padding: 10px 24px;
-            border-radius: 8px; font-weight: bold; font-size: 1rem; cursor: pointer;
-            transition: 0.3s; opacity: 0.5; cursor: not-allowed; margin-top: 15px;
+            position: absolute; top: 20px; right: 20px;
+            background: rgba(255,255,255,0.1); color: #fff; 
+            border: 1px solid rgba(255,255,255,0.3); padding: 10px 20px;
+            border-radius: 30px; font-weight: bold; font-size: 0.9rem; 
+            cursor: not-allowed; transition: 0.3s; z-index: 100000;
+            display: flex; align-items: center; gap: 8px;
         }
         .ad-close-btn.active {
-            opacity: 1; cursor: pointer; background: #22c55e;
+            cursor: pointer; background: #fdbb2d; color: #000; border-color: #fdbb2d;
         }
-        .ad-close-btn.active:hover { background: #16a34a; transform: scale(1.05); }
+        .ad-close-btn.active:hover { background: #ffcc44; transform: scale(1.05); }
+
+        @media (max-width: 1100px) {
+            .ad-side-banner { display: none; }
+        }
         
         .loading { text-align: center; padding: 60px; color: #fdbb2d; font-size: 1.2rem; font-weight: bold; }
         .empty-state { text-align: center; padding: 60px; color: #a0aec0; font-size: 1.1rem; display: none; }
@@ -558,18 +574,27 @@
         </div>
     </div>
 
-    <!-- ANÚNCIO INTERSTICIAL -->
+    <!-- ANÚNCIO INTERSTICIAL TAKEOVER -->
     <div id="adInterstitialModal">
-        <div class="ad-interstitial-wrapper">
-            <div class="ad-interstitial-header">
-                <span>Publicidade</span>
-                <span id="adTimerText">Aguarde 5s...</span>
+        <button id="closeInterstitialBtn" class="ad-close-btn" disabled>
+            <span id="adTimerText">Aguarde 5s</span> ✕
+        </button>
+        
+        <div class="ad-takeover-container">
+            <div class="ad-side-banner">
+                [ Banner 160x600 Esquerdo ]<br><br>
+                (Insira a tag do seu anúncio aqui)
             </div>
-            <div class="ad-interstitial-content" id="adInterstitialContainer">
-                <!-- Script do anúncio será injetado aqui -->
+
+            <div class="ad-center-wrapper">
+                <a href="https://playtronicgames.com.br" target="_blank" style="display:block; width:100%; height:100%;">
+                    <img src="https://i.ibb.co/rRgV3n8d/playtronictv.png" alt="Publicidade" style="object-fit: contain; background: #0b0f19; padding: 20px;">
+                </a>
             </div>
-            <div style="text-align: center; padding: 0 20px 20px 20px;">
-                <button id="closeInterstitialBtn" class="ad-close-btn" disabled>Fechar e Assistir</button>
+
+            <div class="ad-side-banner" id="ad-side-right">
+                <script async="async" data-cfasync="false" src="https://dcengg.org/21/efe34bd92ca74a51f85465ca14314dc7"></script>
+                <div id="container-efe34bd92ca74a51f85465ca14314dc7"></div>
             </div>
         </div>
     </div>
@@ -1151,7 +1176,6 @@
     let pendingVideo = null;
     let adTimerInterval = null;
     const adModal = document.getElementById('adInterstitialModal');
-    const adContainer = document.getElementById('adInterstitialContainer');
     const closeAdBtn = document.getElementById('closeInterstitialBtn');
     const adTimerText = document.getElementById('adTimerText');
 
@@ -1159,28 +1183,7 @@
         pendingVideo = video;
         adModal.classList.add('active');
         
-        // Injeta o script do Adsterra isolado em um iframe com sandbox
-        adContainer.innerHTML = ''; 
-        const iframe = document.createElement('iframe');
-        iframe.style.width = '100%';
-        iframe.style.height = '400px';
-        iframe.style.border = 'none';
-        // AQUI ESTÁ A CHAVE: O sandbox impede o anúncio de "vazar" da caixa
-        iframe.setAttribute('sandbox', 'allow-scripts allow-same-origin');
-        iframe.srcdoc = `
-            <!DOCTYPE html>
-            <html>
-            <head>
-                <style>
-                    body { margin: 0; padding: 0; display: flex; align-items: center; justify-content: center; height: 100vh; overflow: hidden; background: transparent; }
-                </style>
-            </head>
-            <body>
-                <script data-cfasync="false" src="https://dcengg.org/14/43f4c5741bc3c8356edda781f5cc7d4d"><\/script>
-            </body>
-            </html>
-        `;
-        adContainer.appendChild(iframe);
+        // O Adsterra agora é renderizado diretamente no HTML (Banner Direito)
 
         // Configura o Timer de 5 segundos
         let timeLeft = 5;
@@ -1208,7 +1211,6 @@
         if (closeAdBtn.disabled) return;
         
         adModal.classList.remove('active');
-        adContainer.innerHTML = ''; // Limpa o iframe/script do anúncio para parar o áudio/vídeo
         
         if (pendingVideo) {
             const videoToPlay = pendingVideo;
