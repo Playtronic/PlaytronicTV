@@ -260,7 +260,7 @@
         .player-container {
             width: 100%; max-width: 1200px;
             display: flex; flex-direction: column; align-items: center;
-            gap: 15px; /* Aumentado para dar respiro entre o player e o banner */
+            gap: 15px;
         }
 
         .player-wrapper {
@@ -362,37 +362,23 @@
             border-radius: 50%; background: #fdbb2d; cursor: pointer;
         }
 
-        /* Container do banner horizontal - ESTILO LIGHTBOX */
+        /* Container do banner horizontal */
         #player-bottom-ad {
             display: none;
             width: 728px;
             max-width: 100%;
             height: 90px;
-            background: #152961;
-            border: 2px solid #fdbb2d;
+            background: #000000; /* Fundo preto */
+            border: 1px solid rgba(255,255,255,0.1); /* Borda sutil */
             border-radius: 8px;
             overflow: hidden;
             flex-shrink: 0;
             margin: 0 auto;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.6);
-            align-items: center;
-            justify-content: center;
-            color: #fdbb2d;
-            font-weight: bold;
-            font-family: sans-serif;
-            font-size: 14px;
             position: relative;
-        }
-        /* Texto que aparece se o iframe for bloqueado e deletado da tela */
-        #player-bottom-ad::before {
-            content: 'Publicidade';
-            position: absolute;
-            z-index: 0;
         }
         #player-bottom-ad iframe {
-            display: block; border: 0; margin: 0 auto; width: 100%; height: 100%;
-            position: relative;
-            z-index: 1;
+            display: block; border: 0; margin: 0 auto; width: 728px; height: 90px;
+            position: absolute; top: 0; left: 0; z-index: 1;
         }
 
         /* ===== INTERSTICIAL ===== */
@@ -405,22 +391,12 @@
 
         .ad-native-side {
             width: 160px; height: 600px; flex-shrink: 0;
-            background: #152961;
-            border: 2px solid #fdbb2d;
+            background: #000000; /* Fundo preto */
+            border: 1px solid rgba(255,255,255,0.1);
             display: flex; flex-direction: column; align-items: center; justify-content: center;
             border-radius: 8px; overflow: hidden; position: relative;
-            box-sizing: border-box;
         }
-        .ad-native-side iframe { width: 100%; height: 100%; display: block; border: 0; position: relative; z-index: 1; }
-        .ad-native-side::before {
-            content: 'Publicidade';
-            color: #fdbb2d;
-            font-weight: bold;
-            font-family: sans-serif;
-            font-size: 14px;
-            position: absolute;
-            z-index: 0;
-        }
+        .ad-native-side iframe { width: 100%; height: 100%; display: block; border: 0; position: absolute; z-index: 1; top:0; left:0; }
 
         .ad-interstitial-wrapper {
             background: #152961; border: 2px solid #fdbb2d;
@@ -725,7 +701,9 @@
         return null;
     }
 
-    /* ========= MONTAGEM ISOLADA DE BANNERS (ESTILO LIGHTBOX) ========= */
+    /* ========= MONTAGEM ISOLADA DE BANNERS =========
+       Utilizando document.write dentro do iframe para garantir compatibilidade com Adsterra.
+    */
     function mountStandardAd(container, opts, scriptSrc) {
         if (!container || container.dataset.mounted === '1') return;
         container.dataset.mounted = '1';
@@ -735,49 +713,31 @@
         iframe.setAttribute('frameborder', '0');
         iframe.width = String(opts.width);
         iframe.height = String(opts.height);
-        iframe.style.cssText = 'display:block; border:0; margin:0 auto; overflow:hidden; position:relative; z-index:1;';
+        iframe.style.cssText = 'display:block; border:0; margin:0 auto; overflow:hidden; position:absolute; top:0; left:0; width:100%; height:100%;';
         iframe.title = 'Publicidade';
         container.appendChild(iframe);
 
-        iframe.srcdoc = `
+        const d = iframe.contentWindow.document;
+        d.open();
+        d.write(`
             <!DOCTYPE html>
             <html>
             <head>
                 <meta charset="utf-8">
                 <style>
-                    html, body { 
-                        margin: 0; padding: 0; overflow: hidden; 
-                        width: 100%; height: 100%; 
-                        background: #152961; /* Azul da lightbox */
-                    }
-                    .fallback {
-                        position: absolute; inset: 0;
-                        display: flex; align-items: center; justify-content: center;
-                        border: 2px solid #fdbb2d; /* Borda amarela */
-                        border-radius: 8px;
-                        box-sizing: border-box;
-                        color: #fdbb2d;
-                        font-family: sans-serif;
-                        font-weight: bold;
-                        font-size: 14px;
-                        z-index: 1;
-                    }
-                    .ad-content {
-                        position: absolute; inset: 0;
-                        z-index: 2;
-                        display: flex; align-items: center; justify-content: center;
-                    }
+                    html, body { margin: 0; padding: 0; overflow: hidden; width: 100%; height: 100%; background: #000000; }
+                    .ad-content { position: absolute; inset: 0; z-index: 2; display: flex; align-items: center; justify-content: center; }
                 </style>
             </head>
             <body>
-                <div class="fallback">Publicidade</div>
                 <div class="ad-content">
                     <script>atOptions = ${JSON.stringify(opts)};<\/script>
                     <script src="${scriptSrc}"><\/script>
                 </div>
             </body>
             </html>
-        `;
+        `);
+        d.close();
     }
 
     function mountNativeAd(container, scriptSrc, innerDivId) {
@@ -787,49 +747,31 @@
         const iframe = document.createElement('iframe');
         iframe.setAttribute('scrolling', 'no');
         iframe.setAttribute('frameborder', '0');
-        iframe.style.cssText = 'display:block; border:0; width:100%; height:100%; position:relative; z-index:1;';
+        iframe.style.cssText = 'display:block; border:0; width:100%; height:100%; position:absolute; top:0; left:0;';
         iframe.title = 'Publicidade';
         container.appendChild(iframe);
 
-        iframe.srcdoc = `
+        const d = iframe.contentWindow.document;
+        d.open();
+        d.write(`
             <!DOCTYPE html>
             <html>
             <head>
                 <meta charset="utf-8">
                 <style>
-                    html, body { 
-                        margin: 0; padding: 0; 
-                        width: 100%; height: 100%; 
-                        background: #152961; 
-                    }
-                    .fallback {
-                        position: absolute; inset: 0;
-                        display: flex; align-items: center; justify-content: center;
-                        border: 2px solid #fdbb2d; 
-                        border-radius: 8px;
-                        box-sizing: border-box;
-                        color: #fdbb2d;
-                        font-family: sans-serif;
-                        font-weight: bold;
-                        font-size: 14px;
-                        z-index: 1;
-                    }
-                    .ad-content {
-                        position: absolute; inset: 0;
-                        z-index: 2;
-                        display: flex; align-items: center; justify-content: center;
-                    }
+                    html, body { margin: 0; padding: 0; background: #000000; width:100%; height:100%; }
+                    .ad-content { position: absolute; inset: 0; z-index: 2; display: flex; align-items: center; justify-content: center; }
                 </style>
             </head>
             <body>
-                <div class="fallback">Publicidade</div>
                 <div class="ad-content">
                     <div id="${innerDivId}"></div>
                     <script async data-cfasync="false" src="${scriptSrc}"><\/script>
                 </div>
             </body>
             </html>
-        `;
+        `);
+        d.close();
     }
 
     /* ========= FAVORITOS ========= */
@@ -1389,7 +1331,7 @@
         document.body.style.overflow = 'hidden';
 
         if (!window.matchMedia('(max-width: 900px)').matches) {
-            playerBottomAd.style.display = 'flex';
+            playerBottomAd.style.display = 'block';
             if (!playerBottomAd.dataset.mounted) {
                 playerBottomAd.dataset.mounted = '1';
                 mountStandardAd(
