@@ -368,18 +368,16 @@
             width: 728px;
             max-width: 100%;
             height: 90px;
-            background: transparent; /* CORRIGIDO: Fundo transparente */
-            border: 2px solid #fdbb2d; /* CORRIGIDO: Contorno amarelo igual ao lightbox */
+            background: transparent; /* Fundo transparente */
+            border: 2px solid #fdbb2d; /* Contorno amarelo */
             border-radius: 8px;
             overflow: hidden;
             flex-shrink: 0;
             margin: 0 auto;
             position: relative;
-            align-items: center; /* Centraliza o banner */
-            justify-content: center;
         }
         #player-bottom-ad iframe {
-            display: block; border: 0; margin: 0 auto; width: 728px; height: 90px;
+            display: block; border: 0; margin: 0 auto; width: 100%; height: 100%;
             position: absolute; top: 0; left: 0; z-index: 1;
         }
 
@@ -393,8 +391,8 @@
 
         .ad-native-side {
             width: 160px; height: 600px; flex-shrink: 0;
-            background: transparent; /* CORRIGIDO: Fundo transparente */
-            border: 2px solid #fdbb2d; /* CORRIGIDO: Contorno amarelo igual ao lightbox */
+            background: transparent; /* Fundo transparente */
+            border: 2px solid #fdbb2d; /* Contorno amarelo */
             display: flex; flex-direction: column; align-items: center; justify-content: center;
             border-radius: 8px; overflow: hidden; position: relative;
         }
@@ -704,27 +702,8 @@
         return null;
     }
 
-    /* ========= MONTAGEM DE BANNERS ========= */
-
-    // CORRIGIDO: Injeção direta para o banner horizontal não quebrar
-    function injectDirectAd(container, opts, scriptSrc) {
-        if (!container || container.dataset.mounted === '1') return;
-        container.dataset.mounted = '1';
-        container.innerHTML = ''; // Limpa o container
-
-        const script1 = document.createElement('script');
-        script1.type = 'text/javascript';
-        script1.text = `atOptions = ${JSON.stringify(opts)};`;
-        container.appendChild(script1);
-
-        const script2 = document.createElement('script');
-        script2.type = 'text/javascript';
-        script2.src = scriptSrc;
-        script2.async = true;
-        container.appendChild(script2);
-    }
-
-    // CORRIGIDO: Fundo transparente no iframe gerado
+    /* ========= MONTAGEM DE BANNERS (MÉTODO SRCDOC) ========= */
+    
     function mountStandardAd(container, opts, scriptSrc) {
         if (!container || container.dataset.mounted === '1') return;
         container.dataset.mounted = '1';
@@ -734,34 +713,34 @@
         iframe.setAttribute('frameborder', '0');
         iframe.width = String(opts.width);
         iframe.height = String(opts.height);
-        iframe.style.cssText = 'display:block; border:0; margin:0 auto; overflow:hidden; position:absolute; top:0; left:0; width:100%; height:100%;';
+        iframe.style.cssText = 'display:block; border:0; margin:0 auto; overflow:hidden; position:absolute; top:0; left:0; width:100%; height:100%; background: transparent;';
         iframe.title = 'Publicidade';
-        container.appendChild(iframe);
+        iframe.setAttribute('sandbox', 'allow-scripts allow-same-origin allow-popups allow-forms');
 
-        const d = iframe.contentWindow.document;
-        d.open();
-        d.write(`
+        const adHtml = `
             <!DOCTYPE html>
             <html>
             <head>
                 <meta charset="utf-8">
                 <style>
-                    html, body { margin: 0; padding: 0; overflow: hidden; width: 100%; height: 100%; background: transparent; }
-                    .ad-content { position: absolute; inset: 0; z-index: 2; display: flex; align-items: center; justify-content: center; }
+                    html, body { margin: 0; padding: 0; overflow: hidden; width: 100%; height: 100%; background: transparent; display: flex; align-items: center; justify-content: center; }
+                    .ad-content { position: relative; z-index: 2; display: flex; align-items: center; justify-content: center; width: 100%; height: 100%; }
                 </style>
             </head>
             <body>
                 <div class="ad-content">
-                    <script>atOptions = ${JSON.stringify(opts)};<\/script>
-                    <script src="${scriptSrc}"><\/script>
+                    <script type="text/javascript">
+                        atOptions = ${JSON.stringify(opts)};
+                    <\/script>
+                    <script type="text/javascript" src="${scriptSrc}"><\/script>
                 </div>
             </body>
             </html>
-        `);
-        d.close();
+        `;
+        iframe.srcdoc = adHtml;
+        container.appendChild(iframe);
     }
 
-    // CORRIGIDO: Fundo transparente no iframe gerado
     function mountNativeAd(container, scriptSrc, innerDivId) {
         if (!container || container.dataset.mounted === '1') return;
         container.dataset.mounted = '1';
@@ -769,20 +748,18 @@
         const iframe = document.createElement('iframe');
         iframe.setAttribute('scrolling', 'no');
         iframe.setAttribute('frameborder', '0');
-        iframe.style.cssText = 'display:block; border:0; width:100%; height:100%; position:absolute; top:0; left:0;';
+        iframe.style.cssText = 'display:block; border:0; width:100%; height:100%; position:absolute; top:0; left:0; background: transparent;';
         iframe.title = 'Publicidade';
-        container.appendChild(iframe);
+        iframe.setAttribute('sandbox', 'allow-scripts allow-same-origin allow-popups allow-forms');
 
-        const d = iframe.contentWindow.document;
-        d.open();
-        d.write(`
+        const adHtml = `
             <!DOCTYPE html>
             <html>
             <head>
                 <meta charset="utf-8">
                 <style>
-                    html, body { margin: 0; padding: 0; background: transparent; width:100%; height:100%; }
-                    .ad-content { position: absolute; inset: 0; z-index: 2; display: flex; align-items: center; justify-content: center; }
+                    html, body { margin: 0; padding: 0; background: transparent; width:100%; height:100%; display: flex; align-items: center; justify-content: center; }
+                    .ad-content { position: relative; z-index: 2; display: flex; align-items: center; justify-content: center; width: 100%; height: 100%; }
                 </style>
             </head>
             <body>
@@ -792,8 +769,9 @@
                 </div>
             </body>
             </html>
-        `);
-        d.close();
+        `;
+        iframe.srcdoc = adHtml;
+        container.appendChild(iframe);
     }
 
     /* ========= FAVORITOS ========= */
@@ -1353,11 +1331,10 @@
         document.body.style.overflow = 'hidden';
 
         if (!window.matchMedia('(max-width: 900px)').matches) {
-            playerBottomAd.style.display = 'flex'; // CORRIGIDO: display flex para centralizar
+            playerBottomAd.style.display = 'block'; 
             if (!playerBottomAd.dataset.mounted) {
                 playerBottomAd.dataset.mounted = '1';
-                // CORRIGIDO: Usando injeção direta para carregar o banner corretamente
-                injectDirectAd(
+                mountStandardAd(
                     playerBottomAd,
                     { key: 'c0b67a9be1ab830aba44c6c24a020adc', format: 'iframe', height: 90, width: 728, params: {} },
                     'https://dcengg.org/22/c0b67a9be1ab830aba44c6c24a020adc'
