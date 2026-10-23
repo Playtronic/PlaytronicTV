@@ -1240,7 +1240,7 @@
         adModal.classList.remove('active');
         
         // ==========================================
-        // LIMPEZA DEFINITIVA DO SOCIAL BAR (MÉTODO SNAPSHOT)
+        // LIMPEZA DEFINITIVA DO SOCIAL BAR (MÉTODO SNAPSHOT E NUKE)
         // ==========================================
         
         // 1. Remove a tag script injetada
@@ -1260,7 +1260,7 @@
             // Ignora elementos que já existiam antes da foto
             if (bodySnapshot.includes(child)) return;
             
-            // Ignora os nossos elementos de interface que podem ter sido modificados
+            // Ignora os nossos elementos de interface
             const keepIds = ['adInterstitialModal', 'playerScreen', 'videoModal', 'catalogScreen', 'adminToolbar', 'userCard', 'siteFooter', 'header'];
             if (keepIds.includes(child.id)) return;
 
@@ -1271,7 +1271,7 @@
         // 4. Garantia extra: varre o body buscando qualquer coisa fixed (flutuante) com Z-index gigante
         document.querySelectorAll('body *').forEach(el => {
             if (el.id === 'adsterra-sb-script') return;
-            if (el.closest('#adInterstitialModal') || el.closest('#playerScreen')) return;
+            if (el.closest('#adInterstitialModal') || el.closest('#playerScreen') || el.closest('.ad-native-side')) return;
 
             const style = window.getComputedStyle(el);
             if (style.position === 'fixed' && parseInt(style.zIndex) > 9000) {
