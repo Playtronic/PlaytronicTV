@@ -239,7 +239,7 @@
         .modal-actions .primary { background: #fdbb2d; color: #000; }
         .modal-actions .primary:hover { background: #ffcc44; }
 
-        /* ===== PLAYER (LAYOUT CORRIGIDO) ===== */
+        /* ===== PLAYER ===== */
         #playerScreen {
             position: fixed; inset: 0;
             background: linear-gradient(135deg, rgba(11,15,25,0.97) 0%, rgba(26,26,46,0.97) 50%, rgba(22,33,62,0.97) 100%);
@@ -260,12 +260,13 @@
         .player-container {
             width: 100%; max-width: 1200px;
             display: flex; flex-direction: column; align-items: center;
-            gap: 12px;
-            margin: auto; 
+            gap: 10px; /* Espaço entre player e banner */
         }
 
         .player-wrapper {
-            width: min(100%, calc((100vh - 150px) * 16 / 9));
+            width: 100%;
+            /* Garante que o player não ultrapasse a tela deixando espaço pro banner */
+            max-height: calc(100vh - 150px); 
             aspect-ratio: 16 / 9;
             background: #000;
             border-radius: 12px; overflow: hidden; position: relative;
@@ -362,13 +363,14 @@
             border-radius: 50%; background: #fdbb2d; cursor: pointer;
         }
 
-        /* Container do banner horizontal com contorno */
+        /* Container do banner horizontal - Agora com fundo visível */
         #player-bottom-ad {
             display: none;
             width: 728px;
             max-width: 100%;
             height: 90px;
-            background: transparent;
+            background: #0b0f19;
+            border: 1px solid rgba(255,255,255,0.08);
             border-radius: 8px;
             overflow: hidden;
             flex-shrink: 0;
@@ -385,14 +387,16 @@
 
         .ad-native-side {
             width: 160px; height: 600px; flex-shrink: 0;
-            background: rgba(255,255,255,0.03); border: 1px dashed rgba(255,255,255,0.15);
+            background: #0b0f19; /* Fundo escuro padrão */
+            border: 1px solid rgba(255,255,255,0.08);
             display: flex; flex-direction: column; align-items: center; justify-content: center;
             border-radius: 8px; overflow: hidden; position: relative;
         }
         .ad-native-side iframe { width: 100%; height: 100%; display: block; border: 0; }
 
         .ad-interstitial-wrapper {
-            background: #152961; border: 2px solid #fdbb2d; border-radius: 12px;
+            background: #152961; border: 2px solid #fdbb2d;
+            border-radius: 12px;
             width: 100%; max-width: 800px; display: flex; flex-direction: column;
             box-shadow: 0 0 60px rgba(253,187,45,0.2); overflow: hidden; flex-shrink: 0;
         }
@@ -482,7 +486,7 @@
             #playerScreen { padding: 0; }
             .player-container { gap: 0; }
             .player-wrapper {
-                width: min(100vw, calc((100vh - 40px) * 16 / 9));
+                max-height: calc(100vh - 40px);
                 border-radius: 0;
             }
             .player-vote-container { top: 10px; right: 10px; transform: scale(0.85); transform-origin: top right; }
@@ -600,7 +604,7 @@
             </div>
         </div>
 
-        <div class="ad-native-side right" id="adNativeRight" style="border: none; background: transparent;"></div>
+        <div class="ad-native-side right" id="adNativeRight"></div>
     </div>
 
     <!-- PLAYER -->
@@ -693,10 +697,8 @@
         return null;
     }
 
-    /* ========= MONTAGEM ISOLADA DE BANNERS (COM CONTORNO) =========
-       O banner agora tem um fundo (fallback) com a imagem da Playtronic
-       linkando para o site. Se o Adsterra carregar, ele sobrepõe a imagem. 
-       Se for bloqueado, a imagem aparece.
+    /* ========= MONTAGEM ISOLADA DE BANNERS =========
+       Agora sem logo no meio. Fundo escuro padrão.
     */
     function mountStandardAd(container, opts, scriptSrc) {
         if (!container || container.dataset.mounted === '1') return;
@@ -717,30 +719,11 @@
             <head>
                 <meta charset="utf-8">
                 <style>
-                    html, body { 
-                        margin: 0; padding: 0; overflow: hidden; 
-                        width: 100%; height: 100%; 
-                        background: #000; 
-                    }
-                    /* Contorno clicável (igual à lightbox) */
-                    .fallback {
-                        position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-                        display: flex; align-items: center; justify-content: center;
-                        z-index: 1;
-                    }
-                    .fallback img {
-                        max-height: 90%; max-width: 90%; object-fit: contain;
-                    }
-                    /* O anúncio fica por cima, se carregar */
-                    .ad-content {
-                        position: relative; z-index: 2; width: 100%; height: 100%;
-                    }
+                    html, body { margin: 0; padding: 0; overflow: hidden; width: 100%; height: 100%; background: #0b0f19; }
+                    .ad-content { position: absolute; inset: 0; z-index: 2; display: flex; align-items: center; justify-content: center; }
                 </style>
             </head>
             <body>
-                <a href="https://playtronicgames.com.br" target="_blank" class="fallback">
-                    <img src="https://i.ibb.co/rRgV3n8d/playtronictv.png" alt="Publicidade">
-                </a>
                 <div class="ad-content">
                     <script>atOptions = ${JSON.stringify(opts)};<\/script>
                     <script src="${scriptSrc}"><\/script>
@@ -767,19 +750,11 @@
             <head>
                 <meta charset="utf-8">
                 <style>
-                    html, body { margin: 0; padding: 0; background: transparent; width:100%; height:100%; }
-                    .fallback {
-                        position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-                        display: flex; align-items: center; justify-content: center; z-index: 1;
-                    }
-                    .fallback img { max-height: 80%; max-width: 80%; object-fit: contain; }
-                    .ad-content { position: relative; z-index: 2; width: 100%; height: 100%; }
+                    html, body { margin: 0; padding: 0; background: #0b0f19; width:100%; height:100%; }
+                    .ad-content { position: absolute; inset: 0; z-index: 2; display: flex; align-items: center; justify-content: center; }
                 </style>
             </head>
             <body>
-                <a href="https://playtronicgames.com.br" target="_blank" class="fallback">
-                    <img src="https://i.ibb.co/rRgV3n8d/playtronictv.png" alt="Publicidade">
-                </a>
                 <div class="ad-content">
                     <div id="${innerDivId}"></div>
                     <script async data-cfasync="false" src="${scriptSrc}"><\/script>
