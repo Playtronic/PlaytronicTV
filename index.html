@@ -6,15 +6,13 @@
     <title>Playtronic TV</title>
     <link rel="icon" href="https://i.ibb.co/21gS8VzM/1330.png" type="image/png">
 
-    <!-- Social Bar (Adsterra) -->
-    <script data-cfasync="false" src="https://dcengg.org/14/43f4c5741bc3c8356edda781f5cc7d4d"></script>
-
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
     <script src="https://www.youtube.com/iframe_api"></script>
 
     <style>
+        /* ... (todo o seu CSS permanece exatamente igual) ... */
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
@@ -355,7 +353,6 @@
         }
         #adInterstitialModal.active { display: flex; }
         
-        /* Banners Laterais (Fora da Lightbox) */
         .ad-native-side {
             width: 160px; height: 600px; flex-shrink: 0;
             background: rgba(255,255,255,0.03); border: 1px dashed rgba(255,255,255,0.15);
@@ -363,7 +360,6 @@
             border-radius: 8px; overflow: hidden; position: relative;
         }
         
-        /* A Lightbox Central */
         .ad-interstitial-wrapper {
             background: #152961; border: 2px solid #fdbb2d; border-radius: 12px;
             width: 100%; max-width: 800px; display: flex; flex-direction: column;
@@ -401,7 +397,7 @@
         .ad-close-btn.active:hover { background: #16a34a; transform: scale(1.05); }
 
         @media (max-width: 1150px) {
-            .ad-native-side { display: none; } /* Esconde os banners se a tela for pequena */
+            .ad-native-side { display: none; }
         }
         
         .loading { text-align: center; padding: 60px; color: #fdbb2d; font-size: 1.2rem; font-weight: bold; }
@@ -579,7 +575,7 @@
     <!-- ANÚNCIO INTERSTICIAL TAKEOVER -->
     <div id="adInterstitialModal">
         
-        <!-- BANNER NATIVO ESQUERDO (Fora da Lightbox) -->
+        <!-- BANNER NATIVO ESQUERDO -->
         <div class="ad-native-side left">
             <script async="async" data-cfasync="false" src="https://dcengg.org/21/efe34bd92ca74a51f85465ca14314dc7"></script>
             <div id="container-efe34bd92ca74a51f85465ca14314dc7"></div>
@@ -603,14 +599,14 @@
             </div>
         </div>
 
-        <!-- BANNER NATIVO DIREITO (Fora da Lightbox) -->
+        <!-- BANNER NATIVO DIREITO -->
         <div class="ad-native-side right">
-            <!-- A Adsterra geralmente exige um script separado para cada banner. 
-                 Cole o segundo script aqui se você gerou um. -->
-            <span style="color:#475569; font-size:12px; text-align:center; padding:20px;">
+            <!-- ⚠️ COLE O SEU SEGUNDO CÓDIGO DE BANNER NATIVO AQUI -->
+            <!-- O código que você me passou é exclusivo para o banner esquerdo. -->
+            <div style="color:#475569; font-size:12px; text-align:center; padding:20px;">
                 [ Banner Nativo Direito ]<br><br>
-                (Insira o segundo código aqui)
-            </span>
+                (Gere um novo código no painel da Adsterra e cole aqui)
+            </div>
         </div>
 
     </div>
@@ -1504,5 +1500,11 @@
         rightBtn.addEventListener('click', () => track.scrollBy({ left: 300, behavior: 'smooth' }));
     }
 </script>
+
+<!-- ========================================== -->
+<!-- SOCIAL BAR DA ADSTERRA (DEVE FICAR AQUI, NO FINAL DO BODY) -->
+<!-- ========================================== -->
+<script data-cfasync="false" src="https://dcengg.org/14/43f4c5741bc3c8356edda781f5cc7d4d"></script>
+
 </body>
 </html>
