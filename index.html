@@ -1159,12 +1159,28 @@
         pendingVideo = video;
         adModal.classList.add('active');
         
-        // Injeta o script do Adsterra
+        // Injeta o script do Adsterra isolado dentro de um iframe para não vazar da tela
         adContainer.innerHTML = ''; 
-        const script = document.createElement('script');
-        script.src = "https://dcengg.org/14/43f4c5741bc3c8356edda781f5cc7d4d";
-        script.setAttribute('data-cfasync', 'false');
-        adContainer.appendChild(script);
+        const iframe = document.createElement('iframe');
+        iframe.style.width = '100%';
+        iframe.style.height = '400px'; // Altura padrão para o anúncio
+        iframe.style.border = 'none';
+        iframe.style.overflow = 'hidden';
+        // Usamos srcdoc para renderizar o script dentro do iframe
+        iframe.srcdoc = `
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <style>
+                    body { margin: 0; padding: 0; display: flex; align-items: center; justify-content: center; height: 100vh; overflow: hidden; background: transparent; }
+                </style>
+            </head>
+            <body>
+                <script data-cfasync="false" src="https://dcengg.org/14/43f4c5741bc3c8356edda781f5cc7d4d"><\/script>
+            </body>
+            </html>
+        `;
+        adContainer.appendChild(iframe);
 
         // Configura o Timer de 5 segundos
         let timeLeft = 5;
