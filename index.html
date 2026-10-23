@@ -1190,7 +1190,6 @@
     // ==========================================
     let pendingVideo = null;
     let adTimerInterval = null;
-    let bodySnapshot = []; // Variável para armazenar a "foto" do site
 
     const adModal = document.getElementById('adInterstitialModal');
     const closeAdBtn = document.getElementById('closeInterstitialBtn');
@@ -1200,10 +1199,7 @@
         pendingVideo = video;
         adModal.classList.add('active');
         
-        // 1. Tira a "foto" de todos os elementos do body ANTES de injetar o anúncio
-        bodySnapshot = Array.from(document.body.children);
-
-        // 2. Injeta o Social Bar dinamicamente
+        // Injeta o Social Bar dinamicamente
         if (!document.getElementById('adsterra-sb-script')) {
             const s = document.createElement('script');
             s.id = 'adsterra-sb-script';
@@ -1240,44 +1236,49 @@
         adModal.classList.remove('active');
         
         // ==========================================
-        // LIMPEZA DEFINITIVA DO SOCIAL BAR (MÉTODO SNAPSHOT E NUKE)
+        // LIMPEZA NUCLEAR DO SOCIAL BAR
         // ==========================================
         
-        // 1. Remove a tag script injetada
+        // 1. Remove o script
         const sbScript = document.getElementById('adsterra-sb-script');
         if (sbScript) sbScript.remove();
 
-        // 2. Remove iframes com domínios da Adsterra
+        // 2. Remove TODOS os iframes que NÃO sejam do YouTube
         document.querySelectorAll('iframe').forEach(iframe => {
-            if (iframe.src && (iframe.src.includes('dcengg') || iframe.src.includes('adsterra'))) {
+            if (!iframe.src.includes('youtube') && !iframe.closest('.ad-native-side')) {
                 iframe.remove();
             }
         });
 
-        // 3. O "Nuke": Compara os elementos atuais com a foto tirada antes.
-        // Tudo que for novo e não for nosso, é deletado.
-        Array.from(document.body.children).forEach(child => {
-            // Ignora elementos que já existiam antes da foto
-            if (bodySnapshot.includes(child)) return;
-            
-            // Ignora os nossos elementos de interface
-            const keepIds = ['adInterstitialModal', 'playerScreen', 'videoModal', 'catalogScreen', 'adminToolbar', 'userCard', 'siteFooter', 'header'];
-            if (keepIds.includes(child.id)) return;
+        // 3. Varre o body e destrói qualquer div que não seja do nosso site
+        const ourIds = ['catalogScreen', 'adminToolbar', 'videoModal', 'adInterstitialModal', 'playerScreen', 'userCard'];
+        const ourClasses = ['header', 'site-footer'];
 
-            // Se sobrou algum elemento novo, é o anúncio tentando flutuar. Deletamos.
+        Array.from(document.body.children).forEach(child => {
+            // Se for um script, mantém (a menos que seja o da adsterra, que já removemos acima)
+            if (child.tagName === 'SCRIPT' || child.tagName === 'STYLE') return;
+            
+            // Se for um dos nossos elementos principais, mantém
+            if (ourIds.includes(child.id)) return;
+            if (ourClasses.some(c => child.classList.contains(c))) return;
+            
+            // Se sobrou qualquer outra coisa (iframes, divs de anúncios flutuantes), DELETA
             child.remove();
         });
 
-        // 4. Garantia extra: varre o body buscando qualquer coisa fixed (flutuante) com Z-index gigante
-        document.querySelectorAll('body *').forEach(el => {
-            if (el.id === 'adsterra-sb-script') return;
-            if (el.closest('#adInterstitialModal') || el.closest('#playerScreen') || el.closest('.ad-native-side')) return;
-
-            const style = window.getComputedStyle(el);
-            if (style.position === 'fixed' && parseInt(style.zIndex) > 9000) {
-                el.remove();
+        // 4. Escudo CSS: Bloqueia qualquer nova tentativa de flutuar na tela
+        const shield = document.createElement('style');
+        shield.id = 'ad-shield';
+        shield.innerHTML = `
+            body > iframe, body > div:not(#catalogScreen):not(#adminToolbar):not(#videoModal):not(#adInterstitialModal):not(#playerScreen):not(#userCard) {
+                display: none !important;
+                visibility: hidden !important;
+                opacity: 0 !important;
+                pointer-events: none !important;
+                z-index: -9999 !important;
             }
-        });
+        `;
+        document.head.appendChild(shield);
         
         // ==========================================
 
