@@ -1070,10 +1070,14 @@
             isPlaying = false;
             centerPlayPauseBtn.innerHTML = '▶';
             centerPlayPauseBtn.classList.remove('playing-state');
+            showControls();
+            clearTimeout(controlsTimeout);
         } else if (event.data === 0) {
             isPlaying = false;
             centerPlayPauseBtn.innerHTML = '▶';
             centerPlayPauseBtn.classList.remove('playing-state');
+            showControls();
+            clearTimeout(controlsTimeout);
         } else if (event.data === 3) {
             removeCaptions(event.target);
         }
