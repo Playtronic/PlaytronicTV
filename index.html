@@ -9,6 +9,7 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
     <script src="https://www.youtube.com/iframe_api"></script>
 
     <style>
@@ -145,7 +146,7 @@
         }
         .tag-bra { background: #16a34a; color: #fff; }
         .tag-eng { background: #2563eb; color: #fff; }
-        .tag-pago { background: #3b82f6; color: #fff; } /* Azul com fonte branca */
+        .tag-pago { background: #3b82f6; color: #fff; }
         .tag-ad { background: #dc2626; color: #fff; }
 
         .card-meta {
@@ -161,24 +162,61 @@
         }
         .watch-btn:hover { background: #ffcc44; transform: scale(1.02); }
 
-        .admin-toolbar {
-            position: fixed; bottom: 24px; right: 24px; z-index: 999;
-            display: none; padding: 10px 12px;
-            background: rgba(21, 41, 97, 0.94); backdrop-filter: blur(10px);
-            border: 1px solid rgba(253,187,45,0.35); border-radius: 14px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+        /* ===== NOVO MENU ADMIN ===== */
+        #adminMenuContainer {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 9999;
+            display: none;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
-        body.is-admin .admin-toolbar { display: block; }
-        .admin-toolbar button {
-            background: #fdbb2d; color: #000; border: none;
-            padding: 10px 16px; border-radius: 8px; font-weight: 700;
-            cursor: pointer; font-size: 0.85rem; transition: 0.2s;
-            display: flex; align-items: center; gap: 6px;
-            font-family: inherit;
+        #adminMenuBtn {
+            background: #fdbb2d;
+            color: #000;
+            border: none;
+            padding: 10px 16px;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 0.95rem;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+            display: flex;
+            align-items: center;
+            gap: 6px;
         }
-        .admin-toolbar button:hover { background: #ffcc44; transform: translateY(-1px); }
-
-        body.is-admin #catalogScreen { padding-bottom: 100px; }
+        #adminDropdown {
+            display: none;
+            position: absolute;
+            top: 45px;
+            right: 0;
+            background: #152961;
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 8px;
+            padding: 8px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.6);
+            min-width: 200px;
+            flex-direction: column;
+            gap: 6px;
+        }
+        #adminDropdown button {
+            background: rgba(255,255,255,0.05);
+            color: #fff;
+            border: none;
+            padding: 10px 14px;
+            border-radius: 6px;
+            text-align: left;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: background 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        #adminDropdown button:hover {
+            background: rgba(253,187,45,0.2);
+            color: #fdbb2d;
+        }
 
         .modal-overlay {
             position: fixed; inset: 0; background: rgba(0,0,0,0.72);
@@ -362,7 +400,6 @@
             border-radius: 50%; background: #fdbb2d; cursor: pointer;
         }
 
-        /* Container do banner horizontal - SEM CONTORNO GARANTIDO */
         #player-bottom-ad {
             display: none;
             width: 728px;
@@ -399,7 +436,7 @@
 
         .ad-interstitial-wrapper {
             background: #152961; 
-            border: 2px solid #fdbb2d; /* CONTORNO MANTIDO NO CENTRO */
+            border: 2px solid #fdbb2d;
             border-radius: 12px;
             width: 100%; max-width: 800px; display: flex; flex-direction: column;
             box-shadow: 0 0 60px rgba(253,187,45,0.2); overflow: hidden; flex-shrink: 0;
@@ -498,7 +535,7 @@
             .volume-slider { width: 50px; }
             .player-controls { flex-wrap: wrap; gap: 10px; }
             .progress-track { order: -1; width: 100%; flex: 0 0 100%; margin: 0 0 5px 0; }
-            .admin-toolbar { bottom: 12px; right: 12px; left: 12px; justify-content: center; }
+            #adminMenuContainer { top: auto; bottom: 20px; right: 20px; }
             .carousel-track .card { flex: 0 0 200px; width: 200px; }
             .carousel-arrow { display: none; }
             #player-bottom-ad { display: none !important; }
@@ -517,6 +554,15 @@
             <input type="text" id="searchInput" placeholder="Pesquisar" autocomplete="off">
         </div>
         <div class="auth-area">
+            <!-- BOTÃO DE ASSINATURA -->
+            <button id="subscribeBtn" style="display:none; background: linear-gradient(135deg, #fdbb2d, #f5a623); color: #000; border: none; padding: 10px 18px; border-radius: 8px; font-weight: bold; cursor: pointer; margin-right: 10px;">
+                ⭐ Assinar
+            </button>
+            <div id="subscriptionBadge" style="display:none; background: #16a34a; color: #fff; padding: 8px 14px; border-radius: 20px; font-size: 0.85rem; font-weight: bold; margin-right: 10px; align-items: center; gap: 6px;">
+                ✓ Assinante até <span id="subExpiresText"></span>
+            </div>
+            <!-- FIM BOTÃO DE ASSINATURA -->
+
             <button class="login-btn" id="loginBtn">
                 <svg width="18" height="18" viewBox="0 0 48 48"><path fill="#FFC107" d="M43.611,20.083H42V20H24v8h11.303c-1.649,4.657-6.08,8-11.303,8c-6.627,0-12-5.373-12-12c0-6.627,5.373-12,12-12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C12.955,4,4,12.955,4,24c0,11.045,8.955,20,20,20c11.045,0,20-8.955,20-20C44,22.659,43.862,21.35,43.611,20.083z"/><path fill="#FF3D00" d="M6.306,14.691l6.571,4.819C14.655,15.108,18.961,12,24,12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C16.318,4,9.656,8.337,6.306,14.691z"/><path fill="#4CAF50" d="M24,44c5.166,0,9.86-1.977,13.409-5.192l-6.19-5.238C29.211,35.091,26.715,36,24,36c-5.202,0-9.619-3.317-11.283-7.946l-6.522,5.025C9.505,39.556,16.227,44,24,44z"/><path fill="#1976D2" d="M43.611,20.083H42V20H24v8h11.303c-0.792,2.237-2.231,4.166-4.087,5.571c0.001-0.001,0.002-0.001,0.003-0.002l6.19,5.238C36.971,39.205,44,34,44,24C44,22.659,43.862,21.35,43.611,20.083z"/></svg>
                 Entrar
@@ -554,10 +600,18 @@
         </a>
     </footer>
 
-    <div class="admin-toolbar" id="adminToolbar">
-        <button id="addVideoBtn">➕ Adicionar Vídeo</button>
+    <!-- NOVO MENU ADMIN -->
+    <div id="adminMenuContainer">
+        <button id="adminMenuBtn">
+            ⚙️ Admin
+        </button>
+        <div id="adminDropdown">
+            <button id="addVideoBtn">➕ Inserir Vídeo</button>
+            <button id="configSubBtn">💰 Editar Assinatura</button>
+        </div>
     </div>
 
+    <!-- MODAL DE VÍDEO -->
     <div class="modal-overlay" id="videoModal">
         <div class="modal">
             <h2 id="videoModalTitle">Adicionar Vídeo</h2>
@@ -643,6 +697,31 @@
         </div>
     </div>
 
+    <!-- LIGHTBOX DE PAGAMENTO PIX -->
+    <div id="pixLightbox" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 99999; justify-content: center; align-items: center; backdrop-filter: blur(6px);">
+        <div style="background: #152961; border: 2px solid #fdbb2d; border-radius: 14px; padding: 30px; max-width: 480px; width: 90%; position: relative; text-align: center; color: #fff;">
+            <button id="pixClose" style="position: absolute; top: 12px; right: 14px; background: transparent; border: none; color: #cbd5e1; font-size: 1.6rem; cursor: pointer;">×</button>
+            <h2 style="color: #fdbb2d; margin-bottom: 8px;">Playtronic TV+</h2>
+            <p style="color: #cbd5e1; font-size: 0.9rem; margin-bottom: 18px;">Assine e desbloqueie todo o catálogo.<br>Sem anúncios por 30 dias.</p>
+            
+            <div style="color: #fdbb2d; font-size: 2rem; font-weight: 800; margin-bottom: 20px;">
+                R$ <span id="pixPriceValue">...</span><small style="font-size: 0.9rem; color: #94a3b8; font-weight: 400;"> / 30 dias</small>
+            </div>
+            
+            <button id="generatePixBtn" style="background: linear-gradient(135deg, #2ecc71, #27ae60); color: #fff; border: none; padding: 14px; width: 100%; border-radius: 8px; font-weight: bold; font-size: 1rem; cursor: pointer;">
+                Gerar PIX
+            </button>
+
+            <div id="pixArea" style="display: none; margin-top: 20px;">
+                <div id="pixQr" style="width: 200px; height: 200px; margin: 0 auto 14px; background: #fff; padding: 8px; border-radius: 8px;"></div>
+                <p style="color: #cbd5e1; font-size: 0.85rem; margin-bottom: 8px;">Ou copie o código abaixo:</p>
+                <textarea id="pixCode" readonly style="width: 100%; height: 60px; font-family: monospace; font-size: 12px; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.2); color: #fff; padding: 10px; border-radius: 6px; resize: none;"></textarea>
+                <button id="copyPixBtn" style="margin-top: 8px; background: #3498db; color: #fff; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer;">Copiar código</button>
+                <div id="pixStatus" style="margin-top: 16px; padding: 12px; border-radius: 8px; font-size: 0.9rem; display: none;"></div>
+            </div>
+        </div>
+    </div>
+
 <script>
     /* ========= FIREBASE ========= */
     const firebaseConfig = {
@@ -657,8 +736,10 @@
     if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
     const rtdb = firebase.database();
-
+    const db = firebase.firestore();
+    
     const ADMIN_EMAIL = 'playtronicpublisher@mail.com';
+    const CF_BASE = 'https://us-central1-playtronic-tv.cloudfunctions.net';
 
     /* ========= ESTADO ========= */
     let currentUser = null;
@@ -672,6 +753,11 @@
     let votesCache = {}; 
     let videosLoaded = false;
     let favoritesLoaded = false;
+
+    // Variáveis da Assinatura
+    let catalogSubscription = { active: false, expiresAt: 0 };
+    let pixPaymentCheckInterval = null;
+    let pixCurrentPayment = null;
 
     /* ========= HELPERS ========= */
     function isAdmin() {
@@ -703,7 +789,7 @@
         return null;
     }
 
-    /* ========= MONTAGEM ISOLADA DE BANNERS (LATERAIS E INTERSTICIAL) ========= */
+    /* ========= MONTAGEM ISOLADA DE BANNERS ========= */
     function mountStandardAd(container, opts, scriptSrc) {
         if (!container || container.dataset.mounted === '1') return;
         container.dataset.mounted = '1';
@@ -868,6 +954,7 @@
         }
 
         if (currentPlayerVideoId) atualizarPlayerUI(currentPlayerVideoId);
+        checkCatalogSubscription(); // <- Chamada do sistema de assinatura
     });
 
     /* ========= VOTOS ========= */
@@ -1015,8 +1102,23 @@
             deleteVideo(item);
         });
 
-        card.querySelector('.watch-btn').addEventListener('click', () => {
-            if (item.ad) showAdInterstitial(item);
+        const watchBtn = card.querySelector('.watch-btn');
+        const isPago = !!item.pago;
+        
+        if (isPago && !catalogSubscription.active) {
+            watchBtn.textContent = '🔒 Assinar para assistir';
+            watchBtn.style.background = 'linear-gradient(135deg, #7c3aed, #6d28d9)';
+            watchBtn.style.color = '#fff';
+        } else {
+            watchBtn.textContent = '▶ Assistir';
+        }
+
+        watchBtn.addEventListener('click', () => {
+            if (isPago && !catalogSubscription.active) {
+                openPixLightbox();
+                return;
+            }
+            if (item.ad && !catalogSubscription.active) showAdInterstitial(item);
             else openPlayer(item);
         });
 
@@ -1202,9 +1304,210 @@
         catch (err) { alert('Erro ao remover: ' + err.message); }
     }
 
-    document.getElementById('addVideoBtn').addEventListener('click', () => openVideoModal('add'));
+    /* ========= MENU E LÓGICA DE ADMIN ========= */
+    auth.onAuthStateChanged((user) => {
+        const adminContainer = document.getElementById('adminMenuContainer');
+        if (user && user.email === ADMIN_EMAIL) {
+            adminContainer.style.display = 'block';
+        } else {
+            adminContainer.style.display = 'none';
+        }
+    });
 
-    /* ========= PLAYER ========= */
+    document.getElementById('adminMenuBtn').addEventListener('click', (e) => {
+        e.stopPropagation();
+        const dropdown = document.getElementById('adminDropdown');
+        dropdown.style.display = dropdown.style.display === 'flex' ? 'none' : 'flex';
+    });
+
+    document.addEventListener('click', (e) => {
+        const dropdown = document.getElementById('adminDropdown');
+        if (dropdown.style.display === 'flex' && !e.target.closest('#adminMenuContainer')) {
+            dropdown.style.display = 'none';
+        }
+    });
+
+    document.getElementById('addVideoBtn').addEventListener('click', () => {
+        document.getElementById('adminDropdown').style.display = 'none';
+        openVideoModal('add');
+    });
+
+    document.getElementById('configSubBtn').addEventListener('click', async () => {
+        document.getElementById('adminDropdown').style.display = 'none';
+        try {
+            const doc = await db.collection('platform_config').doc('catalog').get();
+            let precoAtual = "";
+            if (doc.exists && doc.data().subscription) {
+                precoAtual = doc.data().subscription.monthlyPrice;
+            }
+
+            const novoPreco = prompt("Digite o novo valor da assinatura (Ex: 19.90):", precoAtual);
+            
+            if (novoPreco !== null && novoPreco.trim() !== "") {
+                const precoNumerico = parseFloat(novoPreco.replace(',', '.'));
+                
+                if (isNaN(precoNumerico) || precoNumerico <= 0) {
+                    alert("Por favor, digite um valor válido.");
+                    return;
+                }
+
+                await db.collection('platform_config').doc('catalog').set({
+                    subscription: {
+                        enabled: true,
+                        monthlyPrice: precoNumerico
+                    }
+                }, { merge: true });
+
+                alert("✅ Preço atualizado com sucesso para R$ " + precoNumerico.toFixed(2).replace('.', ','));
+            }
+        } catch (e) {
+            console.error(e);
+            alert("Erro ao atualizar o preço. Verifique o console.");
+        }
+    });
+
+    /* ========= SISTEMA DE ASSINATURA PIX ========= */
+    async function checkCatalogSubscription() {
+        if (!currentUser) {
+            catalogSubscription = { active: false, expiresAt: 0 };
+            updateSubscriptionUI();
+            return;
+        }
+        try {
+            const token = await currentUser.getIdToken();
+            const r = await fetch(CF_BASE + '/getCatalogSubscription', {
+                headers: { Authorization: 'Bearer ' + token }
+            });
+            const data = await r.json();
+            catalogSubscription = (data.success && data.active)
+                ? { active: true, expiresAt: data.expiresAt }
+                : { active: false, expiresAt: 0 };
+        } catch (e) {
+            console.error('checkCatalogSubscription:', e);
+            catalogSubscription = { active: false, expiresAt: 0 };
+        }
+        updateSubscriptionUI();
+        if (videosLoaded && favoritesLoaded) renderCards();
+    }
+
+    function updateSubscriptionUI() {
+        const btn = document.getElementById('subscribeBtn');
+        const badge = document.getElementById('subscriptionBadge');
+        const exp = document.getElementById('subExpiresText');
+        
+        if (!btn || !badge) return;
+
+        if (!currentUser) {
+            btn.style.display = 'none';
+            badge.style.display = 'none';
+        } else if (catalogSubscription.active) {
+            btn.style.display = 'none';
+            badge.style.display = 'inline-flex';
+            if (exp && catalogSubscription.expiresAt) {
+                exp.textContent = new Date(catalogSubscription.expiresAt).toLocaleDateString('pt-BR');
+            }
+        } else {
+            btn.style.display = 'block';
+            badge.style.display = 'none';
+        }
+    }
+
+    function openPixLightbox() {
+        if (!currentUser) {
+            alert('Faça login para assinar.');
+            document.getElementById('loginBtn').click();
+            return;
+        }
+        document.getElementById('pixLightbox').style.display = 'flex';
+        document.getElementById('pixArea').style.display = 'none';
+        document.getElementById('generatePixBtn').disabled = false;
+        document.getElementById('generatePixBtn').textContent = 'Gerar PIX';
+        const st = document.getElementById('pixStatus');
+        st.className = ''; st.textContent = ''; st.style.display = 'none';
+        if (pixPaymentCheckInterval) { clearInterval(pixPaymentCheckInterval); pixPaymentCheckInterval = null; }
+        pixCurrentPayment = null;
+    }
+
+    function closePixLightbox() {
+        document.getElementById('pixLightbox').style.display = 'none';
+        if (pixPaymentCheckInterval) { clearInterval(pixPaymentCheckInterval); pixPaymentCheckInterval = null; }
+        pixCurrentPayment = null;
+    }
+
+    async function generateCatalogPix() {
+        const btn = document.getElementById('generatePixBtn');
+        const st = document.getElementById('pixStatus');
+        btn.disabled = true; btn.textContent = 'Gerando PIX...';
+        st.className = ''; st.style.display = 'none';
+
+        try {
+            const token = await currentUser.getIdToken();
+            const r = await fetch(CF_BASE + '/createCatalogPixPayment', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + token },
+                body: '{}'
+            });
+            const data = await r.json();
+            if (!data.success) throw new Error(data.error || 'Erro ao gerar pagamento');
+
+            pixCurrentPayment = { paymentId: data.paymentId, checkToken: data.checkToken };
+
+            if (data.amount) {
+                document.getElementById('pixPriceValue').textContent = data.amount.toFixed(2).replace('.', ',');
+            }
+            const qr = document.getElementById('pixQr');
+            qr.innerHTML = data.qrCodeBase64 ? '<img src="data:image/png;base64,' + data.qrCodeBase64 + '" style="width:100%; height:100%;">' : '';
+            document.getElementById('pixCode').value = data.qrCode || '';
+            
+            document.getElementById('pixArea').style.display = 'block';
+            btn.textContent = 'PIX Gerado ✓';
+            startPaymentPolling();
+        } catch (e) {
+            btn.disabled = false; btn.textContent = 'Gerar PIX';
+            st.className = 'error'; st.textContent = 'Erro: ' + e.message; st.style.display = 'block'; st.style.background = '#f8d7da'; st.style.color = '#721c24';
+        }
+    }
+
+    function startPaymentPolling() {
+        if (pixPaymentCheckInterval) clearInterval(pixPaymentCheckInterval);
+        const st = document.getElementById('pixStatus');
+        st.style.display = 'block'; st.style.background = '#fff3cd'; st.style.color = '#856404'; st.textContent = '⏳ Aguardando pagamento...';
+
+        pixPaymentCheckInterval = setInterval(async () => {
+            if (!pixCurrentPayment) { clearInterval(pixPaymentCheckInterval); return; }
+            try {
+                const url = CF_BASE + '/checkCatalogPixStatus?paymentId=' + encodeURIComponent(pixCurrentPayment.paymentId) + '&token=' + encodeURIComponent(pixCurrentPayment.checkToken);
+                const r = await fetch(url);
+                const data = await r.json();
+                if (!data.success) return;
+
+                if (data.status === 'approved') {
+                    clearInterval(pixPaymentCheckInterval); pixPaymentCheckInterval = null;
+                    st.style.background = '#d4edda'; st.style.color = '#155724'; st.style.fontWeight = 'bold';
+                    st.textContent = '✅ Pagamento confirmado! Ativando assinatura...';
+                    setTimeout(async () => {
+                        await checkCatalogSubscription();
+                        closePixLightbox();
+                    }, 2000);
+                } else if (data.status === 'rejected' || data.status === 'cancelled') {
+                    clearInterval(pixPaymentCheckInterval); pixPaymentCheckInterval = null;
+                    st.style.background = '#f8d7da'; st.style.color = '#721c24'; st.textContent = '❌ Pagamento não realizado.';
+                }
+            } catch (e) { console.warn('poll:', e); }
+        }, 4000);
+    }
+
+    document.getElementById('subscribeBtn').addEventListener('click', openPixLightbox);
+    document.getElementById('pixClose').addEventListener('click', closePixLightbox);
+    document.getElementById('generatePixBtn').addEventListener('click', generateCatalogPix);
+    document.getElementById('copyPixBtn').addEventListener('click', () => {
+        const ta = document.getElementById('pixCode');
+        ta.select(); ta.setSelectionRange(0, 99999); document.execCommand('copy');
+        document.getElementById('copyPixBtn').textContent = 'Copiado!';
+        setTimeout(() => { document.getElementById('copyPixBtn').textContent = 'Copiar código'; }, 2000);
+    });
+
+    /* ========= PLAYER E ANÚNCIOS ========= */
     const playerScreen = document.getElementById('playerScreen');
     const playerWrapper = document.getElementById('playerWrapper');
     const customUI = document.getElementById('customUI');
@@ -1240,6 +1543,8 @@
     const adTimerText = document.getElementById('adTimerText');
 
     function showAdInterstitial(video) {
+        if (catalogSubscription.active) { openPlayer(video); return; }
+        
         pendingVideo = video;
         adModal.classList.add('active');
 
@@ -1331,7 +1636,7 @@
         playerScreen.classList.add('active');
         document.body.style.overflow = 'hidden';
 
-        if (!window.matchMedia('(max-width: 900px)').matches) {
+        if (!window.matchMedia('(max-width: 900px)').matches && !catalogSubscription.active) {
             playerBottomAd.style.display = 'block';
             if (!playerBottomAd.dataset.mounted) {
                 playerBottomAd.dataset.mounted = '1';
@@ -1525,19 +1830,15 @@
         }
     });
 
-    /* ========= ATALHOS DE TECLADO DO PLAYER ========= */
     document.addEventListener('keydown', (e) => {
-        // Apenas processa atalhos se o player estiver ativo
         if (!playerScreen.classList.contains('active')) return;
-
-        // Ignora atalhos se o usuário estiver digitando em algum input
         if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
 
         switch (e.key) {
             case ' ':
             case 'k':
             case 'K':
-                e.preventDefault(); // Evita rolar a página
+                e.preventDefault();
                 if (playerReady && player) {
                     if (isPlaying) player.pauseVideo();
                     else player.playVideo();
@@ -1658,7 +1959,6 @@
         resetControlsTimer();
     });
 
-    /* ========= CARROSSEL ========= */
     const track = document.getElementById('favoritesTrack');
     const leftBtn = document.getElementById('carouselLeft');
     const rightBtn = document.getElementById('carouselRight');
