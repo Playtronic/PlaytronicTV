@@ -247,6 +247,9 @@
             -webkit-backdrop-filter: blur(10px);
             z-index: 2000;
             display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
             overflow-y: auto;
             padding: 20px;
             opacity: 0; visibility: hidden;
@@ -256,18 +259,18 @@
 
         .player-container {
             width: 100%; max-width: 1200px;
-            margin: auto;
             display: flex; flex-direction: column; align-items: center;
             gap: 12px;
+            margin: auto; 
         }
 
-        /* A MÁGICA: limitar width pela altura disponível pra sobrar espaço pro banner */
         .player-wrapper {
             width: min(100%, calc((100vh - 150px) * 16 / 9));
             aspect-ratio: 16 / 9;
             background: #000;
             border-radius: 12px; overflow: hidden; position: relative;
             box-shadow: 0 20px 50px rgba(0,0,0,0.8);
+            flex-shrink: 0;
         }
 
         .player-wrapper::before {
@@ -359,7 +362,7 @@
             border-radius: 50%; background: #fdbb2d; cursor: pointer;
         }
 
-        /* Container do banner horizontal — altura fixa, evita layout shift */
+        /* Container do banner horizontal com contorno */
         #player-bottom-ad {
             display: none;
             width: 728px;
@@ -578,7 +581,7 @@
         </div>
     </div>
 
-    <!-- ANÚNCIO INTERSTICIAL (containers vazios; iframes montados sob demanda) -->
+    <!-- ANÚNCIO INTERSTICIAL -->
     <div id="adInterstitialModal">
         <div class="ad-native-side left" id="adNativeLeft"></div>
 
@@ -656,7 +659,7 @@
     let editingVideoKey = null;
     let favoritesRef = null;
     let userFavorites = {};
-    let votesCache = {};        // cache global de votos
+    let votesCache = {}; 
     let videosLoaded = false;
     let favoritesLoaded = false;
 
@@ -690,60 +693,100 @@
         return null;
     }
 
-    /* ========= MONTAGEM ISOLADA DE BANNERS (contorno) =========
-       Cada banner é carregado dentro do seu próprio <iframe>, num documento
-       independente. Isso evita:
-       - colisão do global `atOptions`
-       - scripts de anúncio "vazando" para o DOM principal
-       - banners quebrados travando a página
+    /* ========= MONTAGEM ISOLADA DE BANNERS (COM CONTORNO) =========
+       O banner agora tem um fundo (fallback) com a imagem da Playtronic
+       linkando para o site. Se o Adsterra carregar, ele sobrepõe a imagem. 
+       Se for bloqueado, a imagem aparece.
     */
     function mountStandardAd(container, opts, scriptSrc) {
         if (!container || container.dataset.mounted === '1') return;
         container.dataset.mounted = '1';
+        
         const iframe = document.createElement('iframe');
         iframe.setAttribute('scrolling', 'no');
         iframe.setAttribute('frameborder', '0');
-        iframe.setAttribute('sandbox', 'allow-scripts allow-same-origin allow-popups allow-forms');
         iframe.width = String(opts.width);
         iframe.height = String(opts.height);
-        iframe.style.cssText = 'display:block; border:0; margin:0 auto;';
+        iframe.style.cssText = 'display:block; border:0; margin:0 auto; overflow:hidden;';
         iframe.title = 'Publicidade';
         container.appendChild(iframe);
-        const doc = iframe.contentWindow.document;
-        doc.open();
-        doc.write(
-            '<!DOCTYPE html><html><head><meta charset="utf-8">' +
-            '<style>html,body{margin:0;padding:0;overflow:hidden;background:transparent;}</style>' +
-            '</head><body>' +
-            '<script>atOptions = ' + JSON.stringify(opts) + ';<\/script>' +
-            '<script src="' + scriptSrc + '"><\/script>' +
-            '</body></html>'
-        );
-        doc.close();
+
+        iframe.srcdoc = `
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <meta charset="utf-8">
+                <style>
+                    html, body { 
+                        margin: 0; padding: 0; overflow: hidden; 
+                        width: 100%; height: 100%; 
+                        background: #000; 
+                    }
+                    /* Contorno clicável (igual à lightbox) */
+                    .fallback {
+                        position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+                        display: flex; align-items: center; justify-content: center;
+                        z-index: 1;
+                    }
+                    .fallback img {
+                        max-height: 90%; max-width: 90%; object-fit: contain;
+                    }
+                    /* O anúncio fica por cima, se carregar */
+                    .ad-content {
+                        position: relative; z-index: 2; width: 100%; height: 100%;
+                    }
+                </style>
+            </head>
+            <body>
+                <a href="https://playtronicgames.com.br" target="_blank" class="fallback">
+                    <img src="https://i.ibb.co/rRgV3n8d/playtronictv.png" alt="Publicidade">
+                </a>
+                <div class="ad-content">
+                    <script>atOptions = ${JSON.stringify(opts)};<\/script>
+                    <script src="${scriptSrc}"><\/script>
+                </div>
+            </body>
+            </html>
+        `;
     }
 
     function mountNativeAd(container, scriptSrc, innerDivId) {
         if (!container || container.dataset.mounted === '1') return;
         container.dataset.mounted = '1';
+        
         const iframe = document.createElement('iframe');
         iframe.setAttribute('scrolling', 'no');
         iframe.setAttribute('frameborder', '0');
-        iframe.setAttribute('sandbox', 'allow-scripts allow-same-origin allow-popups allow-forms');
         iframe.style.cssText = 'display:block; border:0; width:100%; height:100%;';
         iframe.title = 'Publicidade';
         container.appendChild(iframe);
-        const doc = iframe.contentWindow.contentWindow === undefined ? iframe.contentDocument : iframe.contentWindow.document;
-        const d = iframe.contentDocument || iframe.contentWindow.document;
-        d.open();
-        d.write(
-            '<!DOCTYPE html><html><head><meta charset="utf-8">' +
-            '<style>html,body{margin:0;padding:0;background:transparent;}</style>' +
-            '</head><body>' +
-            '<div id="' + innerDivId + '"></div>' +
-            '<script async data-cfasync="false" src="' + scriptSrc + '"><\/script>' +
-            '</body></html>'
-        );
-        d.close();
+
+        iframe.srcdoc = `
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <meta charset="utf-8">
+                <style>
+                    html, body { margin: 0; padding: 0; background: transparent; width:100%; height:100%; }
+                    .fallback {
+                        position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+                        display: flex; align-items: center; justify-content: center; z-index: 1;
+                    }
+                    .fallback img { max-height: 80%; max-width: 80%; object-fit: contain; }
+                    .ad-content { position: relative; z-index: 2; width: 100%; height: 100%; }
+                </style>
+            </head>
+            <body>
+                <a href="https://playtronicgames.com.br" target="_blank" class="fallback">
+                    <img src="https://i.ibb.co/rRgV3n8d/playtronictv.png" alt="Publicidade">
+                </a>
+                <div class="ad-content">
+                    <div id="${innerDivId}"></div>
+                    <script async data-cfasync="false" src="${scriptSrc}"><\/script>
+                </div>
+            </body>
+            </html>
+        `;
     }
 
     /* ========= FAVORITOS ========= */
@@ -839,11 +882,10 @@
             tryRender();
         }
 
-        // Reavalia estado ativo dos botões de voto se o player estiver aberto
         if (currentPlayerVideoId) atualizarPlayerUI(currentPlayerVideoId);
     });
 
-    /* ========= VOTOS (com cache, sem N+1) ========= */
+    /* ========= VOTOS ========= */
     function getVotesRef(videoId) { return rtdb.ref('vod_votes/' + videoId); }
 
     function calcularNotaFromCache(videoId) {
@@ -873,7 +915,6 @@
         document.getElementById('playerDislikeBtn').classList.toggle('active', userVote === 'dislike');
     }
 
-    // Um único listener global substitui N leituras
     rtdb.ref('vod_votes').on('value', (snap) => {
         votesCache = snap.val() || {};
         atualizarTodosBadges();
@@ -900,7 +941,6 @@
                 await ref.child(tipo === 'like' ? 'likes' : 'dislikes')
                     .transaction(c => (c || 0) + 1);
             }
-            // UI atualiza via listener de votesCache
         } catch (e) {
             console.error('Erro ao votar:', e);
         }
@@ -1217,7 +1257,6 @@
         pendingVideo = video;
         adModal.classList.add('active');
 
-        // Monta os banners laterais apenas na 1ª abertura
         if (!adModal.dataset.adsMounted) {
             adModal.dataset.adsMounted = '1';
             mountNativeAd(
@@ -1232,7 +1271,6 @@
             );
         }
 
-        // Social bar em iframe isolado
         if (!document.getElementById('social-bar-iframe')) {
             const iframe = document.createElement('iframe');
             iframe.id = 'social-bar-iframe';
@@ -1255,7 +1293,6 @@
             document.body.appendChild(iframe);
         }
 
-        // Timer de 5s
         let timeLeft = 5;
         closeAdBtn.disabled = true;
         closeAdBtn.classList.remove('active');
@@ -1308,7 +1345,6 @@
         playerScreen.classList.add('active');
         document.body.style.overflow = 'hidden';
 
-        // Banner horizontal: monta 1x, só em telas grandes
         if (!window.matchMedia('(max-width: 900px)').matches) {
             playerBottomAd.style.display = 'block';
             if (!playerBottomAd.dataset.mounted) {
