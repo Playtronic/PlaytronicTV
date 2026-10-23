@@ -55,7 +55,7 @@
         .search-container input:focus { background-color: rgba(255,255,255,0.15); border-color: #fdbb2d; box-shadow: 0 0 15px rgba(253, 187, 45, 0.2); }
         .search-container input::placeholder { color: #cbd5e1; }
 
-        .auth-area { display: flex; align-items: center; gap: 12px; width: 250px; justify-content: flex-end; }
+        .auth-area { display: flex; align-items: center; gap: 12px; justify-content: flex-end; }
         .login-btn {
             background: #4285f4; color: #fff; border: none; padding: 10px 18px; border-radius: 8px;
             font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: background 0.3s;
@@ -73,6 +73,7 @@
         .user-card.active { display: flex; }
         .user-name { font-weight: bold; color: #fff; }
         .user-email { font-size: 0.8rem; color: #cbd5e1; margin-bottom: 10px; }
+        .user-sub-info { font-size: 0.8rem; color: #fdbb2d; margin-bottom: 10px; display: none; font-weight: bold; }
         .logout-btn { background: #ef4444; color: #fff; border: none; padding: 8px; border-radius: 6px; cursor: pointer; font-weight: bold; }
         .logout-btn:hover { background: #dc2626; }
 
@@ -155,18 +156,25 @@
         }
         .card-meta-line { display: block; }
 
+        /* BOTÃO ASSISTIR E ASSINAR PADRONIZADOS */
         .watch-btn {
             background: #fdbb2d; color: #000; border: none; padding: 10px; border-radius: 6px;
             font-weight: bold; font-size: 0.95rem; cursor: pointer; transition: background 0.2s, transform 0.1s; width: 100%;
             margin-top: auto;
         }
         .watch-btn:hover { background: #ffcc44; transform: scale(1.02); }
+        
+        .watch-btn.locked {
+            background: linear-gradient(135deg, #7c3aed, #6d28d9); /* Lilás */
+            color: #fff;
+        }
+        .watch-btn.locked:hover { background: linear-gradient(135deg, #6d28d9, #5b21b6); }
 
-        /* ===== NOVO MENU ADMIN ===== */
+        /* ===== MENU ADMIN (REPOSICIONADO) ===== */
         #adminMenuContainer {
             position: fixed;
-            top: 20px;
-            right: 20px;
+            bottom: 30px; /* Movido para baixo */
+            right: 30px;
             z-index: 9999;
             display: none;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -176,7 +184,7 @@
             color: #000;
             border: none;
             padding: 10px 16px;
-            border-radius: 8px;
+            border-radius: 30px;
             font-weight: bold;
             cursor: pointer;
             font-size: 0.95rem;
@@ -188,14 +196,14 @@
         #adminDropdown {
             display: none;
             position: absolute;
-            top: 45px;
+            bottom: 50px; /* Abre para cima */
             right: 0;
             background: #152961;
             border: 1px solid rgba(255,255,255,0.2);
             border-radius: 8px;
             padding: 8px;
             box-shadow: 0 8px 24px rgba(0,0,0,0.6);
-            min-width: 200px;
+            min-width: 220px;
             flex-direction: column;
             gap: 6px;
         }
@@ -535,7 +543,7 @@
             .volume-slider { width: 50px; }
             .player-controls { flex-wrap: wrap; gap: 10px; }
             .progress-track { order: -1; width: 100%; flex: 0 0 100%; margin: 0 0 5px 0; }
-            #adminMenuContainer { top: auto; bottom: 20px; right: 20px; }
+            #adminMenuContainer { bottom: 20px; right: 20px; }
             .carousel-track .card { flex: 0 0 200px; width: 200px; }
             .carousel-arrow { display: none; }
             #player-bottom-ad { display: none !important; }
@@ -554,15 +562,14 @@
             <input type="text" id="searchInput" placeholder="Pesquisar" autocomplete="off">
         </div>
         <div class="auth-area">
-            <!-- BOTÃO DE ASSINATURA -->
-            <button id="subscribeBtn" style="display:none; background: linear-gradient(135deg, #fdbb2d, #f5a623); color: #000; border: none; padding: 10px 18px; border-radius: 8px; font-weight: bold; cursor: pointer; margin-right: 10px;">
+            <!-- BOTÃO DE ASSINATURA (COR LILÁS PADRONIZADA) -->
+            <button id="subscribeBtn" style="display:none; background: linear-gradient(135deg, #7c3aed, #6d28d9); color: #fff; border: none; padding: 10px 18px; border-radius: 8px; font-weight: bold; cursor: pointer; margin-right: 10px;">
                 ⭐ Assinar
             </button>
             <div id="subscriptionBadge" style="display:none; background: #16a34a; color: #fff; padding: 8px 14px; border-radius: 20px; font-size: 0.85rem; font-weight: bold; margin-right: 10px; align-items: center; gap: 6px;">
-                ✓ Assinante até <span id="subExpiresText"></span>
+                ✓ Assinante
             </div>
-            <!-- FIM BOTÃO DE ASSINATURA -->
-
+            
             <button class="login-btn" id="loginBtn">
                 <svg width="18" height="18" viewBox="0 0 48 48"><path fill="#FFC107" d="M43.611,20.083H42V20H24v8h11.303c-1.649,4.657-6.08,8-11.303,8c-6.627,0-12-5.373-12-12c0-6.627,5.373-12,12-12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C12.955,4,4,12.955,4,24c0,11.045,8.955,20,20,20c11.045,0,20-8.955,20-20C44,22.659,43.862,21.35,43.611,20.083z"/><path fill="#FF3D00" d="M6.306,14.691l6.571,4.819C14.655,15.108,18.961,12,24,12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C16.318,4,9.656,8.337,6.306,14.691z"/><path fill="#4CAF50" d="M24,44c5.166,0,9.86-1.977,13.409-5.192l-6.19-5.238C29.211,35.091,26.715,36,24,36c-5.202,0-9.619-3.317-11.283-7.946l-6.522,5.025C9.505,39.556,16.227,44,24,44z"/><path fill="#1976D2" d="M43.611,20.083H42V20H24v8h11.303c-0.792,2.237-2.231,4.166-4.087,5.571c0.001-0.001,0.002-0.001,0.003-0.002l6.19,5.238C36.971,39.205,44,34,44,24C44,22.659,43.862,21.35,43.611,20.083z"/></svg>
                 Entrar
@@ -572,6 +579,7 @@
                 <div class="user-card" id="userCard">
                     <div class="user-name" id="userName"></div>
                     <div class="user-email" id="userEmail"></div>
+                    <div class="user-sub-info" id="userSubInfo"></div> <!-- Contador de dias -->
                     <button class="logout-btn" id="logoutBtn">Sair</button>
                 </div>
             </div>
@@ -600,7 +608,7 @@
         </a>
     </footer>
 
-    <!-- NOVO MENU ADMIN -->
+    <!-- MENU ADMIN -->
     <div id="adminMenuContainer">
         <button id="adminMenuBtn">
             ⚙️ Admin
@@ -608,6 +616,7 @@
         <div id="adminDropdown">
             <button id="addVideoBtn">➕ Inserir Vídeo</button>
             <button id="configSubBtn">💰 Editar Assinatura</button>
+            <button id="simulateSubBtn" style="color: #a78bfa;">🧪 Simular Assinante</button>
         </div>
     </div>
 
@@ -701,8 +710,11 @@
     <div id="pixLightbox" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 99999; justify-content: center; align-items: center; backdrop-filter: blur(6px);">
         <div style="background: #152961; border: 2px solid #fdbb2d; border-radius: 14px; padding: 30px; max-width: 480px; width: 90%; position: relative; text-align: center; color: #fff;">
             <button id="pixClose" style="position: absolute; top: 12px; right: 14px; background: transparent; border: none; color: #cbd5e1; font-size: 1.6rem; cursor: pointer;">×</button>
-            <h2 style="color: #fdbb2d; margin-bottom: 8px;">Playtronic TV+</h2>
-            <p style="color: #cbd5e1; font-size: 0.9rem; margin-bottom: 18px;">Assine e desbloqueie todo o catálogo.<br>Sem anúncios por 30 dias.</p>
+            
+            <!-- LOGO OFICIAL AQUI -->
+            <img src="https://i.ibb.co/rRgV3n8d/playtronictv.png" style="height: 60px; margin-bottom: 15px; object-fit: contain;">
+            
+            <p style="color: #cbd5e1; font-size: 0.95rem; margin-bottom: 20px;">Assine para ter acesso a conteúdos exclusivos e sem nenhum anúncio.</p>
             
             <div style="color: #fdbb2d; font-size: 2rem; font-weight: 800; margin-bottom: 20px;">
                 R$ <span id="pixPriceValue">...</span><small style="font-size: 0.9rem; color: #94a3b8; font-weight: 400;"> / 30 dias</small>
@@ -758,6 +770,7 @@
     let catalogSubscription = { active: false, expiresAt: 0 };
     let pixPaymentCheckInterval = null;
     let pixCurrentPayment = null;
+    let isSimulatingSub = false; // Variável do Admin
 
     /* ========= HELPERS ========= */
     function isAdmin() {
@@ -893,6 +906,7 @@
     const userCard = document.getElementById('userCard');
     const userName = document.getElementById('userName');
     const userEmail = document.getElementById('userEmail');
+    const userSubInfo = document.getElementById('userSubInfo');
     const logoutBtn = document.getElementById('logoutBtn');
 
     loginBtn.addEventListener('click', async () => {
@@ -1107,10 +1121,10 @@
         
         if (isPago && !catalogSubscription.active) {
             watchBtn.textContent = '🔒 Assinar para assistir';
-            watchBtn.style.background = 'linear-gradient(135deg, #7c3aed, #6d28d9)';
-            watchBtn.style.color = '#fff';
+            watchBtn.classList.add('locked');
         } else {
             watchBtn.textContent = '▶ Assistir';
+            watchBtn.classList.remove('locked');
         }
 
         watchBtn.addEventListener('click', () => {
@@ -1366,8 +1380,30 @@
         }
     });
 
+    // NOVO: Simulador de Assinante
+    document.getElementById('simulateSubBtn').addEventListener('click', () => {
+        document.getElementById('adminDropdown').style.display = 'none';
+        isSimulatingSub = !isSimulatingSub;
+        
+        if (isSimulatingSub) {
+            alert("🧪 MODO SIMULAÇÃO ATIVADO\n\nVocê agora verá o site como um assinante (sem anúncios e com vídeos pagos liberados).\n\nPara desativar, clique em Simular Assinante novamente.");
+        } else {
+            alert("🧪 MODO SIMULAÇÃO DESATIVADO\n\nVocê voltou a ver o site como um usuário comum.");
+        }
+        
+        checkCatalogSubscription(); // Força a atualização do status na tela
+    });
+
     /* ========= SISTEMA DE ASSINATURA PIX ========= */
     async function checkCatalogSubscription() {
+        if (isSimulatingSub) {
+            // Se o admin ativou o simulador, forçamos a assinatura ativa localmente
+            catalogSubscription = { active: true, expiresAt: Date.now() + (30 * 24 * 60 * 60 * 1000) };
+            updateSubscriptionUI();
+            if (videosLoaded && favoritesLoaded) renderCards();
+            return;
+        }
+
         if (!currentUser) {
             catalogSubscription = { active: false, expiresAt: 0 };
             updateSubscriptionUI();
@@ -1400,24 +1436,38 @@
         if (!currentUser) {
             btn.style.display = 'none';
             badge.style.display = 'none';
+            userSubInfo.style.display = 'none';
         } else if (catalogSubscription.active) {
             btn.style.display = 'none';
             badge.style.display = 'inline-flex';
-            if (exp && catalogSubscription.expiresAt) {
-                exp.textContent = new Date(catalogSubscription.expiresAt).toLocaleDateString('pt-BR');
+            
+            // Contador de dias restantes no perfil do usuário
+            if (catalogSubscription.expiresAt) {
+                const dateObj = new Date(catalogSubscription.expiresAt);
+                const diffTime = catalogSubscription.expiresAt - Date.now();
+                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                
+                userSubInfo.style.display = 'block';
+                if (isSimulatingSub) {
+                    userSubInfo.textContent = '🧪 Assinante (Simulação)';
+                } else {
+                    userSubInfo.textContent = `⭐ Assinante (${diffDays} dia${diffDays !== 1 ? 's' : ''} restante${diffDays !== 1 ? 's' : ''})`;
+                }
             }
         } else {
             btn.style.display = 'block';
             badge.style.display = 'none';
+            userSubInfo.style.display = 'none';
         }
     }
 
-    function openPixLightbox() {
+    async function openPixLightbox() {
         if (!currentUser) {
             alert('Faça login para assinar.');
             document.getElementById('loginBtn').click();
             return;
         }
+        
         document.getElementById('pixLightbox').style.display = 'flex';
         document.getElementById('pixArea').style.display = 'none';
         document.getElementById('generatePixBtn').disabled = false;
@@ -1426,6 +1476,20 @@
         st.className = ''; st.textContent = ''; st.style.display = 'none';
         if (pixPaymentCheckInterval) { clearInterval(pixPaymentCheckInterval); pixPaymentCheckInterval = null; }
         pixCurrentPayment = null;
+
+        // Busca o preço atualizado no banco para mostrar antes de gerar o PIX
+        try {
+            const doc = await db.collection('platform_config').doc('catalog').get();
+            if (doc.exists && doc.data().subscription) {
+                const preco = doc.data().subscription.monthlyPrice;
+                document.getElementById('pixPriceValue').textContent = parseFloat(preco).toFixed(2).replace('.', ',');
+            } else {
+                document.getElementById('pixPriceValue').textContent = 'Indisponível';
+            }
+        } catch (e) {
+            console.warn("Erro ao buscar preço:", e);
+            document.getElementById('pixPriceValue').textContent = '...';
+        }
     }
 
     function closePixLightbox() {
