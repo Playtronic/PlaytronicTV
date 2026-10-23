@@ -1159,14 +1159,14 @@
         pendingVideo = video;
         adModal.classList.add('active');
         
-        // Injeta o script do Adsterra isolado dentro de um iframe para não vazar da tela
+        // Injeta o script do Adsterra isolado em um iframe com sandbox
         adContainer.innerHTML = ''; 
         const iframe = document.createElement('iframe');
         iframe.style.width = '100%';
-        iframe.style.height = '400px'; // Altura padrão para o anúncio
+        iframe.style.height = '400px';
         iframe.style.border = 'none';
-        iframe.style.overflow = 'hidden';
-        // Usamos srcdoc para renderizar o script dentro do iframe
+        // AQUI ESTÁ A CHAVE: O sandbox impede o anúncio de "vazar" da caixa
+        iframe.setAttribute('sandbox', 'allow-scripts allow-same-origin');
         iframe.srcdoc = `
             <!DOCTYPE html>
             <html>
