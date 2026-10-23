@@ -362,7 +362,7 @@
             border-radius: 50%; background: #fdbb2d; cursor: pointer;
         }
 
-        /* Container do banner horizontal */
+        /* Container do banner horizontal CORRIGIDO */
         #player-bottom-ad {
             display: none;
             width: 728px;
@@ -377,7 +377,7 @@
             position: relative;
         }
         #player-bottom-ad iframe {
-            display: block; border: 0; margin: 0 auto; width: 100%; height: 100%;
+            display: block; border: 0; margin: 0 auto; width: 728px; height: 90px;
             position: absolute; top: 0; left: 0; z-index: 1;
         }
 
@@ -414,8 +414,7 @@
 
         .ad-center-wrapper {
             width: 100%; aspect-ratio: 16 / 9;
-            background: transparent; 
-            display: flex; align-items: center; justify-content: center;
+            background: #0b0f19; display: flex; align-items: center; justify-content: center;
             overflow: hidden;
         }
         .ad-center-wrapper img { width: 100%; height: 100%; object-fit: contain; padding: 20px; }
@@ -702,8 +701,7 @@
         return null;
     }
 
-    /* ========= MONTAGEM DE BANNERS (MÉTODO SRCDOC) ========= */
-    
+    /* ========= MONTAGEM ISOLADA DE BANNERS (RESTAURADO PARA FUNCIONAR) ========= */
     function mountStandardAd(container, opts, scriptSrc) {
         if (!container || container.dataset.mounted === '1') return;
         container.dataset.mounted = '1';
@@ -713,32 +711,32 @@
         iframe.setAttribute('frameborder', '0');
         iframe.width = String(opts.width);
         iframe.height = String(opts.height);
-        iframe.style.cssText = 'display:block; border:0; margin:0 auto; overflow:hidden; position:absolute; top:0; left:0; width:100%; height:100%; background: transparent;';
+        iframe.style.cssText = 'display:block; border:0; margin:0 auto; overflow:hidden; position:absolute; top:0; left:0; width:100%; height:100%;';
         iframe.title = 'Publicidade';
-        iframe.setAttribute('sandbox', 'allow-scripts allow-same-origin allow-popups allow-forms');
+        container.appendChild(iframe);
 
-        const adHtml = `
+        // USANDO document.write PARA O ADSTERRA CARREGAR
+        const d = iframe.contentWindow.document;
+        d.open();
+        d.write(`
             <!DOCTYPE html>
             <html>
             <head>
                 <meta charset="utf-8">
                 <style>
-                    html, body { margin: 0; padding: 0; overflow: hidden; width: 100%; height: 100%; background: transparent; display: flex; align-items: center; justify-content: center; }
-                    .ad-content { position: relative; z-index: 2; display: flex; align-items: center; justify-content: center; width: 100%; height: 100%; }
+                    html, body { margin: 0; padding: 0; overflow: hidden; width: 100%; height: 100%; background: transparent; }
+                    .ad-content { position: absolute; inset: 0; z-index: 2; display: flex; align-items: center; justify-content: center; }
                 </style>
             </head>
             <body>
                 <div class="ad-content">
-                    <script type="text/javascript">
-                        atOptions = ${JSON.stringify(opts)};
-                    <\/script>
-                    <script type="text/javascript" src="${scriptSrc}"><\/script>
+                    <script>atOptions = ${JSON.stringify(opts)};<\/script>
+                    <script src="${scriptSrc}"><\/script>
                 </div>
             </body>
             </html>
-        `;
-        iframe.srcdoc = adHtml;
-        container.appendChild(iframe);
+        `);
+        d.close();
     }
 
     function mountNativeAd(container, scriptSrc, innerDivId) {
@@ -748,18 +746,21 @@
         const iframe = document.createElement('iframe');
         iframe.setAttribute('scrolling', 'no');
         iframe.setAttribute('frameborder', '0');
-        iframe.style.cssText = 'display:block; border:0; width:100%; height:100%; position:absolute; top:0; left:0; background: transparent;';
+        iframe.style.cssText = 'display:block; border:0; width:100%; height:100%; position:absolute; top:0; left:0;';
         iframe.title = 'Publicidade';
-        iframe.setAttribute('sandbox', 'allow-scripts allow-same-origin allow-popups allow-forms');
+        container.appendChild(iframe);
 
-        const adHtml = `
+        // USANDO document.write PARA O ADSTERRA CARREGAR
+        const d = iframe.contentWindow.document;
+        d.open();
+        d.write(`
             <!DOCTYPE html>
             <html>
             <head>
                 <meta charset="utf-8">
                 <style>
-                    html, body { margin: 0; padding: 0; background: transparent; width:100%; height:100%; display: flex; align-items: center; justify-content: center; }
-                    .ad-content { position: relative; z-index: 2; display: flex; align-items: center; justify-content: center; width: 100%; height: 100%; }
+                    html, body { margin: 0; padding: 0; background: transparent; width:100%; height:100%; }
+                    .ad-content { position: absolute; inset: 0; z-index: 2; display: flex; align-items: center; justify-content: center; }
                 </style>
             </head>
             <body>
@@ -769,9 +770,8 @@
                 </div>
             </body>
             </html>
-        `;
-        iframe.srcdoc = adHtml;
-        container.appendChild(iframe);
+        `);
+        d.close();
     }
 
     /* ========= FAVORITOS ========= */
@@ -1331,7 +1331,7 @@
         document.body.style.overflow = 'hidden';
 
         if (!window.matchMedia('(max-width: 900px)').matches) {
-            playerBottomAd.style.display = 'block'; 
+            playerBottomAd.style.display = 'block';
             if (!playerBottomAd.dataset.mounted) {
                 playerBottomAd.dataset.mounted = '1';
                 mountStandardAd(
