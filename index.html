@@ -1190,6 +1190,8 @@
     // ==========================================
     let pendingVideo = null;
     let adTimerInterval = null;
+    let bodySnapshot = []; // Variável para armazenar a "foto" do site
+
     const adModal = document.getElementById('adInterstitialModal');
     const closeAdBtn = document.getElementById('closeInterstitialBtn');
     const adTimerText = document.getElementById('adTimerText');
@@ -1198,7 +1200,10 @@
         pendingVideo = video;
         adModal.classList.add('active');
         
-        // Injeta o Social Bar dinamicamente na tela e força a execução
+        // 1. Tira a "foto" de todos os elementos do body ANTES de injetar o anúncio
+        bodySnapshot = Array.from(document.body.children);
+
+        // 2. Injeta o Social Bar dinamicamente
         if (!document.getElementById('adsterra-sb-script')) {
             const s = document.createElement('script');
             s.id = 'adsterra-sb-script';
@@ -1235,43 +1240,43 @@
         adModal.classList.remove('active');
         
         // ==========================================
-        // LIMPEZA AGRESSIVA DO SOCIAL BAR
+        // LIMPEZA DEFINITIVA DO SOCIAL BAR (MÉTODO SNAPSHOT)
         // ==========================================
         
         // 1. Remove a tag script injetada
         const sbScript = document.getElementById('adsterra-sb-script');
         if (sbScript) sbScript.remove();
 
-        // 2. Remove os iframes gerados pela Adsterra
+        // 2. Remove iframes com domínios da Adsterra
         document.querySelectorAll('iframe').forEach(iframe => {
-            if (iframe.src && (iframe.src.includes('dcengg') || iframe.src.includes('adsterra') || iframe.src.includes('highperformance'))) {
+            if (iframe.src && (iframe.src.includes('dcengg') || iframe.src.includes('adsterra'))) {
                 iframe.remove();
             }
         });
 
-        // 3. Nuke Agressivo: Remove QUALQUER elemento flutuante com z-index alto que não seja o nosso
-        document.querySelectorAll('body *').forEach(el => {
-            try {
-                // Ignora nossos próprios modais e o player
-                if (el.id === 'adInterstitialModal' || el.id === 'playerScreen' || 
-                    el.closest('#adInterstitialModal') || el.closest('#playerScreen')) {
-                    return;
-                }
-                
-                const style = window.getComputedStyle(el);
-                const zIndex = parseInt(style.zIndex);
-                
-                // O Social Bar da Adsterra usa z-index muito alto (geralmente > 10000)
-                // e posição fixa
-                if (style.position === 'fixed' && zIndex > 10000) {
-                    el.remove();
-                }
-            } catch(e) {}
+        // 3. O "Nuke": Compara os elementos atuais com a foto tirada antes.
+        // Tudo que for novo e não for nosso, é deletado.
+        Array.from(document.body.children).forEach(child => {
+            // Ignora elementos que já existiam antes da foto
+            if (bodySnapshot.includes(child)) return;
+            
+            // Ignora os nossos elementos de interface que podem ter sido modificados
+            const keepIds = ['adInterstitialModal', 'playerScreen', 'videoModal', 'catalogScreen', 'adminToolbar', 'userCard', 'siteFooter', 'header'];
+            if (keepIds.includes(child.id)) return;
+
+            // Se sobrou algum elemento novo, é o anúncio tentando flutuar. Deletamos.
+            child.remove();
         });
 
-        // 4. Remove divs que contenham IDs ou classes da Adsterra
-        document.querySelectorAll('[id^="asb"], [class^="asb"], [id*="adsterra"], [class*="adsterra"]').forEach(el => {
-            if (el.id !== 'adsterra-sb-script') el.remove();
+        // 4. Garantia extra: varre o body buscando qualquer coisa fixed (flutuante) com Z-index gigante
+        document.querySelectorAll('body *').forEach(el => {
+            if (el.id === 'adsterra-sb-script') return;
+            if (el.closest('#adInterstitialModal') || el.closest('#playerScreen')) return;
+
+            const style = window.getComputedStyle(el);
+            if (style.position === 'fixed' && parseInt(style.zIndex) > 9000) {
+                el.remove();
+            }
         });
         
         // ==========================================
