@@ -1234,7 +1234,9 @@
         
         adModal.classList.remove('active');
         
-        // --- INÍCIO DA LIMPEZA PROFUNDA DO SOCIAL BAR ---
+        // ==========================================
+        // LIMPEZA AGRESSIVA DO SOCIAL BAR
+        // ==========================================
         
         // 1. Remove a tag script injetada
         const sbScript = document.getElementById('adsterra-sb-script');
@@ -1242,27 +1244,37 @@
 
         // 2. Remove os iframes gerados pela Adsterra
         document.querySelectorAll('iframe').forEach(iframe => {
-            if (iframe.src && (iframe.src.includes('adsterra') || iframe.src.includes('dcengg') || iframe.src.includes('highperformance'))) {
+            if (iframe.src && (iframe.src.includes('dcengg') || iframe.src.includes('adsterra') || iframe.src.includes('highperformance'))) {
                 iframe.remove();
             }
         });
 
-        // 3. Remove os containers (divs) que o Adsterra injeta no body
-        document.querySelectorAll('body > div').forEach(div => {
-            const id = div.id ? div.id.toLowerCase() : '';
-            const cls = div.className ? String(div.className).toLowerCase() : '';
-            
-            // Ignora as divs originais do site
-            if (['adinterstitialmodal', 'playerscreen', 'videomodal', 'catalogscreen', 'usercard', 'admintoolbar', 'favoritesection', 'loadingmsg', 'emptystate'].includes(id)) return;
-            if (div.classList.contains('header') || div.classList.contains('site-footer')) return;
+        // 3. Nuke Agressivo: Remove QUALQUER elemento flutuante com z-index alto que não seja o nosso
+        document.querySelectorAll('body *').forEach(el => {
+            try {
+                // Ignora nossos próprios modais e o player
+                if (el.id === 'adInterstitialModal' || el.id === 'playerScreen' || 
+                    el.closest('#adInterstitialModal') || el.closest('#playerScreen')) {
+                    return;
+                }
+                
+                const style = window.getComputedStyle(el);
+                const zIndex = parseInt(style.zIndex);
+                
+                // O Social Bar da Adsterra usa z-index muito alto (geralmente > 10000)
+                // e posição fixa
+                if (style.position === 'fixed' && zIndex > 10000) {
+                    el.remove();
+                }
+            } catch(e) {}
+        });
 
-            // Remove se tiver termos da Adsterra
-            if (id.includes('adsterra') || id.includes('asb') || id.includes('social') || cls.includes('adsterra') || cls.includes('asb') || cls.includes('social')) {
-                div.remove();
-            }
+        // 4. Remove divs que contenham IDs ou classes da Adsterra
+        document.querySelectorAll('[id^="asb"], [class^="asb"], [id*="adsterra"], [class*="adsterra"]').forEach(el => {
+            if (el.id !== 'adsterra-sb-script') el.remove();
         });
         
-        // --- FIM DA LIMPEZA ---
+        // ==========================================
 
         if (pendingVideo) {
             const videoToPlay = pendingVideo;
