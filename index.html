@@ -56,7 +56,6 @@
         .search-container input:focus { background-color: rgba(255,255,255,0.15); border-color: #fdbb2d; box-shadow: 0 0 15px rgba(253, 187, 45, 0.2); }
         .search-container input::placeholder { color: #cbd5e1; }
 
-        /* Auth Area fora da brand para seguir o padrão (Logotipo esquerda, auth direita) */
         .auth-area { display: flex; align-items: center; gap: 12px; justify-content: flex-end; flex: 0 0 auto; }
         .login-btn {
             background: #4285f4; color: #fff; border: none; padding: 10px 18px; border-radius: 8px;
@@ -658,50 +657,58 @@
         .carousel-arrow.left { left: -15px; }
         .carousel-arrow.right { right: -15px; }
 
-        /* ===== LAYOUT CORRIGIDO PARA MOBILE (Mantendo o que você gostou) ===== */
+        /* ===== LAYOUT CORRIGIDO PARA MOBILE USANDO GRID ===== */
         @media (max-width: 900px) {
             body {
-                padding-top: 150px;
+                padding-top: 150px; /* Mais espaço para o header em grid */
                 padding-bottom: 40px;
                 padding-left: 10px;
                 padding-right: 10px;
             }
 
             .header {
-                height: auto;
-                padding: 10px 15px;
-                flex-wrap: wrap; /* Permite que a barra de pesquisa desça */
+                display: grid;
+                grid-template-columns: 1fr auto;
+                grid-template-areas: 
+                    "logo auth"
+                    "search search";
+                align-items: center;
                 gap: 10px;
+                height: auto;
+                padding: 15px;
             }
 
             .header-brand {
-                order: 1;
-                flex: 1; /* Ocupa o espaço da esquerda */
+                grid-area: logo;
                 display: flex;
                 justify-content: flex-start;
+                width: auto;
             }
 
-            .header-logo { height: 50px; }
+            .header-logo {
+                height: 50px;
+            }
 
             .auth-area {
-                order: 2; /* Avatar fica na linha de cima, à direita */
+                grid-area: auth;
+                justify-content: flex-end;
                 width: auto;
             }
 
             .search-container {
-                order: 3; /* Pesquisa desce para a linha de baixo */
-                width: 100%;
-                max-width: 100%;
+                grid-area: search;
                 margin: 0;
+                max-width: 100%;
+                width: 100%;
             }
 
-            /* O menu do usuário agora abre fixo na tela no mobile */
             .user-card {
                 position: fixed;
-                top: 80px;
-                right: 15px;
-                left: auto;
-                min-width: 260px;
+                top: 85px;
+                left: 10px;
+                right: 10px;
+                width: auto;
+                min-width: auto;
             }
 
             .catalog-grid {
@@ -738,7 +745,6 @@
 </head>
 <body>
 
-    <!-- HEADER CORRIGIDO: Brand, Search, Auth -->
     <header class="header">
         <div class="header-brand">
             <a href="javascript:void(0);" onclick="window.location.reload();" class="logo-link" title="Atualizar página">
@@ -769,7 +775,6 @@
                         <button id="subscribeBtn" style="display:none;">⭐ Assinar</button>
                         <button id="myAdsBtn" style="display:none;">📺 Meus Anúncios</button>
                         
-                        <!-- MENU ADMIN DENTRO DO CARD -->
                         <div id="adminMenuContainer">
                             <button id="adminMenuBtn">⚙️ Painel Admin</button>
                             <div id="adminDropdown">
