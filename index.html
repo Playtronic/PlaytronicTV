@@ -653,7 +653,7 @@
         }
         .player-loading-overlay.hidden { opacity: 0; }
 
-        /* ===== NOVO: Estilo durante seek/buffer de posição ===== */
+        /* ===== Estilo durante seek/buffer de posição ===== */
         .player-loading-overlay.seeking {
             background: rgba(11, 15, 25, 0.55);
             backdrop-filter: blur(3px);
@@ -886,10 +886,6 @@
             .player-wrapper { max-height: calc(100vh - 40px); border-radius: 0; }
             #player-bottom-ad { display: none !important; }
 
-            /* 
-             * SOMBRAS NO MOBILE - Aumentada a opacidade em ~35% (de 0.8/0.9 para 0.95/0.98)
-             * A altura (80px e 100px) permanece inalterada.
-             */
             .player-wrapper::before {
                 height: 80px;
                 background: linear-gradient(to bottom, #000000 0%, rgba(0,0,0,0.95) 60%, transparent 100%);
@@ -915,7 +911,6 @@
                 padding: 8px 12px 10px;
                 align-items: center;
             }
-            /* BARRA DE PROGRESSO NO MOBILE - Visível e fácil de tocar */
             .progress-track {
                 order: 1;
                 flex: 0 0 100%;
@@ -934,7 +929,7 @@
             }
 
             .volume-container {
-                display: none; /* Volume controlado pelo dispositivo */
+                display: none;
             }
             .time-label {
                 order: 4;
@@ -951,7 +946,6 @@
                 margin-left: auto;
             }
 
-            /* Botão play central — mesmo visual do desktop */
             .center-play-btn {
                 width: 68px; height: 68px;
             }
@@ -2715,19 +2709,39 @@
     let isEnded = false;
     let isMuted = false;
     let currentVolume = 100;
-    let isSeeking = false; // Flag para controlar o timer durante arraste/buffer
+    let isSeeking = false;          // Flag para controlar o timer durante arraste/buffer
+    let seekPollingInterval = null; // Polling de segurança do seek
 
     /* ========= HELPERS DE OVERLAY ========= */
+    function clearSeekPolling() {
+        if (seekPollingInterval) {
+            clearInterval(seekPollingInterval);
+            seekPollingInterval = null;
+        }
+    }
+
     function showLoadingOverlay(text, seeking = false) {
         if (loadingTextEl && text) loadingTextEl.textContent = text;
         playerLoadingOverlay.classList.remove('hidden');
-        if (seeking) playerLoadingOverlay.classList.add('seeking');
-        else playerLoadingOverlay.classList.remove('seeking');
+        if (seeking) {
+            playerLoadingOverlay.classList.add('seeking');
+            // BUG 2: mantém os controles personalizados visíveis durante o seek
+            clearTimeout(controlsTimeout);
+            customUI.classList.remove('player-ui-hidden');
+            playerWrapper.classList.remove('hide-shadows');
+        } else {
+            playerLoadingOverlay.classList.remove('seeking');
+        }
     }
 
     function hideLoadingOverlay() {
+        const wasSeeking = playerLoadingOverlay.classList.contains('seeking');
         playerLoadingOverlay.classList.add('hidden');
         playerLoadingOverlay.classList.remove('seeking');
+        if (wasSeeking && !isEnded && playerReady && player) {
+            // Só agora o timer de 5,5s volta a contar
+            resetControlsTimer();
+        }
     }
     /* ======================================== */
 
@@ -3048,6 +3062,7 @@
         isPlaying = false;
         isEnded = false;
         isSeeking = false;
+        clearSeekPolling();
 
         setPlayPauseVisual(false);
 
@@ -3088,33 +3103,44 @@
             setPlayPauseVisual(true);
             removeCaptions(event.target);
 
-            hideLoadingOverlay();          // esconde no fim do seek e no load inicial
-            isSeeking = false;
+            if (isSeeking) {
+                isSeeking = false;
+                clearSeekPolling();
+            }
+            hideLoadingOverlay();
+            showControls();
 
-            resetControlsTimer();
-            playerLoadingOverlay.classList.add('hidden');
         } else if (event.data === 2) { // Paused
             isPlaying = false; isEnded = false;
             setPlayPauseVisual(false);
             showControls();
-            if (isSeeking) {                // seek feito estando pausado
+            if (isSeeking) {                    // BUG 1: seek terminou em pausa
                 isSeeking = false;
+                clearSeekPolling();
                 hideLoadingOverlay();
             }
+
         } else if (event.data === 0) { // Ended
             isPlaying = false; isEnded = true;
             setPlayPauseVisual(false);
             showControls();
             clearTimeout(controlsTimeout);
+            if (isSeeking) {
+                isSeeking = false;
+                clearSeekPolling();
+            }
             hideLoadingOverlay();
+
         } else if (event.data === 3) { // Buffering
             removeCaptions(event.target);
             if (isSeeking) {
                 showLoadingOverlay('Carregando posição...', true);
             }
+
         } else if (event.data === 5) { // Cued (seek quando pausado)
             if (isSeeking) {
                 isSeeking = false;
+                clearSeekPolling();
                 hideLoadingOverlay();
             }
         }
@@ -3143,6 +3169,7 @@
 
     function hideControls() {
         if (isEnded) return;
+        if (isSeeking) return; // BUG 2: nunca esconde durante o seek
         customUI.classList.add('player-ui-hidden');
         playerWrapper.classList.add('hide-shadows');
     }
@@ -3150,6 +3177,7 @@
     function resetControlsTimer() {
         clearTimeout(controlsTimeout);
         if (isEnded) return;
+        if (isSeeking) return; // BUG 2: não inicia timer enquanto busca posição
         controlsTimeout = setTimeout(hideControls, 5500);
     }
 
@@ -3248,6 +3276,31 @@
             isSeeking = true;
             showLoadingOverlay('Carregando posição...', true);
             player.seekTo(seekTime, true);
+
+            // BUG 1: fallback por polling, caso o YouTube não dispare state 2/5
+            clearSeekPolling();
+            let elapsed = 0;
+            seekPollingInterval = setInterval(() => {
+                elapsed += 300;
+                if (!playerReady || !player) { clearSeekPolling(); return; }
+                try {
+                    const curr = player.getCurrentTime() || 0;
+                    const state = player.getPlayerState();
+                    const reached = Math.abs(curr - seekTime) < 1.5 && state !== 3;
+                    const timedOut = elapsed >= 3000 && state !== 3;
+                    if (reached || timedOut) {
+                        clearSeekPolling();
+                        isSeeking = false;
+                        hideLoadingOverlay();
+                    }
+                } catch(e) { clearSeekPolling(); }
+                // Segurança final: se ficar buffering > 20s, esconde de qualquer jeito
+                if (elapsed > 20000) {
+                    clearSeekPolling();
+                    isSeeking = false;
+                    hideLoadingOverlay();
+                }
+            }, 300);
         }
     }
 
@@ -3329,6 +3382,7 @@
         }
 
         if (progressInterval) { clearInterval(progressInterval); progressInterval = null; }
+        clearSeekPolling();
         if (player) { player.destroy(); player = null; }
         playerReady = false;
         isEnded = false;
