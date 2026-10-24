@@ -125,7 +125,6 @@
             gap: 30px; max-width: 1400px; margin: 0 auto; width: 100%;
         }
 
-        /* ALTERAÇÃO AQUI: Cor de fundo e borda do card clareadas */
         .card {
             background: #1e305c; 
             border: 1px solid #2f4780; 
@@ -139,7 +138,6 @@
         .card-poster img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform 0.4s ease; }
         .card:hover .card-poster img { transform: scale(1.05); }
         
-        /* ALTERAÇÃO AQUI: Gradiente do poster atualizado para combinar com o novo fundo */
         .card-poster::after {
             content: ''; position: absolute; bottom: 0; left: 0; right: 0;
             height: 35%; background: linear-gradient(to top, #1e305c, transparent); pointer-events: none;
@@ -849,16 +847,15 @@
             #player-bottom-ad { display: none !important; }
 
             /* 
-             * SOMBRAS REFORÇADAS NO MOBILE
-             * Aumentamos a altura e deixamos o preto sólido por mais tempo
-             * para garantir que a interface do YouTube fique invisível.
+             * SOMBRAS REFORÇADAS NO MOBILE - Reduzidas em 20%
+             * Antes: 110px / 130px. Agora: 88px / 104px.
              */
             .player-wrapper::before {
-                height: 110px;
+                height: 88px;
                 background: linear-gradient(to bottom, #000000 0%, #000000 70%, transparent 100%);
             }
             .player-wrapper::after {
-                height: 130px;
+                height: 104px;
                 background: linear-gradient(to top, #000000 0%, #000000 70%, transparent 100%);
             }
 
@@ -879,6 +876,9 @@
                 width: 100%;
                 margin: 0 0 4px 0;
                 height: 3px;
+                /* Aumentando a área de toque invisível para facilitar o arraste no celular */
+                padding: 8px 0;
+                background-clip: content-box;
             }
             .volume-container {
                 display: none; /* Volume controlado pelo dispositivo */
@@ -3020,13 +3020,11 @@
             isPlaying = false; isEnded = false;
             setPlayPauseVisual(false);
             showControls();
-            // Ao pausar, não limpamos o timeout para que os controles possam
-            // desaparecer após 5.5s de inatividade, conforme solicitado.
         } else if (event.data === 0) { // Ended
             isPlaying = false; isEnded = true;
             setPlayPauseVisual(false);
             showControls();
-            clearTimeout(controlsTimeout); // Garante que não será escondido após o término
+            clearTimeout(controlsTimeout);
         } else if (event.data === 3) { // Buffering
             removeCaptions(event.target);
         }
@@ -3059,25 +3057,18 @@
         controlsTimeout = setTimeout(hideControls, 5500);
     }
 
-    // Só ativa o mousemove em dispositivos com ponteiro fino (mouse/trackpad)
-    // Isso evita que o toque no celular simule um mousemove e quebre a lógica dos controles
     if (window.matchMedia('(pointer: fine)').matches) {
         playerWrapper.addEventListener('mousemove', showControls);
         playerWrapper.addEventListener('mouseleave', () => resetControlsTimer());
     }
 
     playerWrapper.addEventListener('click', (e) => {
-        // Se o clique foi em um botão da interface, não faz nada aqui
         if (e.target.closest('.custom-ui')) return;
         if (!playerReady || !player) return;
 
-        // Verifica se a interface está oculta no momento
         if (customUI.classList.contains('player-ui-hidden')) {
-            // Se estiver oculta, o toque apenas mostra os controles
             showControls();
         } else {
-            // Se os controles estiverem visíveis, o toque na tela NÃO deve ocultá-los.
-            // Apenas reinicia o timer de inatividade de 5.5s.
             resetControlsTimer();
         }
     });
@@ -3118,6 +3109,67 @@
             resetControlsTimer();
         }
     });
+
+    /* ========= SEEK BAR (PROGRESS TRACK) ========= */
+    let isDragging = false;
+
+    function seekToPosition(e) {
+        if (!playerReady || !player || typeof player.seekTo !== 'function') return;
+        
+        const rect = progressTrack.getBoundingClientRect();
+        let clientX = e.clientX;
+        if (e.touches && e.touches.length > 0) {
+            clientX = e.touches[0].clientX;
+        }
+        
+        let clickX = clientX - rect.left;
+        let percentage = clickX / rect.width;
+        
+        if (percentage < 0) percentage = 0;
+        if (percentage > 1) percentage = 1;
+        
+        const duration = player.getDuration();
+        if (duration > 0) {
+            const seekTime = duration * percentage;
+            player.seekTo(seekTime, true);
+            progressFill.style.width = `${percentage * 100}%`;
+            timeLabel.textContent = `${formatTime(seekTime)} / ${formatTime(duration)}`;
+        }
+    }
+
+    progressTrack.addEventListener('mousedown', (e) => {
+        isDragging = true;
+        seekToPosition(e);
+        e.stopPropagation();
+    });
+    
+    progressTrack.addEventListener('touchstart', (e) => {
+        isDragging = true;
+        seekToPosition(e);
+        e.stopPropagation();
+    }, { passive: false });
+
+    document.addEventListener('mousemove', (e) => {
+        if (isDragging) {
+            seekToPosition(e);
+        }
+    });
+
+    document.addEventListener('touchmove', (e) => {
+        if (isDragging) {
+            e.preventDefault(); // Impede o scroll da tela enquanto arrasta
+            seekToPosition(e);
+        }
+    }, { passive: false });
+
+    document.addEventListener('mouseup', () => {
+        isDragging = false;
+    });
+    
+    document.addEventListener('touchend', () => {
+        isDragging = false;
+    });
+    /* ======================================== */
 
     function updateVolumeUI(val) {
         volumeSlider.value = val;
@@ -3272,6 +3324,8 @@
         progressInterval = setInterval(() => {
             if (!playerReady || !player || typeof player.getCurrentTime !== 'function') return;
             try {
+                if (isDragging) return; // Não atualiza enquanto o usuário está arrastando
+
                 const currentTime = player.getCurrentTime() || 0;
                 const duration = player.getDuration() || 0;
                 if (duration > 0) {
