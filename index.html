@@ -410,15 +410,15 @@
             flex-shrink: 0;
         }
 
-        /* Sombras/gradientes do player — mais suaves */
+        /* Sombras/gradientes do player — DESKTOP (intensas, originais) */
         .player-wrapper::before {
-            content: ''; position: absolute; top: 0; left: 0; right: 0; height: 200px;
-            background: linear-gradient(to bottom, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.5) 45%, rgba(0,0,0,0.15) 80%, transparent 100%);
+            content: ''; position: absolute; top: 0; left: 0; right: 0; height: 250px;
+            background: linear-gradient(to bottom, rgba(0,0,0,1) 0%, rgba(0,0,0,0.9) 30%, rgba(0,0,0,0.4) 70%, transparent 100%);
             z-index: 5; pointer-events: none; transition: opacity 0.4s ease;
         }
         .player-wrapper::after {
-            content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 220px;
-            background: linear-gradient(to top, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.5) 45%, rgba(0,0,0,0.15) 80%, transparent 100%);
+            content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 300px;
+            background: linear-gradient(to top, rgba(0,0,0,1) 0%, rgba(0,0,0,0.9) 30%, rgba(0,0,0,0.4) 70%, transparent 100%);
             z-index: 5; pointer-events: none; transition: opacity 0.4s ease;
         }
         .player-wrapper.hide-shadows::before, .player-wrapper.hide-shadows::after { opacity: 0; }
@@ -830,7 +830,7 @@
             .player-wrapper { max-height: calc(100vh - 40px); border-radius: 0; }
             #player-bottom-ad { display: none !important; }
 
-            /* Sombras do player muito mais suaves no mobile */
+            /* Sombras do player muito mais suaves APENAS no mobile */
             .player-wrapper::before {
                 height: 70px;
                 background: linear-gradient(to bottom, rgba(0,0,0,0.55) 0%, transparent 100%);
