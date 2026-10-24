@@ -28,7 +28,6 @@
             flex-direction: column;
         }
 
-        /* ===== HEADER ===== */
         .header {
             position: fixed; top: 0; left: 0; width: 100%; height: 110px;
             display: flex; align-items: center; justify-content: space-between;
@@ -244,7 +243,6 @@
         .modal-actions .primary { background: #fdbb2d; color: #000; }
         .modal-actions .primary:hover { background: #ffcc44; }
 
-        /* ===== MEUS ANÚNCIOS ===== */
         .my-ads-toolbar { display: flex; gap: 10px; margin-bottom: 20px; width: 100%; }
         .my-ads-toolbar input {
             flex: 1; background: rgba(255,255,255,0.08); color: #fff;
@@ -274,7 +272,6 @@
         .ad-status-badge { padding: 4px 10px; border-radius: 12px; font-size: 0.75rem; font-weight: bold; border: 1px solid; }
         .btn-delete-ad { background: #e74c3c; color: white; border: none; padding: 4px 10px; border-radius: 4px; cursor: pointer; font-size: 0.75rem; font-weight: bold; }
 
-        /* ===== LISTA DE ANÚNCIOS INTERNOS (ADMIN) ===== */
         #adsListContainer {
             margin-top: 15px;
             max-height: 350px;
@@ -301,12 +298,22 @@
         }
         .ad-info {
             flex: 1;
+            overflow: hidden;
+            min-width: 0;
+        }
+        .ad-info-url {
             font-size: 0.75rem;
             color: #94a3b8;
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
             font-family: monospace;
+        }
+        .ad-info-views {
+            font-size: 0.72rem;
+            color: #fdbb2d;
+            font-weight: 700;
+            margin-top: 4px;
         }
         .remove-ad-btn {
             background: #ef4444;
@@ -322,7 +329,6 @@
         }
         .remove-ad-btn:hover { background: #dc2626; }
 
-        /* ===== TABELA DE DESEMPENHO ===== */
         #perfTableContainer {
             margin-top: 15px;
             max-height: 55vh;
@@ -378,8 +384,28 @@
             color: #94a3b8;
             font-size: 0.9rem;
         }
+        /* NOVO: busca no desempenho */
+        .perf-search-container {
+            margin-top: 12px;
+            margin-bottom: 4px;
+        }
+        .perf-search-container input {
+            width: 100%;
+            background: rgba(255,255,255,0.08);
+            color: #fff;
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 8px;
+            padding: 11px 14px 11px 38px;
+            font-size: 0.9rem;
+            outline: none;
+            transition: 0.2s;
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="%2394a3b8" viewBox="0 0 16 16"><path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z"/></svg>');
+            background-repeat: no-repeat;
+            background-position: 12px center;
+        }
+        .perf-search-container input:focus { border-color: #fdbb2d; background-color: rgba(255,255,255,0.12); }
+        .perf-search-container input::placeholder { color: #64748b; }
 
-        /* ===== SELETOR DE PLANOS DE ASSINATURA ===== */
         #pixPlanSelector {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
@@ -429,7 +455,6 @@
             border-radius: 10px;
         }
 
-        /* ===== PLAYER ===== */
         #playerScreen {
             position: fixed; inset: 0;
             background: linear-gradient(135deg, rgba(11,15,25,0.97) 0%, rgba(26,26,46,0.97) 50%, rgba(22,33,62,0.97) 100%);
@@ -895,7 +920,6 @@
         </a>
     </footer>
 
-    <!-- MODAL: Adicionar/Editar Vídeo -->
     <div class="modal-overlay" id="videoModal">
         <div class="modal">
             <h2 id="videoModalTitle">Adicionar Vídeo</h2>
@@ -927,7 +951,6 @@
         </div>
     </div>
 
-    <!-- MODAL: Anúncio Interno -->
     <div class="modal-overlay" id="manageAdsModal">
         <div class="modal">
             <h2>Anúncio Interno</h2>
@@ -949,7 +972,6 @@
         </div>
     </div>
 
-    <!-- MODAL: Preços (4 planos + tarifa) -->
     <div class="modal-overlay" id="pricingModal">
         <div class="modal">
             <h2>Configuração de Preços</h2>
@@ -977,11 +999,13 @@
         </div>
     </div>
 
-    <!-- MODAL: Desempenho dos Vídeos -->
     <div class="modal-overlay" id="performanceModal">
         <div class="modal" style="max-width: 950px;">
             <h2>📈 Desempenho dos Vídeos</h2>
             <p class="modal-sub">Clique nos cabeçalhos para ordenar por qualquer coluna.</p>
+            <div class="perf-search-container">
+                <input type="text" id="perfSearchInput" placeholder="Buscar por título ou ID do vídeo..." autocomplete="off">
+            </div>
             <div id="perfTableContainer"></div>
             <div class="modal-actions">
                 <button class="secondary" id="closePerformanceBtn">Fechar</button>
@@ -989,7 +1013,6 @@
         </div>
     </div>
 
-    <!-- MODAL: Inserir Anúncio Pago -->
     <div class="modal-overlay" id="insertAdModal">
         <div class="modal">
             <h2>Inserir um Anúncio</h2>
@@ -1029,7 +1052,6 @@
         </div>
     </div>
 
-    <!-- MODAL: Meus Anúncios -->
     <div class="modal-overlay" id="myAdsModal">
         <div class="modal" style="max-width: 700px;">
             <h2>Histórico de Anúncios</h2>
@@ -1052,7 +1074,6 @@
         </div>
     </div>
 
-    <!-- Intersticial de anúncios -->
     <div id="adInterstitialModal">
         <div class="ad-mobile-top" id="adMobileTop"></div>
         <div class="ad-native-side left" id="adNativeLeft"></div>
@@ -1080,7 +1101,6 @@
         <div class="ad-mobile-bottom" id="adMobileBottom"></div>
     </div>
 
-    <!-- PLAYER -->
     <div id="playerScreen">
         <div class="player-container">
             <div class="player-mobile-banner" id="playerMobileTop"></div>
@@ -1143,7 +1163,6 @@
         </div>
     </div>
 
-    <!-- PIX Lightbox (com seletor de planos) -->
     <div id="pixLightbox" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 99999; justify-content: center; align-items: center; backdrop-filter: blur(6px);">
         <div style="background: #152961; border: 2px solid #fdbb2d; border-radius: 14px; padding: 30px; max-width: 480px; width: 90%; position: relative; text-align: center; color: #fff; max-height: 92vh; overflow-y: auto;">
             <button id="pixClose" style="position: absolute; top: 12px; right: 14px; background: transparent; border: none; color: #cbd5e1; font-size: 1.6rem; cursor: pointer;">×</button>
@@ -1196,7 +1215,6 @@
     </div>
 
 <script>
-    /* ========= FIREBASE ========= */
     const firebaseConfig = {
         apiKey: "AIzaSyAfD0QOlAVb50612u6siwCxzfZfGmgEB2E",
         authDomain: "playtronic-tv.firebaseapp.com",
@@ -1214,7 +1232,6 @@
     const ADMIN_EMAIL = 'playtronicpublisher@mail.com';
     const CF_BASE = 'https://us-central1-playtronic-tv.cloudfunctions.net';
 
-    /* ========= ESTADO ========= */
     let currentUser = null;
     let videos = [];
     let currentFilter = '';
@@ -1235,7 +1252,6 @@
     let pixCurrentPayment = null;
     let isSimulatingSub = false;
 
-    // Planos de assinatura (espelho dos valores do Firestore)
     let currentPlanId = 'monthly';
     let catalogPlans = {
         monthly:    { price: 6.90,  months: 1,  label: '30 dias' },
@@ -1256,11 +1272,9 @@
 
     let myAdsData = [];
 
-    // Ordenação da tabela de desempenho
     let perfSortField = 'views';
     let perfSortOrder = 'desc';
 
-    /* ========= HELPERS ========= */
     function isAdmin() {
         return currentUser && currentUser.email === ADMIN_EMAIL;
     }
@@ -1425,7 +1439,6 @@
         }, 250);
     });
 
-    /* ========= FAVORITOS ========= */
     async function toggleFavorite(videoId) {
         if (!currentUser) {
             try {
@@ -1451,7 +1464,6 @@
         }
     }
 
-    /* ========= AUTH ========= */
     const loginBtn = document.getElementById('loginBtn');
     const userInfo = document.getElementById('userInfo');
     const userAvatar = document.getElementById('userAvatar');
@@ -1548,7 +1560,6 @@
         checkMyAdsVisibility(); 
     });
 
-    /* ========= VOTOS ========= */
     function getVotesRef(videoId) { return rtdb.ref('vod_votes/' + videoId); }
 
     function calcularNotaFromCache(videoId) {
@@ -1622,7 +1633,6 @@
         if (currentPlayerVideoId) votar(currentPlayerVideoId, 'dislike');
     });
 
-    /* ========= CATÁLOGO ========= */
     const catalogGrid = document.getElementById('catalogGrid');
     const loadingMsg = document.getElementById('loadingMsg');
     const emptyState = document.getElementById('emptyState');
@@ -1776,7 +1786,6 @@
         catalogGrid.innerHTML = `<div class="empty-state" style="display:block;">Erro ao carregar catálogo: ${escapeHtml(err.message)}</div>`;
     });
 
-    /* ========= MODAL DE VÍDEO ========= */
     const videoModal = document.getElementById('videoModal');
     const videoModalTitle = document.getElementById('videoModalTitle');
     const videoModalSub = document.getElementById('videoModalSub');
@@ -1904,13 +1913,11 @@
         catch (err) { alert('Erro ao remover: ' + err.message); }
     }
 
-    /* ========= MENU ADMIN ========= */
     document.getElementById('addVideoBtn').addEventListener('click', () => {
         adminDropdown.style.display = 'none';
         openVideoModal('add');
     });
 
-    /* ===== Modal de Preços ===== */
     const pricingModal = document.getElementById('pricingModal');
 
     document.getElementById('pricingBtn').addEventListener('click', async () => {
@@ -1984,7 +1991,6 @@
         }
     });
 
-    /* ===== Gerenciar Anúncio Interno ===== */
     const manageAdsModal = document.getElementById('manageAdsModal');
     const adsListContainer = document.getElementById('adsListContainer');
     const newAdImageUrl = document.getElementById('newAdImageUrl');
@@ -2003,7 +2009,15 @@
         if (e.target === manageAdsModal) manageAdsModal.classList.remove('active');
     });
 
-    function renderAdsList() {
+    async function renderAdsList() {
+        // Recarrega do Firestore para pegar views atualizadas
+        try {
+            const doc = await db.collection('platform_config').doc('custom_ads').get();
+            if (doc.exists && Array.isArray(doc.data().banners)) {
+                adBanners = doc.data().banners;
+            }
+        } catch (e) { console.warn('Erro ao recarregar anúncios:', e); }
+
         adsListContainer.innerHTML = '';
         if (adBanners.length === 0) {
             adsListContainer.innerHTML = '<p style="font-size:0.85rem; color:#94a3b8; text-align:center; padding: 20px 0;">Nenhum anúncio interno cadastrado.</p>';
@@ -2015,7 +2029,10 @@
             item.className = 'ad-list-item';
             item.innerHTML = `
                 <img src="${ad.src}" onerror="this.src='https://via.placeholder.com/100x56?text=Erro'">
-                <div class="ad-info" title="${escapeHtml(ad.src)}">${escapeHtml(ad.src)}</div>
+                <div class="ad-info">
+                    <div class="ad-info-url" title="${escapeHtml(ad.src)}">${escapeHtml(ad.src)}</div>
+                    <div class="ad-info-views">👁️ ${Number(ad.views || 0).toLocaleString('pt-BR')} visualizações</div>
+                </div>
                 <button class="remove-ad-btn" data-index="${index}">Remover</button>
             `;
             adsListContainer.appendChild(item);
@@ -2026,7 +2043,7 @@
                 const index = parseInt(this.getAttribute('data-index'));
                 adBanners.splice(index, 1);
                 await saveAdsToFirebase();
-                renderAdsList();
+                await renderAdsList();
             });
         });
     }
@@ -2037,17 +2054,27 @@
             alert('Por favor, insira a URL da imagem.');
             return;
         }
-        adBanners.push({ src: url, link: 'https://playtronicgames.com.br' });
+        adBanners.push({ src: url, link: 'https://playtronicgames.com.br', views: 0 });
         newAdImageUrl.value = '';
         await saveAdsToFirebase();
-        renderAdsList();
+        await renderAdsList();
     });
 
     async function saveAdsToFirebase() {
         try {
-            await db.collection('platform_config').doc('custom_ads').set({
-                banners: adBanners
-            });
+            // Faz fetch fresh para preservar views que possam ter chegado entre render e save
+            const doc = await db.collection('platform_config').doc('custom_ads').get();
+            const existing = doc.exists ? (doc.data().banners || []) : [];
+            const viewsBySrc = {};
+            existing.forEach(b => { if (b && b.src) viewsBySrc[b.src] = Number(b.views || 0); });
+
+            const toSave = adBanners.map(b => ({
+                ...b,
+                views: viewsBySrc[b.src] !== undefined ? viewsBySrc[b.src] : Number(b.views || 0)
+            }));
+
+            await db.collection('platform_config').doc('custom_ads').set({ banners: toSave });
+            adBanners = toSave;
         } catch (error) {
             console.error("Erro ao salvar anúncios:", error);
             alert("Erro ao salvar. Verifique se as regras do Firestore permitem escrita.");
@@ -2080,13 +2107,15 @@
         checkCatalogSubscription();
     });
 
-    /* ===== Desempenho dos Vídeos ===== */
     const performanceModal = document.getElementById('performanceModal');
     const perfTableContainer = document.getElementById('perfTableContainer');
+    const perfSearchInput = document.getElementById('perfSearchInput');
 
     document.getElementById('performanceBtn').addEventListener('click', () => {
         adminDropdown.style.display = 'none';
         performanceModal.classList.add('active');
+        // Limpa a busca ao abrir
+        if (perfSearchInput) perfSearchInput.value = '';
         renderPerformanceTable();
     });
 
@@ -2097,6 +2126,13 @@
     performanceModal.addEventListener('click', (e) => {
         if (e.target === performanceModal) performanceModal.classList.remove('active');
     });
+
+    // Busca ao vivo no desempenho
+    if (perfSearchInput) {
+        perfSearchInput.addEventListener('input', () => {
+            renderPerformanceTable();
+        });
+    }
 
     function getPerfSortValue(item, field) {
         if (field === 'titulo') return item.titulo || '';
@@ -2116,7 +2152,24 @@
             return;
         }
 
-        const data = videos.map(v => ({
+        const searchTerm = (perfSearchInput ? perfSearchInput.value : '').toLowerCase().trim();
+
+        // Filtro por busca
+        let filtered = videos;
+        if (searchTerm) {
+            filtered = videos.filter(v => {
+                const title = (v.titulo || '').toLowerCase();
+                const ytId = (v.youtubeId || '').toLowerCase();
+                return title.includes(searchTerm) || ytId.includes(searchTerm);
+            });
+        }
+
+        if (filtered.length === 0) {
+            perfTableContainer.innerHTML = `<div class="perf-empty">Nenhum vídeo encontrado para "${escapeHtml(searchTerm)}".</div>`;
+            return;
+        }
+
+        const data = filtered.map(v => ({
             youtubeId: v.youtubeId,
             titulo: v.titulo || '(Sem título)',
             publishedAt: v.order || 0,
@@ -2152,7 +2205,13 @@
             </tr>
         `).join('');
 
+        // Contador de resultados quando há busca
+        const countHtml = searchTerm
+            ? `<div style="padding: 8px 12px; font-size: 0.78rem; color: #94a3b8; background: rgba(0,0,0,0.2); border-bottom: 1px solid rgba(255,255,255,0.08);">${filtered.length} resultado${filtered.length !== 1 ? 's' : ''} encontrado${filtered.length !== 1 ? 's' : ''}</div>`
+            : '';
+
         perfTableContainer.innerHTML = `
+            ${countHtml}
             <table class="perf-table">
                 <thead>
                     <tr>
@@ -2183,7 +2242,6 @@
         });
     }
 
-    /* ========= ASSINATURA PIX ========= */
     async function checkCatalogSubscription() {
         if (isSimulatingSub) {
             catalogSubscription = { active: true, expiresAt: Date.now() + (30 * 24 * 60 * 60 * 1000) };
@@ -2308,7 +2366,6 @@
         }
     }
 
-    // Listeners dos cards de plano
     document.querySelectorAll('#pixPlanSelector .plan-option').forEach(el => {
         el.addEventListener('click', () => selectPlan(el.getAttribute('data-plan')));
     });
@@ -2395,7 +2452,6 @@
         setTimeout(() => { document.getElementById('copyPixBtn').textContent = 'Copiar código'; }, 2000);
     });
 
-    /* ========= ANÚNCIO PAGO (PIX) ========= */
     const insertAdModal = document.getElementById('insertAdModal');
     const adYoutubeHint = document.getElementById('adYoutubeHint');
     const newAdYoutubeUrl = document.getElementById('newAdYoutubeUrl');
@@ -2617,7 +2673,6 @@
         setTimeout(() => { document.getElementById('copyAdPixBtn').textContent = 'Copiar código'; }, 2000);
     });
 
-    /* ========= HISTÓRICO DE ANÚNCIOS ========= */
     const myAdsModal = document.getElementById('myAdsModal');
     const myAdsListContainer = document.getElementById('myAdsListContainer');
     const searchMyAds = document.getElementById('searchMyAds');
@@ -2790,7 +2845,6 @@
         });
     }
 
-    /* ========= PLAYER E ANÚNCIOS ========= */
     const playerScreen = document.getElementById('playerScreen');
     const playerWrapper = document.getElementById('playerWrapper');
     const customUI = document.getElementById('customUI');
@@ -2869,7 +2923,6 @@
         }
     }
 
-    /* ========= INTERSTICIAL ========= */
     let pendingVideo = null;
     let adTimerInterval = null;
 
@@ -2972,8 +3025,20 @@
 
         } else {
             if (adBanners.length > 0) {
+                // Segurança: se o índice estiver fora do range (ex: admin removeu), reseta
+                if (currentAdBannerIndex >= adBanners.length) currentAdBannerIndex = 0;
                 const ad = adBanners[currentAdBannerIndex];
-                adCenterWrapper.innerHTML = `<img src="${ad.src}" alt="Publicidade" style="width:100%; height:100%; object-fit:contain; padding: 20px;">`;
+                const shownSrc = ad.src;
+                adCenterWrapper.innerHTML = `<img src="${shownSrc}" alt="Publicidade" style="width:100%; height:100%; object-fit:contain; padding: 20px;">`;
+
+                // NOVO: registra view do anúncio interno
+                fetch(CF_BASE + '/incrementInternalAdViews', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ adSrc: shownSrc }),
+                    keepalive: true
+                }).catch(e => console.warn("Erro ao registrar view interna:", e));
+
                 currentAdBannerIndex = (currentAdBannerIndex + 1) % adBanners.length;
             }
         }
@@ -3039,7 +3104,6 @@
         openPixLightbox();
     });
 
-    /* ========= OPEN PLAYER ========= */
     async function openPlayer(video) {
         if (!currentUser) {
             try {
