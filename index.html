@@ -125,8 +125,11 @@
             gap: 30px; max-width: 1400px; margin: 0 auto; width: 100%;
         }
 
+        /* ALTERAÇÃO AQUI: Cor de fundo e borda do card clareadas */
         .card {
-            background: #16213e; border: 1px solid #1f2a4a; border-radius: 12px; overflow: hidden;
+            background: #1e305c; 
+            border: 1px solid #2f4780; 
+            border-radius: 12px; overflow: hidden;
             transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
             display: flex; flex-direction: column; position: relative; width: 100%;
         }
@@ -135,9 +138,11 @@
         .card-poster { position: relative; width: 100%; aspect-ratio: 16 / 9; overflow: hidden; background: #0b0f19; }
         .card-poster img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform 0.4s ease; }
         .card:hover .card-poster img { transform: scale(1.05); }
+        
+        /* ALTERAÇÃO AQUI: Gradiente do poster atualizado para combinar com o novo fundo */
         .card-poster::after {
             content: ''; position: absolute; bottom: 0; left: 0; right: 0;
-            height: 35%; background: linear-gradient(to top, #16213e, transparent); pointer-events: none;
+            height: 35%; background: linear-gradient(to top, #1e305c, transparent); pointer-events: none;
         }
 
         .rating-badge {
