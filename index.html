@@ -156,7 +156,6 @@
         }
         .card-meta-line { display: block; }
 
-        /* BOTÃO ASSISTIR E ASSINAR PADRONIZADOS */
         .watch-btn {
             background: #fdbb2d; color: #000; border: none; padding: 10px; border-radius: 6px;
             font-weight: bold; font-size: 0.95rem; cursor: pointer; transition: background 0.2s, transform 0.1s; width: 100%;
@@ -165,12 +164,11 @@
         .watch-btn:hover { background: #ffcc44; transform: scale(1.02); }
         
         .watch-btn.locked {
-            background: linear-gradient(135deg, #7c3aed, #6d28d9); /* Lilás */
+            background: linear-gradient(135deg, #7c3aed, #6d28d9);
             color: #fff;
         }
         .watch-btn.locked:hover { background: linear-gradient(135deg, #6d28d9, #5b21b6); }
 
-        /* ===== MENU ADMIN ===== */
         #adminMenuContainer {
             position: fixed;
             bottom: 30px;
@@ -286,50 +284,110 @@
         .modal-actions .primary { background: #fdbb2d; color: #000; }
         .modal-actions .primary:hover { background: #ffcc44; }
 
-        /* LISTA DE ANÚNCIOS GERENCIÁVEIS */
-        #adsListContainer {
-            margin-top: 15px;
+        /* ===== LISTA DE ANÚNCIOS (MEUS ANÚNCIOS) ===== */
+        .my-ads-toolbar {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            width: 100%;
+        }
+        .my-ads-toolbar input {
+            flex: 1;
+            background: rgba(255,255,255,0.08);
+            color: #fff;
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 8px;
+            padding: 11px 14px;
+            font-size: 0.9rem;
+            outline: none;
+            transition: 0.2s;
+        }
+        .my-ads-toolbar input:focus {
+            border-color: #fdbb2d;
+        }
+        .my-ads-toolbar select {
+            width: 170px;
+            background: rgba(255,255,255,0.08);
+            color: #fff;
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 8px;
+            padding: 11px 14px;
+            font-size: 0.9rem;
+            outline: none;
+            cursor: pointer;
+        }
+        .my-ads-toolbar select option {
+            background: #152961;
+        }
+
+        .ad-history-card {
+            display: flex;
+            gap: 15px;
+            background: rgba(0,0,0,0.2);
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            border: 1px solid rgba(255,255,255,0.05);
+            align-items: center;
+        }
+        .ad-history-thumb {
+            width: 100px;
+            height: 56px;
+            border-radius: 6px;
+            object-fit: cover;
+            flex-shrink: 0;
+        }
+        .ad-history-info {
+            flex: 1;
+            overflow: hidden;
             display: flex;
             flex-direction: column;
-            gap: 10px;
-            max-height: 300px;
-            overflow-y: auto;
-            padding-right: 5px;
+            gap: 4px;
         }
-        .ad-list-item {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            background: rgba(255,255,255,0.05);
-            padding: 10px;
-            border-radius: 8px;
-            border: 1px solid rgba(255,255,255,0.1);
-        }
-        .ad-list-item img {
-            height: 50px;
-            width: auto;
-            max-width: 100px;
-            border-radius: 4px;
-            object-fit: contain;
-            background: #fff;
-        }
-        .ad-list-item .ad-info {
-            flex: 1;
-            margin-left: 15px;
-            font-size: 0.8rem;
+        .ad-history-title {
+            font-weight: bold;
+            color: #fff;
+            font-size: 0.95rem;
+            white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
-            white-space: nowrap;
         }
-        .ad-list-item .remove-ad-btn {
+        .ad-history-dates {
+            font-size: 0.75rem;
+            color: #94a3b8;
+        }
+        .ad-history-stats {
+            font-size: 0.8rem;
+            color: #cbd5e1;
+        }
+        .ad-history-owner {
+            font-size: 0.75rem;
+            color: #a78bfa;
+            margin-top: 2px;
+        }
+        .ad-history-actions {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 8px;
+            flex-shrink: 0;
+        }
+        .ad-status-badge {
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: bold;
+            border: 1px solid;
+        }
+        .btn-delete-ad {
             background: #e74c3c;
             color: white;
             border: none;
-            padding: 6px 10px;
-            border-radius: 6px;
+            padding: 4px 10px;
+            border-radius: 4px;
             cursor: pointer;
+            font-size: 0.75rem;
             font-weight: bold;
-            font-size: 0.8rem;
         }
 
         /* ===== PLAYER ===== */
@@ -399,7 +457,6 @@
         }
         .close-player-btn:hover { background: #e74c3c; transform: scale(1.1); }
 
-        /* Título do vídeo no player */
         .player-video-title {
             position: absolute;
             top: 22px;
@@ -478,7 +535,7 @@
 
         #player-bottom-ad {
             display: none;
-            width: 100%; /* Ajustado para 100% para funcionar no mobile */
+            width: 100%;
             max-width: 728px;
             height: 90px;
             background: transparent;
@@ -491,7 +548,7 @@
         }
         #player-bottom-ad iframe {
             display: block; border: 0; margin: 0 auto;
-            width: 100%; height: 100%; /* Ajustado para preencher o container */
+            width: 100%; height: 100%;
             position: absolute; top: 0; left: 0; z-index: 1;
         }
 
@@ -537,10 +594,9 @@
         }
         .ad-center-wrapper img { width: 100%; height: 100%; object-fit: contain; padding: 20px; }
         
-        /* YT Player dentro do anúncio */
         .ad-center-wrapper iframe {
             width: 100%; height: 100%; border: none; position: absolute; top: 0; left: 0;
-            pointer-events: none; /* BLOQUEIA CLIQUES NO ANÚNCIO */
+            pointer-events: none;
         }
 
         .ad-interstitial-footer {
@@ -628,7 +684,10 @@
             #adminMenuContainer { bottom: 20px; right: 20px; }
             .carousel-track .card { flex: 0 0 200px; width: 200px; }
             .carousel-arrow { display: none; }
-            /* #player-bottom-ad { display: none !important; } <-- REMOVIDO PARA MOSTRAR NO MOBILE */
+            .my-ads-toolbar { flex-direction: column; }
+            .my-ads-toolbar input, .my-ads-toolbar select { width: 100%; }
+            .ad-history-card { flex-direction: column; align-items: flex-start; }
+            .ad-history-actions { flex-direction: row; width: 100%; justify-content: space-between; margin-top: 10px; }
         }
     </style>
 </head>
@@ -644,11 +703,9 @@
             <input type="text" id="searchInput" placeholder="Pesquisar" autocomplete="off">
         </div>
         <div class="auth-area">
-            <!-- BOTÃO MEUS ANÚNCIOS AGORA PRETO -->
             <button id="myAdsBtn" style="display:none; background: #000; color: #fff; border: 1px solid #333; padding: 10px 18px; border-radius: 8px; font-weight: bold; cursor: pointer; margin-right: 10px;">
                 📺 Meus Anúncios
             </button>
-            <!-- BOTÃO DE ASSINATURA (COR LILÁS PADRONIZADA) -->
             <button id="subscribeBtn" style="display:none; background: linear-gradient(135deg, #7c3aed, #6d28d9); color: #fff; border: none; padding: 10px 18px; border-radius: 8px; font-weight: bold; cursor: pointer; margin-right: 10px;">
                 ⭐ Assinar
             </button>
@@ -694,7 +751,6 @@
         </a>
     </footer>
 
-    <!-- MENU ADMIN -->
     <div id="adminMenuContainer">
         <button id="adminMenuBtn">
             ⚙️ Admin
@@ -708,7 +764,6 @@
         </div>
     </div>
 
-    <!-- MODAL DE VÍDEO -->
     <div class="modal-overlay" id="videoModal">
         <div class="modal">
             <h2 id="videoModalTitle">Adicionar Vídeo</h2>
@@ -740,7 +795,6 @@
         </div>
     </div>
 
-    <!-- NOVO MODAL DE GERENCIAMENTO DE ANÚNCIOS (BASE) -->
     <div class="modal-overlay" id="manageAdsModal">
         <div class="modal">
             <h2>Gerenciar Anúncios Base</h2>
@@ -754,9 +808,7 @@
                 <button class="primary" id="addAdBtn" style="height: 42px; margin-bottom: 6px;">Adicionar</button>
             </div>
 
-            <div id="adsListContainer">
-                <!-- A lista de anúncios será renderizada aqui -->
-            </div>
+            <div id="adsListContainer"></div>
 
             <div class="modal-actions">
                 <button class="secondary" id="closeManageAdsBtn">Fechar</button>
@@ -764,7 +816,6 @@
         </div>
     </div>
 
-    <!-- NOVO MODAL DE PAGAMENTO DE ANÚNCIO (INSTANTÂNEO) -->
     <div class="modal-overlay" id="insertAdModal">
         <div class="modal">
             <h2>Inserir um Anúncio</h2>
@@ -800,30 +851,25 @@
                 </div>
             </div>
             
-            <!-- Player invisível para calcular a duração -->
             <div id="hiddenYTPlayer" style="position: absolute; top: -9999px; left: -9999px; width: 1px; height: 1px;"></div>
         </div>
     </div>
 
-    <!-- NOVO MODAL DE HISTÓRICO DE ANÚNCIOS -->
     <div class="modal-overlay" id="myAdsModal">
         <div class="modal" style="max-width: 700px;">
             <h2>Histórico de Anúncios</h2>
             <p class="modal-sub" id="myAdsSub">Acompanhe o desempenho dos seus anúncios.</p>
             
-            <!-- Barra de pesquisa e classificação -->
-            <div style="display: flex; gap: 10px; margin-bottom: 20px;">
-                <input type="text" id="searchMyAds" placeholder="Pesquisar por ID do vídeo..." autocomplete="off" style="flex: 1; background: rgba(255,255,255,0.08); color: #fff; border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; padding: 11px 14px; font-size: 0.95rem; outline: none; transition: 0.2s;">
-                <select id="sortMyAds" style="background: rgba(255,255,255,0.08); color: #fff; border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; padding: 11px 14px; font-size: 0.95rem; outline: none; cursor: pointer;">
+            <div class="my-ads-toolbar">
+                <input type="text" id="searchMyAds" placeholder="Pesquisar por ID ou título..." autocomplete="off">
+                <select id="sortMyAds">
                     <option value="createdAt">Data (Recente)</option>
                     <option value="views">Visualizações</option>
                     <option value="amountPaid">Valor Pago</option>
                 </select>
             </div>
 
-            <div id="myAdsListContainer" style="max-height: 400px; overflow-y: auto; padding-right: 5px;">
-                <!-- Lista de anúncios será injetada aqui -->
-            </div>
+            <div id="myAdsListContainer" style="max-height: 400px; overflow-y: auto; padding-right: 5px;"></div>
 
             <div class="modal-actions">
                 <button class="secondary" id="closeMyAdsBtn">Fechar</button>
@@ -831,7 +877,6 @@
         </div>
     </div>
 
-    <!-- ANÚNCIO INTERSTICIAL -->
     <div id="adInterstitialModal">
         <div class="ad-native-side left" id="adNativeLeft"></div>
 
@@ -840,9 +885,7 @@
                 <span>Publicidade</span>
                 <span id="adTimerText">Aguarde 5s...</span>
             </div>
-            <div class="ad-center-wrapper" id="adCenterWrapper">
-                <!-- O conteúdo (imagem ou iframe YT) será injetado aqui -->
-            </div>
+            <div class="ad-center-wrapper" id="adCenterWrapper"></div>
             <div class="ad-interstitial-footer" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
                 <button id="openInsertAdBtn" style="background: #000; color: #fff; border: 1px solid #333; padding: 10px 20px; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 0.9rem;">
                     Inserir um anúncio
@@ -859,14 +902,12 @@
         <div class="ad-native-side right" id="adNativeRight"></div>
     </div>
 
-    <!-- PLAYER -->
     <div id="playerScreen">
         <div class="player-container">
             <div class="player-wrapper" id="playerWrapper">
                 <div class="custom-ui" id="customUI">
                     <button class="close-player-btn" id="closePlayerBtn" title="Fechar player">✖</button>
                     
-                    <!-- TÍTULO DO VÍDEO NO PLAYER -->
                     <div id="playerVideoTitle" class="player-video-title"></div>
 
                     <div class="player-vote-container">
@@ -895,7 +936,6 @@
         </div>
     </div>
 
-    <!-- LIGHTBOX DE PAGAMENTO PIX (ASSINATURA) -->
     <div id="pixLightbox" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 99999; justify-content: center; align-items: center; backdrop-filter: blur(6px);">
         <div style="background: #152961; border: 2px solid #fdbb2d; border-radius: 14px; padding: 30px; max-width: 480px; width: 90%; position: relative; text-align: center; color: #fff;">
             <button id="pixClose" style="position: absolute; top: 12px; right: 14px; background: transparent; border: none; color: #cbd5e1; font-size: 1.6rem; cursor: pointer;">×</button>
@@ -955,6 +995,7 @@
     let votesCache = {}; 
     let videosLoaded = false;
     let favoritesLoaded = false;
+    let myAdsTitlesCache = {};
 
     // Variáveis da Assinatura
     let catalogSubscription = { active: false, expiresAt: 0 };
@@ -1013,6 +1054,24 @@
         const s = Math.floor(seconds % 60);
         if (h > 0) return `${h}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
         return `${m}:${String(s).padStart(2, '0')}`;
+    }
+
+    async function fetchYouTubeTitle(videoId) {
+        if (myAdsTitlesCache[videoId]) return myAdsTitlesCache[videoId];
+        const inCatalog = videos.find(v => v.youtubeId === videoId);
+        if (inCatalog) {
+            myAdsTitlesCache[videoId] = inCatalog.titulo;
+            return inCatalog.titulo;
+        }
+        try {
+            const res = await fetch(`https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=${videoId}&format=json`);
+            if (res.ok) {
+                const data = await res.json();
+                myAdsTitlesCache[videoId] = data.title;
+                return data.title;
+            }
+        } catch(e) {}
+        return `Vídeo (${videoId.substring(0,6)}...)`;
     }
 
     /* ========= MONTAGEM ISOLADA DE BANNERS ========= */
@@ -1929,19 +1988,16 @@
     let adRateValue = 1.00;
 
     document.getElementById('openInsertAdBtn').addEventListener('click', async () => {
-        // Fecha a tela de anúncio atual
         adModal.classList.remove('active');
         const sbIframe = document.getElementById('social-bar-iframe');
         if (sbIframe) sbIframe.remove();
         clearInterval(adTimerInterval);
 
-        // ✅ CORREÇÃO DO BUG DE ÁUDIO: Destroi o player do anúncio se ele estiver rodando
         if (adYtPlayer) {
             try { adYtPlayer.stopVideo(); adYtPlayer.destroy(); } catch(e){}
             adYtPlayer = null;
         }
 
-        // Abre o modal de inserção
         insertAdModal.classList.add('active');
         adInsertStep1.style.display = 'block';
         adInsertStep2.style.display = 'none';
@@ -1952,13 +2008,11 @@
         adVideoDuration = 0;
         adVideoId = '';
         
-        // Destroi o player anterior se existir
         if (hiddenPlayer) {
             try { hiddenPlayer.destroy(); } catch(e){}
             hiddenPlayer = null;
         }
         
-        // Busca a tarifa atual
         try {
             const doc = await db.collection('platform_config').doc('catalog').get();
             adRateValue = doc.exists && doc.data().adRate ? doc.data().adRate : 1.00;
@@ -1973,11 +2027,9 @@
         insertAdModal.classList.remove('active');
     });
 
-    // Lógica de cálculo instantâneo ao digitar a URL
     newAdYoutubeUrl.addEventListener('input', () => {
         const url = newAdYoutubeUrl.value.trim();
         
-        // Limpa estados anteriores
         clearTimeout(adCalcTimeout);
         if (hiddenPlayer) {
             try { hiddenPlayer.destroy(); } catch(e){}
@@ -2005,7 +2057,6 @@
         adYoutubeHint.className = 'url-hint ok';
         adVideoId = id;
 
-        // Cria um player invisível para pegar a duração
         hiddenPlayer = new YT.Player('hiddenYTPlayer', {
             height: '1',
             width: '1',
@@ -2046,11 +2097,9 @@
         });
     });
 
-    // Exige login e manda token para a Function
     generateAdPixBtn.addEventListener('click', async () => {
         if (adVideoDuration <= 0 || !adVideoId) return;
 
-        // Exige login antes de gerar o PIX
         if (!currentUser) {
             try {
                 const provider = new firebase.auth.GoogleAuthProvider();
@@ -2176,8 +2225,9 @@
         if (!currentUser) return;
         userCard.classList.remove('active');
         myAdsModal.classList.add('active');
-        myAdsListContainer.innerHTML = '<p style="text-align:center; color:#94a3b8;">Carregando...</p>';
+        myAdsListContainer.innerHTML = '<p style="text-align:center; color:#94a3b8; padding: 20px;">Carregando...</p>';
         searchMyAds.value = '';
+        sortMyAds.value = 'createdAt';
         
         try {
             let myAdsData = [];
@@ -2200,11 +2250,18 @@
             });
             myAdsData = uniqueAds;
 
+            // Pre-fetch titles in background
+            for (let ad of myAdsData) {
+                if (!myAdsTitlesCache[ad.videoId]) {
+                    fetchYouTubeTitle(ad.videoId).then(() => renderMyAds(myAdsData));
+                }
+            }
+
             renderMyAds(myAdsData);
 
         } catch (e) {
             console.error(e);
-            myAdsListContainer.innerHTML = '<p style="color:#ff6b6b; text-align:center;">Erro ao carregar anúncios.</p>';
+            myAdsListContainer.innerHTML = '<p style="color:#ff6b6b; text-align:center; padding: 20px;">Erro ao carregar anúncios.</p>';
         }
     });
 
@@ -2229,24 +2286,23 @@
         const filter = searchMyAds.value.toLowerCase().trim();
         const sortBy = sortMyAds.value;
         
-        // Filtra
-        let filtered = dataArray.filter(ad => 
-            (ad.videoId || '').toLowerCase().includes(filter) || 
-            (ad.paymentId || '').toLowerCase().includes(filter)
-        );
+        let filtered = dataArray.filter(ad => {
+            const title = myAdsTitlesCache[ad.videoId] || '';
+            return (ad.videoId || '').toLowerCase().includes(filter) || 
+                   (ad.paymentId || '').toLowerCase().includes(filter) ||
+                   title.toLowerCase().includes(filter);
+        });
 
-        // Ordena
         if (sortBy === 'views') {
             filtered.sort((a, b) => (b.views || 0) - (a.views || 0));
         } else if (sortBy === 'amountPaid') {
             filtered.sort((a, b) => (b.amountPaid || 0) - (a.amountPaid || 0));
         } else {
-            // createdAr (default) - Mais recente primeiro
             filtered.sort((a, b) => b.createdAt - a.createdAt);
         }
 
         if (filtered.length === 0) {
-            myAdsListContainer.innerHTML = '<p style="text-align:center; color:#94a3b8;">Nenhum anúncio encontrado.</p>';
+            myAdsListContainer.innerHTML = '<p style="text-align:center; color:#94a3b8; padding: 20px;">Nenhum anúncio encontrado.</p>';
             return;
         }
 
@@ -2262,32 +2318,24 @@
             const dateCreated = new Date(ad.createdAt).toLocaleDateString('pt-BR');
             const dateExpires = new Date(ad.expiresAt).toLocaleDateString('pt-BR');
             const price = `R$ ${(ad.amountPaid || 0).toFixed(2).replace('.', ',')}`;
-            
-            // Tenta encontrar o título do vídeo baseado no ID
-            const videoTitle = videos.find(v => v.youtubeId === ad.videoId)?.titulo || `Vídeo (${ad.videoId.substring(0, 6)}...)`;
+            const title = myAdsTitlesCache[ad.videoId] || `Carregando...`;
 
             const card = document.createElement('div');
-            card.style.cssText = 'display: flex; gap: 15px; background: rgba(255,255,255,0.05); padding: 15px; border-radius: 10px; margin-bottom: 10px; border: 1px solid rgba(255,255,255,0.1); align-items: center;';
+            card.className = 'ad-history-card';
             
             card.innerHTML = `
-                <img src="https://img.youtube.com/vi/${ad.videoId}/mqdefault.jpg" style="width: 80px; height: 45px; border-radius: 6px; object-fit: cover;">
-                <div style="flex: 1; overflow: hidden;">
-                    <div style="font-weight: bold; color: #fff; font-size: 0.95rem; margin-bottom: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="${videoTitle}">
-                        ${videoTitle}
-                    </div>
-                    <div style="font-size: 0.75rem; color: #94a3b8;">
-                        Publicado: ${dateCreated} • Expira: ${dateExpires}
-                    </div>
-                    <div style="font-size: 0.8rem; color: #cbd5e1; margin-top: 5px;">
-                        👁️ <b>${ad.views || 0}</b> visualizações • 💰 Pago: <b>${price}</b>
-                    </div>
-                    ${isAdmin() ? `<div style="font-size: 0.7rem; color: #a78bfa; margin-top: 3px;">ID Usuário: ${(ad.userId || 'Desconhecido').substring(0,8)}... | Email: ${ad.payerEmail || 'N/A'}</div>` : ''}
+                <img src="https://img.youtube.com/vi/${ad.videoId}/mqdefault.jpg" class="ad-history-thumb">
+                <div class="ad-history-info">
+                    <div class="ad-history-title" title="${title}">${title}</div>
+                    <div class="ad-history-dates">Publicado: ${dateCreated} • Expira: ${dateExpires}</div>
+                    <div class="ad-history-stats">👁️ <b>${ad.views || 0}</b> visualizações • 💰 Pago: <b>${price}</b></div>
+                    ${isAdmin() ? `<div class="ad-history-owner">Usuário: ${(ad.userId || 'Desconhecido').substring(0,8)}... | ${ad.payerEmail || 'N/A'}</div>` : ''}
                 </div>
-                <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 8px;">
-                    <div style="background: ${statusBg}; color: ${statusColor}; padding: 4px 10px; border-radius: 12px; font-size: 0.75rem; font-weight: bold; border: 1px solid ${statusColor};">
+                <div class="ad-history-actions">
+                    <div class="ad-status-badge" style="color: ${statusColor}; background: ${statusBg}; border-color: ${statusColor};">
                         ${statusText}
                     </div>
-                    <button class="delete-my-ad-btn" data-id="${ad.id}" style="background: #e74c3c; color: white; border: none; padding: 4px 10px; border-radius: 4px; cursor: pointer; font-size: 0.75rem; font-weight: bold;">Apagar</button>
+                    <button class="delete-my-ad-btn btn-delete-ad" data-id="${ad.id}">Apagar</button>
                 </div>
             `;
             myAdsListContainer.appendChild(card);
@@ -2357,7 +2405,6 @@
     const adTimerText = document.getElementById('adTimerText');
     const adCenterWrapper = document.getElementById('adCenterWrapper');
 
-    // Função para fechar o anúncio e iniciar o conteúdo
     function closeAdAndPlay() {
         if (!pendingVideo || !adModal.classList.contains('active')) return;
         
@@ -2379,16 +2426,13 @@
     async function showAdInterstitial(video) {
         if (catalogSubscription.active) { openPlayer(video); return; }
 
-        // 🔥 TRAVA O BOTÃO IMEDIATAMENTE (Antes de qualquer await)
         closeAdBtn.disabled = true;
         closeAdBtn.classList.remove('active');
         closeAdBtn.textContent = 'Aguarde...';
         if (adTimerInterval) clearInterval(adTimerInterval);
 
-        // Esconde o menu admin para não sobrepor o anúncio
         if (isAdmin()) adminMenuContainer.style.display = 'none';
 
-        // Busca ads pagos ativos
         let activePaidAds = [];
         try {
             const now = Date.now();
@@ -2400,7 +2444,6 @@
             console.warn("Erro ao buscar anúncios pagos:", e);
         }
 
-        // Se NÃO tem ad pago E o vídeo não é marcado AD → pula direto pro player
         if (activePaidAds.length === 0 && !video.ad) {
             if (isAdmin()) adminMenuContainer.style.display = 'block';
             openPlayer(video);
@@ -2411,15 +2454,12 @@
         adModal.classList.add('active');
         adCenterWrapper.innerHTML = '';
         
-        // Limpa estados anteriores
         if (adYtPlayer) { try { adYtPlayer.stopVideo(); adYtPlayer.destroy(); } catch(e){} adYtPlayer = null; }
 
         if (activePaidAds.length > 0) {
-            // LÓGICA DE ROTAÇÃO JUSTA
             activePaidAds.sort((a, b) => (a.lastShownAt || 0) - (b.lastShownAt || 0));
             const chosenAd = activePaidAds[0];
 
-            // ✅ Contabiliza a view IMEDIATAMENTE ao iniciar o comercial
             if (chosenAd) {
                 fetch(CF_BASE + '/incrementAdViews', {
                     method: 'POST',
@@ -2429,16 +2469,14 @@
                 }).catch(e => console.warn("Erro ao registrar view:", e));
             }
 
-            // Cria a div onde o Player será montado
             adCenterWrapper.innerHTML = `<div id="ad-youtube-player" style="width:100%; height:100%; position:absolute; top:0; left:0;"></div>`;
             
-            // Inicializa o Player Oficial do YouTube
             adYtPlayer = new YT.Player('ad-youtube-player', {
                 videoId: chosenAd.videoId,
                 playerVars: {
                     'autoplay': 1, 'controls': 0, 'modestbranding': 1, 'rel': 0,
                     'showinfo': 0, 'iv_load_policy': 3, 'playsinline': 1, 'cc_load_policy': 0,
-                    'disablekb': 1 // Garante que o teclado não interfira
+                    'disablekb': 1
                 },
                 events: {
                     'onReady': (event) => {
@@ -2446,7 +2484,6 @@
                     },
                     'onStateChange': (event) => {
                         if (event.data === 0) {
-                            console.log('Anúncio finalizado. Pulando automaticamente...');
                             closeAdAndPlay();
                         }
                     }
@@ -2454,7 +2491,6 @@
             });
 
         } else {
-            // FALLBACK: Usa as imagens base se não houver anúncios pagos (SEM HYPERLINK)
             if (adBanners.length > 0) {
                 const ad = adBanners[currentAdBannerIndex];
                 adCenterWrapper.innerHTML = `
@@ -2500,7 +2536,6 @@
             document.body.appendChild(iframe);
         }
 
-        // Inicia contagem regressiva
         let timeLeft = 5;
         closeAdBtn.disabled = true;
         closeAdBtn.classList.remove('active');
@@ -2555,7 +2590,6 @@
             }
         }
 
-        // 🔥 ESCONDE O MENU ADMIN QUANDO O PLAYER ABRE
         if (isAdmin()) adminMenuContainer.style.display = 'none';
 
         playerScreen.classList.add('active');
@@ -2563,7 +2597,6 @@
 
         playerVideoTitle.textContent = video.titulo || 'Vídeo';
 
-        // ✅ CORRIGIDO: Removido o '!window.matchMedia' para exibir no mobile
         if (!catalogSubscription.active) {
             playerBottomAd.style.display = 'block';
             if (!playerBottomAd.dataset.mounted) {
@@ -2718,7 +2751,6 @@
         resetControlsTimer();
     });
 
-    // ✅ FUNÇÕES DOS BOTÕES -10s E +10s (CORRIGIDO)
     btnRewind10.addEventListener('click', () => {
         if (playerReady && player && typeof player.seekTo === 'function') {
             player.seekTo(Math.max(0, player.getCurrentTime() - 10), true);
@@ -2777,7 +2809,6 @@
         playerBottomAd.style.display = 'none';
         playerVideoTitle.textContent = '';
 
-        // 🔥 RESTAURA O MENU ADMIN AO FECHAR O PLAYER
         if (isAdmin()) adminMenuContainer.style.display = 'block';
     }
 
@@ -2895,7 +2926,6 @@
         }, 500);
     }
 
-    // Inicializa o carregamento dos anúncios ao abrir a página
     loadCustomAds();
 </script>
 </body>
