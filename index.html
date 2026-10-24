@@ -267,7 +267,7 @@
         }
         .modal-checkbox-row label {
             display: inline-flex; align-items: center; gap: 8px;
-            margin: 0; text-transform: none; letter-spacing: 0;
+            margin: 0; text-transform: none; letter-spacing: 0; 
             font-size: 0.9rem; color: #e2e8f0; cursor: pointer;
         }
         .modal-checkbox-row input[type="checkbox"],
@@ -399,20 +399,20 @@
         }
         .close-player-btn:hover { background: #e74c3c; transform: scale(1.1); }
 
-        /* NOVO: Título do vídeo no player */
+        /* Título do vídeo no player */
         .player-video-title {
             position: absolute;
             top: 22px;
-            left: 68px; /* Fica logo ao lado do botão X */
+            left: 68px;
             color: #fff;
             font-size: 1.15rem;
             font-weight: 600;
             text-shadow: 1px 1px 4px rgba(0,0,0,0.9);
-            max-width: calc(100% - 220px); /* Previne sobrepor os botões de votos */
+            max-width: calc(100% - 220px);
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
-            pointer-events: none; /* Deixa o clique passar para o player */
+            pointer-events: none;
             z-index: 25;
             padding: 5px 10px;
             background: rgba(0,0,0,0.3);
@@ -1335,13 +1335,17 @@
             watchBtn.classList.remove('locked');
         }
 
+        // 🔥 MUDANÇA v66.0: Sempre passa pelo interstitial se não for assinante
         watchBtn.addEventListener('click', () => {
             if (isPago && !catalogSubscription.active) {
                 openPixLightbox();
                 return;
             }
-            if (item.ad && !catalogSubscription.active) showAdInterstitial(item);
-            else openPlayer(item);
+            if (!catalogSubscription.active) {
+                showAdInterstitial(item);
+            } else {
+                openPlayer(item);
+            }
         });
 
         return card;
@@ -2032,22 +2036,40 @@
         });
     });
 
-    // Botão de gerar PIX (só aparece após calcular)
+    // 🔥 MUDANÇA v66.0: Exige login e manda token para a Function
     generateAdPixBtn.addEventListener('click', async () => {
         if (adVideoDuration <= 0 || !adVideoId) return;
-        
+
+        // Exige login antes de gerar o PIX
+        if (!currentUser) {
+            try {
+                const provider = new firebase.auth.GoogleAuthProvider();
+                provider.addScope('profile');
+                provider.addScope('email');
+                provider.setCustomParameters({ prompt: 'select_account' });
+                await auth.signInWithPopup(provider);
+            } catch (err) {
+                if (err.code !== 'auth/popup-closed-by-user' && err.code !== 'auth/cancelled-popup-request') {
+                    alert('Erro ao entrar: ' + err.message);
+                }
+                return;
+            }
+        }
+
         const btn = generateAdPixBtn;
         btn.disabled = true; btn.textContent = 'Gerando PIX...';
 
         try {
+            const token = await currentUser.getIdToken();
             const r = await fetch(CF_BASE + '/createAdPayment', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer ' + token
+                },
                 body: JSON.stringify({
                     youtubeUrl: newAdYoutubeUrl.value.trim(),
-                    duration: adVideoDuration,
-                    payerName: currentUser ? (currentUser.displayName || 'Usuário') : 'Anunciante',
-                    payerEmail: currentUser ? currentUser.email : ''
+                    duration: adVideoDuration
                 })
             });
             const data = await r.json();
@@ -2321,18 +2343,11 @@
         openPlayer(videoToPlay);
     }
 
+    // 🔥 MUDANÇA v66.0: Checa ads pagos antes de abrir o modal
     async function showAdInterstitial(video) {
         if (catalogSubscription.active) { openPlayer(video); return; }
-        
-        pendingVideo = video;
-        adModal.classList.add('active');
-        adCenterWrapper.innerHTML = ''; 
-        
-        // Limpa estados anteriores
-        if (adYtPlayer) { try { adYtPlayer.destroy(); } catch(e){} adYtPlayer = null; }
-        if (adTimerInterval) clearInterval(adTimerInterval);
 
-        // Verifica se existem anúncios pagos ativos
+        // Busca ads pagos ativos ANTES de abrir o modal
         let activePaidAds = [];
         try {
             const now = Date.now();
@@ -2343,6 +2358,20 @@
         } catch (e) {
             console.warn("Erro ao buscar anúncios pagos:", e);
         }
+
+        // Se NÃO tem ad pago E o vídeo não é marcado AD → pula direto pro player
+        if (activePaidAds.length === 0 && !video.ad) {
+            openPlayer(video);
+            return;
+        }
+
+        pendingVideo = video;
+        adModal.classList.add('active');
+        adCenterWrapper.innerHTML = '';
+        
+        // Limpa estados anteriores
+        if (adYtPlayer) { try { adYtPlayer.destroy(); } catch(e){} adYtPlayer = null; }
+        if (adTimerInterval) clearInterval(adTimerInterval);
 
         if (activePaidAds.length > 0) {
             // LÓGICA DE ROTAÇÃO JUSTA
@@ -2799,10 +2828,6 @@
             } catch (e) {}
         }, 500);
     }
-
-    document.getElementById('openInsertAdBtn').addEventListener('click', () => {
-        insertAdModal.classList.add('active');
-    });
 
     // Inicializa o carregamento dos anúncios ao abrir a página
     loadCustomAds();
