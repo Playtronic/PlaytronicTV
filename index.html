@@ -410,14 +410,15 @@
             flex-shrink: 0;
         }
 
+        /* Sombras/gradientes do player — mais suaves */
         .player-wrapper::before {
-            content: ''; position: absolute; top: 0; left: 0; right: 0; height: 250px;
-            background: linear-gradient(to bottom, rgba(0,0,0,1) 0%, rgba(0,0,0,0.9) 30%, rgba(0,0,0,0.4) 70%, transparent 100%);
+            content: ''; position: absolute; top: 0; left: 0; right: 0; height: 200px;
+            background: linear-gradient(to bottom, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.5) 45%, rgba(0,0,0,0.15) 80%, transparent 100%);
             z-index: 5; pointer-events: none; transition: opacity 0.4s ease;
         }
         .player-wrapper::after {
-            content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 300px;
-            background: linear-gradient(to top, rgba(0,0,0,1) 0%, rgba(0,0,0,0.9) 30%, rgba(0,0,0,0.4) 70%, transparent 100%);
+            content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 220px;
+            background: linear-gradient(to top, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.5) 45%, rgba(0,0,0,0.15) 80%, transparent 100%);
             z-index: 5; pointer-events: none; transition: opacity 0.4s ease;
         }
         .player-wrapper.hide-shadows::before, .player-wrapper.hide-shadows::after { opacity: 0; }
@@ -477,17 +478,68 @@
         .player-vote-btn.like.active { background: #2ecc71; border-color: #2ecc71; color: #fff; }
         .player-vote-btn.dislike.active { background: #e74c3c; border-color: #e74c3c; color: #fff; }
 
+        /* ===== BOTÃO PLAY/PAUSE — CÍRCULO AMARELO COM ÍCONE PRETO ===== */
         .center-play-btn {
-            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            width: 80px; height: 80px; border-radius: 50%; background: #000000;
-            border: 2px solid #ffffff; color: #fff; font-size: 2.2rem;
+            position: absolute; top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            width: 76px; height: 76px;
+            border-radius: 50%;
+            background: #fdbb2d;
+            border: none;
+            color: #000;
+            cursor: pointer;
+            z-index: 25;
+            pointer-events: auto;
             display: flex; align-items: center; justify-content: center;
-            cursor: pointer; z-index: 25; pointer-events: auto;
             transition: opacity 0.3s ease, transform 0.3s ease, background 0.2s;
-            padding-left: 6px; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.8);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+            padding: 0;
         }
-        .center-play-btn:hover { background: #fdbb2d; color: #000; border-color: #fdbb2d; transform: translate(-50%, -50%) scale(1.1); }
-        .center-play-btn.playing-state { padding-left: 0; }
+        .center-play-btn:hover {
+            background: #ffcc44;
+            transform: translate(-50%, -50%) scale(1.06);
+        }
+        .center-play-btn svg {
+            display: block;
+            pointer-events: none;
+            width: 34px; height: 34px;
+        }
+
+        /* ===== BOTÕES -10s / +10s (ESTILO YOUTUBE) ===== */
+        .skip-btn {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 36px;
+            height: 36px;
+            padding: 0;
+            background: transparent;
+            border: none;
+            color: #fff;
+            cursor: pointer;
+            transition: transform 0.2s, color 0.2s;
+            flex-shrink: 0;
+        }
+        .skip-btn:hover { transform: scale(1.12); color: #fdbb2d; }
+        .skip-btn svg {
+            display: block;
+            width: 28px;
+            height: 28px;
+        }
+        .skip-btn .skip-num {
+            position: absolute;
+            top: 53%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 9px;
+            font-weight: 800;
+            font-family: Arial, sans-serif;
+            letter-spacing: -0.3px;
+            line-height: 1;
+            color: currentColor;
+            pointer-events: none;
+        }
 
         .player-controls {
             position: absolute; bottom: 0; left: 0; right: 0;
@@ -777,12 +829,58 @@
             .player-container { gap: 10px; }
             .player-wrapper { max-height: calc(100vh - 40px); border-radius: 0; }
             #player-bottom-ad { display: none !important; }
+
+            /* Sombras do player muito mais suaves no mobile */
+            .player-wrapper::before {
+                height: 70px;
+                background: linear-gradient(to bottom, rgba(0,0,0,0.55) 0%, transparent 100%);
+            }
+            .player-wrapper::after {
+                height: 90px;
+                background: linear-gradient(to top, rgba(0,0,0,0.65) 0%, transparent 100%);
+            }
+
             .player-vote-container { top: 10px; right: 10px; transform: scale(0.8); transform-origin: top right; }
             .close-player-btn { top: 10px; left: 10px; width: 35px; height: 35px; font-size: 1rem; }
             .player-video-title { top: 12px; left: 55px; font-size: 0.85rem; max-width: calc(100% - 160px); }
-            .volume-slider { width: 50px; }
-            .player-controls { flex-wrap: wrap; gap: 8px; }
-            .progress-track { order: -1; width: 100%; flex: 0 0 100%; margin: 0 0 5px 0; }
+
+            /* Controles do player — layout estilo YouTube mobile */
+            .player-controls {
+                flex-wrap: wrap;
+                gap: 4px 10px;
+                padding: 8px 12px 10px;
+                align-items: center;
+            }
+            .progress-track {
+                order: 1;
+                flex: 0 0 100%;
+                width: 100%;
+                margin: 0 0 4px 0;
+                height: 3px;
+            }
+            .volume-container {
+                display: none; /* Volume controlado pelo dispositivo */
+            }
+            .time-label {
+                order: 4;
+                flex: 1;
+                text-align: left;
+                min-width: 0;
+                font-size: 0.75rem;
+                color: #ddd;
+            }
+            #btnRewind10 { order: 2; }
+            #btnForward10 { order: 3; }
+            #fullscreenBtn {
+                order: 5;
+                margin-left: auto;
+            }
+
+            /* Botão play central — mesmo visual do desktop */
+            .center-play-btn {
+                width: 68px; height: 68px;
+            }
+            .center-play-btn svg { width: 30px; height: 30px; }
 
             /* Meus Anúncios */
             .my-ads-toolbar { flex-direction: column; }
@@ -1041,16 +1139,40 @@
                         <button class="player-vote-btn like" id="playerLikeBtn" title="Curtir">👍 <span id="playerLikeCount">0</span></button>
                         <button class="player-vote-btn dislike" id="playerDislikeBtn" title="Descurtir">👎 <span id="playerDislikeCount">0</span></button>
                     </div>
-                    <button class="center-play-btn" id="centerPlayPauseBtn" title="Play/Pause">▶</button>
+
+                    <button class="center-play-btn" id="centerPlayPauseBtn" title="Play/Pause" aria-label="Reproduzir ou pausar">
+                        <svg class="icon-play" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                            <path d="M8 5v14l11-7z"/>
+                        </svg>
+                        <svg class="icon-pause" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" style="display:none;">
+                            <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>
+                        </svg>
+                    </button>
+
                     <div class="player-controls">
-                        <button class="control-btn" id="btnRewind10" title="-10s">-10s</button>
-                        <button class="control-btn" id="btnForward10" title="+10s">+10s</button>
+                        <button class="skip-btn" id="btnRewind10" title="Voltar 10s" aria-label="Voltar 10 segundos">
+                            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                                <path d="M12 5V1L7 6l5 5V7c3.31 0 6 2.69 6 6s-2.69 6-6 6-6-2.69-6-6H4c0 4.42 3.58 8 8 8s8-3.58 8-8-3.58-8-8-8z"/>
+                            </svg>
+                            <span class="skip-num">10</span>
+                        </button>
+
+                        <button class="skip-btn" id="btnForward10" title="Avançar 10s" aria-label="Avançar 10 segundos">
+                            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                                <path d="M12 5V1L7 6l5 5V7c3.31 0 6 2.69 6 6s-2.69 6-6 6-6-2.69-6-6H4c0 4.42 3.58 8 8 8s8-3.58 8-8-3.58-8-8-8z" transform="matrix(-1 0 0 1 24 0)"/>
+                            </svg>
+                            <span class="skip-num">10</span>
+                        </button>
+
                         <div class="volume-container">
                             <button class="control-btn" id="muteBtn" title="Mudo">🔊</button>
                             <input type="range" class="volume-slider" id="volumeSlider" min="0" max="100" value="100">
                         </div>
+
                         <div class="progress-track" id="progressTrack"><div class="progress-fill" id="progressFill"></div></div>
+
                         <span class="time-label" id="timeLabel">0:00 / 0:00</span>
+
                         <button class="control-btn" id="fullscreenBtn" title="Tela Cheia">⛶</button>
                     </div>
                 </div>
@@ -1126,13 +1248,11 @@
     let favoritesLoaded = false;
     let myAdsTitlesCache = {};
 
-    // Variáveis da Assinatura
     let catalogSubscription = { active: false, expiresAt: 0 };
     let pixPaymentCheckInterval = null;
     let pixCurrentPayment = null;
     let isSimulatingSub = false;
 
-    // Variáveis de Anúncios
     let adBanners = [
         { src: 'https://i.ibb.co/1GpjQ5zD/image.png', link: 'https://playtronicgames.com.br' },
         { src: 'https://i.ibb.co/21QYYGKg/83697ff7-f124-4608-8b30-2bd6e05b5c39.png', link: 'https://playtronicgames.com.br' }
@@ -1143,7 +1263,6 @@
     let currentAdPayment = null;
     let adYtPlayer = null;
 
-    // Variáveis de Histórico de Anúncios
     let myAdsData = [];
 
     /* ========= HELPERS ========= */
@@ -1311,7 +1430,6 @@
     const subscribeBtn = document.getElementById('subscribeBtn');
     const subscriptionBadge = document.getElementById('subscriptionBadge');
     
-    // Admin Elements
     const adminContainer = document.getElementById('adminMenuContainer');
     const adminMenuBtn = document.getElementById('adminMenuBtn');
     const adminDropdown = document.getElementById('adminDropdown');
@@ -1344,7 +1462,6 @@
         }
     });
 
-    // Admin Button toggle
     adminMenuBtn.addEventListener('click', (e) => {
         e.stopPropagation();
         adminDropdown.style.display = adminDropdown.style.display === 'flex' ? 'none' : 'flex';
@@ -1364,7 +1481,6 @@
             userName.textContent = user.displayName || 'Usuário';
             userEmail.textContent = user.email || '';
             
-            // Mostra o botão admin se for admin
             if (user.email === ADMIN_EMAIL) {
                 adminContainer.style.display = 'flex';
                 document.body.classList.add('is-admin');
@@ -1818,7 +1934,6 @@
         }
     });
 
-    // Lógica de Gerenciamento de Anúncios Base
     const manageAdsModal = document.getElementById('manageAdsModal');
     const adsListContainer = document.getElementById('adsListContainer');
     const newAdImageUrl = document.getElementById('newAdImageUrl');
@@ -1901,7 +2016,6 @@
         }
     }
 
-    // Simulador de Assinante
     document.getElementById('simulateSubBtn').addEventListener('click', () => {
         adminDropdown.style.display = 'none';
         isSimulatingSub = !isSimulatingSub;
@@ -2524,6 +2638,24 @@
 
     window.onYouTubeIframeAPIReady = function() {};
 
+    /* Helper: alterna visualmente os SVGs de play/pause */
+    function setPlayPauseVisual(playing) {
+        const playIcon = centerPlayPauseBtn.querySelector('.icon-play');
+        const pauseIcon = centerPlayPauseBtn.querySelector('.icon-pause');
+        if (!playIcon || !pauseIcon) return;
+        if (playing) {
+            playIcon.style.display = 'none';
+            pauseIcon.style.display = 'block';
+            centerPlayPauseBtn.classList.add('playing-state');
+            centerPlayPauseBtn.setAttribute('aria-label', 'Pausar');
+        } else {
+            playIcon.style.display = 'block';
+            pauseIcon.style.display = 'none';
+            centerPlayPauseBtn.classList.remove('playing-state');
+            centerPlayPauseBtn.setAttribute('aria-label', 'Reproduzir');
+        }
+    }
+
     /* ========= INTERSTICIAL ========= */
     let pendingVideo = null;
     let adTimerInterval = null;
@@ -2690,7 +2822,6 @@
             document.body.appendChild(iframe);
         }
 
-        // Timer dinâmico: 15s se houver anúncios pagos em vídeo, 6s caso contrário
         let timeLeft = activePaidAds.length > 0 ? 15 : 6;
         closeAdBtn.disabled = true;
         closeAdBtn.classList.remove('active');
@@ -2760,7 +2891,6 @@
 
         if (!catalogSubscription.active) {
             if (isMobileViewport) {
-                // ── MOBILE: monta banners 320x50 (acima) e 300x250 (abaixo) ──
                 playerMobileTop.style.display = '';
                 playerMobileBottom.style.display = '';
                 playerBottomAd.style.display = 'none';
@@ -2780,7 +2910,6 @@
                     );
                 }
             } else {
-                // ── DESKTOP: mantém o 728x90 ──
                 playerMobileTop.style.display = 'none';
                 playerMobileBottom.style.display = 'none';
 
@@ -2814,7 +2943,6 @@
                 }
             }
         } else {
-            // ── ASSINANTE: esconde todos ──
             playerMobileTop.style.display = 'none';
             playerMobileBottom.style.display = 'none';
             playerBottomAd.style.display = 'none';
@@ -2825,8 +2953,7 @@
         isPlaying = false;
         isEnded = false;
 
-        centerPlayPauseBtn.innerHTML = '▶';
-        centerPlayPauseBtn.classList.remove('playing-state');
+        setPlayPauseVisual(false);
 
         currentPlayerVideoId = video.youtubeId;
         atualizarPlayerUI(video.youtubeId);
@@ -2862,22 +2989,19 @@
     function onPlayerStateChange(event) {
         if (event.data === 1) {
             isPlaying = true; isEnded = false;
-            centerPlayPauseBtn.innerHTML = '⏸';
-            centerPlayPauseBtn.classList.add('playing-state');
+            setPlayPauseVisual(true);
             removeCaptions(event.target);
             resetControlsTimer();
             
             playerLoadingOverlay.classList.add('hidden');
         } else if (event.data === 2) {
             isPlaying = false; isEnded = false;
-            centerPlayPauseBtn.innerHTML = '▶';
-            centerPlayPauseBtn.classList.remove('playing-state');
+            setPlayPauseVisual(false);
             showControls();
             clearTimeout(controlsTimeout);
         } else if (event.data === 0) {
             isPlaying = false; isEnded = true;
-            centerPlayPauseBtn.innerHTML = '▶';
-            centerPlayPauseBtn.classList.remove('playing-state');
+            setPlayPauseVisual(false);
             showControls();
             clearTimeout(controlsTimeout);
         } else if (event.data === 3) {
