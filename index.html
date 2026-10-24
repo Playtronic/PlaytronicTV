@@ -352,6 +352,27 @@
         }
         .close-player-btn:hover { background: #e74c3c; transform: scale(1.1); }
 
+        /* NOVO: Título do vídeo no player */
+        .player-video-title {
+            position: absolute;
+            top: 22px;
+            left: 68px; /* Fica logo ao lado do botão X */
+            color: #fff;
+            font-size: 1.15rem;
+            font-weight: 600;
+            text-shadow: 1px 1px 4px rgba(0,0,0,0.9);
+            max-width: calc(100% - 220px); /* Previne sobrepor os botões de votos */
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            pointer-events: none; /* Deixa o clique passar para o player */
+            z-index: 25;
+            padding: 5px 10px;
+            background: rgba(0,0,0,0.3);
+            border-radius: 6px;
+            backdrop-filter: blur(4px);
+        }
+
         .player-vote-container {
             position: absolute; top: 15px; right: 15px; display: flex; gap: 10px;
             background: rgba(0,0,0,0.6); padding: 8px 12px; border-radius: 25px;
@@ -539,7 +560,10 @@
                 border-radius: 0;
             }
             .player-vote-container { top: 10px; right: 10px; transform: scale(0.85); transform-origin: top right; }
-            .close-player-btn { top: 10px; left: 10px; }
+            .close-player-btn { top: 10px; left: 10px; width: 35px; height: 35px; font-size: 1rem; }
+            .player-video-title {
+                top: 12px; left: 55px; font-size: 0.9rem; max-width: calc(100% - 160px);
+            }
             .volume-slider { width: 50px; }
             .player-controls { flex-wrap: wrap; gap: 10px; }
             .progress-track { order: -1; width: 100%; flex: 0 0 100%; margin: 0 0 5px 0; }
@@ -683,6 +707,10 @@
             <div class="player-wrapper" id="playerWrapper">
                 <div class="custom-ui" id="customUI">
                     <button class="close-player-btn" id="closePlayerBtn" title="Fechar player">✖</button>
+                    
+                    <!-- TÍTULO DO VÍDEO NO PLAYER -->
+                    <div id="playerVideoTitle" class="player-video-title"></div>
+
                     <div class="player-vote-container">
                         <button class="player-vote-btn like" id="playerLikeBtn" title="Curtir">👍 <span id="playerLikeCount">0</span></button>
                         <button class="player-vote-btn dislike" id="playerDislikeBtn" title="Descurtir">👎 <span id="playerDislikeCount">0</span></button>
@@ -1601,6 +1629,7 @@
     const volumeSlider = document.getElementById('volumeSlider');
     const playerBottomAd = document.getElementById('player-bottom-ad');
     const horizontalAdIframe = document.getElementById('horizontal-ad-iframe');
+    const playerVideoTitle = document.getElementById('playerVideoTitle');
 
     let player = null;
     let playerReady = false;
@@ -1733,6 +1762,9 @@
         }
         playerScreen.classList.add('active');
         document.body.style.overflow = 'hidden';
+
+        // Define o título do vídeo no player
+        playerVideoTitle.textContent = video.titulo || 'Vídeo';
 
         if (!window.matchMedia('(max-width: 900px)').matches && !catalogSubscription.active) {
             playerBottomAd.style.display = 'block';
@@ -1932,6 +1964,7 @@
         timeLabel.textContent = '0:00 / 0:00';
         clearTimeout(controlsTimeout);
         playerBottomAd.style.display = 'none';
+        playerVideoTitle.textContent = ''; // Limpa o título ao fechar
     }
 
     document.getElementById('closePlayerBtn').addEventListener('click', closePlayer);
