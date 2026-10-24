@@ -3009,24 +3009,25 @@
     }
 
     function onPlayerStateChange(event) {
-        if (event.data === 1) {
+        if (event.data === 1) { // Playing
             isPlaying = true; isEnded = false;
             setPlayPauseVisual(true);
             removeCaptions(event.target);
             resetControlsTimer();
             
             playerLoadingOverlay.classList.add('hidden');
-        } else if (event.data === 2) {
+        } else if (event.data === 2) { // Paused
             isPlaying = false; isEnded = false;
             setPlayPauseVisual(false);
             showControls();
-            clearTimeout(controlsTimeout);
-        } else if (event.data === 0) {
+            // Ao pausar, não limpamos o timeout para que os controles possam
+            // desaparecer após 5.5s de inatividade, conforme solicitado.
+        } else if (event.data === 0) { // Ended
             isPlaying = false; isEnded = true;
             setPlayPauseVisual(false);
             showControls();
-            clearTimeout(controlsTimeout);
-        } else if (event.data === 3) {
+            clearTimeout(controlsTimeout); // Garante que não será escondido após o término
+        } else if (event.data === 3) { // Buffering
             removeCaptions(event.target);
         }
     }
@@ -3075,10 +3076,9 @@
             // Se estiver oculta, o toque apenas mostra os controles
             showControls();
         } else {
-            // Se os controles estiverem visíveis, o toque na tela oculta eles
-            // O play/pause agora SÓ funciona se clicar no botão central
-            hideControls();
-            clearTimeout(controlsTimeout); // Impede que o timer os esconda novamente de imediato
+            // Se os controles estiverem visíveis, o toque na tela NÃO deve ocultá-los.
+            // Apenas reinicia o timer de inatividade de 5.5s.
+            resetControlsTimer();
         }
     });
 
