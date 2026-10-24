@@ -28,6 +28,7 @@
             flex-direction: column;
         }
 
+        /* ===== HEADER PADRONIZADO ===== */
         .header {
             position: fixed; top: 0; left: 0; width: 100%; height: 110px;
             display: flex; align-items: center; justify-content: space-between;
@@ -39,7 +40,7 @@
             z-index: 1000; box-shadow: 0 4px 20px rgba(0,0,0,0.5);
         }
 
-        .header-brand { display: flex; align-items: center; width: 350px; }
+        .header-brand { display: flex; align-items: center; flex: 0 0 350px; }
         .logo-link { display: flex; align-items: center; text-decoration: none; cursor: pointer; }
         .header-logo { height: 80px; width: auto; object-fit: contain; transition: transform 0.3s, opacity 0.3s; }
         .logo-link:hover .header-logo { transform: scale(1.05); opacity: 0.85; }
@@ -55,7 +56,8 @@
         .search-container input:focus { background-color: rgba(255,255,255,0.15); border-color: #fdbb2d; box-shadow: 0 0 15px rgba(253, 187, 45, 0.2); }
         .search-container input::placeholder { color: #cbd5e1; }
 
-        .auth-area { display: flex; align-items: center; gap: 12px; justify-content: flex-end; }
+        /* Auth Area fora da brand para seguir o padrão (Logotipo esquerda, auth direita) */
+        .auth-area { display: flex; align-items: center; gap: 12px; justify-content: flex-end; flex: 0 0 auto; }
         .login-btn {
             background: #4285f4; color: #fff; border: none; padding: 10px 18px; border-radius: 8px;
             font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: background 0.3s;
@@ -537,7 +539,6 @@
             position: absolute; top: 0; left: 0; z-index: 1;
         }
 
-        /* ===== OVERLAY DE CARREGAMENTO (ESCONDE CONTROLES DO YOUTUBE) ===== */
         .player-loading-overlay {
             position: absolute; inset: 0; background: #000; z-index: 30;
             display: flex; flex-direction: column; align-items: center; justify-content: center;
@@ -551,7 +552,6 @@
         }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
-        /* ===== INTERSTICIAL ===== */
         #adInterstitialModal {
             position: fixed; inset: 0; 
             background: linear-gradient(135deg, rgba(11,15,25,0.97) 0%, rgba(26,26,46,0.97) 50%, rgba(22,33,62,0.97) 100%);
@@ -658,10 +658,10 @@
         .carousel-arrow.left { left: -15px; }
         .carousel-arrow.right { right: -15px; }
 
-        /* ===== LAYOUT CORRIGIDO PARA MOBILE ===== */
+        /* ===== LAYOUT CORRIGIDO PARA MOBILE (Mantendo o que você gostou) ===== */
         @media (max-width: 900px) {
             body {
-                padding-top: 150px; /* Ajustado para o novo header */
+                padding-top: 150px;
                 padding-bottom: 40px;
                 padding-left: 10px;
                 padding-right: 10px;
@@ -670,25 +670,29 @@
             .header {
                 height: auto;
                 padding: 10px 15px;
-                display: flex;
-                flex-direction: column;
-                align-items: stretch;
+                flex-wrap: wrap; /* Permite que a barra de pesquisa desça */
                 gap: 10px;
             }
 
-            /* Linha 1: Logo e Avatar */
             .header-brand {
-                width: 100%;
+                order: 1;
+                flex: 1; /* Ocupa o espaço da esquerda */
                 display: flex;
-                justify-content: space-between;
-                align-items: center;
+                justify-content: flex-start;
             }
 
             .header-logo { height: 50px; }
 
             .auth-area {
-                position: static; /* Remove o absolute que causava sobreposição */
+                order: 2; /* Avatar fica na linha de cima, à direita */
                 width: auto;
+            }
+
+            .search-container {
+                order: 3; /* Pesquisa desce para a linha de baixo */
+                width: 100%;
+                max-width: 100%;
+                margin: 0;
             }
 
             /* O menu do usuário agora abre fixo na tela no mobile */
@@ -698,13 +702,6 @@
                 right: 15px;
                 left: auto;
                 min-width: 260px;
-            }
-
-            /* Linha 2: Barra de Pesquisa isolada */
-            .search-container {
-                width: 100%;
-                max-width: 100%;
-                margin: 0;
             }
 
             .catalog-grid {
@@ -741,52 +738,53 @@
 </head>
 <body>
 
+    <!-- HEADER CORRIGIDO: Brand, Search, Auth -->
     <header class="header">
         <div class="header-brand">
             <a href="javascript:void(0);" onclick="window.location.reload();" class="logo-link" title="Atualizar página">
                 <img src="https://i.ibb.co/rRgV3n8d/playtronictv.png" alt="Playtronic TV" class="header-logo">
             </a>
-            
-            <div class="auth-area">
-                <button class="login-btn" id="loginBtn">
-                    <svg width="18" height="18" viewBox="0 0 48 48"><path fill="#FFC107" d="M43.611,20.083H42V20H24v8h11.303c-1.649,4.657-6.08,8-11.303,8c-6.627,0-12-5.373-12-12c0-6.627,5.373-12,12-12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C12.955,4,4,12.955,4,24c0,11.045,8.955,20,20,20c11.045,0,20-8.955,20-20C44,22.659,43.862,21.35,43.611,20.083z"/><path fill="#FF3D00" d="M6.306,14.691l6.571,4.819C14.655,15.108,18.961,12,24,12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C16.318,4,9.656,8.337,6.306,14.691z"/><path fill="#4CAF50" d="M24,44c5.166,0,9.86-1.977,13.409-5.192l-6.19-5.238C29.211,35.091,26.715,36,24,36c-5.202,0-9.619-3.317-11.283-7.946l-6.522,5.025C9.505,39.556,16.227,44,24,44z"/><path fill="#1976D2" d="M43.611,20.083H42V20H24v8h11.303c-0.792,2.237-2.231,4.166-4.087,5.571c0.001-0.001,0.002-0.001,0.003-0.002l6.19,5.238C36.971,39.205,44,34,44,24C44,22.659,43.862,21.35,43.611,20.083z"/></svg>
-                    Entrar
-                </button>
-
-                <div class="user-info" id="userInfo">
-                    <img class="user-avatar" id="userAvatar" src="" alt="Avatar">
-                    <div class="user-card" id="userCard">
-                        <div class="user-name" id="userName"></div>
-                        <div class="user-email" id="userEmail"></div>
-
-                        <div id="subscriptionBadge">✓ Assinante</div>
-                        <div class="user-sub-info" id="userSubInfo"></div>
-                        
-                        <div class="user-actions">
-                            <button id="subscribeBtn" style="display:none;">⭐ Assinar</button>
-                            <button id="myAdsBtn" style="display:none;">📺 Meus Anúncios</button>
-                            
-                            <!-- MENU ADMIN AGORA DENTRO DO CARD -->
-                            <div id="adminMenuContainer">
-                                <button id="adminMenuBtn">⚙️ Painel Admin</button>
-                                <div id="adminDropdown">
-                                    <button id="addVideoBtn">➕ Inserir Vídeo</button>
-                                    <button id="configSubBtn">💰 Editar Assinatura</button>
-                                    <button id="configAdRateBtn">📊 Tarifa de Anúncio</button>
-                                    <button id="manageAdsBtn">🖼️ Gerenciar Anúncios Base</button>
-                                    <button id="simulateSubBtn" style="color: #a78bfa;">🧪 Simular Assinante</button>
-                                </div>
-                            </div>
-                            
-                            <button class="logout-btn" id="logoutBtn">Sair</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
         </div>
         
         <div class="search-container">
             <input type="text" id="searchInput" placeholder="Pesquisar" autocomplete="off">
+        </div>
+
+        <div class="auth-area">
+            <button class="login-btn" id="loginBtn">
+                <svg width="18" height="18" viewBox="0 0 48 48"><path fill="#FFC107" d="M43.611,20.083H42V20H24v8h11.303c-1.649,4.657-6.08,8-11.303,8c-6.627,0-12-5.373-12-12c0-6.627,5.373-12,12-12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C12.955,4,4,12.955,4,24c0,11.045,8.955,20,20,20c11.045,0,20-8.955,20-20C44,22.659,43.862,21.35,43.611,20.083z"/><path fill="#FF3D00" d="M6.306,14.691l6.571,4.819C14.655,15.108,18.961,12,24,12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C16.318,4,9.656,8.337,6.306,14.691z"/><path fill="#4CAF50" d="M24,44c5.166,0,9.86-1.977,13.409-5.192l-6.19-5.238C29.211,35.091,26.715,36,24,36c-5.202,0-9.619-3.317-11.283-7.946l-6.522,5.025C9.505,39.556,16.227,44,24,44z"/><path fill="#1976D2" d="M43.611,20.083H42V20H24v8h11.303c-0.792,2.237-2.231,4.166-4.087,5.571c0.001-0.001,0.002-0.001,0.003-0.002l6.19,5.238C36.971,39.205,44,34,44,24C44,22.659,43.862,21.35,43.611,20.083z"/></svg>
+                Entrar
+            </button>
+
+            <div class="user-info" id="userInfo">
+                <img class="user-avatar" id="userAvatar" src="" alt="Avatar">
+                <div class="user-card" id="userCard">
+                    <div class="user-name" id="userName"></div>
+                    <div class="user-email" id="userEmail"></div>
+
+                    <div id="subscriptionBadge">✓ Assinante</div>
+                    <div class="user-sub-info" id="userSubInfo"></div>
+                    
+                    <div class="user-actions">
+                        <button id="subscribeBtn" style="display:none;">⭐ Assinar</button>
+                        <button id="myAdsBtn" style="display:none;">📺 Meus Anúncios</button>
+                        
+                        <!-- MENU ADMIN DENTRO DO CARD -->
+                        <div id="adminMenuContainer">
+                            <button id="adminMenuBtn">⚙️ Painel Admin</button>
+                            <div id="adminDropdown">
+                                <button id="addVideoBtn">➕ Inserir Vídeo</button>
+                                <button id="configSubBtn">💰 Editar Assinatura</button>
+                                <button id="configAdRateBtn">📊 Tarifa de Anúncio</button>
+                                <button id="manageAdsBtn">🖼️ Gerenciar Anúncios Base</button>
+                                <button id="simulateSubBtn" style="color: #a78bfa;">🧪 Simular Assinante</button>
+                            </div>
+                        </div>
+                        
+                        <button class="logout-btn" id="logoutBtn">Sair</button>
+                    </div>
+                </div>
+            </div>
         </div>
     </header>
 
