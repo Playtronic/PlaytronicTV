@@ -759,7 +759,7 @@
         </div>
     </div>
 
-    <!-- NOVO MODAL DE PAGAMENTO DE ANÚNCIO -->
+    <!-- NOVO MODAL DE PAGAMENTO DE ANÚNCIO (INSTANTÂNEO) -->
     <div class="modal-overlay" id="insertAdModal">
         <div class="modal">
             <h2>Inserir um Anúncio</h2>
@@ -769,21 +769,22 @@
                 <label>URL do vídeo do YouTube</label>
                 <input type="text" id="newAdYoutubeUrl" placeholder="https://www.youtube.com/watch?v=..." autocomplete="off">
                 <div class="url-hint" id="adYoutubeHint"></div>
-                <p style="font-size:0.85rem; color:#94a3b8; margin-top: 10px;" id="adRateInfo"></p>
                 
+                <div id="adCalcResult" style="display: none; text-align: center; margin: 20px 0; background: rgba(0,0,0,0.2); padding: 15px; border-radius: 8px;">
+                    <p style="color: #cbd5e1; font-size: 0.9rem; margin-bottom: 5px;">Valor a pagar:</p>
+                    <div style="color: #fdbb2d; font-size: 2rem; font-weight: 800;" id="adCalculatedPrice">R$ 0,00</div>
+                    <p style="font-size: 0.8rem; color: #94a3b8; margin-top: 5px;" id="adDurationInfo">Duração: 0s</p>
+                    <p style="font-size: 0.75rem; color: #64748b; margin-top: 5px;" id="adRateInfo"></p>
+                </div>
+
                 <div class="modal-actions">
                     <button class="secondary" id="cancelInsertAdBtn">Cancelar</button>
-                    <button class="primary" id="calculateAdBtn">Calcular e Gerar PIX</button>
+                    <button class="primary" id="generateAdPixBtn" style="display: none;">Confirmar e Gerar PIX</button>
                 </div>
             </div>
 
             <div id="adInsertStep2" style="display: none;">
-                <div style="text-align: center; margin: 20px 0;">
-                    <p style="color: #cbd5e1; font-size: 0.9rem;">Valor a pagar:</p>
-                    <div style="color: #fdbb2d; font-size: 2rem; font-weight: 800;" id="adCalculatedPrice">R$ 0,00</div>
-                    <p style="font-size: 0.8rem; color: #94a3b8;" id="adDurationInfo">Duração: 0s</p>
-                </div>
-                <div id="adPixArea" style="display: none; text-align: center;">
+                <div id="adPixArea" style="text-align: center;">
                     <div id="adPixQr" style="width: 200px; height: 200px; margin: 0 auto 14px; background: #fff; padding: 8px; border-radius: 8px;"></div>
                     <textarea id="adPixCode" readonly style="width: 100%; height: 60px; font-family: monospace; font-size: 12px; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.2); color: #fff; padding: 10px; border-radius: 6px; resize: none;"></textarea>
                     <button id="copyAdPixBtn" style="margin-top: 8px; background: #3498db; color: #fff; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer;">Copiar código</button>
@@ -793,6 +794,9 @@
                     <button class="secondary" id="closeAdPixBtn">Fechar</button>
                 </div>
             </div>
+            
+            <!-- Player invisível para calcular a duração -->
+            <div id="hiddenYTPlayer" style="position: absolute; top: -9999px; left: -9999px; width: 1px; height: 1px;"></div>
         </div>
     </div>
 
@@ -1863,19 +1867,27 @@
         setTimeout(() => { document.getElementById('copyPixBtn').textContent = 'Copiar código'; }, 2000);
     });
 
-    /* ========= NOVO SISTEMA DE PAGAMENTO DE ANÚNCIO ========= */
+    /* ========= NOVO SISTEMA DE PAGAMENTO DE ANÚNCIO (INSTANTÂNEO) ========= */
     const insertAdModal = document.getElementById('insertAdModal');
     const adYoutubeHint = document.getElementById('adYoutubeHint');
     const newAdYoutubeUrl = document.getElementById('newAdYoutubeUrl');
+    const adCalcResult = document.getElementById('adCalcResult');
+    const adCalculatedPrice = document.getElementById('adCalculatedPrice');
+    const adDurationInfo = document.getElementById('adDurationInfo');
     const adRateInfo = document.getElementById('adRateInfo');
     const adInsertStep1 = document.getElementById('adInsertStep1');
     const adInsertStep2 = document.getElementById('adInsertStep2');
-    const adCalculatedPrice = document.getElementById('adCalculatedPrice');
-    const adDurationInfo = document.getElementById('adDurationInfo');
+    const generateAdPixBtn = document.getElementById('generateAdPixBtn');
     const adPixArea = document.getElementById('adPixArea');
     const adPixQr = document.getElementById('adPixQr');
     const adPixCode = document.getElementById('adPixCode');
     const adPixStatus = document.getElementById('adPixStatus');
+
+    let adCalcTimeout = null;
+    let hiddenPlayer = null;
+    let adVideoDuration = 0;
+    let adVideoId = '';
+    let adRateValue = 1.00;
 
     document.getElementById('openInsertAdBtn').addEventListener('click', async () => {
         // Fecha a tela de anúncio atual
@@ -1888,51 +1900,121 @@
         insertAdModal.classList.add('active');
         adInsertStep1.style.display = 'block';
         adInsertStep2.style.display = 'none';
+        adCalcResult.style.display = 'none';
+        generateAdPixBtn.style.display = 'none';
         newAdYoutubeUrl.value = '';
         adYoutubeHint.textContent = '';
+        adVideoDuration = 0;
+        adVideoId = '';
         
-        // Busca a tarifa atual para mostrar no aviso
+        // Destroi o player anterior se existir
+        if (hiddenPlayer) {
+            try { hiddenPlayer.destroy(); } catch(e){}
+            hiddenPlayer = null;
+        }
+        
+        // Busca a tarifa atual
         try {
             const doc = await db.collection('platform_config').doc('catalog').get();
-            const rate = doc.exists && doc.data().adRate ? doc.data().adRate : 1.00;
-            adRateInfo.textContent = `Tarifa atual: R$ ${rate.toFixed(2).replace('.', ',')} por segundo.`;
+            adRateValue = doc.exists && doc.data().adRate ? doc.data().adRate : 1.00;
+            adRateInfo.textContent = `Tarifa: R$ ${adRateValue.toFixed(2).replace('.', ',')} por segundo.`;
         } catch(e) {
-            adRateInfo.textContent = 'Tarifa atual: R$ 1,00 por segundo.';
+            adRateValue = 1.00;
+            adRateInfo.textContent = 'Tarifa: R$ 1,00 por segundo.';
         }
     });
 
     document.getElementById('cancelInsertAdBtn').addEventListener('click', () => {
         insertAdModal.classList.remove('active');
-        // Se quiser, reabre o anúncio base, mas vamos apenas fechar
     });
 
+    // Lógica de cálculo instantâneo ao digitar a URL
     newAdYoutubeUrl.addEventListener('input', () => {
-        const id = extractYouTubeId(newAdYoutubeUrl.value);
-        if (!newAdYoutubeUrl.value.trim()) {
+        const url = newAdYoutubeUrl.value.trim();
+        
+        // Limpa estados anteriores
+        clearTimeout(adCalcTimeout);
+        if (hiddenPlayer) {
+            try { hiddenPlayer.destroy(); } catch(e){}
+            hiddenPlayer = null;
+        }
+        adVideoDuration = 0;
+        adVideoId = '';
+        adCalcResult.style.display = 'none';
+        generateAdPixBtn.style.display = 'none';
+        
+        if (!url) {
             adYoutubeHint.textContent = '';
             adYoutubeHint.className = 'url-hint';
-        } else if (id) {
-            adYoutubeHint.textContent = `ID detectado: ${id}`;
-            adYoutubeHint.className = 'url-hint ok';
-        } else {
-            adYoutubeHint.textContent = 'URL inválida ou ID não reconhecido.';
-            adYoutubeHint.className = 'url-hint warn';
+            return;
         }
+
+        const id = extractYouTubeId(url);
+        if (!id) {
+            adYoutubeHint.textContent = 'URL do YouTube inválida.';
+            adYoutubeHint.className = 'url-hint warn';
+            return;
+        }
+
+        adYoutubeHint.textContent = `Calculando duração do vídeo...`;
+        adYoutubeHint.className = 'url-hint ok';
+        adVideoId = id;
+
+        // Cria um player invisível para pegar a duração
+        hiddenPlayer = new YT.Player('hiddenYTPlayer', {
+            height: '1',
+            width: '1',
+            videoId: id,
+            playerVars: { 'autoplay': 0, 'controls': 0 },
+            events: {
+                'onReady': (event) => {
+                    const dur = event.target.getDuration();
+                    if (dur > 0) {
+                        if (dur > 300) {
+                            adYoutubeHint.textContent = 'O vídeo não pode ter mais de 5 minutos.';
+                            adYoutubeHint.className = 'url-hint warn';
+                            adCalcResult.style.display = 'none';
+                            generateAdPixBtn.style.display = 'none';
+                            return;
+                        }
+                        adVideoDuration = Math.floor(dur);
+                        const price = adVideoDuration * adRateValue;
+                        
+                        adCalculatedPrice.textContent = `R$ ${price.toFixed(2).replace('.', ',')}`;
+                        adDurationInfo.textContent = `Duração: ${formatTime(adVideoDuration)} (${adVideoDuration}s)`;
+                        
+                        adYoutubeHint.textContent = 'Vídeo verificado com sucesso!';
+                        adCalcResult.style.display = 'block';
+                        generateAdPixBtn.style.display = 'block';
+                    } else {
+                        adYoutubeHint.textContent = 'Não foi possível calcular a duração (vídeo muito curto ou privado).';
+                        adYoutubeHint.className = 'url-hint warn';
+                    }
+                },
+                'onError': (event) => {
+                    adYoutubeHint.textContent = 'Erro ao carregar o vídeo. Verifique se ele é público.';
+                    adYoutubeHint.className = 'url-hint warn';
+                    adCalcResult.style.display = 'none';
+                    generateAdPixBtn.style.display = 'none';
+                }
+            }
+        });
     });
 
-    document.getElementById('calculateAdBtn').addEventListener('click', async () => {
-        const url = newAdYoutubeUrl.value.trim();
-        if (!url) { alert('Informe a URL do YouTube.'); return; }
+    // Botão de gerar PIX (só aparece após calcular)
+    generateAdPixBtn.addEventListener('click', async () => {
+        if (adVideoDuration <= 0 || !adVideoId) return;
         
-        const btn = document.getElementById('calculateAdBtn');
-        btn.disabled = true; btn.textContent = 'Calculando...';
+        const btn = generateAdPixBtn;
+        btn.disabled = true; btn.textContent = 'Gerando PIX...';
 
         try {
             const r = await fetch(CF_BASE + '/createAdPayment', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    youtubeUrl: url,
+                    youtubeUrl: newAdYoutubeUrl.value.trim(),
+                    duration: adVideoDuration,
                     payerName: currentUser ? (currentUser.displayName || 'Usuário') : 'Anunciante',
                     payerEmail: currentUser ? currentUser.email : ''
                 })
@@ -1942,9 +2024,6 @@
 
             currentAdPayment = { paymentId: data.paymentId, checkToken: data.checkToken };
 
-            adCalculatedPrice.textContent = `R$ ${data.amount.toFixed(2).replace('.', ',')}`;
-            adDurationInfo.textContent = `Duração: ${formatTime(data.duration)} (${data.duration}s)`;
-            
             adPixQr.innerHTML = data.qrCodeBase64 ? `<img src="data:image/png;base64,${data.qrCodeBase64}" style="width:100%; height:100%;">` : '';
             adPixCode.value = data.qrCode || '';
             
@@ -1957,8 +2036,7 @@
 
         } catch (e) {
             alert('Erro: ' + e.message);
-        } finally {
-            btn.disabled = false; btn.textContent = 'Calcular e Gerar PIX';
+            btn.disabled = false; btn.textContent = 'Confirmar e Gerar PIX';
         }
     });
 
