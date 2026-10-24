@@ -594,9 +594,15 @@
         }
         .ad-center-wrapper img { width: 100%; height: 100%; object-fit: contain; padding: 20px; }
         
+        /* ✅ HACK CSS PARA ESCONDER OS CONTROLES DO YOUTUBE NO ANÚNCIO */
         .ad-center-wrapper iframe {
-            width: 100%; height: 100%; border: none; position: absolute; top: 0; left: 0;
-            pointer-events: none;
+            width: 100%; 
+            height: 130%; /* Aumenta a altura para empurrar os controles para fora */
+            border: none; 
+            position: absolute; 
+            top: -15%; /* Puxa um pouco para cima para centralizar e cortar o rodapé */
+            left: 0;
+            pointer-events: none; /* BLOQUEIA CLIQUES NO ANÚNCIO */
         }
 
         .ad-interstitial-footer {
@@ -2476,7 +2482,8 @@
                 playerVars: {
                     'autoplay': 1, 'controls': 0, 'modestbranding': 1, 'rel': 0,
                     'showinfo': 0, 'iv_load_policy': 3, 'playsinline': 1, 'cc_load_policy': 0,
-                    'disablekb': 1
+                    'disablekb': 1,
+                    'origin': window.location.origin // ✅ ADICIONADO PARA AJUDAR A OCULTAR CONTROLES
                 },
                 events: {
                     'onReady': (event) => {
