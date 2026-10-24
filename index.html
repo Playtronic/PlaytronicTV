@@ -1335,7 +1335,6 @@
             watchBtn.classList.remove('locked');
         }
 
-        // 🔥 MUDANÇA v66.0: Sempre passa pelo interstitial se não for assinante
         watchBtn.addEventListener('click', () => {
             if (isPago && !catalogSubscription.active) {
                 openPixLightbox();
@@ -1704,7 +1703,6 @@
             console.warn("Erro ao carregar anúncios customizados:", error);
         }
     }
-    // -----------------------------------------------------
 
     // Simulador de Assinante
     document.getElementById('simulateSubBtn').addEventListener('click', () => {
@@ -2145,19 +2143,21 @@
             return;
         }
         try {
-            let query = db.collection('paid_ads');
+            let hasAds = false;
             
-            // Se não for admin, filtra apenas os anúncios dele
-            if (!isAdmin()) {
-                query = query.where('userId', '==', currentUser.uid);
-            }
-            
-            const snap = await query.get();
-            if (snap.size > 0) {
-                myAdsBtn.style.display = 'block';
+            if (isAdmin()) {
+                const snap = await db.collection('paid_ads').limit(1).get();
+                hasAds = snap.size > 0;
             } else {
-                myAdsBtn.style.display = 'none';
+                // Busca pelo userId (novos) OU pelo payerEmail (antigos/backfill)
+                const [snap1, snap2] = await Promise.all([
+                    db.collection('paid_ads').where('userId', '==', currentUser.uid).limit(1).get(),
+                    db.collection('paid_ads').where('payerEmail', '==', currentUser.email).limit(1).get()
+                ]);
+                hasAds = (snap1.size > 0 || snap2.size > 0);
             }
+            
+            myAdsBtn.style.display = hasAds ? 'block' : 'none';
         } catch (e) {
             console.error("Erro ao verificar anúncios:", e);
             myAdsBtn.style.display = 'none';
@@ -2172,23 +2172,27 @@
         searchMyAds.value = '';
         
         try {
-            let query = db.collection('paid_ads');
+            let myAdsData = [];
             
-            // Se NÃO for admin, filtra apenas os anúncios dele
-            if (!isAdmin()) {
-                query = query.where('userId', '==', currentUser.uid);
+            if (isAdmin()) {
+                const snapshot = await db.collection('paid_ads').get();
+                snapshot.forEach(doc => myAdsData.push({ id: doc.id, ...doc.data() }));
+            } else {
+                // Junta os anúncios por userId e por payerEmail
+                const [snap1, snap2] = await Promise.all([
+                    db.collection('paid_ads').where('userId', '==', currentUser.uid).get(),
+                    db.collection('paid_ads').where('payerEmail', '==', currentUser.email).get()
+                ]);
+                
+                const map = new Map();
+                snap1.forEach(doc => map.set(doc.id, { id: doc.id, ...doc.data() }));
+                snap2.forEach(doc => map.set(doc.id, { id: doc.id, ...doc.data() }));
+                myAdsData = Array.from(map.values());
             }
-            
-            const snapshot = await query.get();
-            myAdsData = [];
-            snapshot.forEach(doc => {
-                myAdsData.push({ id: doc.id, ...doc.data() });
-            });
 
             // Ordena do mais recente para o mais antigo
             myAdsData.sort((a, b) => b.createdAt - a.createdAt);
-
-            renderMyAds();
+            renderMyAds(myAdsData);
 
         } catch (e) {
             console.error(e);
@@ -2204,11 +2208,14 @@
         if (e.target === myAdsModal) myAdsModal.classList.remove('active');
     });
 
-    searchMyAds.addEventListener('input', renderMyAds);
+    searchMyAds.addEventListener('input', () => {
+        renderMyAds(window._currentMyAdsData || []);
+    });
 
-    function renderMyAds() {
+    function renderMyAds(dataArray) {
+        window._currentMyAdsData = dataArray;
         const filter = searchMyAds.value.toLowerCase().trim();
-        const filtered = myAdsData.filter(ad => 
+        const filtered = dataArray.filter(ad => 
             (ad.videoId || '').toLowerCase().includes(filter) || 
             (ad.paymentId || '').toLowerCase().includes(filter)
         );
@@ -2246,7 +2253,7 @@
                     <div style="font-size: 0.8rem; color: #cbd5e1; margin-top: 5px;">
                         👁️ <b>${ad.views || 0}</b> visualizações • 💰 Pago: <b>${price}</b>
                     </div>
-                    ${isAdmin() ? `<div style="font-size: 0.7rem; color: #a78bfa; margin-top: 3px;">ID Usuário: ${ad.userId.substring(0,8)}...</div>` : ''}
+                    ${isAdmin() ? `<div style="font-size: 0.7rem; color: #a78bfa; margin-top: 3px;">ID Usuário: ${(ad.userId || 'Desconhecido').substring(0,8)}...</div>` : ''}
                 </div>
                 <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 8px;">
                     <div style="background: ${statusBg}; color: ${statusColor}; padding: 4px 10px; border-radius: 12px; font-size: 0.75rem; font-weight: bold; border: 1px solid ${statusColor};">
@@ -2272,8 +2279,8 @@
                 try {
                     await db.collection('paid_ads').doc(adId).delete();
                     // Remove do array local e renderiza de novo
-                    myAdsData = myAdsData.filter(ad => ad.id !== adId);
-                    renderMyAds();
+                    window._currentMyAdsData = window._currentMyAdsData.filter(ad => ad.id !== adId);
+                    renderMyAds(window._currentMyAdsData);
                     // Verifica se o botão "Meus Anúncios" deve sumir
                     checkMyAdsVisibility();
                 } catch (e) {
@@ -2343,11 +2350,16 @@
         openPlayer(videoToPlay);
     }
 
-    // 🔥 MUDANÇA v66.0: Checa ads pagos antes de abrir o modal
     async function showAdInterstitial(video) {
         if (catalogSubscription.active) { openPlayer(video); return; }
 
-        // Busca ads pagos ativos ANTES de abrir o modal
+        // 🔥 TRAVA O BOTÃO IMEDIATAMENTE (Antes de qualquer await)
+        closeAdBtn.disabled = true;
+        closeAdBtn.classList.remove('active');
+        closeAdBtn.textContent = 'Aguarde...';
+        if (adTimerInterval) clearInterval(adTimerInterval);
+
+        // Busca ads pagos ativos
         let activePaidAds = [];
         try {
             const now = Date.now();
@@ -2371,7 +2383,6 @@
         
         // Limpa estados anteriores
         if (adYtPlayer) { try { adYtPlayer.destroy(); } catch(e){} adYtPlayer = null; }
-        if (adTimerInterval) clearInterval(adTimerInterval);
 
         if (activePaidAds.length > 0) {
             // LÓGICA DE ROTAÇÃO JUSTA
@@ -2388,7 +2399,7 @@
             // Cria a div onde o Player será montado
             adCenterWrapper.innerHTML = `<div id="ad-youtube-player" style="width:100%; height:100%; position:absolute; top:0; left:0;"></div>`;
             
-            // Inicializa o Player Oficial do YouTube para detectar o fim
+            // Inicializa o Player Oficial do YouTube
             adYtPlayer = new YT.Player('ad-youtube-player', {
                 videoId: chosenAd.videoId,
                 playerVars: {
@@ -2400,7 +2411,6 @@
                         event.target.playVideo();
                     },
                     'onStateChange': (event) => {
-                        // Se o estado for 0 (ENDED), o vídeo acabou
                         if (event.data === 0) {
                             console.log('Anúncio finalizado. Pulando automaticamente...');
                             closeAdAndPlay();
@@ -2458,6 +2468,7 @@
             document.body.appendChild(iframe);
         }
 
+        // Inicia contagem regressiva
         let timeLeft = 5;
         closeAdBtn.disabled = true;
         closeAdBtn.classList.remove('active');
@@ -2479,7 +2490,6 @@
         }, 1000);
     }
 
-    // 🔥 O botão agora chama a função global
     closeAdBtn.addEventListener('click', () => {
         if (closeAdBtn.disabled) return;
         closeAdAndPlay();
