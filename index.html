@@ -468,7 +468,7 @@
             font-size: 1.15rem;
             font-weight: 600;
             text-shadow: 1px 1px 4px rgba(0,0,0,0.9);
-            max-width: calc(100% - 280px); /* Ajustado para não sobrepor os botões de voto */
+            max-width: calc(100% - 280px);
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
@@ -652,6 +652,24 @@
             transition: opacity 0.5s ease; pointer-events: none; color: #fdbb2d; font-weight: bold;
         }
         .player-loading-overlay.hidden { opacity: 0; }
+
+        /* ===== NOVO: Estilo durante seek/buffer de posição ===== */
+        .player-loading-overlay.seeking {
+            background: rgba(11, 15, 25, 0.55);
+            backdrop-filter: blur(3px);
+            -webkit-backdrop-filter: blur(3px);
+        }
+        .player-loading-overlay.seeking .spinner {
+            width: 42px;
+            height: 42px;
+            border-width: 3px;
+        }
+        .player-loading-overlay.seeking .loading-text {
+            font-size: 0.85rem;
+            text-shadow: 1px 1px 3px rgba(0,0,0,0.9);
+        }
+        /* ======================================================= */
+
         .spinner {
             border: 4px solid rgba(253,187,45,0.2); border-top: 4px solid #fdbb2d;
             border-radius: 50%; width: 50px; height: 50px;
@@ -887,7 +905,7 @@
                 top: 12px; 
                 left: 55px; 
                 font-size: 0.85rem; 
-                max-width: calc(100% - 200px); /* Ajustado para mobile */
+                max-width: calc(100% - 200px);
             }
 
             /* Controles do player — layout estilo YouTube mobile */
@@ -1184,7 +1202,7 @@
             <div class="player-wrapper" id="playerWrapper">
                 <div id="playerLoadingOverlay" class="player-loading-overlay">
                     <div class="spinner"></div>
-                    <div>Carregando vídeo...</div>
+                    <div class="loading-text">Carregando vídeo...</div>
                 </div>
 
                 <div class="custom-ui" id="customUI">
@@ -2687,6 +2705,7 @@
     const horizontalAdIframe = document.getElementById('horizontal-ad-iframe');
     const playerVideoTitle = document.getElementById('playerVideoTitle');
     const playerLoadingOverlay = document.getElementById('playerLoadingOverlay');
+    const loadingTextEl = playerLoadingOverlay.querySelector('.loading-text');
 
     let player = null;
     let playerReady = false;
@@ -2697,6 +2716,20 @@
     let isMuted = false;
     let currentVolume = 100;
     let isSeeking = false; // Flag para controlar o timer durante arraste/buffer
+
+    /* ========= HELPERS DE OVERLAY ========= */
+    function showLoadingOverlay(text, seeking = false) {
+        if (loadingTextEl && text) loadingTextEl.textContent = text;
+        playerLoadingOverlay.classList.remove('hidden');
+        if (seeking) playerLoadingOverlay.classList.add('seeking');
+        else playerLoadingOverlay.classList.remove('seeking');
+    }
+
+    function hideLoadingOverlay() {
+        playerLoadingOverlay.classList.add('hidden');
+        playerLoadingOverlay.classList.remove('seeking');
+    }
+    /* ======================================== */
 
     window.onYouTubeIframeAPIReady = function() {};
 
@@ -2945,7 +2978,7 @@
 
         playerVideoTitle.textContent = video.titulo || 'Vídeo';
 
-        playerLoadingOverlay.classList.remove('hidden');
+        showLoadingOverlay('Carregando vídeo...', false);
 
         const isMobileViewport = window.matchMedia('(max-width: 900px)').matches;
         const playerMobileTop    = document.getElementById('playerMobileTop');
@@ -3054,27 +3087,36 @@
             isPlaying = true; isEnded = false;
             setPlayPauseVisual(true);
             removeCaptions(event.target);
-            
-            // Se estávamos arrastando/bufferizando, agora podemos iniciar o timer
-            if (isSeeking) {
-                isSeeking = false;
-                resetControlsTimer();
-            } else {
-                resetControlsTimer();
-            }
-            
+
+            hideLoadingOverlay();          // esconde no fim do seek e no load inicial
+            isSeeking = false;
+
+            resetControlsTimer();
             playerLoadingOverlay.classList.add('hidden');
         } else if (event.data === 2) { // Paused
             isPlaying = false; isEnded = false;
             setPlayPauseVisual(false);
             showControls();
+            if (isSeeking) {                // seek feito estando pausado
+                isSeeking = false;
+                hideLoadingOverlay();
+            }
         } else if (event.data === 0) { // Ended
             isPlaying = false; isEnded = true;
             setPlayPauseVisual(false);
             showControls();
             clearTimeout(controlsTimeout);
+            hideLoadingOverlay();
         } else if (event.data === 3) { // Buffering
             removeCaptions(event.target);
+            if (isSeeking) {
+                showLoadingOverlay('Carregando posição...', true);
+            }
+        } else if (event.data === 5) { // Cued (seek quando pausado)
+            if (isSeeking) {
+                isSeeking = false;
+                hideLoadingOverlay();
+            }
         }
     }
 
@@ -3164,64 +3206,77 @@
         }
     });
 
-    /* ========= SEEK BAR (PROGRESS TRACK) ========= */
+    /* ========= SEEK BAR (PROGRESS TRACK) — COM INDICADOR DE CARREGAMENTO ========= */
     let isDragging = false;
+    let seekTargetPercent = 0;
 
-    function seekToPosition(e) {
-        if (!playerReady || !player || typeof player.seekTo !== 'function') return;
-        
+    /* Atualiza SOMENTE o visual enquanto arrasta (não chama seekTo) */
+    function updateSeekVisual(e) {
+        if (!playerReady || !player || typeof player.getDuration !== 'function') return;
+
         const rect = progressTrack.getBoundingClientRect();
         let clientX = e.clientX;
-        if (e.touches && e.touches.length > 0) {
-            clientX = e.touches[0].clientX;
-        }
-        
-        let clickX = clientX - rect.left;
-        let percentage = clickX / rect.width;
-        
+        if (e.touches && e.touches.length > 0) clientX = e.touches[0].clientX;
+
+        let percentage = (clientX - rect.left) / rect.width;
         if (percentage < 0) percentage = 0;
         if (percentage > 1) percentage = 1;
-        
+
+        seekTargetPercent = percentage;
+
         const duration = player.getDuration();
         if (duration > 0) {
             const seekTime = duration * percentage;
-            player.seekTo(seekTime, true);
             progressFill.style.width = `${percentage * 100}%`;
             progressThumb.style.left = `${percentage * 100}%`;
             timeLabel.textContent = `${formatTime(seekTime)} / ${formatTime(duration)}`;
         }
     }
 
+    /* Aplica o seek de verdade (só ao soltar) */
+    function applySeek() {
+        if (!playerReady || !player || typeof player.seekTo !== 'function') return;
+
+        const duration = player.getDuration();
+        if (duration <= 0) return;
+
+        const seekTime = duration * seekTargetPercent;
+        let currentTime = 0;
+        try { currentTime = player.getCurrentTime() || 0; } catch(e) {}
+
+        if (Math.abs(seekTime - currentTime) > 1) {
+            isSeeking = true;
+            showLoadingOverlay('Carregando posição...', true);
+            player.seekTo(seekTime, true);
+        }
+    }
+
     progressTrack.addEventListener('mousedown', (e) => {
         isDragging = true;
-        isSeeking = true;
         progressTrack.classList.add('dragging');
         clearTimeout(controlsTimeout);
         showControlsNoTimer();
-        seekToPosition(e);
+        updateSeekVisual(e);
         e.stopPropagation();
     });
-    
+
     progressTrack.addEventListener('touchstart', (e) => {
         isDragging = true;
-        isSeeking = true;
         progressTrack.classList.add('dragging');
         clearTimeout(controlsTimeout);
         showControlsNoTimer();
-        seekToPosition(e);
+        updateSeekVisual(e);
         e.stopPropagation();
     }, { passive: false });
 
     document.addEventListener('mousemove', (e) => {
-        if (isDragging) {
-            seekToPosition(e);
-        }
+        if (isDragging) updateSeekVisual(e);
     });
 
     document.addEventListener('touchmove', (e) => {
         if (isDragging) {
             e.preventDefault(); // Impede o scroll da tela enquanto arrasta
-            seekToPosition(e);
+            updateSeekVisual(e);
         }
     }, { passive: false });
 
@@ -3229,14 +3284,15 @@
         if (isDragging) {
             isDragging = false;
             progressTrack.classList.remove('dragging');
-            // Não reseta o timer aqui; espera o evento PLAYING
+            applySeek();
         }
     });
-    
+
     document.addEventListener('touchend', () => {
         if (isDragging) {
             isDragging = false;
             progressTrack.classList.remove('dragging');
+            applySeek();
         }
     });
     /* ======================================== */
@@ -3287,7 +3343,7 @@
         playerBottomAd.style.display = 'none';
         playerVideoTitle.textContent = '';
 
-        playerLoadingOverlay.classList.remove('hidden');
+        showLoadingOverlay('Carregando vídeo...', false);
 
         if (isAdmin()) adminContainer.style.display = 'flex';
     }
