@@ -538,6 +538,24 @@
             position: absolute; top: 0; left: 0; z-index: 1;
         }
 
+        /* ===== BANNERS MOBILE DENTRO DO PLAYER ===== */
+        .player-mobile-banner {
+            display: none;
+            flex-shrink: 0;
+            background: #ffffff;
+            border-radius: 8px;
+            overflow: hidden;
+            position: relative;
+            margin: 0 auto;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+        #playerMobileTop    { width: 320px; height: 50px; }
+        #playerMobileBottom { width: 300px; height: 250px; }
+        .player-mobile-banner iframe {
+            display: block; border: 0; width: 100%; height: 100%;
+            position: absolute; top: 0; left: 0; background: #ffffff;
+        }
+
         .player-loading-overlay {
             position: absolute; inset: 0; background: #000; z-index: 30;
             display: flex; flex-direction: column; align-items: center; justify-content: center;
@@ -569,7 +587,7 @@
         }
         .ad-native-side iframe { width: 100%; height: 100%; display: block; border: 0; position: absolute; z-index: 1; top:0; left:0; background: #ffffff; }
 
-        /* ===== BANNERS MOBILE (320x50 acima, 300x250 abaixo) ===== */
+        /* ===== BANNERS MOBILE DO INTERSTICIAL (320x50 acima, 300x250 abaixo) ===== */
         .ad-mobile-top, .ad-mobile-bottom {
             display: none;
             position: relative;
@@ -694,7 +712,7 @@
         /* ===== LAYOUT CORRIGIDO PARA MOBILE USANDO GRID ===== */
         @media (max-width: 900px) {
             body {
-                padding-top: 150px; /* Mais espaço para o header em grid */
+                padding-top: 150px;
                 padding-bottom: 40px;
                 padding-left: 10px;
                 padding-right: 10px;
@@ -755,9 +773,10 @@
             .watch-btn { font-size: 0.85rem; padding: 8px; }
 
             /* Player */
-            #playerScreen { padding: 0; }
-            .player-container { gap: 0; }
+            #playerScreen { padding: 10px 0; justify-content: flex-start; }
+            .player-container { gap: 10px; }
             .player-wrapper { max-height: calc(100vh - 40px); border-radius: 0; }
+            #player-bottom-ad { display: none !important; }
             .player-vote-container { top: 10px; right: 10px; transform: scale(0.8); transform-origin: top right; }
             .close-player-btn { top: 10px; left: 10px; width: 35px; height: 35px; font-size: 1rem; }
             .player-video-title { top: 12px; left: 55px; font-size: 0.85rem; max-width: calc(100% - 160px); }
@@ -774,6 +793,20 @@
             /* Carrossel */
             .carousel-track .card { flex: 0 0 160px; width: 160px; }
             .carousel-arrow { display: none; }
+        }
+
+        /* ===== MOBILE PORTRAIT: 320x50 acima + 300x250 abaixo do player ===== */
+        @media (max-width: 900px) and (orientation: portrait) {
+            .player-wrapper { max-height: calc(100vh - 340px); min-height: 180px; }
+            #playerMobileTop { display: block; }
+            #playerMobileBottom { display: block; }
+        }
+
+        /* ===== MOBILE LANDSCAPE: apenas 320x50 abaixo do player ===== */
+        @media (max-width: 900px) and (orientation: landscape) {
+            .player-wrapper { max-height: calc(100vh - 80px); min-height: 150px; }
+            #playerMobileTop { display: block; order: 10; }
+            #playerMobileBottom { display: none !important; }
         }
     </style>
 </head>
@@ -991,6 +1024,8 @@
 
     <div id="playerScreen">
         <div class="player-container">
+            <div class="player-mobile-banner" id="playerMobileTop"></div>
+
             <div class="player-wrapper" id="playerWrapper">
                 <div id="playerLoadingOverlay" class="player-loading-overlay">
                     <div class="spinner"></div>
@@ -999,7 +1034,7 @@
 
                 <div class="custom-ui" id="customUI">
                     <button class="close-player-btn" id="closePlayerBtn" title="Fechar player">✖</button>
-                    
+
                     <div id="playerVideoTitle" class="player-video-title"></div>
 
                     <div class="player-vote-container">
@@ -1025,6 +1060,8 @@
             <div id="player-bottom-ad">
                 <iframe id="horizontal-ad-iframe" frameborder="0" scrolling="no"></iframe>
             </div>
+
+            <div class="player-mobile-banner" id="playerMobileBottom"></div>
         </div>
     </div>
 
@@ -1093,7 +1130,7 @@
     let catalogSubscription = { active: false, expiresAt: 0 };
     let pixPaymentCheckInterval = null;
     let pixCurrentPayment = null;
-    let isSimulatingSub = false; // Variável do Admin
+    let isSimulatingSub = false;
 
     // Variáveis de Anúncios
     let adBanners = [
@@ -1104,7 +1141,7 @@
     let paidAdsCache = []; 
     let adPaymentPolling = null;
     let currentAdPayment = null;
-    let adYtPlayer = null; // Player do YouTube para o Anúncio
+    let adYtPlayer = null;
 
     // Variáveis de Histórico de Anúncios
     let myAdsData = [];
@@ -2717,35 +2754,70 @@
 
         playerLoadingOverlay.classList.remove('hidden');
 
+        const isMobileViewport = window.matchMedia('(max-width: 900px)').matches;
+        const playerMobileTop    = document.getElementById('playerMobileTop');
+        const playerMobileBottom = document.getElementById('playerMobileBottom');
+
         if (!catalogSubscription.active) {
-            playerBottomAd.style.display = 'block';
-            if (!playerBottomAd.dataset.mounted) {
-                playerBottomAd.dataset.mounted = '1';
-                
-                horizontalAdIframe.srcdoc = `
-                    <!DOCTYPE html>
-                    <html>
-                    <head>
-                        <meta charset="utf-8">
-                        <style>
-                            html, body { margin: 0; padding: 0; overflow: hidden; background: transparent; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; }
-                        </style>
-                    </head>
-                    <body>
-                        <script type="text/javascript">
-                            atOptions = {
-                                'key' : 'c0b67a9be1ab830aba44c6c24a020adc',
-                                'format' : 'iframe',
-                                'height' : 90,
-                                'width' : 728,
-                                'params' : {}
-                            };
-                        <\/script>
-                        <script type="text/javascript" src="https://dcengg.org/22/c0b67a9be1ab830aba44c6c24a020adc"><\/script>
-                    </body>
-                    </html>
-                `;
+            if (isMobileViewport) {
+                // ── MOBILE: monta banners 320x50 (acima) e 300x250 (abaixo) ──
+                playerMobileTop.style.display = '';
+                playerMobileBottom.style.display = '';
+                playerBottomAd.style.display = 'none';
+
+                if (!playerMobileTop.dataset.mounted) {
+                    mountStandardAd(
+                        playerMobileTop,
+                        { key: 'c7c3c36fda809c5dd35ae6ed9c4890ca', format: 'iframe', height: 50, width: 320, params: {} },
+                        'https://dcengg.org/22/c7c3c36fda809c5dd35ae6ed9c4890ca'
+                    );
+                }
+                if (!playerMobileBottom.dataset.mounted) {
+                    mountStandardAd(
+                        playerMobileBottom,
+                        { key: '51efcb0e502dffc7c8c25030a1155128', format: 'iframe', height: 250, width: 300, params: {} },
+                        'https://dcengg.org/22/51efcb0e502dffc7c8c25030a1155128'
+                    );
+                }
+            } else {
+                // ── DESKTOP: mantém o 728x90 ──
+                playerMobileTop.style.display = 'none';
+                playerMobileBottom.style.display = 'none';
+
+                playerBottomAd.style.display = 'block';
+                if (!playerBottomAd.dataset.mounted) {
+                    playerBottomAd.dataset.mounted = '1';
+
+                    horizontalAdIframe.srcdoc = `
+                        <!DOCTYPE html>
+                        <html>
+                        <head>
+                            <meta charset="utf-8">
+                            <style>
+                                html, body { margin: 0; padding: 0; overflow: hidden; background: transparent; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; }
+                            </style>
+                        </head>
+                        <body>
+                            <script type="text/javascript">
+                                atOptions = {
+                                    'key' : 'c0b67a9be1ab830aba44c6c24a020adc',
+                                    'format' : 'iframe',
+                                    'height' : 90,
+                                    'width' : 728,
+                                    'params' : {}
+                                };
+                            <\/script>
+                            <script type="text/javascript" src="https://dcengg.org/22/c0b67a9be1ab830aba44c6c24a020adc"><\/script>
+                        </body>
+                        </html>
+                    `;
+                }
             }
+        } else {
+            // ── ASSINANTE: esconde todos ──
+            playerMobileTop.style.display = 'none';
+            playerMobileBottom.style.display = 'none';
+            playerBottomAd.style.display = 'none';
         }
 
         if (player) { player.destroy(); player = null; }
