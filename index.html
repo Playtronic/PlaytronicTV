@@ -237,6 +237,7 @@
             border-radius: 14px; padding: 26px; width: 100%; max-width: 520px;
             box-shadow: 0 25px 60px rgba(0,0,0,0.8);
             animation: modalIn 0.2s ease;
+            max-height: 90vh; overflow-y: auto;
         }
         @keyframes modalIn { from { transform: scale(0.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
         .modal h2 { color: #fdbb2d; margin-bottom: 6px; font-size: 1.25rem; }
@@ -284,6 +285,52 @@
         .modal-actions .secondary:hover { background: rgba(255,255,255,0.2); }
         .modal-actions .primary { background: #fdbb2d; color: #000; }
         .modal-actions .primary:hover { background: #ffcc44; }
+
+        /* LISTA DE ANÚNCIOS GERENCIÁVEIS */
+        #adsListContainer {
+            margin-top: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            max-height: 300px;
+            overflow-y: auto;
+            padding-right: 5px;
+        }
+        .ad-list-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: rgba(255,255,255,0.05);
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        .ad-list-item img {
+            height: 50px;
+            width: auto;
+            max-width: 100px;
+            border-radius: 4px;
+            object-fit: contain;
+            background: #fff;
+        }
+        .ad-list-item .ad-info {
+            flex: 1;
+            margin-left: 15px;
+            font-size: 0.8rem;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        .ad-list-item .remove-ad-btn {
+            background: #e74c3c;
+            color: white;
+            border: none;
+            padding: 6px 10px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 0.8rem;
+        }
 
         /* ===== PLAYER ===== */
         #playerScreen {
@@ -643,6 +690,7 @@
         <div id="adminDropdown">
             <button id="addVideoBtn">➕ Inserir Vídeo</button>
             <button id="configSubBtn">💰 Editar Assinatura</button>
+            <button id="manageAdsBtn">🖼️ Gerenciar Anúncios</button>
             <button id="simulateSubBtn" style="color: #a78bfa;">🧪 Simular Assinante</button>
         </div>
     </div>
@@ -675,6 +723,30 @@
             <div class="modal-actions">
                 <button class="secondary" id="cancelVideoBtn">Cancelar</button>
                 <button class="primary" id="confirmVideoBtn">Salvar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- NOVO MODAL DE GERENCIAMENTO DE ANÚNCIOS -->
+    <div class="modal-overlay" id="manageAdsModal">
+        <div class="modal">
+            <h2>Gerenciar Anúncios</h2>
+            <p class="modal-sub">Adicione ou remova as imagens que aparecem no anúncio central.</p>
+            
+            <div style="display: flex; gap: 10px; align-items: flex-end;">
+                <div style="flex: 1;">
+                    <label>URL da Imagem</label>
+                    <input type="text" id="newAdImageUrl" placeholder="https://exemplo.com/imagem.png" autocomplete="off">
+                </div>
+                <button class="primary" id="addAdBtn" style="height: 42px; margin-bottom: 6px;">Adicionar</button>
+            </div>
+
+            <div id="adsListContainer">
+                <!-- A lista de anúncios será renderizada aqui -->
+            </div>
+
+            <div class="modal-actions">
+                <button class="secondary" id="closeManageAdsBtn">Fechar</button>
             </div>
         </div>
     </div>
@@ -810,7 +882,7 @@
     let isSimulatingSub = false; // Variável do Admin
 
     // --- SISTEMA DE ROTAÇÃO DE ANÚNCIOS ---
-    const adBanners = [
+    let adBanners = [
         { src: 'https://i.ibb.co/1GpjQ5zD/image.png', link: 'https://playtronicgames.com.br' },
         { src: 'https://i.ibb.co/21QYYGKg/83697ff7-f124-4608-8b30-2bd6e05b5c39.png', link: 'https://playtronicgames.com.br' }
     ];
@@ -1423,6 +1495,96 @@
         }
     });
 
+    // --- LÓGICA DE GERENCIAMENTO DE ANÚNCIOS ---
+    const manageAdsModal = document.getElementById('manageAdsModal');
+    const adsListContainer = document.getElementById('adsListContainer');
+    const newAdImageUrl = document.getElementById('newAdImageUrl');
+
+    document.getElementById('manageAdsBtn').addEventListener('click', () => {
+        document.getElementById('adminDropdown').style.display = 'none';
+        manageAdsModal.classList.add('active');
+        renderAdsList();
+    });
+
+    document.getElementById('closeManageAdsBtn').addEventListener('click', () => {
+        manageAdsModal.classList.remove('active');
+    });
+    
+    manageAdsModal.addEventListener('click', (e) => {
+        if (e.target === manageAdsModal) manageAdsModal.classList.remove('active');
+    });
+
+    function renderAdsList() {
+        adsListContainer.innerHTML = '';
+        if (adBanners.length === 0) {
+            adsListContainer.innerHTML = '<p style="font-size:0.85rem; color:#94a3b8; text-align:center;">Nenhum anúncio cadastrado.</p>';
+            return;
+        }
+
+        adBanners.forEach((ad, index) => {
+            const item = document.createElement('div');
+            item.className = 'ad-list-item';
+            item.innerHTML = `
+                <img src="${ad.src}" onerror="this.src='https://via.placeholder.com/100x50?text=Erro'">
+                <div class="ad-info" title="${ad.src}">${ad.src}</div>
+                <button class="remove-ad-btn" data-index="${index}">Remover</button>
+            `;
+            adsListContainer.appendChild(item);
+        });
+
+        // Adiciona evento de remoção
+        document.querySelectorAll('.remove-ad-btn').forEach(btn => {
+            btn.addEventListener('click', async function() {
+                const index = parseInt(this.getAttribute('data-index'));
+                adBanners.splice(index, 1);
+                await saveAdsToFirebase();
+                renderAdsList();
+            });
+        });
+    }
+
+    document.getElementById('addAdBtn').addEventListener('click', async () => {
+        const url = newAdImageUrl.value.trim();
+        if (!url) {
+            alert('Por favor, insira a URL da imagem.');
+            return;
+        }
+        
+        // Adiciona ao array (link padrão do playtronic)
+        adBanners.push({ src: url, link: 'https://playtronicgames.com.br' });
+        newAdImageUrl.value = '';
+        
+        await saveAdsToFirebase();
+        renderAdsList();
+    });
+
+    async function saveAdsToFirebase() {
+        try {
+            await db.collection('platform_config').doc('custom_ads').set({
+                banners: adBanners
+            });
+        } catch (error) {
+            console.error("Erro ao salvar anúncios:", error);
+            alert("Erro ao salvar. Verifique se as regras do Firestore permitem escrita.");
+        }
+    }
+
+    // Carrega anúncios do Firebase ao iniciar
+    async function loadCustomAds() {
+        try {
+            const doc = await db.collection('platform_config').doc('custom_ads').get();
+            if (doc.exists && doc.data().banners && doc.data().banners.length > 0) {
+                adBanners = doc.data().banners;
+            } else {
+                // Se não existir, salva o padrão
+                await saveAdsToFirebase();
+            }
+        } catch (error) {
+            console.warn("Erro ao carregar anúncios customizados:", error);
+        }
+    }
+    // -------------------------------------------
+
     // Simulador de Assinante
     document.getElementById('simulateSubBtn').addEventListener('click', () => {
         document.getElementById('adminDropdown').style.display = 'none';
@@ -1669,11 +1831,13 @@
         adModal.classList.add('active');
 
         // --- LÓGICA DE ALTERNÂNCIA DE ANÚNCIOS ---
-        const ad = adBanners[currentAdBannerIndex];
-        dynamicAdLink.href = ad.link;
-        dynamicAdImage.src = ad.src;
-        // Prepara o próximo anúncio para a próxima vez
-        currentAdBannerIndex = (currentAdBannerIndex + 1) % adBanners.length;
+        if (adBanners.length > 0) {
+            const ad = adBanners[currentAdBannerIndex];
+            dynamicAdLink.href = ad.link;
+            dynamicAdImage.src = ad.src;
+            // Prepara o próximo anúncio para a próxima vez
+            currentAdBannerIndex = (currentAdBannerIndex + 1) % adBanners.length;
+        }
         // -----------------------------------------
 
         if (!adModal.dataset.adsMounted) {
@@ -2137,6 +2301,9 @@
         leftBtn.addEventListener('click', () => track.scrollBy({ left: -300, behavior: 'smooth' }));
         rightBtn.addEventListener('click', () => track.scrollBy({ left: 300, behavior: 'smooth' }));
     }
+
+    // Inicializa o carregamento dos anúncios ao abrir a página
+    loadCustomAds();
 </script>
 </body>
 </html>
