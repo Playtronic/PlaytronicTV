@@ -28,7 +28,7 @@
             flex-direction: column;
         }
 
-        /* ===== HEADER PADRONIZADO ===== */
+        /* ===== HEADER ===== */
         .header {
             position: fixed; top: 0; left: 0; width: 100%; height: 110px;
             display: flex; align-items: center; justify-content: space-between;
@@ -67,7 +67,6 @@
         .user-info.active { display: flex; }
         .user-avatar { width: 45px; height: 45px; border-radius: 50%; border: 2px solid #fdbb2d; object-fit: cover; }
         
-        /* ===== PAINEL DO USUÁRIO (DROPDOWN) ===== */
         .user-card {
             position: absolute; top: 60px; right: 0; background: #152961; border: 1px solid rgba(255,255,255,0.1);
             border-radius: 12px; padding: 20px; min-width: 280px; display: none; flex-direction: column; z-index: 1000;
@@ -87,31 +86,19 @@
         .user-card #myAdsBtn { background: #1e293b; color: #fff; border: 1px solid #334155; }
         .user-card #myAdsBtn:hover { background: #334155; }
         
-        /* Botão Sair (Vermelho e Branco) */
         .user-card .logout-btn { background: #ef4444; color: #ffffff; }
         .user-card .logout-btn:hover { background: #dc2626; }
         
         .user-sub-info { font-size: 0.8rem; color: #fdbb2d; margin-bottom: 10px; display: none; font-weight: bold; text-align: center; background: rgba(253, 187, 45, 0.1); padding: 6px; border-radius: 6px; }
         #subscriptionBadge { display: none; background: #16a34a; color: #fff; padding: 10px; border-radius: 8px; font-size: 0.85rem; font-weight: bold; align-items: center; justify-content: center; gap: 6px; width: 100%; text-align: center; }
 
-        /* ===== ADMIN MENU DENTRO DO USER CARD ===== */
-        #adminMenuContainer {
-            display: none;
-            flex-direction: column;
-            width: 100%;
-            margin-top: 5px;
-        }
+        #adminMenuContainer { display: none; flex-direction: column; width: 100%; margin-top: 5px; }
         #adminMenuBtn {
             background: #fdbb2d; color: #000; padding: 12px; border-radius: 8px; font-weight: bold; font-size: 0.9rem; width: 100%; cursor: pointer; border: none;
         }
         #adminDropdown {
-            display: none;
-            flex-direction: column;
-            gap: 5px;
-            margin-top: 10px;
-            background: rgba(0,0,0,0.3);
-            padding: 10px;
-            border-radius: 8px;
+            display: none; flex-direction: column; gap: 5px; margin-top: 10px;
+            background: rgba(0,0,0,0.3); padding: 10px; border-radius: 8px;
         }
         #adminDropdown button {
             background: rgba(255,255,255,0.05); color: #fff; padding: 10px; font-size: 0.85rem; text-align: left; justify-content: flex-start;
@@ -126,9 +113,7 @@
         }
 
         .card {
-            background: #1e305c; 
-            border: 1px solid #2f4780; 
-            border-radius: 12px; overflow: hidden;
+            background: #1e305c; border: 1px solid #2f4780; border-radius: 12px; overflow: hidden;
             transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
             display: flex; flex-direction: column; position: relative; width: 100%;
         }
@@ -182,22 +167,14 @@
             display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; text-align: left; min-height: 2.6em;
         }
 
-        .card-tags {
-            display: flex; gap: 5px; flex-wrap: wrap; margin-bottom: 12px; min-height: 22px;
-        }
-        .tag {
-            padding: 3px 8px; border-radius: 4px;
-            font-size: 0.7rem; font-weight: 700; letter-spacing: 0.5px;
-        }
+        .card-tags { display: flex; gap: 5px; flex-wrap: wrap; margin-bottom: 12px; min-height: 22px; }
+        .tag { padding: 3px 8px; border-radius: 4px; font-size: 0.7rem; font-weight: 700; letter-spacing: 0.5px; }
         .tag-bra { background: #16a34a; color: #fff; }
         .tag-eng { background: #2563eb; color: #fff; }
         .tag-pago { background: #3b82f6; color: #fff; }
         .tag-ad { background: #dc2626; color: #fff; }
 
-        .card-meta {
-            font-size: 0.8rem; font-style: italic; color: #94a3b8; line-height: 1.35;
-            margin-bottom: 8px;
-        }
+        .card-meta { font-size: 0.8rem; font-style: italic; color: #94a3b8; line-height: 1.35; margin-bottom: 8px; }
         .card-meta-line { display: block; }
 
         .watch-btn {
@@ -207,10 +184,7 @@
         }
         .watch-btn:hover { background: #ffcc44; transform: scale(1.02); }
         
-        .watch-btn.locked {
-            background: linear-gradient(135deg, #7c3aed, #6d28d9);
-            color: #fff;
-        }
+        .watch-btn.locked { background: linear-gradient(135deg, #7c3aed, #6d28d9); color: #fff; }
         .watch-btn.locked:hover { background: linear-gradient(135deg, #6d28d9, #5b21b6); }
 
         .modal-overlay {
@@ -248,10 +222,7 @@
         .url-hint.ok { color: #4ade80; }
         .url-hint.warn { color: #fbbf24; }
 
-        .modal-checkbox-row {
-            display: flex; align-items: center; gap: 20px; margin-top: 14px;
-            flex-wrap: wrap;
-        }
+        .modal-checkbox-row { display: flex; align-items: center; gap: 20px; margin-top: 14px; flex-wrap: wrap; }
         .modal-checkbox-row label {
             display: inline-flex; align-items: center; gap: 8px;
             margin: 0; text-transform: none; letter-spacing: 0; 
@@ -273,7 +244,7 @@
         .modal-actions .primary { background: #fdbb2d; color: #000; }
         .modal-actions .primary:hover { background: #ffcc44; }
 
-        /* ===== LISTA DE ANÚNCIOS (MEUS ANÚNCIOS) ===== */
+        /* ===== MEUS ANÚNCIOS ===== */
         .my-ads-toolbar { display: flex; gap: 10px; margin-bottom: 20px; width: 100%; }
         .my-ads-toolbar input {
             flex: 1; background: rgba(255,255,255,0.08); color: #fff;
@@ -351,7 +322,7 @@
         }
         .remove-ad-btn:hover { background: #dc2626; }
 
-        /* ===== TABELA DE DESEMPENHO (ADMIN) ===== */
+        /* ===== TABELA DE DESEMPENHO ===== */
         #perfTableContainer {
             margin-top: 15px;
             max-height: 55vh;
@@ -406,6 +377,56 @@
             padding: 30px;
             color: #94a3b8;
             font-size: 0.9rem;
+        }
+
+        /* ===== SELETOR DE PLANOS DE ASSINATURA ===== */
+        #pixPlanSelector {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .plan-option {
+            position: relative;
+            background: rgba(255,255,255,0.05);
+            border: 2px solid rgba(255,255,255,0.15);
+            border-radius: 10px;
+            padding: 14px 10px;
+            text-align: center;
+            cursor: pointer;
+            transition: 0.2s;
+            user-select: none;
+        }
+        .plan-option:hover {
+            border-color: rgba(253,187,45,0.5);
+            background: rgba(255,255,255,0.08);
+        }
+        .plan-option.selected {
+            border-color: #fdbb2d;
+            background: rgba(253,187,45,0.12);
+            box-shadow: 0 0 20px rgba(253,187,45,0.2);
+        }
+        .plan-option .plan-name {
+            color: #fff;
+            font-weight: 700;
+            font-size: 0.95rem;
+            margin-bottom: 4px;
+        }
+        .plan-option .plan-price {
+            color: #fdbb2d;
+            font-weight: 800;
+            font-size: 1.1rem;
+        }
+        .plan-option .plan-badge {
+            position: absolute;
+            top: -8px;
+            right: 8px;
+            background: #22c55e;
+            color: #fff;
+            font-size: 0.65rem;
+            font-weight: 800;
+            padding: 2px 8px;
+            border-radius: 10px;
         }
 
         /* ===== PLAYER ===== */
@@ -500,8 +521,7 @@
             cursor: pointer; z-index: 25; pointer-events: auto;
             display: flex; align-items: center; justify-content: center;
             transition: opacity 0.3s ease, transform 0.3s ease, background 0.2s;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.5);
-            padding: 0;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.5); padding: 0;
         }
         .center-play-btn:hover { background: #ffcc44; transform: translate(-50%, -50%) scale(1.06); }
         .center-play-btn svg { display: block; pointer-events: none; width: 34px; height: 34px; }
@@ -929,17 +949,26 @@
         </div>
     </div>
 
-    <!-- MODAL: Preços (Assinatura + Tarifa de Anúncio) -->
+    <!-- MODAL: Preços (4 planos + tarifa) -->
     <div class="modal-overlay" id="pricingModal">
         <div class="modal">
             <h2>Configuração de Preços</h2>
-            <p class="modal-sub">Ajuste os valores da assinatura mensal e da tarifa de anúncios.</p>
+            <p class="modal-sub">Defina os valores de cada plano e a tarifa de anúncio.</p>
 
-            <label>Preço da Assinatura Mensal (R$)</label>
-            <input type="text" id="priceSubscriptionInput" placeholder="Ex.: 19,90" inputmode="decimal" autocomplete="off">
+            <label>30 dias (R$)</label>
+            <input type="text" id="priceMonthlyInput" placeholder="Ex.: 6,90" inputmode="decimal" autocomplete="off">
+
+            <label>3 meses (R$)</label>
+            <input type="text" id="priceQuarterlyInput" placeholder="Ex.: 17,90" inputmode="decimal" autocomplete="off">
+
+            <label>6 meses (R$)</label>
+            <input type="text" id="priceSemiannualInput" placeholder="Ex.: 29,90" inputmode="decimal" autocomplete="off">
+
+            <label>1 ano (R$)</label>
+            <input type="text" id="priceAnnualInput" placeholder="Ex.: 49,90" inputmode="decimal" autocomplete="off">
 
             <label>Tarifa de Anúncio por Segundo (R$)</label>
-            <input type="text" id="priceAdRateInput" placeholder="Ex.: 1,00" inputmode="decimal" autocomplete="off">
+            <input type="text" id="priceAdRateInput" placeholder="Ex.: 0,50" inputmode="decimal" autocomplete="off">
 
             <div class="modal-actions">
                 <button class="secondary" id="cancelPricingBtn">Cancelar</button>
@@ -1114,9 +1143,9 @@
         </div>
     </div>
 
-    <!-- PIX Lightbox -->
+    <!-- PIX Lightbox (com seletor de planos) -->
     <div id="pixLightbox" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 99999; justify-content: center; align-items: center; backdrop-filter: blur(6px);">
-        <div style="background: #152961; border: 2px solid #fdbb2d; border-radius: 14px; padding: 30px; max-width: 480px; width: 90%; position: relative; text-align: center; color: #fff;">
+        <div style="background: #152961; border: 2px solid #fdbb2d; border-radius: 14px; padding: 30px; max-width: 480px; width: 90%; position: relative; text-align: center; color: #fff; max-height: 92vh; overflow-y: auto;">
             <button id="pixClose" style="position: absolute; top: 12px; right: 14px; background: transparent; border: none; color: #cbd5e1; font-size: 1.6rem; cursor: pointer;">×</button>
             
             <img src="https://i.ibb.co/rRgV3n8d/playtronictv.png" style="height: 60px; margin-bottom: 15px; object-fit: contain;">
@@ -1124,9 +1153,32 @@
             <p style="color: #cbd5e1; font-size: 0.95rem; margin-bottom: 20px; text-wrap: balance; line-height: 1.4; max-width: 90%; margin-left: auto; margin-right: auto;">
                 Assine para ter acesso a conteúdos exclusivos e sem anúncios.
             </p>
-            
+
+            <div id="pixPlanSelector">
+                <div class="plan-option" data-plan="monthly">
+                    <div class="plan-name">30 dias</div>
+                    <div class="plan-price">R$ <span class="plan-price-value">6,90</span></div>
+                </div>
+                <div class="plan-option" data-plan="quarterly">
+                    <div class="plan-name">3 meses</div>
+                    <div class="plan-price">R$ <span class="plan-price-value">17,90</span></div>
+                    <div class="plan-badge">-13%</div>
+                </div>
+                <div class="plan-option" data-plan="semiannual">
+                    <div class="plan-name">6 meses</div>
+                    <div class="plan-price">R$ <span class="plan-price-value">29,90</span></div>
+                    <div class="plan-badge">-28%</div>
+                </div>
+                <div class="plan-option" data-plan="annual">
+                    <div class="plan-name">1 ano</div>
+                    <div class="plan-price">R$ <span class="plan-price-value">49,90</span></div>
+                    <div class="plan-badge">-40%</div>
+                </div>
+            </div>
+
             <div style="color: #fdbb2d; font-size: 2rem; font-weight: 800; margin-bottom: 20px;">
-                R$ <span id="pixPriceValue">...</span><small style="font-size: 0.9rem; color: #94a3b8; font-weight: 400;"> / 30 dias</small>
+                R$ <span id="pixPriceValue">...</span>
+                <small style="font-size: 0.9rem; color: #94a3b8; font-weight: 400;">/ <span id="pixPlanPeriod">30 dias</span></small>
             </div>
             
             <button id="generatePixBtn" style="background: linear-gradient(135deg, #2ecc71, #27ae60); color: #fff; border: none; padding: 14px; width: 100%; border-radius: 8px; font-weight: bold; font-size: 1rem; cursor: pointer;">
@@ -1171,7 +1223,7 @@
     let editingVideoKey = null;
     let favoritesRef = null;
     let userFavorites = {};
-    let votesCache = {}; 
+    let votesCache = {};
     let viewsCache = {};
     let videosLoaded = false;
     let favoritesLoaded = false;
@@ -1182,6 +1234,15 @@
     let pixPaymentCheckInterval = null;
     let pixCurrentPayment = null;
     let isSimulatingSub = false;
+
+    // Planos de assinatura (espelho dos valores do Firestore)
+    let currentPlanId = 'monthly';
+    let catalogPlans = {
+        monthly:    { price: 6.90,  months: 1,  label: '30 dias' },
+        quarterly:  { price: 17.90, months: 3,  label: '3 meses' },
+        semiannual: { price: 29.90, months: 6,  label: '6 meses' },
+        annual:     { price: 49.90, months: 12, label: '1 ano' }
+    };
 
     let adBanners = [
         { src: 'https://i.ibb.co/1GpjQ5zD/image.png', link: 'https://playtronicgames.com.br' },
@@ -1195,7 +1256,7 @@
 
     let myAdsData = [];
 
-    // Estado da tabela de desempenho
+    // Ordenação da tabela de desempenho
     let perfSortField = 'views';
     let perfSortOrder = 'desc';
 
@@ -1256,7 +1317,7 @@
         return `Vídeo (${videoId.substring(0,6)}...)`;
     }
 
-    /* ========= MONTAGEM ISOLADA DE BANNERS ========= */
+    /* ========= MONTAGEM DE BANNERS ========= */
     function mountStandardAd(container, opts, scriptSrc) {
         if (!container || container.dataset.mounted === '1') return;
         container.dataset.mounted = '1';
@@ -1524,7 +1585,6 @@
         if (document.getElementById('performanceModal')?.classList.contains('active')) renderPerformanceTable();
     });
 
-    // Views em tempo real
     rtdb.ref('vod_views').on('value', (snap) => {
         viewsCache = snap.val() || {};
         if (document.getElementById('performanceModal')?.classList.contains('active')) renderPerformanceTable();
@@ -1850,29 +1910,28 @@
         openVideoModal('add');
     });
 
-    /* ===== NOVO: Modal de Preços (Assinatura + Tarifa) ===== */
+    /* ===== Modal de Preços ===== */
     const pricingModal = document.getElementById('pricingModal');
-    const priceSubscriptionInput = document.getElementById('priceSubscriptionInput');
-    const priceAdRateInput = document.getElementById('priceAdRateInput');
 
     document.getElementById('pricingBtn').addEventListener('click', async () => {
         adminDropdown.style.display = 'none';
-        priceSubscriptionInput.value = '';
-        priceAdRateInput.value = '';
+        ['priceMonthlyInput','priceQuarterlyInput','priceSemiannualInput','priceAnnualInput','priceAdRateInput']
+            .forEach(id => document.getElementById(id).value = '');
         try {
             const doc = await db.collection('platform_config').doc('catalog').get();
             if (doc.exists) {
-                const data = doc.data();
-                if (data.subscription && data.subscription.monthlyPrice != null) {
-                    priceSubscriptionInput.value = parseFloat(data.subscription.monthlyPrice).toFixed(2).replace('.', ',');
-                }
-                if (data.adRate != null) {
-                    priceAdRateInput.value = parseFloat(data.adRate).toFixed(2).replace('.', ',');
-                }
+                const data = doc.data() || {};
+                const plans = data.plans || {};
+                const monthly = (plans.monthly && plans.monthly.price)
+                    || (data.subscription && data.subscription.monthlyPrice)
+                    || 6.90;
+                document.getElementById('priceMonthlyInput').value = Number(monthly).toFixed(2).replace('.', ',');
+                if (plans.quarterly)  document.getElementById('priceQuarterlyInput').value  = Number(plans.quarterly.price).toFixed(2).replace('.', ',');
+                if (plans.semiannual) document.getElementById('priceSemiannualInput').value = Number(plans.semiannual.price).toFixed(2).replace('.', ',');
+                if (plans.annual)     document.getElementById('priceAnnualInput').value     = Number(plans.annual.price).toFixed(2).replace('.', ',');
+                if (data.adRate != null) document.getElementById('priceAdRateInput').value = Number(data.adRate).toFixed(2).replace('.', ',');
             }
-        } catch (e) {
-            console.warn('Erro ao carregar preços:', e);
-        }
+        } catch (e) { console.warn('Erro ao carregar preços:', e); }
         pricingModal.classList.add('active');
     });
 
@@ -1885,35 +1944,43 @@
     });
 
     document.getElementById('savePricingBtn').addEventListener('click', async () => {
-        const subRaw = priceSubscriptionInput.value.trim();
-        const adRaw = priceAdRateInput.value.trim();
-        
-        const subPrice = parseFloat(subRaw.replace(',', '.'));
-        const adRate = parseFloat(adRaw.replace(',', '.'));
+        const getVal = id => parseFloat(String(document.getElementById(id).value || '').trim().replace(',', '.'));
+        const monthly    = getVal('priceMonthlyInput');
+        const quarterly  = getVal('priceQuarterlyInput');
+        const semiannual = getVal('priceSemiannualInput');
+        const annual     = getVal('priceAnnualInput');
+        const adRate     = getVal('priceAdRateInput');
 
-        if (isNaN(subPrice) || subPrice <= 0) {
-            alert('Por favor, digite um preço de assinatura válido (maior que zero).');
-            return;
-        }
-        if (isNaN(adRate) || adRate <= 0) {
-            alert('Por favor, digite uma tarifa de anúncio válida (maior que zero).');
-            return;
+        const values = { monthly, quarterly, semiannual, annual, adRate };
+        const labels = { monthly: '30 dias', quarterly: '3 meses', semiannual: '6 meses', annual: '1 ano', adRate: 'Tarifa' };
+        for (const [k, v] of Object.entries(values)) {
+            if (isNaN(v) || v <= 0) { alert('Valor inválido para "' + labels[k] + '".'); return; }
         }
 
         try {
             await db.collection('platform_config').doc('catalog').set({
-                subscription: {
-                    enabled: true,
-                    monthlyPrice: subPrice
+                subscription: { enabled: true, monthlyPrice: monthly },
+                plans: {
+                    monthly:    { price: monthly,    months: 1,  label: '30 dias' },
+                    quarterly:  { price: quarterly,  months: 3,  label: '3 meses' },
+                    semiannual: { price: semiannual, months: 6,  label: '6 meses' },
+                    annual:     { price: annual,     months: 12, label: '1 ano' }
                 },
                 adRate: adRate
             }, { merge: true });
 
-            alert(`✅ Preços atualizados!\n\n• Assinatura: R$ ${subPrice.toFixed(2).replace('.', ',')}\n• Tarifa: R$ ${adRate.toFixed(2).replace('.', ',')} / segundo`);
+            alert(
+                '✅ Preços atualizados!\n\n' +
+                '• 30 dias: R$ ' + monthly.toFixed(2).replace('.', ',') + '\n' +
+                '• 3 meses: R$ ' + quarterly.toFixed(2).replace('.', ',') + '\n' +
+                '• 6 meses: R$ ' + semiannual.toFixed(2).replace('.', ',') + '\n' +
+                '• 1 ano: R$ ' + annual.toFixed(2).replace('.', ',') + '\n' +
+                '• Tarifa/s: R$ ' + adRate.toFixed(2).replace('.', ',')
+            );
             pricingModal.classList.remove('active');
         } catch (e) {
             console.error(e);
-            alert('Erro ao salvar os preços: ' + e.message);
+            alert('Erro ao salvar: ' + e.message);
         }
     });
 
@@ -2013,7 +2080,7 @@
         checkCatalogSubscription();
     });
 
-    /* ===== NOVO: Modal de Desempenho dos Vídeos ===== */
+    /* ===== Desempenho dos Vídeos ===== */
     const performanceModal = document.getElementById('performanceModal');
     const perfTableContainer = document.getElementById('perfTableContainer');
 
@@ -2116,7 +2183,7 @@
         });
     }
 
-    /* ========= SISTEMA DE ASSINATURA PIX ========= */
+    /* ========= ASSINATURA PIX ========= */
     async function checkCatalogSubscription() {
         if (isSimulatingSub) {
             catalogSubscription = { active: true, expiresAt: Date.now() + (30 * 24 * 60 * 60 * 1000) };
@@ -2204,17 +2271,47 @@
 
         try {
             const doc = await db.collection('platform_config').doc('catalog').get();
-            if (doc.exists && doc.data().subscription) {
-                const preco = doc.data().subscription.monthlyPrice;
-                document.getElementById('pixPriceValue').textContent = parseFloat(preco).toFixed(2).replace('.', ',');
-            } else {
-                document.getElementById('pixPriceValue').textContent = 'Indisponível';
+            if (doc.exists) {
+                const data = doc.data() || {};
+                const plans = data.plans || {};
+                const monthlyFallback = (data.subscription && data.subscription.monthlyPrice)
+                    ? parseFloat(data.subscription.monthlyPrice) : 6.90;
+                catalogPlans = {
+                    monthly:    { price: (plans.monthly    && plans.monthly.price)    || monthlyFallback, months: 1,  label: '30 dias' },
+                    quarterly:  { price: (plans.quarterly  && plans.quarterly.price)  || 17.90,           months: 3,  label: '3 meses' },
+                    semiannual: { price: (plans.semiannual && plans.semiannual.price) || 29.90,           months: 6,  label: '6 meses' },
+                    annual:     { price: (plans.annual     && plans.annual.price)     || 49.90,           months: 12, label: '1 ano' }
+                };
             }
         } catch (e) {
-            console.warn("Erro ao buscar preço:", e);
-            document.getElementById('pixPriceValue').textContent = '...';
+            console.warn('Erro ao carregar planos:', e);
+        }
+
+        document.querySelectorAll('#pixPlanSelector .plan-option').forEach(el => {
+            const pid = el.getAttribute('data-plan');
+            const p = catalogPlans[pid];
+            if (p) el.querySelector('.plan-price-value').textContent = Number(p.price).toFixed(2).replace('.', ',');
+        });
+
+        selectPlan('monthly');
+    }
+
+    function selectPlan(planId) {
+        currentPlanId = planId;
+        document.querySelectorAll('#pixPlanSelector .plan-option').forEach(el => {
+            el.classList.toggle('selected', el.getAttribute('data-plan') === planId);
+        });
+        const p = catalogPlans[planId];
+        if (p) {
+            document.getElementById('pixPriceValue').textContent = Number(p.price).toFixed(2).replace('.', ',');
+            document.getElementById('pixPlanPeriod').textContent = p.label;
         }
     }
+
+    // Listeners dos cards de plano
+    document.querySelectorAll('#pixPlanSelector .plan-option').forEach(el => {
+        el.addEventListener('click', () => selectPlan(el.getAttribute('data-plan')));
+    });
 
     function closePixLightbox() {
         document.getElementById('pixLightbox').style.display = 'none';
@@ -2233,7 +2330,7 @@
             const r = await fetch(CF_BASE + '/createCatalogPixPayment', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + token },
-                body: '{}'
+                body: JSON.stringify({ planId: currentPlanId })
             });
             const data = await r.json();
             if (!data.success) throw new Error(data.error || 'Erro ao gerar pagamento');
@@ -2241,7 +2338,10 @@
             pixCurrentPayment = { paymentId: data.paymentId, checkToken: data.checkToken };
 
             if (data.amount) {
-                document.getElementById('pixPriceValue').textContent = data.amount.toFixed(2).replace('.', ',');
+                document.getElementById('pixPriceValue').textContent = Number(data.amount).toFixed(2).replace('.', ',');
+            }
+            if (data.planLabel) {
+                document.getElementById('pixPlanPeriod').textContent = data.planLabel;
             }
             const qr = document.getElementById('pixQr');
             qr.innerHTML = data.qrCodeBase64 ? '<img src="data:image/png;base64,' + data.qrCodeBase64 + '" style="width:100%; height:100%;">' : '';
@@ -3070,15 +3170,16 @@
     }
 
     function onPlayerStateChange(event) {
-        if (event.data === 1) { // Playing
+        if (event.data === 1) {
             isPlaying = true; isEnded = false;
             setPlayPauseVisual(true);
             removeCaptions(event.target);
 
-            // Conta visualização apenas uma vez por sessão de play
             if (!viewAlreadyCounted && currentPlayerVideoId) {
                 viewAlreadyCounted = true;
-                rtdb.ref('vod_views/' + currentPlayerVideoId).transaction(v => (v || 0) + 1);
+                rtdb.ref('vod_views/' + currentPlayerVideoId)
+                    .transaction(v => (v || 0) + 1)
+                    .catch(err => console.warn('[vod_views] falha ao incrementar:', err.message));
             }
 
             if (isSeeking) {
@@ -3088,7 +3189,7 @@
             hideLoadingOverlay();
             showControls();
 
-        } else if (event.data === 2) { // Paused
+        } else if (event.data === 2) {
             isPlaying = false; isEnded = false;
             setPlayPauseVisual(false);
             showControls();
@@ -3098,7 +3199,7 @@
                 hideLoadingOverlay();
             }
 
-        } else if (event.data === 0) { // Ended
+        } else if (event.data === 0) {
             isPlaying = false; isEnded = true;
             setPlayPauseVisual(false);
             showControls();
@@ -3109,13 +3210,13 @@
             }
             hideLoadingOverlay();
 
-        } else if (event.data === 3) { // Buffering
+        } else if (event.data === 3) {
             removeCaptions(event.target);
             if (isSeeking) {
                 showLoadingOverlay('Carregando posição...', true);
             }
 
-        } else if (event.data === 5) { // Cued
+        } else if (event.data === 5) {
             if (isSeeking) {
                 isSeeking = false;
                 clearSeekPolling();
@@ -3206,7 +3307,6 @@
         }
     });
 
-    /* ========= SEEK BAR ========= */
     let isDragging = false;
     let seekTargetPercent = 0;
 
