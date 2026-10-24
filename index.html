@@ -1524,6 +1524,58 @@
         container.appendChild(iframe);
     }
 
+    /* Garante que os banners da orientação atual sejam montados */
+    function ensureAdsMounted() {
+        const isLandscapeMobile = window.matchMedia('(max-width: 950px) and (orientation: landscape)').matches;
+        const isMobileView = window.matchMedia('(max-width: 1150px)').matches;
+
+        if (isLandscapeMobile) {
+            mountStandardAd(
+                document.getElementById('adNativeLeft'),
+                { key: '9dda7ca26c536cc2dbcbbaf87dfc02c7', format: 'iframe', height: 300, width: 160, params: {} },
+                'https://dcengg.org/22/9dda7ca26c536cc2dbcbbaf87dfc02c7'
+            );
+            mountStandardAd(
+                document.getElementById('adNativeRight'),
+                { key: '9dda7ca26c536cc2dbcbbaf87dfc02c7', format: 'iframe', height: 300, width: 160, params: {} },
+                'https://dcengg.org/22/9dda7ca26c536cc2dbcbbaf87dfc02c7'
+            );
+        } else if (isMobileView) {
+            mountStandardAd(
+                document.getElementById('adMobileTop'),
+                { key: 'c7c3c36fda809c5dd35ae6ed9c4890ca', format: 'iframe', height: 50, width: 320, params: {} },
+                'https://dcengg.org/22/c7c3c36fda809c5dd35ae6ed9c4890ca'
+            );
+            mountStandardAd(
+                document.getElementById('adMobileBottom'),
+                { key: '51efcb0e502dffc7c8c25030a1155128', format: 'iframe', height: 250, width: 300, params: {} },
+                'https://dcengg.org/22/51efcb0e502dffc7c8c25030a1155128'
+            );
+        } else {
+            mountNativeAd(
+                document.getElementById('adNativeLeft'),
+                'https://dcengg.org/21/efe34bd92ca74a51f85465ca14314dc7',
+                'container-efe34bd92ca74a51f85465ca14314dc7'
+            );
+            mountStandardAd(
+                document.getElementById('adNativeRight'),
+                { key: '0b2a1dd49cefbcb5c3f10330c969042c', format: 'iframe', height: 600, width: 160, params: {} },
+                'https://dcengg.org/22/0b2a1dd49cefbcb5c3f10330c969042c'
+            );
+        }
+    }
+
+    /* Listener para recarregar os banners ao girar a tela com o modal aberto */
+    let resizeTimeout;
+    window.addEventListener('resize', () => {
+        clearTimeout(resizeTimeout);
+        resizeTimeout = setTimeout(() => {
+            if (document.getElementById('adInterstitialModal').classList.contains('active')) {
+                ensureAdsMounted();
+            }
+        }, 250);
+    });
+
     /* ========= FAVORITOS ========= */
     async function toggleFavorite(videoId) {
         if (!currentUser) {
@@ -2940,50 +2992,8 @@
             }
         }
 
-        if (!adModal.dataset.adsMounted) {
-            adModal.dataset.adsMounted = '1';
-
-            const isLandscapeMobile = window.matchMedia('(max-width: 950px) and (orientation: landscape)').matches;
-            const isMobileView = window.matchMedia('(max-width: 1150px)').matches;
-
-            if (isLandscapeMobile) {
-                // Banner 160x300 nas laterais para Landscape mobile
-                mountStandardAd(
-                    document.getElementById('adNativeLeft'),
-                    { key: '9dda7ca26c536cc2dbcbbaf87dfc02c7', format: 'iframe', height: 300, width: 160, params: {} },
-                    'https://dcengg.org/22/9dda7ca26c536cc2dbcbbaf87dfc02c7'
-                );
-                mountStandardAd(
-                    document.getElementById('adNativeRight'),
-                    { key: '9dda7ca26c536cc2dbcbbaf87dfc02c7', format: 'iframe', height: 300, width: 160, params: {} },
-                    'https://dcengg.org/22/9dda7ca26c536cc2dbcbbaf87dfc02c7'
-                );
-            } else if (isMobileView) {
-                // Banner mobile portrait original
-                mountStandardAd(
-                    document.getElementById('adMobileTop'),
-                    { key: 'c7c3c36fda809c5dd35ae6ed9c4890ca', format: 'iframe', height: 50, width: 320, params: {} },
-                    'https://dcengg.org/22/c7c3c36fda809c5dd35ae6ed9c4890ca'
-                );
-                mountStandardAd(
-                    document.getElementById('adMobileBottom'),
-                    { key: '51efcb0e502dffc7c8c25030a1155128', format: 'iframe', height: 250, width: 300, params: {} },
-                    'https://dcengg.org/22/51efcb0e502dffc7c8c25030a1155128'
-                );
-            } else {
-                // Desktop native original
-                mountNativeAd(
-                    document.getElementById('adNativeLeft'),
-                    'https://dcengg.org/21/efe34bd92ca74a51f85465ca14314dc7',
-                    'container-efe34bd92ca74a51f85465ca14314dc7'
-                );
-                mountStandardAd(
-                    document.getElementById('adNativeRight'),
-                    { key: '0b2a1dd49cefbcb5c3f10330c969042c', format: 'iframe', height: 600, width: 160, params: {} },
-                    'https://dcengg.org/22/0b2a1dd49cefbcb5c3f10330c969042c'
-                );
-            }
-        }
+        // Chama a função que verifica a orientação e monta os banners
+        ensureAdsMounted();
 
         if (!document.getElementById('social-bar-iframe')) {
             const iframe = document.createElement('iframe');
