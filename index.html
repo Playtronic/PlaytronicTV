@@ -643,6 +643,10 @@
             <input type="text" id="searchInput" placeholder="Pesquisar" autocomplete="off">
         </div>
         <div class="auth-area">
+            <!-- NOVO BOTÃO MEUS ANÚNCIOS -->
+            <button id="myAdsBtn" style="display:none; background: #3498db; color: #fff; border: none; padding: 10px 18px; border-radius: 8px; font-weight: bold; cursor: pointer; margin-right: 10px;">
+                📺 Meus Anúncios
+            </button>
             <!-- BOTÃO DE ASSINATURA (COR LILÁS PADRONIZADA) -->
             <button id="subscribeBtn" style="display:none; background: linear-gradient(135deg, #7c3aed, #6d28d9); color: #fff; border: none; padding: 10px 18px; border-radius: 8px; font-weight: bold; cursor: pointer; margin-right: 10px;">
                 ⭐ Assinar
@@ -660,7 +664,7 @@
                 <div class="user-card" id="userCard">
                     <div class="user-name" id="userName"></div>
                     <div class="user-email" id="userEmail"></div>
-                    <div class="user-sub-info" id="userSubInfo"></div> <!-- Contador de dias -->
+                    <div class="user-sub-info" id="userSubInfo"></div>
                     <button class="logout-btn" id="logoutBtn">Sair</button>
                 </div>
             </div>
@@ -797,6 +801,26 @@
             
             <!-- Player invisível para calcular a duração -->
             <div id="hiddenYTPlayer" style="position: absolute; top: -9999px; left: -9999px; width: 1px; height: 1px;"></div>
+        </div>
+    </div>
+
+    <!-- NOVO MODAL DE HISTÓRICO DE ANÚNCIOS -->
+    <div class="modal-overlay" id="myAdsModal">
+        <div class="modal" style="max-width: 700px;">
+            <h2>Histórico de Anúncios</h2>
+            <p class="modal-sub" id="myAdsSub">Acompanhe o desempenho dos seus anúncios.</p>
+            
+            <div class="form-group" style="margin-bottom: 20px;">
+                <input type="text" id="searchMyAds" placeholder="Pesquisar por ID do vídeo..." autocomplete="off">
+            </div>
+
+            <div id="myAdsListContainer" style="max-height: 400px; overflow-y: auto; padding-right: 5px;">
+                <!-- Lista de anúncios será injetada aqui -->
+            </div>
+
+            <div class="modal-actions">
+                <button class="secondary" id="closeMyAdsBtn">Fechar</button>
+            </div>
         </div>
     </div>
 
@@ -938,9 +962,12 @@
         { src: 'https://i.ibb.co/21QYYGKg/83697ff7-f124-4608-8b30-2bd6e05b5c39.png', link: 'https://playtronicgames.com.br' }
     ];
     let currentAdBannerIndex = 0;
-    let paidAdsCache = []; // Para o sistema de rotação justa
+    let paidAdsCache = []; 
     let adPaymentPolling = null;
     let currentAdPayment = null;
+
+    // Variáveis de Histórico de Anúncios
+    let myAdsData = [];
 
     /* ========= HELPERS ========= */
     function isAdmin() {
@@ -1085,6 +1112,7 @@
     const userEmail = document.getElementById('userEmail');
     const userSubInfo = document.getElementById('userSubInfo');
     const logoutBtn = document.getElementById('logoutBtn');
+    const myAdsBtn = document.getElementById('myAdsBtn');
 
     loginBtn.addEventListener('click', async () => {
         try {
@@ -1140,12 +1168,14 @@
             userInfo.classList.remove('active');
             userCard.classList.remove('active');
             document.body.classList.remove('is-admin');
+            myAdsBtn.style.display = 'none';
             favoritesLoaded = true;
             tryRender();
         }
 
         if (currentPlayerVideoId) atualizarPlayerUI(currentPlayerVideoId);
-        checkCatalogSubscription(); // <- Chamada do sistema de assinatura
+        checkCatalogSubscription(); 
+        checkMyAdsVisibility(); // 🔥 VERIFICA SE O BOTÃO "MEUS ANÚNCIOS" APARECE
     });
 
     /* ========= VOTOS ========= */
@@ -2059,6 +2089,7 @@
                     setTimeout(() => {
                         insertAdModal.classList.remove('active');
                         alert('Anúncio publicado com sucesso! Ele já está sendo exibido.');
+                        checkMyAdsVisibility(); // 🔥 ATUALIZA O BOTÃO "MEUS ANÚNCIOS"
                     }, 3000);
                 } else if (data.status === 'rejected' || data.status === 'cancelled') {
                     clearInterval(adPaymentPolling); adPaymentPolling = null;
@@ -2079,6 +2110,159 @@
         setTimeout(() => { document.getElementById('copyAdPixBtn').textContent = 'Copiar código'; }, 2000);
     });
     /* ======================================================= */
+
+    /* ========= HISTÓRICO DE ANÚNCIOS ========= */
+    const myAdsModal = document.getElementById('myAdsModal');
+    const myAdsListContainer = document.getElementById('myAdsListContainer');
+    const searchMyAds = document.getElementById('searchMyAds');
+
+    async function checkMyAdsVisibility() {
+        if (!currentUser) {
+            myAdsBtn.style.display = 'none';
+            return;
+        }
+        try {
+            let query = db.collection('paid_ads');
+            
+            // Se não for admin, filtra apenas os anúncios dele
+            if (!isAdmin()) {
+                query = query.where('userId', '==', currentUser.uid);
+            }
+            
+            const snap = await query.get();
+            if (snap.size > 0) {
+                myAdsBtn.style.display = 'block';
+            } else {
+                myAdsBtn.style.display = 'none';
+            }
+        } catch (e) {
+            console.error("Erro ao verificar anúncios:", e);
+            myAdsBtn.style.display = 'none';
+        }
+    }
+
+    myAdsBtn.addEventListener('click', async () => {
+        if (!currentUser) return;
+        userCard.classList.remove('active');
+        myAdsModal.classList.add('active');
+        myAdsListContainer.innerHTML = '<p style="text-align:center; color:#94a3b8;">Carregando...</p>';
+        searchMyAds.value = '';
+        
+        try {
+            let query = db.collection('paid_ads');
+            
+            // Se NÃO for admin, filtra apenas os anúncios dele
+            if (!isAdmin()) {
+                query = query.where('userId', '==', currentUser.uid);
+            }
+            
+            const snapshot = await query.get();
+            myAdsData = [];
+            snapshot.forEach(doc => {
+                myAdsData.push({ id: doc.id, ...doc.data() });
+            });
+
+            // Ordena do mais recente para o mais antigo
+            myAdsData.sort((a, b) => b.createdAt - a.createdAt);
+
+            renderMyAds();
+
+        } catch (e) {
+            console.error(e);
+            myAdsListContainer.innerHTML = '<p style="color:#ff6b6b; text-align:center;">Erro ao carregar anúncios.</p>';
+        }
+    });
+
+    document.getElementById('closeMyAdsBtn').addEventListener('click', () => {
+        myAdsModal.classList.remove('active');
+    });
+
+    myAdsModal.addEventListener('click', (e) => {
+        if (e.target === myAdsModal) myAdsModal.classList.remove('active');
+    });
+
+    searchMyAds.addEventListener('input', renderMyAds);
+
+    function renderMyAds() {
+        const filter = searchMyAds.value.toLowerCase().trim();
+        const filtered = myAdsData.filter(ad => 
+            (ad.videoId || '').toLowerCase().includes(filter) || 
+            (ad.paymentId || '').toLowerCase().includes(filter)
+        );
+
+        if (filtered.length === 0) {
+            myAdsListContainer.innerHTML = '<p style="text-align:center; color:#94a3b8;">Nenhum anúncio encontrado.</p>';
+            return;
+        }
+
+        myAdsListContainer.innerHTML = '';
+        const now = Date.now();
+
+        filtered.forEach(ad => {
+            const isExpired = ad.expiresAt < now;
+            const statusText = isExpired ? 'Expirado' : 'Ativo';
+            const statusColor = isExpired ? '#e74c3c' : '#2ecc71';
+            const statusBg = isExpired ? 'rgba(231,76,60,0.1)' : 'rgba(46,204,113,0.1)';
+            
+            const dateCreated = new Date(ad.createdAt).toLocaleDateString('pt-BR');
+            const dateExpires = new Date(ad.expiresAt).toLocaleDateString('pt-BR');
+            const price = `R$ ${(ad.amountPaid || 0).toFixed(2).replace('.', ',')}`;
+
+            const card = document.createElement('div');
+            card.style.cssText = 'display: flex; gap: 15px; background: rgba(255,255,255,0.05); padding: 15px; border-radius: 10px; margin-bottom: 10px; border: 1px solid rgba(255,255,255,0.1); align-items: center;';
+            
+            card.innerHTML = `
+                <img src="https://img.youtube.com/vi/${ad.videoId}/mqdefault.jpg" style="width: 80px; height: 45px; border-radius: 6px; object-fit: cover;">
+                <div style="flex: 1; overflow: hidden;">
+                    <div style="font-weight: bold; color: #fff; font-size: 0.9rem; margin-bottom: 3px;">
+                        <a href="https://youtube.com/watch?v=${ad.videoId}" target="_blank" style="color: #fdbb2d; text-decoration: none;">youtube.com/watch?v=${ad.videoId.substring(0,8)}...</a>
+                    </div>
+                    <div style="font-size: 0.75rem; color: #94a3b8;">
+                        Publicado: ${dateCreated} • Expira: ${dateExpires}
+                    </div>
+                    <div style="font-size: 0.8rem; color: #cbd5e1; margin-top: 5px;">
+                        👁️ <b>${ad.views || 0}</b> visualizações • 💰 Pago: <b>${price}</b>
+                    </div>
+                    ${isAdmin() ? `<div style="font-size: 0.7rem; color: #a78bfa; margin-top: 3px;">ID Usuário: ${ad.userId.substring(0,8)}...</div>` : ''}
+                </div>
+                <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 8px;">
+                    <div style="background: ${statusBg}; color: ${statusColor}; padding: 4px 10px; border-radius: 12px; font-size: 0.75rem; font-weight: bold; border: 1px solid ${statusColor};">
+                        ${statusText}
+                    </div>
+                    <button class="delete-my-ad-btn" data-id="${ad.id}" style="background: #e74c3c; color: white; border: none; padding: 4px 10px; border-radius: 4px; cursor: pointer; font-size: 0.75rem; font-weight: bold;">Apagar</button>
+                </div>
+            `;
+            myAdsListContainer.appendChild(card);
+        });
+
+        // Adiciona evento de exclusão
+        document.querySelectorAll('.delete-my-ad-btn').forEach(btn => {
+            btn.addEventListener('click', async function() {
+                const adId = this.getAttribute('data-id');
+                if (!confirm('Tem certeza que deseja apagar este anúncio?\n\nATENÇÃO: A exclusão é PERMANENTE. Se o anúncio ainda estiver ativo, ele será removido do ar imediatamente e você perderá o tempo restante.')) {
+                    return;
+                }
+                
+                this.disabled = true;
+                this.textContent = 'Apagando...';
+                
+                try {
+                    await db.collection('paid_ads').doc(adId).delete();
+                    // Remove do array local e renderiza de novo
+                    myAdsData = myAdsData.filter(ad => ad.id !== adId);
+                    renderMyAds();
+                    // Verifica se o botão "Meus Anúncios" deve sumir
+                    checkMyAdsVisibility();
+                } catch (e) {
+                    console.error("Erro ao apagar anúncio:", e);
+                    alert("Erro ao apagar: " + e.message);
+                    this.disabled = false;
+                    this.textContent = 'Apagar';
+                }
+            });
+        });
+    }
+    /* ========================================================= */
 
     /* ========= PLAYER E ANÚNCIOS ========= */
     const playerScreen = document.getElementById('playerScreen');
@@ -2141,10 +2325,13 @@
             activePaidAds.sort((a, b) => (a.lastShownAt || 0) - (b.lastShownAt || 0));
             const chosenAd = activePaidAds[0];
 
-            // Atualiza o lastShownAt deste anúncio para o momento atual
+            // Atualiza o lastShownAt e o contador de views
             try {
-                await db.collection('paid_ads').doc(chosenAd.id).update({ lastShownAt: Date.now() });
-            } catch(e) { console.warn("Erro ao atualizar lastShownAt:", e); }
+                await db.collection('paid_ads').doc(chosenAd.id).update({ 
+                    lastShownAt: Date.now(),
+                    views: firebase.firestore.FieldValue.increment(1) // 🔥 INCREMENTA VIEW
+                });
+            } catch(e) { console.warn("Erro ao atualizar views:", e); }
 
             // Cria o Iframe do YouTube
             adCenterWrapper.innerHTML = `
