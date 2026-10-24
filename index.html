@@ -965,6 +965,7 @@
     let paidAdsCache = []; 
     let adPaymentPolling = null;
     let currentAdPayment = null;
+    let adYtPlayer = null; // 🔥 NOVO: Player do YouTube para o Anúncio
 
     // Variáveis de Histórico de Anúncios
     let myAdsData = [];
@@ -2301,12 +2302,35 @@
     const adTimerText = document.getElementById('adTimerText');
     const adCenterWrapper = document.getElementById('adCenterWrapper');
 
+    // Função para fechar o anúncio e iniciar o conteúdo
+    function closeAdAndPlay() {
+        if (!pendingVideo || !adModal.classList.contains('active')) return;
+        
+        adModal.classList.remove('active');
+        const sbIframe = document.getElementById('social-bar-iframe');
+        if (sbIframe) sbIframe.remove();
+        clearInterval(adTimerInterval);
+        
+        if (adYtPlayer) {
+            try { adYtPlayer.destroy(); } catch(e){}
+            adYtPlayer = null;
+        }
+        
+        const videoToPlay = pendingVideo;
+        pendingVideo = null;
+        openPlayer(videoToPlay);
+    }
+
     async function showAdInterstitial(video) {
         if (catalogSubscription.active) { openPlayer(video); return; }
         
         pendingVideo = video;
         adModal.classList.add('active');
-        adCenterWrapper.innerHTML = ''; // Limpa conteúdo anterior
+        adCenterWrapper.innerHTML = ''; 
+        
+        // Limpa estados anteriores
+        if (adYtPlayer) { try { adYtPlayer.destroy(); } catch(e){} adYtPlayer = null; }
+        if (adTimerInterval) clearInterval(adTimerInterval);
 
         // Verifica se existem anúncios pagos ativos
         let activePaidAds = [];
@@ -2321,27 +2345,40 @@
         }
 
         if (activePaidAds.length > 0) {
-            // LÓGICA DE ROTAÇÃO JUSTA: Pega o anúncio que foi exibido há mais tempo
+            // LÓGICA DE ROTAÇÃO JUSTA
             activePaidAds.sort((a, b) => (a.lastShownAt || 0) - (b.lastShownAt || 0));
             const chosenAd = activePaidAds[0];
 
-            // Atualiza o lastShownAt e o contador de views
             try {
                 await db.collection('paid_ads').doc(chosenAd.id).update({ 
                     lastShownAt: Date.now(),
-                    views: firebase.firestore.FieldValue.increment(1) // 🔥 INCREMENTA VIEW
+                    views: firebase.firestore.FieldValue.increment(1)
                 });
             } catch(e) { console.warn("Erro ao atualizar views:", e); }
 
-            // Cria o Iframe do YouTube
-            adCenterWrapper.innerHTML = `
-                <iframe 
-                    src="https://www.youtube.com/embed/${chosenAd.videoId}?autoplay=1&controls=0&modestbranding=1&rel=0&showinfo=0&iv_load_policy=3&playsinline=1" 
-                    frameborder="0" 
-                    allow="autoplay; encrypted-media" 
-                    style="width:100%; height:100%; position:absolute; top:0; left:0; pointer-events:none;">
-                </iframe>
-            `;
+            // Cria a div onde o Player será montado
+            adCenterWrapper.innerHTML = `<div id="ad-youtube-player" style="width:100%; height:100%; position:absolute; top:0; left:0;"></div>`;
+            
+            // Inicializa o Player Oficial do YouTube para detectar o fim
+            adYtPlayer = new YT.Player('ad-youtube-player', {
+                videoId: chosenAd.videoId,
+                playerVars: {
+                    'autoplay': 1, 'controls': 0, 'modestbranding': 1, 'rel': 0,
+                    'showinfo': 0, 'iv_load_policy': 3, 'playsinline': 1, 'cc_load_policy': 0
+                },
+                events: {
+                    'onReady': (event) => {
+                        event.target.playVideo();
+                    },
+                    'onStateChange': (event) => {
+                        // Se o estado for 0 (ENDED), o vídeo acabou
+                        if (event.data === 0) {
+                            console.log('Anúncio finalizado. Pulando automaticamente...');
+                            closeAdAndPlay();
+                        }
+                    }
+                }
+            });
 
         } else {
             // FALLBACK: Usa as imagens base se não houver anúncios pagos
@@ -2413,20 +2450,15 @@
         }, 1000);
     }
 
+    // 🔥 O botão agora chama a função global
     closeAdBtn.addEventListener('click', () => {
         if (closeAdBtn.disabled) return;
-        adModal.classList.remove('active');
-        const sbIframe = document.getElementById('social-bar-iframe');
-        if (sbIframe) sbIframe.remove();
-        if (pendingVideo) {
-            const videoToPlay = pendingVideo;
-            pendingVideo = null;
-            openPlayer(videoToPlay);
-        }
+        closeAdAndPlay();
     });
 
     document.getElementById('adSubscribeBtn').addEventListener('click', () => {
         adModal.classList.remove('active');
+        if (adYtPlayer) { try { adYtPlayer.destroy(); } catch(e){} adYtPlayer = null; }
         const sbIframe = document.getElementById('social-bar-iframe');
         if (sbIframe) sbIframe.remove();
         clearInterval(adTimerInterval);
@@ -2586,7 +2618,6 @@
         resetControlsTimer();
     });
 
-    // Correção do bug de tela cheia
     document.addEventListener('fullscreenchange', () => {
         if (!document.fullscreenElement && playerScreen.classList.contains('active')) {
             showControls();
@@ -2635,7 +2666,6 @@
     });
 
     function closePlayer() {
-        // CORREÇÃO CRÍTICA: Força a saída do modo tela cheia antes de fechar
         if (document.fullscreenElement || document.webkitFullscreenElement || document.msFullscreenElement) {
             if (document.exitFullscreen) document.exitFullscreen().catch(e => console.log(e));
             else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
@@ -2653,7 +2683,7 @@
         timeLabel.textContent = '0:00 / 0:00';
         clearTimeout(controlsTimeout);
         playerBottomAd.style.display = 'none';
-        playerVideoTitle.textContent = ''; // Limpa o título ao fechar
+        playerVideoTitle.textContent = '';
     }
 
     document.getElementById('closePlayerBtn').addEventListener('click', closePlayer);
