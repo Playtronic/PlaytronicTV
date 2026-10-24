@@ -532,8 +532,15 @@
             width: 100%; aspect-ratio: 16 / 9;
             background: #0b0f19; display: flex; align-items: center; justify-content: center;
             overflow: hidden;
+            position: relative;
         }
         .ad-center-wrapper img { width: 100%; height: 100%; object-fit: contain; padding: 20px; }
+        
+        /* YT Player dentro do anúncio */
+        .ad-center-wrapper iframe {
+            width: 100%; height: 100%; border: none; position: absolute; top: 0; left: 0;
+            pointer-events: none; /* BLOQUEIA CLIQUES NO ANÚNCIO */
+        }
 
         .ad-interstitial-footer {
             padding: 15px 20px; text-align: center;
@@ -690,7 +697,8 @@
         <div id="adminDropdown">
             <button id="addVideoBtn">➕ Inserir Vídeo</button>
             <button id="configSubBtn">💰 Editar Assinatura</button>
-            <button id="manageAdsBtn">🖼️ Gerenciar Anúncios</button>
+            <button id="configAdRateBtn">📊 Tarifa de Anúncio</button>
+            <button id="manageAdsBtn">🖼️ Gerenciar Anúncios Base</button>
             <button id="simulateSubBtn" style="color: #a78bfa;">🧪 Simular Assinante</button>
         </div>
     </div>
@@ -727,11 +735,11 @@
         </div>
     </div>
 
-    <!-- NOVO MODAL DE GERENCIAMENTO DE ANÚNCIOS -->
+    <!-- NOVO MODAL DE GERENCIAMENTO DE ANÚNCIOS (BASE) -->
     <div class="modal-overlay" id="manageAdsModal">
         <div class="modal">
-            <h2>Gerenciar Anúncios</h2>
-            <p class="modal-sub">Adicione ou remova as imagens que aparecem no anúncio central.</p>
+            <h2>Gerenciar Anúncios Base</h2>
+            <p class="modal-sub">Adicione ou remova as imagens do anúncio central (usado quando não há anúncios pagos).</p>
             
             <div style="display: flex; gap: 10px; align-items: flex-end;">
                 <div style="flex: 1;">
@@ -751,6 +759,43 @@
         </div>
     </div>
 
+    <!-- NOVO MODAL DE PAGAMENTO DE ANÚNCIO -->
+    <div class="modal-overlay" id="insertAdModal">
+        <div class="modal">
+            <h2>Inserir um Anúncio</h2>
+            <p class="modal-sub">Pague via PIX para exibir seu anúncio por 24 horas.</p>
+            
+            <div id="adInsertStep1">
+                <label>URL do vídeo do YouTube</label>
+                <input type="text" id="newAdYoutubeUrl" placeholder="https://www.youtube.com/watch?v=..." autocomplete="off">
+                <div class="url-hint" id="adYoutubeHint"></div>
+                <p style="font-size:0.85rem; color:#94a3b8; margin-top: 10px;" id="adRateInfo"></p>
+                
+                <div class="modal-actions">
+                    <button class="secondary" id="cancelInsertAdBtn">Cancelar</button>
+                    <button class="primary" id="calculateAdBtn">Calcular e Gerar PIX</button>
+                </div>
+            </div>
+
+            <div id="adInsertStep2" style="display: none;">
+                <div style="text-align: center; margin: 20px 0;">
+                    <p style="color: #cbd5e1; font-size: 0.9rem;">Valor a pagar:</p>
+                    <div style="color: #fdbb2d; font-size: 2rem; font-weight: 800;" id="adCalculatedPrice">R$ 0,00</div>
+                    <p style="font-size: 0.8rem; color: #94a3b8;" id="adDurationInfo">Duração: 0s</p>
+                </div>
+                <div id="adPixArea" style="display: none; text-align: center;">
+                    <div id="adPixQr" style="width: 200px; height: 200px; margin: 0 auto 14px; background: #fff; padding: 8px; border-radius: 8px;"></div>
+                    <textarea id="adPixCode" readonly style="width: 100%; height: 60px; font-family: monospace; font-size: 12px; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.2); color: #fff; padding: 10px; border-radius: 6px; resize: none;"></textarea>
+                    <button id="copyAdPixBtn" style="margin-top: 8px; background: #3498db; color: #fff; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer;">Copiar código</button>
+                    <div id="adPixStatus" style="margin-top: 16px; padding: 12px; border-radius: 8px; font-size: 0.9rem; display: none;"></div>
+                </div>
+                <div class="modal-actions" style="margin-top: 20px;">
+                    <button class="secondary" id="closeAdPixBtn">Fechar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- ANÚNCIO INTERSTICIAL -->
     <div id="adInterstitialModal">
         <div class="ad-native-side left" id="adNativeLeft"></div>
@@ -760,17 +805,19 @@
                 <span>Publicidade</span>
                 <span id="adTimerText">Aguarde 5s...</span>
             </div>
-            <div class="ad-center-wrapper">
-                <!-- Link e Imagem do Anúncio Dinâmico -->
-                <a id="dynamicAdLink" href="https://playtronicgames.com.br" target="_blank" rel="noopener noreferrer" style="display:block; width:100%; height:100%;">
-                    <img id="dynamicAdImage" src="https://i.ibb.co/1GpjQ5zD/image.png" alt="Publicidade" style="width:100%; height:100%; object-fit:contain; padding: 20px;">
-                </a>
+            <div class="ad-center-wrapper" id="adCenterWrapper">
+                <!-- O conteúdo (imagem ou iframe YT) será injetado aqui -->
             </div>
-            <div class="ad-interstitial-footer" style="display: flex; justify-content: center; align-items: center; gap: 15px; flex-wrap: wrap;">
-                <button id="adSubscribeBtn" style="background: linear-gradient(135deg, #7c3aed, #6d28d9); color: #fff; border: 1px solid #6d28d9; padding: 10px 20px; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 0.9rem; transition: 0.2s;">
-                    ⭐ Remover Anúncios
+            <div class="ad-interstitial-footer" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+                <button id="openInsertAdBtn" style="background: #000; color: #fff; border: 1px solid #333; padding: 10px 20px; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 0.9rem;">
+                    Inserir um anúncio
                 </button>
-                <button id="closeInterstitialBtn" class="ad-close-btn" disabled>Fechar e Assistir</button>
+                <div style="display: flex; gap: 10px;">
+                    <button id="adSubscribeBtn" style="background: linear-gradient(135deg, #7c3aed, #6d28d9); color: #fff; border: 1px solid #6d28d9; padding: 10px 20px; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 0.9rem; transition: 0.2s;">
+                        ⭐ Remover Anúncios
+                    </button>
+                    <button id="closeInterstitialBtn" class="ad-close-btn" disabled>Fechar e Assistir</button>
+                </div>
             </div>
         </div>
 
@@ -813,7 +860,7 @@
         </div>
     </div>
 
-    <!-- LIGHTBOX DE PAGAMENTO PIX -->
+    <!-- LIGHTBOX DE PAGAMENTO PIX (ASSINATURA) -->
     <div id="pixLightbox" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 99999; justify-content: center; align-items: center; backdrop-filter: blur(6px);">
         <div style="background: #152961; border: 2px solid #fdbb2d; border-radius: 14px; padding: 30px; max-width: 480px; width: 90%; position: relative; text-align: center; color: #fff;">
             <button id="pixClose" style="position: absolute; top: 12px; right: 14px; background: transparent; border: none; color: #cbd5e1; font-size: 1.6rem; cursor: pointer;">×</button>
@@ -881,13 +928,15 @@
     let pixCurrentPayment = null;
     let isSimulatingSub = false; // Variável do Admin
 
-    // --- SISTEMA DE ROTAÇÃO DE ANÚNCIOS ---
+    // Variáveis de Anúncios
     let adBanners = [
         { src: 'https://i.ibb.co/1GpjQ5zD/image.png', link: 'https://playtronicgames.com.br' },
         { src: 'https://i.ibb.co/21QYYGKg/83697ff7-f124-4608-8b30-2bd6e05b5c39.png', link: 'https://playtronicgames.com.br' }
     ];
     let currentAdBannerIndex = 0;
-    // ---------------------------------------
+    let paidAdsCache = []; // Para o sistema de rotação justa
+    let adPaymentPolling = null;
+    let currentAdPayment = null;
 
     /* ========= HELPERS ========= */
     function isAdmin() {
@@ -917,6 +966,15 @@
             }
         } catch (_) { return null; }
         return null;
+    }
+
+    function formatTime(seconds) {
+        if (isNaN(seconds)) return '0:00';
+        const h = Math.floor(seconds / 3600);
+        const m = Math.floor((seconds % 3600) / 60);
+        const s = Math.floor(seconds % 60);
+        if (h > 0) return `${h}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+        return `${m}:${String(s).padStart(2, '0')}`;
     }
 
     /* ========= MONTAGEM ISOLADA DE BANNERS ========= */
@@ -1495,7 +1553,37 @@
         }
     });
 
-    // --- LÓGICA DE GERENCIAMENTO DE ANÚNCIOS ---
+    document.getElementById('configAdRateBtn').addEventListener('click', async () => {
+        document.getElementById('adminDropdown').style.display = 'none';
+        try {
+            const doc = await db.collection('platform_config').doc('catalog').get();
+            let rateAtual = 1.00;
+            if (doc.exists && doc.data().adRate) {
+                rateAtual = doc.data().adRate;
+            }
+
+            const novaRate = prompt("Digite a tarifa por segundo do anúncio (Ex: 1.00):", rateAtual);
+            
+            if (novaRate !== null && novaRate.trim() !== "") {
+                const rateNumerica = parseFloat(novaRate.replace(',', '.'));
+                if (isNaN(rateNumerica) || rateNumerica <= 0) {
+                    alert("Por favor, digite um valor válido.");
+                    return;
+                }
+
+                await db.collection('platform_config').doc('catalog').set({
+                    adRate: rateNumerica
+                }, { merge: true });
+
+                alert("✅ Tarifa atualizada com sucesso para R$ " + rateNumerica.toFixed(2).replace('.', ',') + " / segundo.");
+            }
+        } catch (e) {
+            console.error(e);
+            alert("Erro ao atualizar a tarifa. Verifique o console.");
+        }
+    });
+
+    // Lógica de Gerenciamento de Anúncios Base
     const manageAdsModal = document.getElementById('manageAdsModal');
     const adsListContainer = document.getElementById('adsListContainer');
     const newAdImageUrl = document.getElementById('newAdImageUrl');
@@ -1517,7 +1605,7 @@
     function renderAdsList() {
         adsListContainer.innerHTML = '';
         if (adBanners.length === 0) {
-            adsListContainer.innerHTML = '<p style="font-size:0.85rem; color:#94a3b8; text-align:center;">Nenhum anúncio cadastrado.</p>';
+            adsListContainer.innerHTML = '<p style="font-size:0.85rem; color:#94a3b8; text-align:center;">Nenhum anúncio base cadastrado.</p>';
             return;
         }
 
@@ -1532,7 +1620,6 @@
             adsListContainer.appendChild(item);
         });
 
-        // Adiciona evento de remoção
         document.querySelectorAll('.remove-ad-btn').forEach(btn => {
             btn.addEventListener('click', async function() {
                 const index = parseInt(this.getAttribute('data-index'));
@@ -1549,11 +1636,8 @@
             alert('Por favor, insira a URL da imagem.');
             return;
         }
-        
-        // Adiciona ao array (link padrão do playtronic)
         adBanners.push({ src: url, link: 'https://playtronicgames.com.br' });
         newAdImageUrl.value = '';
-        
         await saveAdsToFirebase();
         renderAdsList();
     });
@@ -1569,21 +1653,19 @@
         }
     }
 
-    // Carrega anúncios do Firebase ao iniciar
     async function loadCustomAds() {
         try {
             const doc = await db.collection('platform_config').doc('custom_ads').get();
             if (doc.exists && doc.data().banners && doc.data().banners.length > 0) {
                 adBanners = doc.data().banners;
             } else {
-                // Se não existir, salva o padrão
                 await saveAdsToFirebase();
             }
         } catch (error) {
             console.warn("Erro ao carregar anúncios customizados:", error);
         }
     }
-    // -------------------------------------------
+    // -----------------------------------------------------
 
     // Simulador de Assinante
     document.getElementById('simulateSubBtn').addEventListener('click', () => {
@@ -1596,13 +1678,12 @@
             alert("🧪 MODO SIMULAÇÃO DESATIVADO\n\nVocê voltou a ver o site como um usuário comum.");
         }
         
-        checkCatalogSubscription(); // Força a atualização do status na tela
+        checkCatalogSubscription();
     });
 
     /* ========= SISTEMA DE ASSINATURA PIX ========= */
     async function checkCatalogSubscription() {
         if (isSimulatingSub) {
-            // Se o admin ativou o simulador, forçamos a assinatura ativa localmente
             catalogSubscription = { active: true, expiresAt: Date.now() + (30 * 24 * 60 * 60 * 1000) };
             updateSubscriptionUI();
             if (videosLoaded && favoritesLoaded) renderCards();
@@ -1646,9 +1727,7 @@
             btn.style.display = 'none';
             badge.style.display = 'inline-flex';
             
-            // Contador de dias restantes no perfil do usuário
             if (catalogSubscription.expiresAt) {
-                const dateObj = new Date(catalogSubscription.expiresAt);
                 const diffTime = catalogSubscription.expiresAt - Date.now();
                 const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
                 
@@ -1674,7 +1753,6 @@
                 provider.addScope('email');
                 provider.setCustomParameters({ prompt: 'select_account' });
                 await auth.signInWithPopup(provider);
-                // O onAuthStateChanged vai atualizar a tela, mas continuamos para abrir o lightbox
             } catch (error) {
                 if (error.code !== 'auth/popup-closed-by-user' && error.code !== 'auth/cancelled-popup-request') {
                     alert('Erro ao fazer login: ' + error.message);
@@ -1692,7 +1770,6 @@
         if (pixPaymentCheckInterval) { clearInterval(pixPaymentCheckInterval); pixPaymentCheckInterval = null; }
         pixCurrentPayment = null;
 
-        // Busca o preço atualizado no banco para mostrar antes de gerar o PIX
         try {
             const doc = await db.collection('platform_config').doc('catalog').get();
             if (doc.exists && doc.data().subscription) {
@@ -1786,6 +1863,145 @@
         setTimeout(() => { document.getElementById('copyPixBtn').textContent = 'Copiar código'; }, 2000);
     });
 
+    /* ========= NOVO SISTEMA DE PAGAMENTO DE ANÚNCIO ========= */
+    const insertAdModal = document.getElementById('insertAdModal');
+    const adYoutubeHint = document.getElementById('adYoutubeHint');
+    const newAdYoutubeUrl = document.getElementById('newAdYoutubeUrl');
+    const adRateInfo = document.getElementById('adRateInfo');
+    const adInsertStep1 = document.getElementById('adInsertStep1');
+    const adInsertStep2 = document.getElementById('adInsertStep2');
+    const adCalculatedPrice = document.getElementById('adCalculatedPrice');
+    const adDurationInfo = document.getElementById('adDurationInfo');
+    const adPixArea = document.getElementById('adPixArea');
+    const adPixQr = document.getElementById('adPixQr');
+    const adPixCode = document.getElementById('adPixCode');
+    const adPixStatus = document.getElementById('adPixStatus');
+
+    document.getElementById('openInsertAdBtn').addEventListener('click', async () => {
+        // Fecha a tela de anúncio atual
+        adModal.classList.remove('active');
+        const sbIframe = document.getElementById('social-bar-iframe');
+        if (sbIframe) sbIframe.remove();
+        clearInterval(adTimerInterval);
+
+        // Abre o modal de inserção
+        insertAdModal.classList.add('active');
+        adInsertStep1.style.display = 'block';
+        adInsertStep2.style.display = 'none';
+        newAdYoutubeUrl.value = '';
+        adYoutubeHint.textContent = '';
+        
+        // Busca a tarifa atual para mostrar no aviso
+        try {
+            const doc = await db.collection('platform_config').doc('catalog').get();
+            const rate = doc.exists && doc.data().adRate ? doc.data().adRate : 1.00;
+            adRateInfo.textContent = `Tarifa atual: R$ ${rate.toFixed(2).replace('.', ',')} por segundo.`;
+        } catch(e) {
+            adRateInfo.textContent = 'Tarifa atual: R$ 1,00 por segundo.';
+        }
+    });
+
+    document.getElementById('cancelInsertAdBtn').addEventListener('click', () => {
+        insertAdModal.classList.remove('active');
+        // Se quiser, reabre o anúncio base, mas vamos apenas fechar
+    });
+
+    newAdYoutubeUrl.addEventListener('input', () => {
+        const id = extractYouTubeId(newAdYoutubeUrl.value);
+        if (!newAdYoutubeUrl.value.trim()) {
+            adYoutubeHint.textContent = '';
+            adYoutubeHint.className = 'url-hint';
+        } else if (id) {
+            adYoutubeHint.textContent = `ID detectado: ${id}`;
+            adYoutubeHint.className = 'url-hint ok';
+        } else {
+            adYoutubeHint.textContent = 'URL inválida ou ID não reconhecido.';
+            adYoutubeHint.className = 'url-hint warn';
+        }
+    });
+
+    document.getElementById('calculateAdBtn').addEventListener('click', async () => {
+        const url = newAdYoutubeUrl.value.trim();
+        if (!url) { alert('Informe a URL do YouTube.'); return; }
+        
+        const btn = document.getElementById('calculateAdBtn');
+        btn.disabled = true; btn.textContent = 'Calculando...';
+
+        try {
+            const r = await fetch(CF_BASE + '/createAdPayment', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    youtubeUrl: url,
+                    payerName: currentUser ? (currentUser.displayName || 'Usuário') : 'Anunciante',
+                    payerEmail: currentUser ? currentUser.email : ''
+                })
+            });
+            const data = await r.json();
+            if (!data.success) throw new Error(data.error || 'Erro ao gerar pagamento');
+
+            currentAdPayment = { paymentId: data.paymentId, checkToken: data.checkToken };
+
+            adCalculatedPrice.textContent = `R$ ${data.amount.toFixed(2).replace('.', ',')}`;
+            adDurationInfo.textContent = `Duração: ${formatTime(data.duration)} (${data.duration}s)`;
+            
+            adPixQr.innerHTML = data.qrCodeBase64 ? `<img src="data:image/png;base64,${data.qrCodeBase64}" style="width:100%; height:100%;">` : '';
+            adPixCode.value = data.qrCode || '';
+            
+            adInsertStep1.style.display = 'none';
+            adInsertStep2.style.display = 'block';
+            adPixArea.style.display = 'block';
+            adPixStatus.style.display = 'none';
+
+            startAdPaymentPolling();
+
+        } catch (e) {
+            alert('Erro: ' + e.message);
+        } finally {
+            btn.disabled = false; btn.textContent = 'Calcular e Gerar PIX';
+        }
+    });
+
+    function startAdPaymentPolling() {
+        if (adPaymentPolling) clearInterval(adPaymentPolling);
+        adPixStatus.style.display = 'block'; adPixStatus.style.background = '#fff3cd'; adPixStatus.style.color = '#856404'; adPixStatus.textContent = '⏳ Aguardando pagamento...';
+
+        adPaymentPolling = setInterval(async () => {
+            if (!currentAdPayment) { clearInterval(adPaymentPolling); return; }
+            try {
+                const url = CF_BASE + '/checkCatalogPixStatus?paymentId=' + encodeURIComponent(currentAdPayment.paymentId) + '&token=' + encodeURIComponent(currentAdPayment.checkToken);
+                const r = await fetch(url);
+                const data = await r.json();
+                if (!data.success) return;
+
+                if (data.status === 'approved') {
+                    clearInterval(adPaymentPolling); adPaymentPolling = null;
+                    adPixStatus.style.background = '#d4edda'; adPixStatus.style.color = '#155724'; adPixStatus.style.fontWeight = 'bold';
+                    adPixStatus.textContent = '✅ Pagamento confirmado! Seu anúncio está no ar por 24h.';
+                    setTimeout(() => {
+                        insertAdModal.classList.remove('active');
+                        alert('Anúncio publicado com sucesso! Ele já está sendo exibido.');
+                    }, 3000);
+                } else if (data.status === 'rejected' || data.status === 'cancelled') {
+                    clearInterval(adPaymentPolling); adPaymentPolling = null;
+                    adPixStatus.style.background = '#f8d7da'; adPixStatus.style.color = '#721c24'; adPixStatus.textContent = '❌ Pagamento não realizado.';
+                }
+            } catch (e) { console.warn('poll:', e); }
+        }, 4000);
+    }
+
+    document.getElementById('closeAdPixBtn').addEventListener('click', () => {
+        insertAdModal.classList.remove('active');
+        if (adPaymentPolling) { clearInterval(adPaymentPolling); adPaymentPolling = null; }
+    });
+
+    document.getElementById('copyAdPixBtn').addEventListener('click', () => {
+        adPixCode.select(); adPixCode.setSelectionRange(0, 99999); document.execCommand('copy');
+        document.getElementById('copyAdPixBtn').textContent = 'Copiado!';
+        setTimeout(() => { document.getElementById('copyAdPixBtn').textContent = 'Copiar código'; }, 2000);
+    });
+    /* ======================================================= */
+
     /* ========= PLAYER E ANÚNCIOS ========= */
     const playerScreen = document.getElementById('playerScreen');
     const playerWrapper = document.getElementById('playerWrapper');
@@ -1821,24 +2037,59 @@
     const adModal = document.getElementById('adInterstitialModal');
     const closeAdBtn = document.getElementById('closeInterstitialBtn');
     const adTimerText = document.getElementById('adTimerText');
-    const dynamicAdLink = document.getElementById('dynamicAdLink');
-    const dynamicAdImage = document.getElementById('dynamicAdImage');
+    const adCenterWrapper = document.getElementById('adCenterWrapper');
 
-    function showAdInterstitial(video) {
+    async function showAdInterstitial(video) {
         if (catalogSubscription.active) { openPlayer(video); return; }
         
         pendingVideo = video;
         adModal.classList.add('active');
+        adCenterWrapper.innerHTML = ''; // Limpa conteúdo anterior
 
-        // --- LÓGICA DE ALTERNÂNCIA DE ANÚNCIOS ---
-        if (adBanners.length > 0) {
-            const ad = adBanners[currentAdBannerIndex];
-            dynamicAdLink.href = ad.link;
-            dynamicAdImage.src = ad.src;
-            // Prepara o próximo anúncio para a próxima vez
-            currentAdBannerIndex = (currentAdBannerIndex + 1) % adBanners.length;
+        // Verifica se existem anúncios pagos ativos
+        let activePaidAds = [];
+        try {
+            const now = Date.now();
+            const snapshot = await db.collection('paid_ads').where('expiresAt', '>', now).get();
+            snapshot.forEach(doc => {
+                activePaidAds.push({ id: doc.id, ...doc.data() });
+            });
+        } catch (e) {
+            console.warn("Erro ao buscar anúncios pagos:", e);
         }
-        // -----------------------------------------
+
+        if (activePaidAds.length > 0) {
+            // LÓGICA DE ROTAÇÃO JUSTA: Pega o anúncio que foi exibido há mais tempo
+            activePaidAds.sort((a, b) => (a.lastShownAt || 0) - (b.lastShownAt || 0));
+            const chosenAd = activePaidAds[0];
+
+            // Atualiza o lastShownAt deste anúncio para o momento atual
+            try {
+                await db.collection('paid_ads').doc(chosenAd.id).update({ lastShownAt: Date.now() });
+            } catch(e) { console.warn("Erro ao atualizar lastShownAt:", e); }
+
+            // Cria o Iframe do YouTube
+            adCenterWrapper.innerHTML = `
+                <iframe 
+                    src="https://www.youtube.com/embed/${chosenAd.videoId}?autoplay=1&controls=0&modestbranding=1&rel=0&showinfo=0&iv_load_policy=3&playsinline=1" 
+                    frameborder="0" 
+                    allow="autoplay; encrypted-media" 
+                    style="width:100%; height:100%; position:absolute; top:0; left:0; pointer-events:none;">
+                </iframe>
+            `;
+
+        } else {
+            // FALLBACK: Usa as imagens base se não houver anúncios pagos
+            if (adBanners.length > 0) {
+                const ad = adBanners[currentAdBannerIndex];
+                adCenterWrapper.innerHTML = `
+                    <a href="${ad.link}" target="_blank" rel="noopener noreferrer" style="display:block; width:100%; height:100%;">
+                        <img src="${ad.src}" alt="Publicidade" style="width:100%; height:100%; object-fit:contain; padding: 20px;">
+                    </a>
+                `;
+                currentAdBannerIndex = (currentAdBannerIndex + 1) % adBanners.length;
+            }
+        }
 
         if (!adModal.dataset.adsMounted) {
             adModal.dataset.adsMounted = '1';
@@ -1909,22 +2160,12 @@
         }
     });
 
-    // Lógica do botão "Remover Anúncios" na tela de anúncio
     document.getElementById('adSubscribeBtn').addEventListener('click', () => {
-        // Esconde a tela de anúncio
         adModal.classList.remove('active');
-        
-        // Remove o iframe invisível de anúncio que fica no fundo
         const sbIframe = document.getElementById('social-bar-iframe');
         if (sbIframe) sbIframe.remove();
-        
-        // Cancela o timer de 5 segundos
         clearInterval(adTimerInterval);
-        
-        // Limpa o vídeo que estava pendente
         pendingVideo = null;
-
-        // Abre a tela de pagamento do PIX
         openPixLightbox();
     });
 
@@ -1947,7 +2188,6 @@
         playerScreen.classList.add('active');
         document.body.style.overflow = 'hidden';
 
-        // Define o título do vídeo no player
         playerVideoTitle.textContent = video.titulo || 'Vídeo';
 
         if (!window.matchMedia('(max-width: 900px)').matches && !catalogSubscription.active) {
@@ -2265,42 +2505,9 @@
         }, 500);
     }
 
-    function formatTime(seconds) {
-        if (isNaN(seconds)) return '0:00';
-        const h = Math.floor(seconds / 3600);
-        const m = Math.floor((seconds % 3600) / 60);
-        const s = Math.floor(seconds % 60);
-        if (h > 0) return `${h}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
-        return `${m}:${String(s).padStart(2, '0')}`;
-    }
-
-    btnForward10.addEventListener('click', () => {
-        if (!playerReady || !player || typeof player.seekTo !== 'function') return;
-        player.seekTo(Math.min(player.getDuration(), player.getCurrentTime() + 10), true);
-        resetControlsTimer();
+    document.getElementById('openInsertAdBtn').addEventListener('click', () => {
+        insertAdModal.classList.add('active');
     });
-
-    btnRewind10.addEventListener('click', () => {
-        if (!playerReady || !player || typeof player.seekTo !== 'function') return;
-        player.seekTo(Math.max(0, player.getCurrentTime() - 10), true);
-        resetControlsTimer();
-    });
-
-    progressTrack.addEventListener('click', (e) => {
-        if (!playerReady || !player || typeof player.seekTo !== 'function') return;
-        const rect = progressTrack.getBoundingClientRect();
-        const percent = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
-        player.seekTo(percent * player.getDuration(), true);
-        resetControlsTimer();
-    });
-
-    const track = document.getElementById('favoritesTrack');
-    const leftBtn = document.getElementById('carouselLeft');
-    const rightBtn = document.getElementById('carouselRight');
-    if (track && leftBtn && rightBtn) {
-        leftBtn.addEventListener('click', () => track.scrollBy({ left: -300, behavior: 'smooth' }));
-        rightBtn.addEventListener('click', () => track.scrollBy({ left: 300, behavior: 'smooth' }));
-    }
 
     // Inicializa o carregamento dos anúncios ao abrir a página
     loadCustomAds();
