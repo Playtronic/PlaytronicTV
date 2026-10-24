@@ -449,22 +449,22 @@
 
         /* ===== INTERSTICIAL ===== */
         #adInterstitialModal {
-            position: fixed; inset: 0; background: rgba(0,0,0,0.95);
+            position: fixed; inset: 0; 
+            background: linear-gradient(135deg, rgba(11,15,25,0.97) 0%, rgba(26,26,46,0.97) 50%, rgba(22,33,62,0.97) 100%); /* MUDADO PARA IGUALAR AO PLAYER */
             z-index: 99999; display: none; align-items: center; justify-content: center;
-            backdrop-filter: blur(8px); padding: 20px; gap: 20px;
+            backdrop-filter: blur(10px); padding: 20px; gap: 20px;
         }
         #adInterstitialModal.active { display: flex; }
 
         .ad-native-side {
-            width: 160px; /* VOLTANDO AO PADRÃO DO ADSTERRA */
+            width: 160px; /* Padrão do Adsterra */
             height: 600px; flex-shrink: 0;
-            background: transparent;
-            display: block; /* REMOVIDO O FLEX QUE ESTAVA ESMAGANDO */
+            background: transparent; /* TRANSPARENTE */
+            display: block;
             border-radius: 8px; overflow: hidden; position: relative;
+            border: 1px solid rgba(255,255,255,0.1); /* Bordinha sutil para caso o anúncio não carregue */
         }
-        
-        /* O iframe dentro do banner lateral (Standard) */
-        .ad-native-side iframe { width: 100%; height: 100%; display: block; border: 0; position: absolute; z-index: 1; top:0; left:0; }
+        .ad-native-side iframe { width: 100%; height: 100%; display: block; border: 0; position: absolute; z-index: 1; top:0; left:0; background: transparent; }
 
         .ad-interstitial-wrapper {
             background: #152961; 
@@ -860,7 +860,7 @@
             <head>
                 <meta charset="utf-8">
                 <style>
-                    html, body { margin: 0; padding: 0; overflow: hidden; width: 100%; height: 100%; background: #000000; }
+                    html, body { margin: 0; padding: 0; overflow: hidden; width: 100%; height: 100%; background: transparent; }
                     .ad-content { position: absolute; inset: 0; z-index: 2; display: flex; align-items: center; justify-content: center; }
                 </style>
             </head>
@@ -875,21 +875,36 @@
         d.close();
     }
 
-    function mountNativeAd(container, scriptSrc) {
+    function mountNativeAd(container, scriptSrc, innerDivId) {
         if (!container || container.dataset.mounted === '1') return;
         container.dataset.mounted = '1';
         
-        // Injeta o script do Adsterra Native DIRETAMENTE no DOM, sem iframe
-        const script = document.createElement('script');
-        script.src = scriptSrc;
-        script.async = true;
-        script.setAttribute('data-cfasync', 'false');
-        
-        // Cria uma div interna para o Adsterra usar, se necessário
-        const innerDiv = document.createElement('div');
-        innerDiv.id = 'container-' + Math.random().toString(36).substring(2, 10);
-        container.appendChild(innerDiv);
-        container.appendChild(script);
+        const iframe = document.createElement('iframe');
+        iframe.setAttribute('scrolling', 'no');
+        iframe.setAttribute('frameborder', '0');
+        iframe.style.cssText = 'display:block; border:0; width:100%; height:100%; position:absolute; top:0; left:0; background: transparent;';
+        iframe.title = 'Publicidade';
+        container.appendChild(iframe);
+
+        const d = iframe.contentWindow.document;
+        d.open();
+        d.write(`
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <meta charset="utf-8">
+                <style>
+                    html, body { margin: 0; padding: 0; background: transparent; width:100%; height:100%; overflow: hidden; display: flex; justify-content: center; align-items: center; }
+                    #${innerDivId} { width: 100%; height: 100%; display: flex; justify-content: center; align-items: center; }
+                </style>
+            </head>
+            <body>
+                <div id="${innerDivId}"></div>
+                <script async data-cfasync="false" src="${scriptSrc}"><\/script>
+            </body>
+            </html>
+        `);
+        d.close();
     }
 
     /* ========= FAVORITOS ========= */
@@ -1646,7 +1661,8 @@
             adModal.dataset.adsMounted = '1';
             mountNativeAd(
                 document.getElementById('adNativeLeft'),
-                'https://dcengg.org/21/efe34bd92ca74a51f85465ca14314dc7'
+                'https://dcengg.org/21/efe34bd92ca74a51f85465ca14314dc7',
+                'container-efe34bd92ca74a51f85465ca14314dc7'
             );
             mountStandardAd(
                 document.getElementById('adNativeRight'),
