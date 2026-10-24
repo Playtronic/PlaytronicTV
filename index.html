@@ -552,6 +552,20 @@
             position: absolute; top: 0; left: 0; z-index: 1;
         }
 
+        /* ===== OVERLAY DE CARREGAMENTO (ESCONDE CONTROLES DO YOUTUBE) ===== */
+        .player-loading-overlay {
+            position: absolute; inset: 0; background: #000; z-index: 30;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            transition: opacity 0.5s ease; pointer-events: none; color: #fdbb2d; font-weight: bold;
+        }
+        .player-loading-overlay.hidden { opacity: 0; }
+        .spinner {
+            border: 4px solid rgba(253,187,45,0.2); border-top: 4px solid #fdbb2d;
+            border-radius: 50%; width: 50px; height: 50px;
+            animation: spin 1s linear infinite; margin-bottom: 15px;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
         /* ===== INTERSTICIAL ===== */
         #adInterstitialModal {
             position: fixed; inset: 0; 
@@ -594,15 +608,9 @@
         }
         .ad-center-wrapper img { width: 100%; height: 100%; object-fit: contain; padding: 20px; }
         
-        /* ✅ HACK CSS PARA ESCONDER OS CONTROLES DO YOUTUBE NO ANÚNCIO */
         .ad-center-wrapper iframe {
-            width: 100%; 
-            height: 130%; /* Aumenta a altura para empurrar os controles para fora */
-            border: none; 
-            position: absolute; 
-            top: -15%; /* Puxa um pouco para cima para centralizar e cortar o rodapé */
-            left: 0;
-            pointer-events: none; /* BLOQUEIA CLIQUES NO ANÚNCIO */
+            width: 100%; height: 100%; border: none; position: absolute; top: 0; left: 0;
+            pointer-events: none;
         }
 
         .ad-interstitial-footer {
@@ -911,6 +919,12 @@
     <div id="playerScreen">
         <div class="player-container">
             <div class="player-wrapper" id="playerWrapper">
+                <!-- OVERLAY DE CARREGAMENTO DO PLAYER PRINCIPAL -->
+                <div id="playerLoadingOverlay" class="player-loading-overlay">
+                    <div class="spinner"></div>
+                    <div>Carregando vídeo...</div>
+                </div>
+
                 <div class="custom-ui" id="customUI">
                     <button class="close-player-btn" id="closePlayerBtn" title="Fechar player">✖</button>
                     
@@ -2256,7 +2270,6 @@
             });
             myAdsData = uniqueAds;
 
-            // Pre-fetch titles in background
             for (let ad of myAdsData) {
                 if (!myAdsTitlesCache[ad.videoId]) {
                     fetchYouTubeTitle(ad.videoId).then(() => renderMyAds(myAdsData));
@@ -2390,6 +2403,7 @@
     const horizontalAdIframe = document.getElementById('horizontal-ad-iframe');
     const playerVideoTitle = document.getElementById('playerVideoTitle');
     const adminMenuContainer = document.getElementById('adminMenuContainer');
+    const playerLoadingOverlay = document.getElementById('playerLoadingOverlay');
 
     let player = null;
     let playerReady = false;
@@ -2475,7 +2489,13 @@
                 }).catch(e => console.warn("Erro ao registrar view:", e));
             }
 
-            adCenterWrapper.innerHTML = `<div id="ad-youtube-player" style="width:100%; height:100%; position:absolute; top:0; left:0;"></div>`;
+            // ✅ Adicionado overlay preto para esconder o YouTube no anúncio também
+            adCenterWrapper.innerHTML = `
+                <div id="adLoadingOverlay" class="player-loading-overlay">
+                    <div class="spinner"></div>
+                </div>
+                <div id="ad-youtube-player" style="width:100%; height:100%; position:absolute; top:0; left:0;"></div>
+            `;
             
             adYtPlayer = new YT.Player('ad-youtube-player', {
                 videoId: chosenAd.videoId,
@@ -2483,13 +2503,17 @@
                     'autoplay': 1, 'controls': 0, 'modestbranding': 1, 'rel': 0,
                     'showinfo': 0, 'iv_load_policy': 3, 'playsinline': 1, 'cc_load_policy': 0,
                     'disablekb': 1,
-                    'origin': window.location.origin // ✅ ADICIONADO PARA AJUDAR A OCULTAR CONTROLES
+                    'origin': window.location.origin
                 },
                 events: {
                     'onReady': (event) => {
                         event.target.playVideo();
                     },
                     'onStateChange': (event) => {
+                        if (event.data === 1) { // Playing
+                            const overlay = document.getElementById('adLoadingOverlay');
+                            if (overlay) overlay.classList.add('hidden');
+                        }
                         if (event.data === 0) {
                             closeAdAndPlay();
                         }
@@ -2604,6 +2628,9 @@
 
         playerVideoTitle.textContent = video.titulo || 'Vídeo';
 
+        // ✅ Mostra o overlay de carregamento novamente
+        playerLoadingOverlay.classList.remove('hidden');
+
         if (!catalogSubscription.active) {
             playerBottomAd.style.display = 'block';
             if (!playerBottomAd.dataset.mounted) {
@@ -2655,7 +2682,8 @@
             height: '100%', width: '100%', videoId: video.youtubeId,
             playerVars: {
                 'autoplay': 1, 'controls': 0, 'modestbranding': 1, 'rel': 0,
-                'iv_load_policy': 3, 'playsinline': 1, 'cc_load_policy': 0, 'fs': 0
+                'iv_load_policy': 3, 'playsinline': 1, 'cc_load_policy': 0, 'fs': 0,
+                'origin': window.location.origin
             },
             events: {
                 'onReady': onPlayerReady,
@@ -2674,12 +2702,15 @@
     }
 
     function onPlayerStateChange(event) {
-        if (event.data === 1) {
+        if (event.data === 1) { // Playing
             isPlaying = true; isEnded = false;
             centerPlayPauseBtn.innerHTML = '⏸';
             centerPlayPauseBtn.classList.add('playing-state');
             removeCaptions(event.target);
             resetControlsTimer();
+            
+            // ✅ Esconde o overlay preto quando o vídeo começa a tocar de verdade
+            playerLoadingOverlay.classList.add('hidden');
         } else if (event.data === 2) {
             isPlaying = false; isEnded = false;
             centerPlayPauseBtn.innerHTML = '▶';
@@ -2815,6 +2846,9 @@
         clearTimeout(controlsTimeout);
         playerBottomAd.style.display = 'none';
         playerVideoTitle.textContent = '';
+
+        // Reseta o overlay de carregamento para a próxima vez
+        playerLoadingOverlay.classList.remove('hidden');
 
         if (isAdmin()) adminMenuContainer.style.display = 'block';
     }
