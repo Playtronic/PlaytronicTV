@@ -64,18 +64,32 @@
 
         .user-info { display: none; align-items: center; gap: 10px; cursor: pointer; position: relative; }
         .user-info.active { display: flex; }
-        .user-avatar { width: 40px; height: 40px; border-radius: 50%; border: 2px solid #fdbb2d; }
+        .user-avatar { width: 45px; height: 45px; border-radius: 50%; border: 2px solid #fdbb2d; object-fit: cover; }
+        
+        /* ===== PAINEL DO USUÁRIO (DROPDOWN) ===== */
         .user-card {
-            position: absolute; top: 55px; right: 0; background: #152961; border: 1px solid rgba(255,255,255,0.1);
-            border-radius: 10px; padding: 15px; min-width: 220px; display: none; flex-direction: column; z-index: 100;
-            box-shadow: 0 8px 24px rgba(0,0,0,0.6);
+            position: absolute; top: 60px; right: 0; background: #152961; border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 12px; padding: 20px; min-width: 260px; display: none; flex-direction: column; z-index: 1000;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.8);
         }
         .user-card.active { display: flex; }
-        .user-name { font-weight: bold; color: #fff; }
-        .user-email { font-size: 0.8rem; color: #cbd5e1; margin-bottom: 10px; }
-        .user-sub-info { font-size: 0.8rem; color: #fdbb2d; margin-bottom: 10px; display: none; font-weight: bold; }
-        .logout-btn { background: #ef4444; color: #fff; border: none; padding: 8px; border-radius: 6px; cursor: pointer; font-weight: bold; }
-        .logout-btn:hover { background: #dc2626; }
+        .user-name { font-weight: bold; color: #fff; font-size: 1.1rem; margin-bottom: 2px; }
+        .user-email { font-size: 0.8rem; color: #cbd5e1; margin-bottom: 15px; word-break: break-all; }
+        
+        .user-actions { display: flex; flex-direction: column; gap: 10px; margin-bottom: 15px; }
+        
+        .user-card button {
+            width: 100%; padding: 10px; border-radius: 8px; border: none; font-weight: bold; font-size: 0.9rem; cursor: pointer; transition: 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px;
+        }
+        .user-card #subscribeBtn { background: linear-gradient(135deg, #7c3aed, #6d28d9); color: #fff; }
+        .user-card #subscribeBtn:hover { background: linear-gradient(135deg, #6d28d9, #5b21b6); }
+        .user-card #myAdsBtn { background: #1e293b; color: #fff; border: 1px solid #334155; }
+        .user-card #myAdsBtn:hover { background: #334155; }
+        .user-card .logout-btn { background: rgba(239, 68, 68, 0.15); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.3); }
+        .user-card .logout-btn:hover { background: #ef4444; color: #fff; }
+        
+        .user-sub-info { font-size: 0.8rem; color: #fdbb2d; margin-bottom: 10px; display: none; font-weight: bold; text-align: center; background: rgba(253, 187, 45, 0.1); padding: 6px; border-radius: 6px; }
+        #subscriptionBadge { display: none; background: #16a34a; color: #fff; padding: 8px 14px; border-radius: 8px; font-size: 0.85rem; font-weight: bold; align-items: center; justify-content: center; gap: 6px; }
 
         #catalogScreen { flex: 1; padding-bottom: 40px; }
 
@@ -676,51 +690,52 @@
         /* ===== LAYOUT CORRIGIDO PARA MOBILE ===== */
         @media (max-width: 900px) {
             body {
-                padding-top: 230px; /* Aumentado para caber o header empilhado */
-                padding-bottom: 80px; /* Espaço para o botão admin flutuante */
+                padding-top: 140px;
+                padding-bottom: 80px;
                 padding-left: 10px;
                 padding-right: 10px;
             }
 
             .header {
-                flex-direction: column; /* Empilha os elementos */
-                height: auto;
-                padding: 15px;
-                gap: 12px;
+                height: 120px;
+                padding: 10px 15px;
+                flex-wrap: wrap;
             }
 
             .header-brand {
-                width: 100%;
-                justify-content: center;
+                width: auto;
+                flex: 1;
             }
 
             .header-logo {
-                height: 60px;
+                height: 50px;
             }
 
             .auth-area {
-                position: static; /* Remove o absolute que causava a sobreposição */
-                width: 100%;
-                justify-content: center;
-                flex-wrap: wrap;
-                gap: 10px;
+                position: absolute;
+                top: 15px;
+                right: 15px;
             }
 
-            /* Deixa os botões mais compactos no celular */
-            #myAdsBtn, #subscribeBtn, #subscriptionBadge {
-                margin-right: 0 !important;
-                font-size: 0.8rem !important;
-                padding: 8px 12px !important;
+            /* Painel do Usuário no Mobile */
+            .user-card {
+                position: fixed;
+                top: 80px;
+                right: 15px;
+                left: auto;
+                min-width: 250px;
             }
 
             .search-container {
                 width: 100%;
                 max-width: 100%;
                 margin: 0;
+                order: 3;
+                margin-top: 5px;
             }
 
             .catalog-grid {
-                grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); /* Cards menores */
+                grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
                 gap: 15px;
             }
 
@@ -736,7 +751,6 @@
                 padding: 8px;
             }
 
-            /* Botão Admin flutuante mais afastado da borda */
             #adminMenuContainer {
                 bottom: 15px;
                 right: 15px;
@@ -776,30 +790,37 @@
                 <img src="https://i.ibb.co/rRgV3n8d/playtronictv.png" alt="Playtronic TV" class="header-logo">
             </a>
         </div>
+        
         <div class="search-container">
             <input type="text" id="searchInput" placeholder="Pesquisar" autocomplete="off">
         </div>
+
         <div class="auth-area">
-            <button id="myAdsBtn" style="display:none; background: #000; color: #fff; border: 1px solid #333; padding: 10px 18px; border-radius: 8px; font-weight: bold; cursor: pointer; margin-right: 10px;">
-                📺 Meus Anúncios
-            </button>
-            <button id="subscribeBtn" style="display:none; background: linear-gradient(135deg, #7c3aed, #6d28d9); color: #fff; border: none; padding: 10px 18px; border-radius: 8px; font-weight: bold; cursor: pointer; margin-right: 10px;">
-                ⭐ Assinar
-            </button>
-            <div id="subscriptionBadge" style="display:none; background: #16a34a; color: #fff; padding: 8px 14px; border-radius: 20px; font-size: 0.85rem; font-weight: bold; margin-right: 10px; align-items: center; gap: 6px;">
-                ✓ Assinante
-            </div>
-            
             <button class="login-btn" id="loginBtn">
                 <svg width="18" height="18" viewBox="0 0 48 48"><path fill="#FFC107" d="M43.611,20.083H42V20H24v8h11.303c-1.649,4.657-6.08,8-11.303,8c-6.627,0-12-5.373-12-12c0-6.627,5.373-12,12-12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C12.955,4,4,12.955,4,24c0,11.045,8.955,20,20,20c11.045,0,20-8.955,20-20C44,22.659,43.862,21.35,43.611,20.083z"/><path fill="#FF3D00" d="M6.306,14.691l6.571,4.819C14.655,15.108,18.961,12,24,12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C16.318,4,9.656,8.337,6.306,14.691z"/><path fill="#4CAF50" d="M24,44c5.166,0,9.86-1.977,13.409-5.192l-6.19-5.238C29.211,35.091,26.715,36,24,36c-5.202,0-9.619-3.317-11.283-7.946l-6.522,5.025C9.505,39.556,16.227,44,24,44z"/><path fill="#1976D2" d="M43.611,20.083H42V20H24v8h11.303c-0.792,2.237-2.231,4.166-4.087,5.571c0.001-0.001,0.002-0.001,0.003-0.002l6.19,5.238C36.971,39.205,44,34,44,24C44,22.659,43.862,21.35,43.611,20.083z"/></svg>
                 Entrar
             </button>
+
             <div class="user-info" id="userInfo">
                 <img class="user-avatar" id="userAvatar" src="" alt="Avatar">
                 <div class="user-card" id="userCard">
                     <div class="user-name" id="userName"></div>
                     <div class="user-email" id="userEmail"></div>
+
+                    <div id="subscriptionBadge">
+                        ✓ Assinante
+                    </div>
                     <div class="user-sub-info" id="userSubInfo"></div>
+                    
+                    <div class="user-actions">
+                        <button id="subscribeBtn" style="display:none;">
+                            ⭐ Assinar
+                        </button>
+                        <button id="myAdsBtn" style="display:none;">
+                            📺 Meus Anúncios
+                        </button>
+                    </div>
+                    
                     <button class="logout-btn" id="logoutBtn">Sair</button>
                 </div>
             </div>
@@ -982,7 +1003,6 @@
     <div id="playerScreen">
         <div class="player-container">
             <div class="player-wrapper" id="playerWrapper">
-                <!-- OVERLAY DE CARREGAMENTO DO PLAYER PRINCIPAL -->
                 <div id="playerLoadingOverlay" class="player-loading-overlay">
                     <div class="spinner"></div>
                     <div>Carregando vídeo...</div>
@@ -1262,6 +1282,8 @@
     const userSubInfo = document.getElementById('userSubInfo');
     const logoutBtn = document.getElementById('logoutBtn');
     const myAdsBtn = document.getElementById('myAdsBtn');
+    const subscribeBtn = document.getElementById('subscribeBtn');
+    const subscriptionBadge = document.getElementById('subscriptionBadge');
 
     loginBtn.addEventListener('click', async () => {
         try {
@@ -1318,6 +1340,9 @@
             userCard.classList.remove('active');
             document.body.classList.remove('is-admin');
             myAdsBtn.style.display = 'none';
+            subscribeBtn.style.display = 'none';
+            subscriptionBadge.style.display = 'none';
+            userSubInfo.style.display = 'none';
             favoritesLoaded = true;
             tryRender();
         }
@@ -1898,19 +1923,15 @@
     }
 
     function updateSubscriptionUI() {
-        const btn = document.getElementById('subscribeBtn');
-        const badge = document.getElementById('subscriptionBadge');
-        const exp = document.getElementById('subExpiresText');
-        
-        if (!btn || !badge) return;
+        if (!subscribeBtn || !subscriptionBadge) return;
 
         if (!currentUser) {
-            btn.style.display = 'none';
-            badge.style.display = 'none';
+            subscribeBtn.style.display = 'none';
+            subscriptionBadge.style.display = 'none';
             userSubInfo.style.display = 'none';
         } else if (catalogSubscription.active) {
-            btn.style.display = 'none';
-            badge.style.display = 'inline-flex';
+            subscribeBtn.style.display = 'none';
+            subscriptionBadge.style.display = 'flex'; // Alterado para flex para preencher o botão
             
             if (catalogSubscription.expiresAt) {
                 const diffTime = catalogSubscription.expiresAt - Date.now();
@@ -1924,13 +1945,14 @@
                 }
             }
         } else {
-            btn.style.display = 'block';
-            badge.style.display = 'none';
+            subscribeBtn.style.display = 'flex';
+            subscriptionBadge.style.display = 'none';
             userSubInfo.style.display = 'none';
         }
     }
 
     async function openPixLightbox() {
+        userCard.classList.remove('active'); // Fecha o menu ao clicar
         if (!currentUser) {
             try {
                 const provider = new firebase.auth.GoogleAuthProvider();
@@ -2038,7 +2060,7 @@
         }, 4000);
     }
 
-    document.getElementById('subscribeBtn').addEventListener('click', openPixLightbox);
+    subscribeBtn.addEventListener('click', openPixLightbox);
     document.getElementById('pixClose').addEventListener('click', closePixLightbox);
     document.getElementById('generatePixBtn').addEventListener('click', generateCatalogPix);
     document.getElementById('copyPixBtn').addEventListener('click', () => {
@@ -2297,7 +2319,7 @@
                 hasAds = snap.size > 0;
             }
             
-            myAdsBtn.style.display = hasAds ? 'block' : 'none';
+            myAdsBtn.style.display = hasAds ? 'flex' : 'none';
         } catch (e) {
             console.error("Erro ao verificar anúncios:", e);
             myAdsBtn.style.display = 'none';
@@ -2305,8 +2327,8 @@
     }
 
     myAdsBtn.addEventListener('click', async () => {
+        userCard.classList.remove('active'); // Fecha o menu ao clicar
         if (!currentUser) return;
-        userCard.classList.remove('active');
         myAdsModal.classList.add('active');
         myAdsListContainer.innerHTML = '<p style="text-align:center; color:#94a3b8; padding: 20px;">Carregando...</p>';
         searchMyAds.value = '';
