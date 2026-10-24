@@ -2148,12 +2148,9 @@
                 const snap = await db.collection('paid_ads').limit(1).get();
                 hasAds = snap.size > 0;
             } else {
-                // Busca pelo userId (novos) OU pelo payerEmail (antigos/backfill)
-                const [snap1, snap2] = await Promise.all([
-                    db.collection('paid_ads').where('userId', '==', currentUser.uid).limit(1).get(),
-                    db.collection('paid_ads').where('payerEmail', '==', currentUser.email).limit(1).get()
-                ]);
-                hasAds = (snap1.size > 0 || snap2.size > 0);
+                // ✅ CORREÇÃO: Busca apenas por userId, removendo a busca por email que causava duplicação
+                const snap = await db.collection('paid_ads').where('userId', '==', currentUser.uid).limit(1).get();
+                hasAds = snap.size > 0;
             }
             
             myAdsBtn.style.display = hasAds ? 'block' : 'none';
@@ -2177,17 +2174,21 @@
                 const snapshot = await db.collection('paid_ads').get();
                 snapshot.forEach(doc => myAdsData.push({ id: doc.id, ...doc.data() }));
             } else {
-                // Junta os anúncios por userId e por payerEmail
-                const [snap1, snap2] = await Promise.all([
-                    db.collection('paid_ads').where('userId', '==', currentUser.uid).get(),
-                    db.collection('paid_ads').where('payerEmail', '==', currentUser.email).get()
-                ]);
-                
-                const map = new Map();
-                snap1.forEach(doc => map.set(doc.id, { id: doc.id, ...doc.data() }));
-                snap2.forEach(doc => map.set(doc.id, { id: doc.id, ...doc.data() }));
-                myAdsData = Array.from(map.values());
+                // ✅ CORREÇÃO: Busca apenas por userId
+                const snapshot = await db.collection('paid_ads').where('userId', '==', currentUser.uid).get();
+                snapshot.forEach(doc => myAdsData.push({ id: doc.id, ...doc.data() }));
             }
+
+            // ✅ CORREÇÃO ADICIONAL: Remove duplicatas no frontend caso o banco já tenha registros duplicados
+            const uniqueAds = [];
+            const seenPaymentIds = new Set();
+            myAdsData.forEach(ad => {
+                if (!seenPaymentIds.has(ad.paymentId)) {
+                    seenPaymentIds.add(ad.paymentId);
+                    uniqueAds.push(ad);
+                }
+            });
+            myAdsData = uniqueAds;
 
             // Ordena do mais recente para o mais antigo
             myAdsData.sort((a, b) => b.createdAt - a.createdAt);
@@ -2394,11 +2395,19 @@
             const chosenAd = activePaidAds[0];
 
             try {
-                await db.collection('paid_ads').doc(chosenAd.id).update({ 
-                    lastShownAt: Date.now(),
-                    views: firebase.firestore.FieldValue.increment(1)
+                // ✅ CORREÇÃO: Chama a Cloud Function para contornar as regras do Firestore e incrementar visualização
+                await fetch(CF_BASE + '/incrementAdViews', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ adId: chosenAd.id })
                 });
-            } catch(e) { console.warn("Erro ao atualizar views:", e); }
+            } catch(e) { 
+                console.warn("Erro ao atualizar views via function:", e); 
+                // Fallback: tenta atualizar apenas o lastShownAt localmente (views será bloqueado pelas regras)
+                try {
+                    await db.collection('paid_ads').doc(chosenAd.id).update({ lastShownAt: Date.now() });
+                } catch(err) {}
+            }
 
             // Cria a div onde o Player será montado
             adCenterWrapper.innerHTML = `<div id="ad-youtube-player" style="width:100%; height:100%; position:absolute; top:0; left:0;"></div>`;
