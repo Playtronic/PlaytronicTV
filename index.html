@@ -450,16 +450,16 @@
         /* ===== INTERSTICIAL ===== */
         #adInterstitialModal {
             position: fixed; inset: 0; 
-            background: linear-gradient(135deg, rgba(11,15,25,0.97) 0%, rgba(26,26,46,0.97) 50%, rgba(22,33,62,0.97) 100%); /* IGUAL AO PLAYER */
+            background: linear-gradient(135deg, rgba(11,15,25,0.97) 0%, rgba(26,26,46,0.97) 50%, rgba(22,33,62,0.97) 100%);
             z-index: 99999; display: none; align-items: center; justify-content: center;
             backdrop-filter: blur(10px); padding: 20px; gap: 20px;
         }
         #adInterstitialModal.active { display: flex; }
 
         .ad-native-side {
-            width: 160px; /* Padrão do Adsterra */
+            width: 160px;
             height: 600px; flex-shrink: 0;
-            background: #ffffff; /* BRANCO PARA O TEXTO PRETO APARECER */
+            background: #ffffff;
             display: block;
             border-radius: 8px; overflow: hidden; position: relative;
             border: 1px solid rgba(255,255,255,0.2);
@@ -689,8 +689,9 @@
                 <span id="adTimerText">Aguarde 5s...</span>
             </div>
             <div class="ad-center-wrapper">
-                <a href="https://playtronicgames.com.br" target="_blank" rel="noopener noreferrer" style="display:block; width:100%; height:100%;">
-                    <img src="https://i.ibb.co/1GpjQ5zD/image.png" alt="Publicidade" style="width:100%; height:100%; object-fit:contain; padding: 20px;">
+                <!-- Link e Imagem do Anúncio Dinâmico -->
+                <a id="dynamicAdLink" href="https://playtronicgames.com.br" target="_blank" rel="noopener noreferrer" style="display:block; width:100%; height:100%;">
+                    <img id="dynamicAdImage" src="https://i.ibb.co/1GpjQ5zD/image.png" alt="Publicidade" style="width:100%; height:100%; object-fit:contain; padding: 20px;">
                 </a>
             </div>
             <div class="ad-interstitial-footer" style="display: flex; justify-content: center; align-items: center; gap: 15px; flex-wrap: wrap;">
@@ -807,6 +808,14 @@
     let pixPaymentCheckInterval = null;
     let pixCurrentPayment = null;
     let isSimulatingSub = false; // Variável do Admin
+
+    // --- SISTEMA DE ROTAÇÃO DE ANÚNCIOS ---
+    const adBanners = [
+        { src: 'https://i.ibb.co/1GpjQ5zD/image.png', link: 'https://playtronicgames.com.br' },
+        { src: 'https://i.ibb.co/21QYYGKg/83697ff7-f124-4608-8b30-2bd6e05b5c39.png', link: 'https://playtronicgames.com.br' }
+    ];
+    let currentAdBannerIndex = 0;
+    // ---------------------------------------
 
     /* ========= HELPERS ========= */
     function isAdmin() {
@@ -1650,12 +1659,22 @@
     const adModal = document.getElementById('adInterstitialModal');
     const closeAdBtn = document.getElementById('closeInterstitialBtn');
     const adTimerText = document.getElementById('adTimerText');
+    const dynamicAdLink = document.getElementById('dynamicAdLink');
+    const dynamicAdImage = document.getElementById('dynamicAdImage');
 
     function showAdInterstitial(video) {
         if (catalogSubscription.active) { openPlayer(video); return; }
         
         pendingVideo = video;
         adModal.classList.add('active');
+
+        // --- LÓGICA DE ALTERNÂNCIA DE ANÚNCIOS ---
+        const ad = adBanners[currentAdBannerIndex];
+        dynamicAdLink.href = ad.link;
+        dynamicAdImage.src = ad.src;
+        // Prepara o próximo anúncio para a próxima vez
+        currentAdBannerIndex = (currentAdBannerIndex + 1) % adBanners.length;
+        // -----------------------------------------
 
         if (!adModal.dataset.adsMounted) {
             adModal.dataset.adsMounted = '1';
