@@ -233,16 +233,16 @@
             display: block; color: #fdbb2d; font-size: 0.8rem; font-weight: 700;
             margin: 14px 0 6px; text-transform: uppercase; letter-spacing: 0.5px;
         }
-        .modal input[type="text"], .modal select {
+        .modal input[type="text"], .modal input[type="number"], .modal select {
             width: 100%; background: rgba(255,255,255,0.08); color: #fff;
             border: 1px solid rgba(255,255,255,0.2); border-radius: 8px;
             padding: 11px 14px; font-size: 0.95rem; outline: none; transition: 0.2s;
             font-family: inherit;
         }
-        .modal input[type="text"]:focus, .modal select:focus {
+        .modal input[type="text"]:focus, .modal input[type="number"]:focus, .modal select:focus {
             border-color: #fdbb2d; background: rgba(255,255,255,0.12); box-shadow: 0 0 0 3px rgba(253,187,45,0.15);
         }
-        .modal input[type="text"]::placeholder { color: #64748b; }
+        .modal input[type="text"]::placeholder, .modal input[type="number"]::placeholder { color: #64748b; }
         .modal select option { background: #152961; color: #fff; }
         .url-hint { font-size: 0.78rem; color: #94a3b8; margin-top: 6px; min-height: 1em; }
         .url-hint.ok { color: #4ade80; }
@@ -274,109 +274,138 @@
         .modal-actions .primary:hover { background: #ffcc44; }
 
         /* ===== LISTA DE ANÚNCIOS (MEUS ANÚNCIOS) ===== */
-        .my-ads-toolbar {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 20px;
-            width: 100%;
-        }
+        .my-ads-toolbar { display: flex; gap: 10px; margin-bottom: 20px; width: 100%; }
         .my-ads-toolbar input {
-            flex: 1;
-            background: rgba(255,255,255,0.08);
-            color: #fff;
-            border: 1px solid rgba(255,255,255,0.2);
-            border-radius: 8px;
-            padding: 11px 14px;
-            font-size: 0.9rem;
-            outline: none;
-            transition: 0.2s;
+            flex: 1; background: rgba(255,255,255,0.08); color: #fff;
+            border: 1px solid rgba(255,255,255,0.2); border-radius: 8px;
+            padding: 11px 14px; font-size: 0.9rem; outline: none; transition: 0.2s;
         }
-        .my-ads-toolbar input:focus {
-            border-color: #fdbb2d;
-        }
+        .my-ads-toolbar input:focus { border-color: #fdbb2d; }
         .my-ads-toolbar select {
-            width: 170px;
-            background: rgba(255,255,255,0.08);
-            color: #fff;
-            border: 1px solid rgba(255,255,255,0.2);
-            border-radius: 8px;
-            padding: 11px 14px;
-            font-size: 0.9rem;
-            outline: none;
-            cursor: pointer;
+            width: 170px; background: rgba(255,255,255,0.08); color: #fff;
+            border: 1px solid rgba(255,255,255,0.2); border-radius: 8px;
+            padding: 11px 14px; font-size: 0.9rem; outline: none; cursor: pointer;
         }
-        .my-ads-toolbar select option {
-            background: #152961;
-        }
+        .my-ads-toolbar select option { background: #152961; }
 
         .ad-history-card {
-            display: flex;
-            gap: 15px;
-            background: rgba(0,0,0,0.2);
-            padding: 15px;
-            border-radius: 10px;
-            margin-bottom: 10px;
-            border: 1px solid rgba(255,255,255,0.05);
+            display: flex; gap: 15px; background: rgba(0,0,0,0.2); padding: 15px;
+            border-radius: 10px; margin-bottom: 10px; border: 1px solid rgba(255,255,255,0.05);
             align-items: center;
         }
-        .ad-history-thumb {
+        .ad-history-thumb { width: 100px; height: 56px; border-radius: 6px; object-fit: cover; flex-shrink: 0; }
+        .ad-history-info { flex: 1; overflow: hidden; display: flex; flex-direction: column; gap: 4px; }
+        .ad-history-title { font-weight: bold; color: #fff; font-size: 0.95rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .ad-history-dates { font-size: 0.75rem; color: #94a3b8; }
+        .ad-history-stats { font-size: 0.8rem; color: #cbd5e1; }
+        .ad-history-owner { font-size: 0.75rem; color: #a78bfa; margin-top: 2px; }
+        .ad-history-actions { display: flex; flex-direction: column; align-items: flex-end; gap: 8px; flex-shrink: 0; }
+        .ad-status-badge { padding: 4px 10px; border-radius: 12px; font-size: 0.75rem; font-weight: bold; border: 1px solid; }
+        .btn-delete-ad { background: #e74c3c; color: white; border: none; padding: 4px 10px; border-radius: 4px; cursor: pointer; font-size: 0.75rem; font-weight: bold; }
+
+        /* ===== LISTA DE ANÚNCIOS INTERNOS (ADMIN) ===== */
+        #adsListContainer {
+            margin-top: 15px;
+            max-height: 350px;
+            overflow-y: auto;
+            padding-right: 4px;
+        }
+        .ad-list-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px;
+            background: rgba(0,0,0,0.25);
+            border-radius: 8px;
+            margin-bottom: 8px;
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+        .ad-list-item img {
             width: 100px;
             height: 56px;
             border-radius: 6px;
             object-fit: cover;
             flex-shrink: 0;
+            background: #0b0f19;
         }
-        .ad-history-info {
+        .ad-info {
             flex: 1;
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
-        }
-        .ad-history-title {
-            font-weight: bold;
-            color: #fff;
-            font-size: 0.95rem;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-        .ad-history-dates {
             font-size: 0.75rem;
             color: #94a3b8;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            font-family: monospace;
         }
-        .ad-history-stats {
-            font-size: 0.8rem;
-            color: #cbd5e1;
-        }
-        .ad-history-owner {
-            font-size: 0.75rem;
-            color: #a78bfa;
-            margin-top: 2px;
-        }
-        .ad-history-actions {
-            display: flex;
-            flex-direction: column;
-            align-items: flex-end;
-            gap: 8px;
-            flex-shrink: 0;
-        }
-        .ad-status-badge {
-            padding: 4px 10px;
-            border-radius: 12px;
-            font-size: 0.75rem;
-            font-weight: bold;
-            border: 1px solid;
-        }
-        .btn-delete-ad {
-            background: #e74c3c;
-            color: white;
+        .remove-ad-btn {
+            background: #ef4444;
+            color: #fff;
             border: none;
-            padding: 4px 10px;
-            border-radius: 4px;
+            padding: 8px 14px;
+            border-radius: 6px;
             cursor: pointer;
-            font-size: 0.75rem;
+            font-size: 0.8rem;
             font-weight: bold;
+            flex-shrink: 0;
+            transition: background 0.2s;
+        }
+        .remove-ad-btn:hover { background: #dc2626; }
+
+        /* ===== TABELA DE DESEMPENHO (ADMIN) ===== */
+        #perfTableContainer {
+            margin-top: 15px;
+            max-height: 55vh;
+            overflow-y: auto;
+            border-radius: 8px;
+            border: 1px solid rgba(255,255,255,0.08);
+            background: rgba(0,0,0,0.15);
+        }
+        .perf-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.82rem;
+        }
+        .perf-table thead th {
+            position: sticky;
+            top: 0;
+            background: #1e3a78;
+            color: #fdbb2d;
+            padding: 10px 8px;
+            text-align: left;
+            font-weight: 700;
+            cursor: pointer;
+            user-select: none;
+            border-bottom: 2px solid rgba(253,187,45,0.4);
+            white-space: nowrap;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            z-index: 2;
+        }
+        .perf-table thead th:hover { background: #2a4a8c; }
+        .perf-table td {
+            padding: 8px;
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+            color: #e2e8f0;
+            vertical-align: middle;
+        }
+        .perf-table tbody tr:hover { background: rgba(255,255,255,0.03); }
+        .perf-table .perf-thumb {
+            width: 70px; height: 40px; border-radius: 4px;
+            object-fit: cover; display: block;
+        }
+        .perf-table .perf-title {
+            max-width: 220px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        .perf-table .perf-note-cell { color: #fdbb2d; font-weight: 700; }
+        .perf-empty {
+            text-align: center;
+            padding: 30px;
+            color: #94a3b8;
+            font-size: 0.9rem;
         }
 
         /* ===== PLAYER ===== */
@@ -386,47 +415,26 @@
             backdrop-filter: blur(10px);
             -webkit-backdrop-filter: blur(10px);
             z-index: 2000;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            overflow-y: auto;
-            padding: 20px;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            overflow-y: auto; padding: 20px;
             opacity: 0; visibility: hidden;
             transition: opacity 0.4s ease, visibility 0.4s;
         }
         #playerScreen.active { opacity: 1; visibility: visible; }
 
-        .player-container {
-            width: 100%; max-width: 1200px;
-            display: flex; flex-direction: column; align-items: center;
-            gap: 15px;
-        }
+        .player-container { width: 100%; max-width: 1200px; display: flex; flex-direction: column; align-items: center; gap: 15px; }
 
         .player-wrapper {
-            width: 100%;
-            max-height: calc(100vh - 160px); 
-            aspect-ratio: 16 / 9;
-            background: #000;
-            border-radius: 12px; overflow: hidden; position: relative;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.8);
-            flex-shrink: 0;
-            touch-action: manipulation;
+            width: 100%; max-height: calc(100vh - 160px); aspect-ratio: 16 / 9;
+            background: #000; border-radius: 12px; overflow: hidden; position: relative;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.8); flex-shrink: 0; touch-action: manipulation;
         }
 
-        /* Ajuste para Tela Cheia */
-        .player-wrapper:fullscreen,
-        .player-wrapper:-webkit-full-screen,
-        .player-wrapper:-moz-full-screen,
-        .player-wrapper:-ms-fullscreen {
-            width: 100vw;
-            height: 100vh;
-            max-height: 100vh;
-            aspect-ratio: auto;
-            border-radius: 0;
+        .player-wrapper:fullscreen, .player-wrapper:-webkit-full-screen,
+        .player-wrapper:-moz-full-screen, .player-wrapper:-ms-fullscreen {
+            width: 100vw; height: 100vh; max-height: 100vh; aspect-ratio: auto; border-radius: 0;
         }
 
-        /* Sombras/gradientes do player — DESKTOP (intensas, originais) */
         .player-wrapper::before {
             content: ''; position: absolute; top: 0; left: 0; right: 0; height: 250px;
             background: linear-gradient(to bottom, rgba(0,0,0,1) 0%, rgba(0,0,0,0.9) 30%, rgba(0,0,0,0.4) 70%, transparent 100%);
@@ -461,23 +469,13 @@
         .close-player-btn:hover { background: #e74c3c; transform: scale(1.1); }
 
         .player-video-title {
-            position: absolute;
-            top: 22px;
-            left: 68px;
-            color: #fff;
-            font-size: 1.15rem;
-            font-weight: 600;
+            position: absolute; top: 22px; left: 68px; color: #fff;
+            font-size: 1.15rem; font-weight: 600;
             text-shadow: 1px 1px 4px rgba(0,0,0,0.9);
             max-width: calc(100% - 280px);
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            pointer-events: none;
-            z-index: 25;
-            padding: 5px 10px;
-            background: rgba(0,0,0,0.3);
-            border-radius: 6px;
-            backdrop-filter: blur(4px);
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+            pointer-events: none; z-index: 25; padding: 5px 10px;
+            background: rgba(0,0,0,0.3); border-radius: 6px; backdrop-filter: blur(4px);
         }
 
         .player-vote-container {
@@ -494,67 +492,31 @@
         .player-vote-btn.like.active { background: #2ecc71; border-color: #2ecc71; color: #fff; }
         .player-vote-btn.dislike.active { background: #e74c3c; border-color: #e74c3c; color: #fff; }
 
-        /* ===== BOTÃO PLAY/PAUSE — CÍRCULO AMARELO COM ÍCONE PRETO ===== */
         .center-play-btn {
             position: absolute; top: 50%; left: 50%;
             transform: translate(-50%, -50%);
-            width: 76px; height: 76px;
-            border-radius: 50%;
-            background: #fdbb2d;
-            border: none;
-            color: #000;
-            cursor: pointer;
-            z-index: 25;
-            pointer-events: auto;
+            width: 76px; height: 76px; border-radius: 50%;
+            background: #fdbb2d; border: none; color: #000;
+            cursor: pointer; z-index: 25; pointer-events: auto;
             display: flex; align-items: center; justify-content: center;
             transition: opacity 0.3s ease, transform 0.3s ease, background 0.2s;
             box-shadow: 0 4px 20px rgba(0,0,0,0.5);
             padding: 0;
         }
-        .center-play-btn:hover {
-            background: #ffcc44;
-            transform: translate(-50%, -50%) scale(1.06);
-        }
-        .center-play-btn svg {
-            display: block;
-            pointer-events: none;
-            width: 34px; height: 34px;
-        }
+        .center-play-btn:hover { background: #ffcc44; transform: translate(-50%, -50%) scale(1.06); }
+        .center-play-btn svg { display: block; pointer-events: none; width: 34px; height: 34px; }
 
-        /* ===== BOTÕES -10s / +10s (ESTILO YOUTUBE) ===== */
         .skip-btn {
-            position: relative;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            width: 36px;
-            height: 36px;
-            padding: 0;
-            background: transparent;
-            border: none;
-            color: #fff;
-            cursor: pointer;
-            transition: transform 0.2s, color 0.2s;
-            flex-shrink: 0;
+            position: relative; display: inline-flex; align-items: center; justify-content: center;
+            width: 36px; height: 36px; padding: 0; background: transparent; border: none;
+            color: #fff; cursor: pointer; transition: transform 0.2s, color 0.2s; flex-shrink: 0;
         }
         .skip-btn:hover { transform: scale(1.12); color: #fdbb2d; }
-        .skip-btn svg {
-            display: block;
-            width: 28px;
-            height: 28px;
-        }
+        .skip-btn svg { display: block; width: 28px; height: 28px; }
         .skip-btn .skip-num {
-            position: absolute;
-            top: 53%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            font-size: 9px;
-            font-weight: 800;
-            font-family: Arial, sans-serif;
-            letter-spacing: -0.3px;
-            line-height: 1;
-            color: currentColor;
-            pointer-events: none;
+            position: absolute; top: 53%; left: 50%; transform: translate(-50%, -50%);
+            font-size: 9px; font-weight: 800; font-family: Arial, sans-serif;
+            letter-spacing: -0.3px; line-height: 1; color: currentColor; pointer-events: none;
         }
 
         .player-controls {
@@ -576,26 +538,13 @@
         }
         .progress-fill { height: 100%; background: #fdbb2d; border-radius: 3px; width: 0%; transition: width 0.1s linear; }
         
-        /* NOVO: Bolinha da barra de progresso */
         .progress-thumb {
-            position: absolute;
-            top: 50%;
-            width: 14px;
-            height: 14px;
-            background: #fdbb2d;
-            border-radius: 50%;
-            transform: translate(-50%, -50%);
-            left: 0%;
-            pointer-events: none;
-            box-shadow: 0 0 5px rgba(0,0,0,0.5);
-            transition: left 0.1s linear, opacity 0.2s;
-            opacity: 0;
-            z-index: 2;
+            position: absolute; top: 50%; width: 14px; height: 14px;
+            background: #fdbb2d; border-radius: 50%; transform: translate(-50%, -50%);
+            left: 0%; pointer-events: none; box-shadow: 0 0 5px rgba(0,0,0,0.5);
+            transition: left 0.1s linear, opacity 0.2s; opacity: 0; z-index: 2;
         }
-        .progress-track:hover .progress-thumb,
-        .progress-track.dragging .progress-thumb {
-            opacity: 1;
-        }
+        .progress-track:hover .progress-thumb, .progress-track.dragging .progress-thumb { opacity: 1; }
 
         .time-label { font-family: monospace; font-size: 0.85rem; color: #ddd; min-width: 100px; text-align: right; }
 
@@ -610,34 +559,19 @@
         }
 
         #player-bottom-ad {
-            display: none;
-            width: 100%;
-            max-width: 728px;
-            height: 90px;
-            background: transparent;
-            border: none !important;
-            border-radius: 8px;
-            overflow: hidden;
-            flex-shrink: 0;
-            margin: 0 auto;
-            position: relative;
+            display: none; width: 100%; max-width: 728px; height: 90px;
+            background: transparent; border: none !important; border-radius: 8px;
+            overflow: hidden; flex-shrink: 0; margin: 0 auto; position: relative;
         }
         #player-bottom-ad iframe {
             display: block; border: 0; margin: 0 auto;
-            width: 100%; height: 100%;
-            position: absolute; top: 0; left: 0; z-index: 1;
+            width: 100%; height: 100%; position: absolute; top: 0; left: 0; z-index: 1;
         }
 
-        /* ===== BANNERS MOBILE DENTRO DO PLAYER ===== */
         .player-mobile-banner {
-            display: none;
-            flex-shrink: 0;
-            background: #ffffff;
-            border-radius: 8px;
-            overflow: hidden;
-            position: relative;
-            margin: 0 auto;
-            border: 1px solid rgba(255,255,255,0.2);
+            display: none; flex-shrink: 0; background: #ffffff;
+            border-radius: 8px; overflow: hidden; position: relative;
+            margin: 0 auto; border: 1px solid rgba(255,255,255,0.2);
         }
         #playerMobileTop    { width: 320px; height: 50px; }
         #playerMobileBottom { width: 300px; height: 250px; }
@@ -653,22 +587,13 @@
         }
         .player-loading-overlay.hidden { opacity: 0; }
 
-        /* ===== Estilo durante seek/buffer de posição ===== */
         .player-loading-overlay.seeking {
             background: rgba(11, 15, 25, 0.55);
             backdrop-filter: blur(3px);
             -webkit-backdrop-filter: blur(3px);
         }
-        .player-loading-overlay.seeking .spinner {
-            width: 42px;
-            height: 42px;
-            border-width: 3px;
-        }
-        .player-loading-overlay.seeking .loading-text {
-            font-size: 0.85rem;
-            text-shadow: 1px 1px 3px rgba(0,0,0,0.9);
-        }
-        /* ======================================================= */
+        .player-loading-overlay.seeking .spinner { width: 42px; height: 42px; border-width: 3px; }
+        .player-loading-overlay.seeking .loading-text { font-size: 0.85rem; text-shadow: 1px 1px 3px rgba(0,0,0,0.9); }
 
         .spinner {
             border: 4px solid rgba(253,187,45,0.2); border-top: 4px solid #fdbb2d;
@@ -686,39 +611,27 @@
         #adInterstitialModal.active { display: flex; }
 
         .ad-native-side {
-            width: 160px;
-            height: 600px; flex-shrink: 0;
-            background: #ffffff;
-            display: block;
-            border-radius: 8px; overflow: hidden; position: relative;
+            width: 160px; height: 600px; flex-shrink: 0; background: #ffffff;
+            display: block; border-radius: 8px; overflow: hidden; position: relative;
             border: 1px solid rgba(255,255,255,0.2);
         }
         .ad-native-side iframe { width: 100%; height: 100%; display: block; border: 0; position: absolute; z-index: 1; top:0; left:0; background: #ffffff; }
 
-        /* ===== BANNERS MOBILE DO INTERSTICIAL (320x50 acima, 300x250 abaixo) ===== */
         .ad-mobile-top, .ad-mobile-bottom {
-            display: none;
-            position: relative;
-            background: #ffffff;
-            border-radius: 8px;
-            overflow: hidden;
-            flex-shrink: 0;
-            border: 1px solid rgba(255,255,255,0.2);
-            margin: 0 auto;
+            display: none; position: relative; background: #ffffff;
+            border-radius: 8px; overflow: hidden; flex-shrink: 0;
+            border: 1px solid rgba(255,255,255,0.2); margin: 0 auto;
         }
         .ad-mobile-top    { width: 320px; height: 50px; }
         .ad-mobile-bottom { width: 300px; height: 250px; }
-        .ad-mobile-top iframe,
-        .ad-mobile-bottom iframe {
+        .ad-mobile-top iframe, .ad-mobile-bottom iframe {
             width: 100%; height: 100%; display: block; border: 0;
             position: absolute; z-index: 1; top: 0; left: 0; background: #ffffff;
         }
 
         .ad-interstitial-wrapper {
-            background: #152961; 
-            border: 2px solid #fdbb2d;
-            border-radius: 12px;
-            width: 100%; max-width: 800px; display: flex; flex-direction: column;
+            background: #152961; border: 2px solid #fdbb2d;
+            border-radius: 12px; width: 100%; max-width: 800px; display: flex; flex-direction: column;
             box-shadow: 0 0 60px rgba(253,187,45,0.2); overflow: hidden; flex-shrink: 0;
         }
 
@@ -732,8 +645,7 @@
         .ad-center-wrapper {
             width: 100%; aspect-ratio: 16 / 9;
             background: #0b0f19; display: flex; align-items: center; justify-content: center;
-            overflow: hidden;
-            position: relative;
+            overflow: hidden; position: relative;
         }
         .ad-center-wrapper img { width: 100%; height: 100%; object-fit: contain; padding: 20px; }
         
@@ -753,28 +665,18 @@
             border-radius: 8px; font-weight: bold; font-size: 1rem; cursor: pointer;
             transition: 0.3s; opacity: 0.5; cursor: not-allowed;
         }
-        .ad-close-btn.active {
-            opacity: 1; cursor: pointer; background: #22c55e;
-        }
+        .ad-close-btn.active { opacity: 1; cursor: pointer; background: #22c55e; }
         .ad-close-btn.active:hover { background: #16a34a; transform: scale(1.05); }
 
         @media (max-width: 1150px) {
             .ad-native-side { display: none; }
 
             #adInterstitialModal {
-                flex-direction: column;
-                overflow-y: auto;
-                gap: 15px;
-                padding: 15px 10px;
-                align-items: center;
-                justify-content: flex-start;
+                flex-direction: column; overflow-y: auto; gap: 15px;
+                padding: 15px 10px; align-items: center; justify-content: flex-start;
             }
-            .ad-mobile-top,
-            .ad-mobile-bottom { display: block; }
-            .ad-interstitial-wrapper {
-                max-width: 100%;
-                flex-shrink: 0;
-            }
+            .ad-mobile-top, .ad-mobile-bottom { display: block; }
+            .ad-interstitial-wrapper { max-width: 100%; flex-shrink: 0; }
         }
 
         .loading { text-align: center; padding: 60px; color: #fdbb2d; font-size: 1.2rem; font-weight: bold; }
@@ -793,10 +695,7 @@
         .footer-logo-link:hover { transform: scale(1.1); filter: brightness(1.3) drop-shadow(0 0 10px rgba(255, 0, 0, 0.4)); }
         .footer-logo { height: 25px; max-width: 150px; width: auto; object-fit: contain; }
 
-        #favoritesSection {
-            margin-bottom: 30px; width: 100%; max-width: 1400px;
-            margin-left: auto; margin-right: auto;
-        }
+        #favoritesSection { margin-bottom: 30px; width: 100%; max-width: 1400px; margin-left: auto; margin-right: auto; }
         .carousel-title { color: #fdbb2d; font-size: 1.3rem; margin-bottom: 12px; padding-left: 10px; }
         .carousel-wrapper { position: relative; display: flex; align-items: center; }
         .carousel-track {
@@ -817,234 +716,90 @@
         .carousel-arrow.left { left: -15px; }
         .carousel-arrow.right { right: -15px; }
 
-        /* ===== LAYOUT CORRIGIDO PARA MOBILE USANDO GRID ===== */
         @media (max-width: 900px) {
-            body {
-                padding-top: 150px;
-                padding-bottom: 40px;
-                padding-left: 10px;
-                padding-right: 10px;
-            }
+            body { padding-top: 150px; padding-bottom: 40px; padding-left: 10px; padding-right: 10px; }
 
             .header {
-                display: grid;
-                grid-template-columns: 1fr auto;
-                grid-template-areas: 
-                    "logo auth"
-                    "search search";
-                align-items: center;
-                gap: 10px;
-                height: auto;
-                padding: 15px;
+                display: grid; grid-template-columns: 1fr auto;
+                grid-template-areas: "logo auth" "search search";
+                align-items: center; gap: 10px; height: auto; padding: 15px;
             }
+            .header-brand { grid-area: logo; display: flex; justify-content: flex-start; width: auto; }
+            .header-logo { height: 50px; }
+            .auth-area { grid-area: auth; justify-content: flex-end; width: auto; }
+            .search-container { grid-area: search; margin: 0; max-width: 100%; width: 100%; }
 
-            .header-brand {
-                grid-area: logo;
-                display: flex;
-                justify-content: flex-start;
-                width: auto;
-            }
+            .user-card { position: fixed; top: 85px; left: 10px; right: 10px; width: auto; min-width: auto; }
 
-            .header-logo {
-                height: 50px;
-            }
-
-            .auth-area {
-                grid-area: auth;
-                justify-content: flex-end;
-                width: auto;
-            }
-
-            .search-container {
-                grid-area: search;
-                margin: 0;
-                max-width: 100%;
-                width: 100%;
-            }
-
-            .user-card {
-                position: fixed;
-                top: 85px;
-                left: 10px;
-                right: 10px;
-                width: auto;
-                min-width: auto;
-            }
-
-            .catalog-grid {
-                grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-                gap: 15px;
-            }
+            .catalog-grid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 15px; }
 
             .card-title { font-size: 1rem; min-height: 2.6em; }
             .card-info { padding: 10px; }
             .watch-btn { font-size: 0.85rem; padding: 8px; }
 
-            /* Player */
             #playerScreen { padding: 10px 0; justify-content: flex-start; }
             .player-container { gap: 10px; }
             .player-wrapper { max-height: calc(100vh - 40px); border-radius: 0; }
             #player-bottom-ad { display: none !important; }
 
-            .player-wrapper::before {
-                height: 80px;
-                background: linear-gradient(to bottom, #000000 0%, rgba(0,0,0,0.95) 60%, transparent 100%);
-            }
-            .player-wrapper::after {
-                height: 100px;
-                background: linear-gradient(to top, #000000 0%, rgba(0,0,0,0.98) 50%, transparent 100%);
-            }
+            .player-wrapper::before { height: 80px; background: linear-gradient(to bottom, #000000 0%, rgba(0,0,0,0.95) 60%, transparent 100%); }
+            .player-wrapper::after { height: 100px; background: linear-gradient(to top, #000000 0%, rgba(0,0,0,0.98) 50%, transparent 100%); }
 
             .player-vote-container { top: 10px; right: 10px; transform: scale(0.8); transform-origin: top right; }
             .close-player-btn { top: 10px; left: 10px; width: 35px; height: 35px; font-size: 1rem; }
-            .player-video-title { 
-                top: 12px; 
-                left: 55px; 
-                font-size: 0.85rem; 
-                max-width: calc(100% - 200px);
-            }
+            .player-video-title { top: 12px; left: 55px; font-size: 0.85rem; max-width: calc(100% - 200px); }
 
-            /* Controles do player — layout estilo YouTube mobile */
-            .player-controls {
-                flex-wrap: wrap;
-                gap: 4px 10px;
-                padding: 8px 12px 10px;
-                align-items: center;
-            }
-            .progress-track {
-                order: 1;
-                flex: 0 0 100%;
-                width: 100%;
-                margin: 0 0 4px 0;
-                height: 6px;
-                background: rgba(255,255,255,0.3);
-                border-radius: 3px;
-                padding: 0;
-                background-clip: border-box;
-            }
-            .progress-fill {
-                height: 100%;
-                background: #fdbb2d;
-                border-radius: 3px;
-            }
+            .player-controls { flex-wrap: wrap; gap: 4px 10px; padding: 8px 12px 10px; align-items: center; }
+            .progress-track { order: 1; flex: 0 0 100%; width: 100%; margin: 0 0 4px 0; height: 6px; background: rgba(255,255,255,0.3); border-radius: 3px; padding: 0; background-clip: border-box; }
+            .progress-fill { height: 100%; background: #fdbb2d; border-radius: 3px; }
 
-            .volume-container {
-                display: none;
-            }
-            .time-label {
-                order: 4;
-                flex: 1;
-                text-align: left;
-                min-width: 0;
-                font-size: 0.75rem;
-                color: #ddd;
-            }
+            .volume-container { display: none; }
+            .time-label { order: 4; flex: 1; text-align: left; min-width: 0; font-size: 0.75rem; color: #ddd; }
             #btnRewind10 { order: 2; }
             #btnForward10 { order: 3; }
-            #fullscreenBtn {
-                order: 5;
-                margin-left: auto;
-            }
+            #fullscreenBtn { order: 5; margin-left: auto; }
 
-            .center-play-btn {
-                width: 68px; height: 68px;
-            }
+            .center-play-btn { width: 68px; height: 68px; }
             .center-play-btn svg { width: 30px; height: 30px; }
 
-            /* Meus Anúncios */
             .my-ads-toolbar { flex-direction: column; }
             .my-ads-toolbar input, .my-ads-toolbar select { width: 100%; }
             .ad-history-card { flex-direction: column; align-items: flex-start; }
             .ad-history-actions { flex-direction: row; width: 100%; justify-content: space-between; margin-top: 10px; }
 
-            /* Carrossel */
             .carousel-track .card { flex: 0 0 160px; width: 160px; }
             .carousel-arrow { display: none; }
+
+            .perf-table thead th { padding: 8px 6px; font-size: 0.7rem; }
+            .perf-table td { padding: 6px; font-size: 0.75rem; }
+            .perf-table .perf-thumb { width: 50px; height: 30px; }
+            .perf-table .perf-title { max-width: 130px; }
         }
 
-        /* ===== MOBILE PORTRAIT: 320x50 acima + 300x250 abaixo do player ===== */
         @media (max-width: 900px) and (orientation: portrait) {
             .player-wrapper { max-height: calc(100vh - 340px); min-height: 180px; }
             #playerMobileTop { display: block; }
             #playerMobileBottom { display: block; }
         }
 
-        /* ===== MOBILE LANDSCAPE: apenas 320x50 abaixo do player ===== */
         @media (max-width: 900px) and (orientation: landscape) {
             .player-wrapper { max-height: calc(100vh - 80px); min-height: 150px; }
             #playerMobileTop { display: block; order: 10; }
             #playerMobileBottom { display: none !important; }
         }
 
-        /* ===== FIX DEFINITIVO: MODAL DE ANÚNCIO EM MOBILE LANDSCAPE ===== */
         @media (max-width: 950px) and (orientation: landscape) {
-            #adInterstitialModal {
-                flex-direction: row !important;
-                padding: 4px;
-                gap: 6px;
-                align-items: center;
-                justify-content: center;
-                overflow: hidden;
-            }
-
-            .ad-mobile-top,
-            .ad-mobile-bottom {
-                display: none !important;
-            }
-
-            .ad-native-side {
-                display: block !important;
-                width: 160px !important;
-                height: 300px !important;
-                flex-shrink: 0;
-                flex-grow: 0;
-                margin: 0;
-            }
-
-            /* Esconde o banner da direita se a tela for muito estreita para caber os dois */
+            #adInterstitialModal { flex-direction: row !important; padding: 4px; gap: 6px; align-items: center; justify-content: center; overflow: hidden; }
+            .ad-mobile-top, .ad-mobile-bottom { display: none !important; }
+            .ad-native-side { display: block !important; width: 160px !important; height: 300px !important; flex-shrink: 0; flex-grow: 0; margin: 0; }
             @media (max-width: 750px) {
-                .ad-native-side.right {
-                    display: none !important;
-                }
+                .ad-native-side.right { display: none !important; }
             }
-
-            .ad-interstitial-wrapper {
-                /* Calcula a largura baseada na altura disponível para manter 16:9 sem achatar o vídeo */
-                max-width: calc((100vh - 90px) * 16 / 9 + 10px);
-                max-height: calc(100vh - 8px);
-                width: 100%;
-                flex-shrink: 1;
-                display: flex;
-                flex-direction: column;
-            }
-
-            .ad-interstitial-header {
-                padding: 4px 10px !important;
-                font-size: 0.7rem !important;
-            }
-
-            .ad-center-wrapper {
-                aspect-ratio: 16 / 9 !important;
-                width: 100%;
-                height: auto;
-                max-height: calc(100vh - 90px);
-                flex: none !important; /* Impede o flexbox de achatar */
-            }
-
-            .ad-interstitial-footer {
-                padding: 4px 10px !important;
-                gap: 4px !important;
-                flex-wrap: nowrap !important;
-                justify-content: center !important;
-                flex: none !important;
-                overflow-x: auto;
-            }
-
-            .ad-interstitial-footer button {
-                padding: 4px 8px !important;
-                font-size: 0.7rem !important;
-                white-space: nowrap;
-            }
+            .ad-interstitial-wrapper { max-width: calc((100vh - 90px) * 16 / 9 + 10px); max-height: calc(100vh - 8px); width: 100%; flex-shrink: 1; display: flex; flex-direction: column; }
+            .ad-interstitial-header { padding: 4px 10px !important; font-size: 0.7rem !important; }
+            .ad-center-wrapper { aspect-ratio: 16 / 9 !important; width: 100%; height: auto; max-height: calc(100vh - 90px); flex: none !important; }
+            .ad-interstitial-footer { padding: 4px 10px !important; gap: 4px !important; flex-wrap: nowrap !important; justify-content: center !important; flex: none !important; overflow-x: auto; }
+            .ad-interstitial-footer button { padding: 4px 8px !important; font-size: 0.7rem !important; white-space: nowrap; }
         }
     </style>
 </head>
@@ -1084,9 +839,9 @@
                             <button id="adminMenuBtn">⚙️ Painel Admin</button>
                             <div id="adminDropdown">
                                 <button id="addVideoBtn">➕ Inserir Vídeo</button>
-                                <button id="configSubBtn">💰 Editar Assinatura</button>
-                                <button id="configAdRateBtn">📊 Tarifa de Anúncio</button>
-                                <button id="manageAdsBtn">🖼️ Gerenciar Anúncios Base</button>
+                                <button id="performanceBtn">📈 Desempenho dos Vídeos</button>
+                                <button id="pricingBtn">💰 Preços</button>
+                                <button id="manageAdsBtn">🖼️ Anúncio Interno</button>
                                 <button id="simulateSubBtn" style="color: #a78bfa;">🧪 Simular Assinante</button>
                             </div>
                         </div>
@@ -1120,6 +875,7 @@
         </a>
     </footer>
 
+    <!-- MODAL: Adicionar/Editar Vídeo -->
     <div class="modal-overlay" id="videoModal">
         <div class="modal">
             <h2 id="videoModalTitle">Adicionar Vídeo</h2>
@@ -1151,9 +907,10 @@
         </div>
     </div>
 
+    <!-- MODAL: Anúncio Interno -->
     <div class="modal-overlay" id="manageAdsModal">
         <div class="modal">
-            <h2>Gerenciar Anúncios Base</h2>
+            <h2>Anúncio Interno</h2>
             <p class="modal-sub">Adicione ou remova as imagens do anúncio central (usado quando não há anúncios pagos).</p>
             
             <div style="display: flex; gap: 10px; align-items: flex-end;">
@@ -1161,7 +918,7 @@
                     <label>URL da Imagem</label>
                     <input type="text" id="newAdImageUrl" placeholder="https://exemplo.com/imagem.png" autocomplete="off">
                 </div>
-                <button class="primary" id="addAdBtn" style="height: 42px; margin-bottom: 6px;">Adicionar</button>
+                <button class="primary" id="addAdBtn" style="height: 42px; margin-bottom: 6px; padding: 0 16px; border-radius: 8px; border: none; font-weight: bold; cursor: pointer;">Adicionar</button>
             </div>
 
             <div id="adsListContainer"></div>
@@ -1172,6 +929,38 @@
         </div>
     </div>
 
+    <!-- MODAL: Preços (Assinatura + Tarifa de Anúncio) -->
+    <div class="modal-overlay" id="pricingModal">
+        <div class="modal">
+            <h2>Configuração de Preços</h2>
+            <p class="modal-sub">Ajuste os valores da assinatura mensal e da tarifa de anúncios.</p>
+
+            <label>Preço da Assinatura Mensal (R$)</label>
+            <input type="text" id="priceSubscriptionInput" placeholder="Ex.: 19,90" inputmode="decimal" autocomplete="off">
+
+            <label>Tarifa de Anúncio por Segundo (R$)</label>
+            <input type="text" id="priceAdRateInput" placeholder="Ex.: 1,00" inputmode="decimal" autocomplete="off">
+
+            <div class="modal-actions">
+                <button class="secondary" id="cancelPricingBtn">Cancelar</button>
+                <button class="primary" id="savePricingBtn">Salvar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: Desempenho dos Vídeos -->
+    <div class="modal-overlay" id="performanceModal">
+        <div class="modal" style="max-width: 950px;">
+            <h2>📈 Desempenho dos Vídeos</h2>
+            <p class="modal-sub">Clique nos cabeçalhos para ordenar por qualquer coluna.</p>
+            <div id="perfTableContainer"></div>
+            <div class="modal-actions">
+                <button class="secondary" id="closePerformanceBtn">Fechar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: Inserir Anúncio Pago -->
     <div class="modal-overlay" id="insertAdModal">
         <div class="modal">
             <h2>Inserir um Anúncio</h2>
@@ -1211,6 +1000,7 @@
         </div>
     </div>
 
+    <!-- MODAL: Meus Anúncios -->
     <div class="modal-overlay" id="myAdsModal">
         <div class="modal" style="max-width: 700px;">
             <h2>Histórico de Anúncios</h2>
@@ -1233,6 +1023,7 @@
         </div>
     </div>
 
+    <!-- Intersticial de anúncios -->
     <div id="adInterstitialModal">
         <div class="ad-mobile-top" id="adMobileTop"></div>
         <div class="ad-native-side left" id="adNativeLeft"></div>
@@ -1260,6 +1051,7 @@
         <div class="ad-mobile-bottom" id="adMobileBottom"></div>
     </div>
 
+    <!-- PLAYER -->
     <div id="playerScreen">
         <div class="player-container">
             <div class="player-mobile-banner" id="playerMobileTop"></div>
@@ -1281,26 +1073,18 @@
                     </div>
 
                     <button class="center-play-btn" id="centerPlayPauseBtn" title="Play/Pause" aria-label="Reproduzir ou pausar">
-                        <svg class="icon-play" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-                            <path d="M8 5v14l11-7z"/>
-                        </svg>
-                        <svg class="icon-pause" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" style="display:none;">
-                            <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>
-                        </svg>
+                        <svg class="icon-play" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>
+                        <svg class="icon-pause" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" style="display:none;"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
                     </button>
 
                     <div class="player-controls">
                         <button class="skip-btn" id="btnRewind10" title="Voltar 10s" aria-label="Voltar 10 segundos">
-                            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-                                <path d="M12 5V1L7 6l5 5V7c3.31 0 6 2.69 6 6s-2.69 6-6 6-6-2.69-6-6H4c0 4.42 3.58 8 8 8s8-3.58 8-8-3.58-8-8-8z"/>
-                            </svg>
+                            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 5V1L7 6l5 5V7c3.31 0 6 2.69 6 6s-2.69 6-6 6-6-2.69-6-6H4c0 4.42 3.58 8 8 8s8-3.58 8-8-3.58-8-8-8z"/></svg>
                             <span class="skip-num">10</span>
                         </button>
 
                         <button class="skip-btn" id="btnForward10" title="Avançar 10s" aria-label="Avançar 10 segundos">
-                            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-                                <path d="M12 5V1L7 6l5 5V7c3.31 0 6 2.69 6 6s-2.69 6-6 6-6-2.69-6-6H4c0 4.42 3.58 8 8 8s8-3.58 8-8-3.58-8-8-8z" transform="matrix(-1 0 0 1 24 0)"/>
-                            </svg>
+                            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 5V1L7 6l5 5V7c3.31 0 6 2.69 6 6s-2.69 6-6 6-6-2.69-6-6H4c0 4.42 3.58 8 8 8s8-3.58 8-8-3.58-8-8-8z" transform="matrix(-1 0 0 1 24 0)"/></svg>
                             <span class="skip-num">10</span>
                         </button>
 
@@ -1330,6 +1114,7 @@
         </div>
     </div>
 
+    <!-- PIX Lightbox -->
     <div id="pixLightbox" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 99999; justify-content: center; align-items: center; backdrop-filter: blur(6px);">
         <div style="background: #152961; border: 2px solid #fdbb2d; border-radius: 14px; padding: 30px; max-width: 480px; width: 90%; position: relative; text-align: center; color: #fff;">
             <button id="pixClose" style="position: absolute; top: 12px; right: 14px; background: transparent; border: none; color: #cbd5e1; font-size: 1.6rem; cursor: pointer;">×</button>
@@ -1387,9 +1172,11 @@
     let favoritesRef = null;
     let userFavorites = {};
     let votesCache = {}; 
+    let viewsCache = {};
     let videosLoaded = false;
     let favoritesLoaded = false;
     let myAdsTitlesCache = {};
+    let viewAlreadyCounted = false;
 
     let catalogSubscription = { active: false, expiresAt: 0 };
     let pixPaymentCheckInterval = null;
@@ -1407,6 +1194,10 @@
     let adYtPlayer = null;
 
     let myAdsData = [];
+
+    // Estado da tabela de desempenho
+    let perfSortField = 'views';
+    let perfSortOrder = 'desc';
 
     /* ========= HELPERS ========= */
     function isAdmin() {
@@ -1476,7 +1267,6 @@
         iframe.style.cssText = 'display:block; border:0; margin:0 auto; overflow:hidden; position:absolute; top:0; left:0; width:100%; height:100%;';
         iframe.title = 'Publicidade';
         
-        // Usando srcdoc em vez de document.write para evitar bloqueios do Adsterra e CORS
         iframe.srcdoc = `
             <!DOCTYPE html>
             <html>
@@ -1524,7 +1314,6 @@
         container.appendChild(iframe);
     }
 
-    /* Garante que os banners da orientação atual sejam montados */
     function ensureAdsMounted() {
         const isLandscapeMobile = window.matchMedia('(max-width: 950px) and (orientation: landscape)').matches;
         const isMobileView = window.matchMedia('(max-width: 1150px)').matches;
@@ -1565,7 +1354,6 @@
         }
     }
 
-    /* Listener para recarregar os banners ao girar a tela com o modal aberto */
     let resizeTimeout;
     window.addEventListener('resize', () => {
         clearTimeout(resizeTimeout);
@@ -1733,6 +1521,13 @@
         votesCache = snap.val() || {};
         atualizarTodosBadges();
         if (currentPlayerVideoId) atualizarPlayerUI(currentPlayerVideoId);
+        if (document.getElementById('performanceModal')?.classList.contains('active')) renderPerformanceTable();
+    });
+
+    // Views em tempo real
+    rtdb.ref('vod_views').on('value', (snap) => {
+        viewsCache = snap.val() || {};
+        if (document.getElementById('performanceModal')?.classList.contains('active')) renderPerformanceTable();
     });
 
     async function votar(videoId, tipo) {
@@ -2049,76 +1844,80 @@
         catch (err) { alert('Erro ao remover: ' + err.message); }
     }
 
-    /* ========= MENU E LÓGICA DE ADMIN ========= */
+    /* ========= MENU ADMIN ========= */
     document.getElementById('addVideoBtn').addEventListener('click', () => {
         adminDropdown.style.display = 'none';
         openVideoModal('add');
     });
 
-    document.getElementById('configSubBtn').addEventListener('click', async () => {
+    /* ===== NOVO: Modal de Preços (Assinatura + Tarifa) ===== */
+    const pricingModal = document.getElementById('pricingModal');
+    const priceSubscriptionInput = document.getElementById('priceSubscriptionInput');
+    const priceAdRateInput = document.getElementById('priceAdRateInput');
+
+    document.getElementById('pricingBtn').addEventListener('click', async () => {
         adminDropdown.style.display = 'none';
+        priceSubscriptionInput.value = '';
+        priceAdRateInput.value = '';
         try {
             const doc = await db.collection('platform_config').doc('catalog').get();
-            let precoAtual = "";
-            if (doc.exists && doc.data().subscription) {
-                precoAtual = doc.data().subscription.monthlyPrice;
-            }
-
-            const novoPreco = prompt("Digite o novo valor da assinatura (Ex: 19.90):", precoAtual);
-            
-            if (novoPreco !== null && novoPreco.trim() !== "") {
-                const precoNumerico = parseFloat(novoPreco.replace(',', '.'));
-                
-                if (isNaN(precoNumerico) || precoNumerico <= 0) {
-                    alert("Por favor, digite um valor válido.");
-                    return;
+            if (doc.exists) {
+                const data = doc.data();
+                if (data.subscription && data.subscription.monthlyPrice != null) {
+                    priceSubscriptionInput.value = parseFloat(data.subscription.monthlyPrice).toFixed(2).replace('.', ',');
                 }
-
-                await db.collection('platform_config').doc('catalog').set({
-                    subscription: {
-                        enabled: true,
-                        monthlyPrice: precoNumerico
-                    }
-                }, { merge: true });
-
-                alert("✅ Preço atualizado com sucesso para R$ " + precoNumerico.toFixed(2).replace('.', ','));
+                if (data.adRate != null) {
+                    priceAdRateInput.value = parseFloat(data.adRate).toFixed(2).replace('.', ',');
+                }
             }
         } catch (e) {
+            console.warn('Erro ao carregar preços:', e);
+        }
+        pricingModal.classList.add('active');
+    });
+
+    document.getElementById('cancelPricingBtn').addEventListener('click', () => {
+        pricingModal.classList.remove('active');
+    });
+
+    pricingModal.addEventListener('click', (e) => {
+        if (e.target === pricingModal) pricingModal.classList.remove('active');
+    });
+
+    document.getElementById('savePricingBtn').addEventListener('click', async () => {
+        const subRaw = priceSubscriptionInput.value.trim();
+        const adRaw = priceAdRateInput.value.trim();
+        
+        const subPrice = parseFloat(subRaw.replace(',', '.'));
+        const adRate = parseFloat(adRaw.replace(',', '.'));
+
+        if (isNaN(subPrice) || subPrice <= 0) {
+            alert('Por favor, digite um preço de assinatura válido (maior que zero).');
+            return;
+        }
+        if (isNaN(adRate) || adRate <= 0) {
+            alert('Por favor, digite uma tarifa de anúncio válida (maior que zero).');
+            return;
+        }
+
+        try {
+            await db.collection('platform_config').doc('catalog').set({
+                subscription: {
+                    enabled: true,
+                    monthlyPrice: subPrice
+                },
+                adRate: adRate
+            }, { merge: true });
+
+            alert(`✅ Preços atualizados!\n\n• Assinatura: R$ ${subPrice.toFixed(2).replace('.', ',')}\n• Tarifa: R$ ${adRate.toFixed(2).replace('.', ',')} / segundo`);
+            pricingModal.classList.remove('active');
+        } catch (e) {
             console.error(e);
-            alert("Erro ao atualizar o preço. Verifique o console.");
+            alert('Erro ao salvar os preços: ' + e.message);
         }
     });
 
-    document.getElementById('configAdRateBtn').addEventListener('click', async () => {
-        adminDropdown.style.display = 'none';
-        try {
-            const doc = await db.collection('platform_config').doc('catalog').get();
-            let rateAtual = 1.00;
-            if (doc.exists && doc.data().adRate) {
-                rateAtual = doc.data().adRate;
-            }
-
-            const novaRate = prompt("Digite a tarifa por segundo do anúncio (Ex: 1.00):", rateAtual);
-            
-            if (novaRate !== null && novaRate.trim() !== "") {
-                const rateNumerica = parseFloat(novaRate.replace(',', '.'));
-                if (isNaN(rateNumerica) || rateNumerica <= 0) {
-                    alert("Por favor, digite um valor válido.");
-                    return;
-                }
-
-                await db.collection('platform_config').doc('catalog').set({
-                    adRate: rateNumerica
-                }, { merge: true });
-
-                alert("✅ Tarifa atualizada com sucesso para R$ " + rateNumerica.toFixed(2).replace('.', ',') + " / segundo.");
-            }
-        } catch (e) {
-            console.error(e);
-            alert("Erro ao atualizar a tarifa. Verifique o console.");
-        }
-    });
-
+    /* ===== Gerenciar Anúncio Interno ===== */
     const manageAdsModal = document.getElementById('manageAdsModal');
     const adsListContainer = document.getElementById('adsListContainer');
     const newAdImageUrl = document.getElementById('newAdImageUrl');
@@ -2140,7 +1939,7 @@
     function renderAdsList() {
         adsListContainer.innerHTML = '';
         if (adBanners.length === 0) {
-            adsListContainer.innerHTML = '<p style="font-size:0.85rem; color:#94a3b8; text-align:center;">Nenhum anúncio base cadastrado.</p>';
+            adsListContainer.innerHTML = '<p style="font-size:0.85rem; color:#94a3b8; text-align:center; padding: 20px 0;">Nenhum anúncio interno cadastrado.</p>';
             return;
         }
 
@@ -2148,8 +1947,8 @@
             const item = document.createElement('div');
             item.className = 'ad-list-item';
             item.innerHTML = `
-                <img src="${ad.src}" onerror="this.src='https://via.placeholder.com/100x50?text=Erro'">
-                <div class="ad-info" title="${ad.src}">${ad.src}</div>
+                <img src="${ad.src}" onerror="this.src='https://via.placeholder.com/100x56?text=Erro'">
+                <div class="ad-info" title="${escapeHtml(ad.src)}">${escapeHtml(ad.src)}</div>
                 <button class="remove-ad-btn" data-index="${index}">Remover</button>
             `;
             adsListContainer.appendChild(item);
@@ -2213,6 +2012,109 @@
         
         checkCatalogSubscription();
     });
+
+    /* ===== NOVO: Modal de Desempenho dos Vídeos ===== */
+    const performanceModal = document.getElementById('performanceModal');
+    const perfTableContainer = document.getElementById('perfTableContainer');
+
+    document.getElementById('performanceBtn').addEventListener('click', () => {
+        adminDropdown.style.display = 'none';
+        performanceModal.classList.add('active');
+        renderPerformanceTable();
+    });
+
+    document.getElementById('closePerformanceBtn').addEventListener('click', () => {
+        performanceModal.classList.remove('active');
+    });
+
+    performanceModal.addEventListener('click', (e) => {
+        if (e.target === performanceModal) performanceModal.classList.remove('active');
+    });
+
+    function getPerfSortValue(item, field) {
+        if (field === 'titulo') return item.titulo || '';
+        if (field === 'publishedAt') return item.publishedAt || 0;
+        if (field === 'views') return item.views || 0;
+        if (field === 'likes') return item.likes || 0;
+        if (field === 'dislikes') return item.dislikes || 0;
+        if (field === 'nota') return item.nota === 'N/D' ? -1 : parseFloat(item.nota);
+        return 0;
+    }
+
+    function renderPerformanceTable() {
+        if (!perfTableContainer) return;
+
+        if (!videos || videos.length === 0) {
+            perfTableContainer.innerHTML = '<div class="perf-empty">Nenhum vídeo cadastrado no catálogo ainda.</div>';
+            return;
+        }
+
+        const data = videos.map(v => ({
+            youtubeId: v.youtubeId,
+            titulo: v.titulo || '(Sem título)',
+            publishedAt: v.order || 0,
+            views: viewsCache[v.youtubeId] || 0,
+            likes: (votesCache[v.youtubeId] || {}).likes || 0,
+            dislikes: (votesCache[v.youtubeId] || {}).dislikes || 0,
+            nota: calcularNotaFromCache(v.youtubeId)
+        }));
+
+        const field = perfSortField;
+        const order = perfSortOrder;
+
+        data.sort((a, b) => {
+            const av = getPerfSortValue(a, field);
+            const bv = getPerfSortValue(b, field);
+            let cmp;
+            if (field === 'titulo') cmp = av.localeCompare(bv);
+            else cmp = av - bv;
+            return order === 'asc' ? cmp : -cmp;
+        });
+
+        const arrow = (f) => field === f ? (order === 'asc' ? ' ▲' : ' ▼') : '';
+
+        const rows = data.map(v => `
+            <tr>
+                <td><img class="perf-thumb" src="https://img.youtube.com/vi/${v.youtubeId}/mqdefault.jpg" alt="" loading="lazy"></td>
+                <td class="perf-title" title="${escapeHtml(v.titulo)}">${escapeHtml(v.titulo)}</td>
+                <td>${v.publishedAt ? new Date(v.publishedAt).toLocaleDateString('pt-BR') : '—'}</td>
+                <td>${v.views.toLocaleString('pt-BR')}</td>
+                <td>👍 ${v.likes.toLocaleString('pt-BR')}</td>
+                <td>👎 ${v.dislikes.toLocaleString('pt-BR')}</td>
+                <td class="perf-note-cell">⭐ ${v.nota}</td>
+            </tr>
+        `).join('');
+
+        perfTableContainer.innerHTML = `
+            <table class="perf-table">
+                <thead>
+                    <tr>
+                        <th></th>
+                        <th data-sort="titulo">Título${arrow('titulo')}</th>
+                        <th data-sort="publishedAt">Publicado${arrow('publishedAt')}</th>
+                        <th data-sort="views">Views${arrow('views')}</th>
+                        <th data-sort="likes">Likes${arrow('likes')}</th>
+                        <th data-sort="dislikes">Dislikes${arrow('dislikes')}</th>
+                        <th data-sort="nota">Nota${arrow('nota')}</th>
+                    </tr>
+                </thead>
+                <tbody>${rows}</tbody>
+            </table>
+        `;
+
+        perfTableContainer.querySelectorAll('th[data-sort]').forEach(th => {
+            th.addEventListener('click', () => {
+                const f = th.getAttribute('data-sort');
+                if (perfSortField === f) {
+                    perfSortOrder = perfSortOrder === 'asc' ? 'desc' : 'asc';
+                } else {
+                    perfSortField = f;
+                    perfSortOrder = (f === 'titulo') ? 'asc' : 'desc';
+                }
+                renderPerformanceTable();
+            });
+        });
+    }
 
     /* ========= SISTEMA DE ASSINATURA PIX ========= */
     async function checkCatalogSubscription() {
@@ -2393,7 +2295,7 @@
         setTimeout(() => { document.getElementById('copyPixBtn').textContent = 'Copiar código'; }, 2000);
     });
 
-    /* ========= NOVO SISTEMA DE PAGAMENTO DE ANÚNCIO (INSTANTÂNEO) ========= */
+    /* ========= ANÚNCIO PAGO (PIX) ========= */
     const insertAdModal = document.getElementById('insertAdModal');
     const adYoutubeHint = document.getElementById('adYoutubeHint');
     const newAdYoutubeUrl = document.getElementById('newAdYoutubeUrl');
@@ -2486,9 +2388,7 @@
         adVideoId = id;
 
         hiddenPlayer = new YT.Player('hiddenYTPlayer', {
-            height: '1',
-            width: '1',
-            videoId: id,
+            height: '1', width: '1', videoId: id,
             playerVars: { 'autoplay': 0, 'controls': 0 },
             events: {
                 'onReady': (event) => {
@@ -2511,11 +2411,11 @@
                         adCalcResult.style.display = 'block';
                         generateAdPixBtn.style.display = 'block';
                     } else {
-                        adYoutubeHint.textContent = 'Não foi possível calcular a duração (vídeo muito curto ou privado).';
+                        adYoutubeHint.textContent = 'Não foi possível calcular a duração.';
                         adYoutubeHint.className = 'url-hint warn';
                     }
                 },
-                'onError': (event) => {
+                'onError': () => {
                     adYoutubeHint.textContent = 'Erro ao carregar o vídeo. Verifique se ele é público.';
                     adYoutubeHint.className = 'url-hint warn';
                     adCalcResult.style.display = 'none';
@@ -2550,10 +2450,7 @@
             const token = await currentUser.getIdToken();
             const r = await fetch(CF_BASE + '/createAdPayment', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': 'Bearer ' + token
-                },
+                headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
                 body: JSON.stringify({
                     youtubeUrl: newAdYoutubeUrl.value.trim(),
                     duration: adVideoDuration
@@ -2753,7 +2650,7 @@
             card.innerHTML = `
                 <img src="https://img.youtube.com/vi/${ad.videoId}/mqdefault.jpg" class="ad-history-thumb">
                 <div class="ad-history-info">
-                    <div class="ad-history-title" title="${title}">${title}</div>
+                    <div class="ad-history-title" title="${escapeHtml(title)}">${escapeHtml(title)}</div>
                     <div class="ad-history-dates">Publicado: ${dateCreated} • Expira: ${dateExpires}</div>
                     <div class="ad-history-stats">👁️ <b>${ad.views || 0}</b> visualizações • 💰 Pago: <b>${price}</b></div>
                     ${isAdmin() ? `<div class="ad-history-owner">Usuário: ${(ad.userId || 'Desconhecido').substring(0,8)}... | ${ad.payerEmail || 'N/A'}</div>` : ''}
@@ -2792,7 +2689,6 @@
             });
         });
     }
-    /* ========================================================= */
 
     /* ========= PLAYER E ANÚNCIOS ========= */
     const playerScreen = document.getElementById('playerScreen');
@@ -2822,10 +2718,9 @@
     let isEnded = false;
     let isMuted = false;
     let currentVolume = 100;
-    let isSeeking = false;          // Flag para controlar o timer durante arraste/buffer
-    let seekPollingInterval = null; // Polling de segurança do seek
+    let isSeeking = false;
+    let seekPollingInterval = null;
 
-    /* ========= HELPERS DE OVERLAY ========= */
     function clearSeekPolling() {
         if (seekPollingInterval) {
             clearInterval(seekPollingInterval);
@@ -2838,7 +2733,6 @@
         playerLoadingOverlay.classList.remove('hidden');
         if (seeking) {
             playerLoadingOverlay.classList.add('seeking');
-            // BUG 2: mantém os controles personalizados visíveis durante o seek
             clearTimeout(controlsTimeout);
             customUI.classList.remove('player-ui-hidden');
             playerWrapper.classList.remove('hide-shadows');
@@ -2852,15 +2746,12 @@
         playerLoadingOverlay.classList.add('hidden');
         playerLoadingOverlay.classList.remove('seeking');
         if (wasSeeking && !isEnded && playerReady && player) {
-            // Só agora o timer de 5,5s volta a contar
             resetControlsTimer();
         }
     }
-    /* ======================================== */
 
     window.onYouTubeIframeAPIReady = function() {};
 
-    /* Helper: alterna visualmente os SVGs de play/pause */
     function setPlayPauseVisual(playing) {
         const playIcon = centerPlayPauseBtn.querySelector('.icon-play');
         const pauseIcon = centerPlayPauseBtn.querySelector('.icon-pause');
@@ -2963,13 +2854,10 @@
                 playerVars: {
                     'autoplay': 1, 'controls': 0, 'modestbranding': 1, 'rel': 0,
                     'showinfo': 0, 'iv_load_policy': 3, 'playsinline': 1, 'cc_load_policy': 0,
-                    'disablekb': 1,
-                    'origin': window.location.origin
+                    'disablekb': 1, 'origin': window.location.origin
                 },
                 events: {
-                    'onReady': (event) => {
-                        event.target.playVideo();
-                    },
+                    'onReady': (event) => { event.target.playVideo(); },
                     'onStateChange': (event) => {
                         if (event.data === 1) {
                             const overlay = document.getElementById('adLoadingOverlay');
@@ -2985,14 +2873,11 @@
         } else {
             if (adBanners.length > 0) {
                 const ad = adBanners[currentAdBannerIndex];
-                adCenterWrapper.innerHTML = `
-                    <img src="${ad.src}" alt="Publicidade" style="width:100%; height:100%; object-fit:contain; padding: 20px;">
-                `;
+                adCenterWrapper.innerHTML = `<img src="${ad.src}" alt="Publicidade" style="width:100%; height:100%; object-fit:contain; padding: 20px;">`;
                 currentAdBannerIndex = (currentAdBannerIndex + 1) % adBanners.length;
             }
         }
 
-        // Chama a função que verifica a orientação e monta os banners
         ensureAdsMounted();
 
         if (!document.getElementById('social-bar-iframe')) {
@@ -3077,6 +2962,7 @@
         document.body.style.overflow = 'hidden';
 
         playerVideoTitle.textContent = video.titulo || 'Vídeo';
+        viewAlreadyCounted = false;
 
         showLoadingOverlay('Carregando vídeo...', false);
 
@@ -3189,6 +3075,12 @@
             setPlayPauseVisual(true);
             removeCaptions(event.target);
 
+            // Conta visualização apenas uma vez por sessão de play
+            if (!viewAlreadyCounted && currentPlayerVideoId) {
+                viewAlreadyCounted = true;
+                rtdb.ref('vod_views/' + currentPlayerVideoId).transaction(v => (v || 0) + 1);
+            }
+
             if (isSeeking) {
                 isSeeking = false;
                 clearSeekPolling();
@@ -3200,7 +3092,7 @@
             isPlaying = false; isEnded = false;
             setPlayPauseVisual(false);
             showControls();
-            if (isSeeking) {                    // BUG 1: seek terminou em pausa
+            if (isSeeking) {
                 isSeeking = false;
                 clearSeekPolling();
                 hideLoadingOverlay();
@@ -3223,7 +3115,7 @@
                 showLoadingOverlay('Carregando posição...', true);
             }
 
-        } else if (event.data === 5) { // Cued (seek quando pausado)
+        } else if (event.data === 5) { // Cued
             if (isSeeking) {
                 isSeeking = false;
                 clearSeekPolling();
@@ -3255,7 +3147,7 @@
 
     function hideControls() {
         if (isEnded) return;
-        if (isSeeking) return; // BUG 2: nunca esconde durante o seek
+        if (isSeeking) return;
         customUI.classList.add('player-ui-hidden');
         playerWrapper.classList.add('hide-shadows');
     }
@@ -3263,7 +3155,7 @@
     function resetControlsTimer() {
         clearTimeout(controlsTimeout);
         if (isEnded) return;
-        if (isSeeking) return; // BUG 2: não inicia timer enquanto busca posição
+        if (isSeeking) return;
         controlsTimeout = setTimeout(hideControls, 5500);
     }
 
@@ -3284,19 +3176,13 @@
     });
 
     document.addEventListener('fullscreenchange', () => {
-        if (playerScreen.classList.contains('active')) {
-            showControls();
-        }
+        if (playerScreen.classList.contains('active')) showControls();
     });
     document.addEventListener('webkitfullscreenchange', () => {
-        if (playerScreen.classList.contains('active')) {
-            showControls();
-        }
+        if (playerScreen.classList.contains('active')) showControls();
     });
     document.addEventListener('msfullscreenchange', () => {
-        if (playerScreen.classList.contains('active')) {
-            showControls();
-        }
+        if (playerScreen.classList.contains('active')) showControls();
     });
 
     centerPlayPauseBtn.addEventListener('click', () => {
@@ -3320,11 +3206,10 @@
         }
     });
 
-    /* ========= SEEK BAR (PROGRESS TRACK) — COM INDICADOR DE CARREGAMENTO ========= */
+    /* ========= SEEK BAR ========= */
     let isDragging = false;
     let seekTargetPercent = 0;
 
-    /* Atualiza SOMENTE o visual enquanto arrasta (não chama seekTo) */
     function updateSeekVisual(e) {
         if (!playerReady || !player || typeof player.getDuration !== 'function') return;
 
@@ -3347,7 +3232,6 @@
         }
     }
 
-    /* Aplica o seek de verdade (só ao soltar) */
     function applySeek() {
         if (!playerReady || !player || typeof player.seekTo !== 'function') return;
 
@@ -3363,7 +3247,6 @@
             showLoadingOverlay('Carregando posição...', true);
             player.seekTo(seekTime, true);
 
-            // BUG 1: fallback por polling, caso o YouTube não dispare state 2/5
             clearSeekPolling();
             let elapsed = 0;
             seekPollingInterval = setInterval(() => {
@@ -3380,7 +3263,6 @@
                         hideLoadingOverlay();
                     }
                 } catch(e) { clearSeekPolling(); }
-                // Segurança final: se ficar buffering > 20s, esconde de qualquer jeito
                 if (elapsed > 20000) {
                     clearSeekPolling();
                     isSeeking = false;
@@ -3414,7 +3296,7 @@
 
     document.addEventListener('touchmove', (e) => {
         if (isDragging) {
-            e.preventDefault(); // Impede o scroll da tela enquanto arrasta
+            e.preventDefault();
             updateSeekVisual(e);
         }
     }, { passive: false });
@@ -3434,7 +3316,6 @@
             applySeek();
         }
     });
-    /* ======================================== */
 
     function updateVolumeUI(val) {
         volumeSlider.value = val;
@@ -3474,6 +3355,7 @@
         isEnded = false;
         isSeeking = false;
         currentPlayerVideoId = null;
+        viewAlreadyCounted = false;
         playerScreen.classList.remove('active');
         document.body.style.overflow = '';
         progressFill.style.width = '0%';
@@ -3592,7 +3474,7 @@
         progressInterval = setInterval(() => {
             if (!playerReady || !player || typeof player.getCurrentTime !== 'function') return;
             try {
-                if (isDragging) return; // Não atualiza enquanto o usuário está arrastando
+                if (isDragging) return;
 
                 const currentTime = player.getCurrentTime() || 0;
                 const duration = player.getDuration() || 0;
