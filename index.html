@@ -673,35 +673,98 @@
         .carousel-arrow.left { left: -15px; }
         .carousel-arrow.right { right: -15px; }
 
+        /* ===== LAYOUT CORRIGIDO PARA MOBILE ===== */
         @media (max-width: 900px) {
-            .header { flex-wrap: wrap; height: auto; padding: 15px; gap: 15px; }
-            .header-brand { width: 100%; justify-content: center; }
-            .header-logo { height: 60px; }
-            .search-container { width: 100%; max-width: 100%; margin: 0; order: 3; }
-            .auth-area { position: absolute; top: 15px; right: 15px; width: auto; }
-            body { padding-top: 180px; }
-            .catalog-grid { grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 20px; }
+            body {
+                padding-top: 230px; /* Aumentado para caber o header empilhado */
+                padding-bottom: 80px; /* Espaço para o botão admin flutuante */
+                padding-left: 10px;
+                padding-right: 10px;
+            }
+
+            .header {
+                flex-direction: column; /* Empilha os elementos */
+                height: auto;
+                padding: 15px;
+                gap: 12px;
+            }
+
+            .header-brand {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .header-logo {
+                height: 60px;
+            }
+
+            .auth-area {
+                position: static; /* Remove o absolute que causava a sobreposição */
+                width: 100%;
+                justify-content: center;
+                flex-wrap: wrap;
+                gap: 10px;
+            }
+
+            /* Deixa os botões mais compactos no celular */
+            #myAdsBtn, #subscribeBtn, #subscriptionBadge {
+                margin-right: 0 !important;
+                font-size: 0.8rem !important;
+                padding: 8px 12px !important;
+            }
+
+            .search-container {
+                width: 100%;
+                max-width: 100%;
+                margin: 0;
+            }
+
+            .catalog-grid {
+                grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); /* Cards menores */
+                gap: 15px;
+            }
+
+            .card-title {
+                font-size: 1rem;
+                min-height: 2.6em;
+            }
+            .card-info {
+                padding: 10px;
+            }
+            .watch-btn {
+                font-size: 0.85rem;
+                padding: 8px;
+            }
+
+            /* Botão Admin flutuante mais afastado da borda */
+            #adminMenuContainer {
+                bottom: 15px;
+                right: 15px;
+            }
+
+            /* Player */
             #playerScreen { padding: 0; }
             .player-container { gap: 0; }
             .player-wrapper {
                 max-height: calc(100vh - 40px);
                 border-radius: 0;
             }
-            .player-vote-container { top: 10px; right: 10px; transform: scale(0.85); transform-origin: top right; }
+            .player-vote-container { top: 10px; right: 10px; transform: scale(0.8); transform-origin: top right; }
             .close-player-btn { top: 10px; left: 10px; width: 35px; height: 35px; font-size: 1rem; }
-            .player-video-title {
-                top: 12px; left: 55px; font-size: 0.9rem; max-width: calc(100% - 160px);
-            }
+            .player-video-title { top: 12px; left: 55px; font-size: 0.85rem; max-width: calc(100% - 160px); }
             .volume-slider { width: 50px; }
-            .player-controls { flex-wrap: wrap; gap: 10px; }
+            .player-controls { flex-wrap: wrap; gap: 8px; }
             .progress-track { order: -1; width: 100%; flex: 0 0 100%; margin: 0 0 5px 0; }
-            #adminMenuContainer { bottom: 20px; right: 20px; }
-            .carousel-track .card { flex: 0 0 200px; width: 200px; }
-            .carousel-arrow { display: none; }
+
+            /* Meus Anúncios */
             .my-ads-toolbar { flex-direction: column; }
             .my-ads-toolbar input, .my-ads-toolbar select { width: 100%; }
             .ad-history-card { flex-direction: column; align-items: flex-start; }
             .ad-history-actions { flex-direction: row; width: 100%; justify-content: space-between; margin-top: 10px; }
+
+            /* Carrossel */
+            .carousel-track .card { flex: 0 0 160px; width: 160px; }
+            .carousel-arrow { display: none; }
         }
     </style>
 </head>
@@ -2489,7 +2552,6 @@
                 }).catch(e => console.warn("Erro ao registrar view:", e));
             }
 
-            // ✅ Adicionado overlay preto para esconder o YouTube no anúncio também
             adCenterWrapper.innerHTML = `
                 <div id="adLoadingOverlay" class="player-loading-overlay">
                     <div class="spinner"></div>
@@ -2510,7 +2572,7 @@
                         event.target.playVideo();
                     },
                     'onStateChange': (event) => {
-                        if (event.data === 1) { // Playing
+                        if (event.data === 1) {
                             const overlay = document.getElementById('adLoadingOverlay');
                             if (overlay) overlay.classList.add('hidden');
                         }
@@ -2628,7 +2690,6 @@
 
         playerVideoTitle.textContent = video.titulo || 'Vídeo';
 
-        // ✅ Mostra o overlay de carregamento novamente
         playerLoadingOverlay.classList.remove('hidden');
 
         if (!catalogSubscription.active) {
@@ -2702,14 +2763,13 @@
     }
 
     function onPlayerStateChange(event) {
-        if (event.data === 1) { // Playing
+        if (event.data === 1) {
             isPlaying = true; isEnded = false;
             centerPlayPauseBtn.innerHTML = '⏸';
             centerPlayPauseBtn.classList.add('playing-state');
             removeCaptions(event.target);
             resetControlsTimer();
             
-            // ✅ Esconde o overlay preto quando o vídeo começa a tocar de verdade
             playerLoadingOverlay.classList.add('hidden');
         } else if (event.data === 2) {
             isPlaying = false; isEnded = false;
@@ -2847,7 +2907,6 @@
         playerBottomAd.style.display = 'none';
         playerVideoTitle.textContent = '';
 
-        // Reseta o overlay de carregamento para a próxima vez
         playerLoadingOverlay.classList.remove('hidden');
 
         if (isAdmin()) adminMenuContainer.style.display = 'block';
