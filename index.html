@@ -975,6 +975,66 @@
             #playerMobileTop { display: block; order: 10; }
             #playerMobileBottom { display: none !important; }
         }
+
+        /* ===== FIX: MODAL DE ANÚNCIO EM MOBILE LANDSCAPE ===== */
+        @media (max-width: 900px) and (orientation: landscape) {
+            #adInterstitialModal {
+                padding: 6px;
+                gap: 0;
+                overflow: hidden;
+                align-items: center;
+                justify-content: center;
+            }
+
+            /* Os banners mobile (320x50 e 300x250) não cabem junto do
+               anúncio principal em landscape — ocultamos para liberar espaço */
+            .ad-mobile-top,
+            .ad-mobile-bottom {
+                display: none !important;
+            }
+
+            .ad-interstitial-wrapper {
+                max-width: calc(100vw - 12px);
+                max-height: calc(100vh - 12px);
+                flex-shrink: 1;      /* permite encolher */
+                min-height: 0;
+            }
+
+            .ad-interstitial-header {
+                padding: 5px 12px;
+                font-size: 0.75rem;
+            }
+
+            /* Quebra o aspect-ratio fixo e deixa o centro ocupar
+               todo o espaço restante entre header e footer */
+            .ad-center-wrapper {
+                aspect-ratio: auto;
+                flex: 1 1 auto;
+                min-height: 60px;
+                max-height: calc(100vh - 110px);
+            }
+
+            .ad-center-wrapper img {
+                padding: 6px;
+            }
+
+            .ad-interstitial-footer {
+                padding: 5px 10px;
+                gap: 6px !important;
+                flex-wrap: nowrap !important;
+            }
+
+            .ad-interstitial-footer button {
+                padding: 6px 12px !important;
+                font-size: 0.72rem !important;
+                white-space: nowrap;
+            }
+
+            .ad-close-btn {
+                padding: 6px 16px;
+                font-size: 0.75rem;
+            }
+        }
     </style>
 </head>
 <body>
