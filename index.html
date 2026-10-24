@@ -847,16 +847,16 @@
             #player-bottom-ad { display: none !important; }
 
             /* 
-             * SOMBRAS REFORÇADAS NO MOBILE - Reduzidas em 20%
-             * Antes: 110px / 130px. Agora: 88px / 104px.
+             * SOMBRAS NO MOBILE - Reduzidas drasticamente para não cobrir o vídeo
+             * Antes estavam em 88px/104px, agora 40px/50px com gradiente curto.
              */
             .player-wrapper::before {
-                height: 88px;
-                background: linear-gradient(to bottom, #000000 0%, #000000 70%, transparent 100%);
+                height: 40px;
+                background: linear-gradient(to bottom, rgba(0,0,0,1) 0%, rgba(0,0,0,0.8) 40%, transparent 100%);
             }
             .player-wrapper::after {
-                height: 104px;
-                background: linear-gradient(to top, #000000 0%, #000000 70%, transparent 100%);
+                height: 50px;
+                background: linear-gradient(to top, rgba(0,0,0,1) 0%, rgba(0,0,0,0.8) 40%, transparent 100%);
             }
 
             .player-vote-container { top: 10px; right: 10px; transform: scale(0.8); transform-origin: top right; }
@@ -870,16 +870,24 @@
                 padding: 8px 12px 10px;
                 align-items: center;
             }
+            /* BARRA DE PROGRESSO NO MOBILE - Visível e fácil de tocar */
             .progress-track {
                 order: 1;
                 flex: 0 0 100%;
                 width: 100%;
                 margin: 0 0 4px 0;
-                height: 3px;
-                /* Aumentando a área de toque invisível para facilitar o arraste no celular */
-                padding: 8px 0;
-                background-clip: content-box;
+                height: 6px; /* Aumentado para melhor toque */
+                background: rgba(255,255,255,0.3); /* Mais visível */
+                border-radius: 3px;
+                padding: 0; /* Removido o padding que quebrava o fundo */
+                background-clip: border-box; /* Garante que o fundo apareça */
             }
+            .progress-fill {
+                height: 100%;
+                background: #fdbb2d;
+                border-radius: 3px;
+            }
+
             .volume-container {
                 display: none; /* Volume controlado pelo dispositivo */
             }
