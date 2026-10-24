@@ -1929,6 +1929,12 @@
         if (sbIframe) sbIframe.remove();
         clearInterval(adTimerInterval);
 
+        // ✅ CORREÇÃO DO BUG DE ÁUDIO: Destroi o player do anúncio se ele estiver rodando
+        if (adYtPlayer) {
+            try { adYtPlayer.stopVideo(); adYtPlayer.destroy(); } catch(e){}
+            adYtPlayer = null;
+        }
+
         // Abre o modal de inserção
         insertAdModal.classList.add('active');
         adInsertStep1.style.display = 'block';
@@ -2148,7 +2154,6 @@
                 const snap = await db.collection('paid_ads').limit(1).get();
                 hasAds = snap.size > 0;
             } else {
-                // ✅ CORREÇÃO: Busca apenas por userId, removendo a busca por email que causava duplicação
                 const snap = await db.collection('paid_ads').where('userId', '==', currentUser.uid).limit(1).get();
                 hasAds = snap.size > 0;
             }
@@ -2174,12 +2179,10 @@
                 const snapshot = await db.collection('paid_ads').get();
                 snapshot.forEach(doc => myAdsData.push({ id: doc.id, ...doc.data() }));
             } else {
-                // ✅ CORREÇÃO: Busca apenas por userId
                 const snapshot = await db.collection('paid_ads').where('userId', '==', currentUser.uid).get();
                 snapshot.forEach(doc => myAdsData.push({ id: doc.id, ...doc.data() }));
             }
 
-            // ✅ CORREÇÃO ADICIONAL: Remove duplicatas no frontend caso o banco já tenha registros duplicados
             const uniqueAds = [];
             const seenPaymentIds = new Set();
             myAdsData.forEach(ad => {
@@ -2190,7 +2193,6 @@
             });
             myAdsData = uniqueAds;
 
-            // Ordena do mais recente para o mais antigo
             myAdsData.sort((a, b) => b.createdAt - a.createdAt);
             renderMyAds(myAdsData);
 
@@ -2265,7 +2267,6 @@
             myAdsListContainer.appendChild(card);
         });
 
-        // Adiciona evento de exclusão
         document.querySelectorAll('.delete-my-ad-btn').forEach(btn => {
             btn.addEventListener('click', async function() {
                 const adId = this.getAttribute('data-id');
@@ -2278,10 +2279,8 @@
                 
                 try {
                     await db.collection('paid_ads').doc(adId).delete();
-                    // Remove do array local e renderiza de novo
                     window._currentMyAdsData = window._currentMyAdsData.filter(ad => ad.id !== adId);
                     renderMyAds(window._currentMyAdsData);
-                    // Verifica se o botão "Meus Anúncios" deve sumir
                     checkMyAdsVisibility();
                 } catch (e) {
                     console.error("Erro ao apagar anúncio:", e);
@@ -2342,7 +2341,7 @@
         clearInterval(adTimerInterval);
         
         if (adYtPlayer) {
-            try { adYtPlayer.destroy(); } catch(e){}
+            try { adYtPlayer.stopVideo(); adYtPlayer.destroy(); } catch(e){}
             adYtPlayer = null;
         }
         
@@ -2387,12 +2386,23 @@
         adCenterWrapper.innerHTML = '';
         
         // Limpa estados anteriores
-        if (adYtPlayer) { try { adYtPlayer.destroy(); } catch(e){} adYtPlayer = null; }
+        if (adYtPlayer) { try { adYtPlayer.stopVideo(); adYtPlayer.destroy(); } catch(e){} adYtPlayer = null; }
 
         if (activePaidAds.length > 0) {
             // LÓGICA DE ROTAÇÃO JUSTA
             activePaidAds.sort((a, b) => (a.lastShownAt || 0) - (b.lastShownAt || 0));
             const chosenAd = activePaidAds[0];
+
+            // ✅ CORREÇÃO: Contabiliza a view IMEDIATAMENTE ao iniciar o comercial
+            // Assim, o usuário não perde a view se fechar rápido.
+            if (chosenAd) {
+                fetch(CF_BASE + '/incrementAdViews', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ adId: chosenAd.id }),
+                    keepalive: true
+                }).catch(e => console.warn("Erro ao registrar view:", e));
+            }
 
             // Cria a div onde o Player será montado
             adCenterWrapper.innerHTML = `<div id="ad-youtube-player" style="width:100%; height:100%; position:absolute; top:0; left:0;"></div>`;
@@ -2466,7 +2476,6 @@
 
         // Inicia contagem regressiva
         let timeLeft = 5;
-        let viewCounted = false; 
         closeAdBtn.disabled = true;
         closeAdBtn.classList.remove('active');
         closeAdBtn.textContent = 'Fechar e Assistir';
@@ -2483,18 +2492,7 @@
                 closeAdBtn.disabled = false;
                 closeAdBtn.classList.add('active');
                 closeAdBtn.textContent = 'Fechar e Assistir ▶';
-
-                // ✅ CORREÇÃO: Contabiliza a view sem travar o código e garante o envio com keepalive
-                if (!viewCounted && activePaidAds.length > 0) {
-                    viewCounted = true;
-                    
-                    fetch(CF_BASE + '/incrementAdViews', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ adId: activePaidAds[0].id }),
-                        keepalive: true // 🚀 MAGIA AQUI: Garante que o envio não seja cancelado se você fechar rápido
-                    }).catch(e => console.warn("Erro ao registrar view:", e));
-                }
+                // ❌ A view NÃO é mais contada aqui, e sim no início do anúncio!
             }
         }, 1000);
     }
@@ -2507,7 +2505,7 @@
     document.getElementById('adSubscribeBtn').addEventListener('click', () => {
         adModal.classList.remove('active');
         if (isAdmin()) adminMenuContainer.style.display = 'block';
-        if (adYtPlayer) { try { adYtPlayer.destroy(); } catch(e){} adYtPlayer = null; }
+        if (adYtPlayer) { try { adYtPlayer.stopVideo(); adYtPlayer.destroy(); } catch(e){} adYtPlayer = null; }
         const sbIframe = document.getElementById('social-bar-iframe');
         if (sbIframe) sbIframe.remove();
         clearInterval(adTimerInterval);
