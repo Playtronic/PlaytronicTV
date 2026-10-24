@@ -976,63 +976,72 @@
             #playerMobileBottom { display: none !important; }
         }
 
-        /* ===== FIX: MODAL DE ANÚNCIO EM MOBILE LANDSCAPE ===== */
-        @media (max-width: 900px) and (orientation: landscape) {
+        /* ===== FIX DEFINITIVO: MODAL DE ANÚNCIO EM MOBILE LANDSCAPE ===== */
+        @media (max-width: 950px) and (orientation: landscape) {
             #adInterstitialModal {
-                padding: 6px;
-                gap: 0;
-                overflow: hidden;
+                flex-direction: row !important;
+                padding: 8px;
+                gap: 10px;
                 align-items: center;
                 justify-content: center;
+                overflow: hidden;
             }
 
-            /* Os banners mobile (320x50 e 300x250) não cabem junto do
-               anúncio principal em landscape — ocultamos para liberar espaço */
             .ad-mobile-top,
             .ad-mobile-bottom {
                 display: none !important;
             }
 
+            .ad-native-side {
+                display: block !important;
+                width: 160px !important;
+                height: 300px !important;
+                flex-shrink: 0;
+            }
+
+            /* Em telas muito estreitas, esconde o banner da direita para caber o modal */
+            @media (max-width: 750px) {
+                .ad-native-side.right {
+                    display: none !important;
+                }
+            }
+
             .ad-interstitial-wrapper {
-                max-width: calc(100vw - 12px);
-                max-height: calc(100vh - 12px);
-                flex-shrink: 1;      /* permite encolher */
-                min-height: 0;
+                /* Calcula a largura baseada na altura disponível para manter 16:9 sem achatar o vídeo */
+                max-width: calc((100vh - 100px) * 16 / 9 + 20px);
+                max-height: calc(100vh - 16px);
+                width: 100%;
+                height: auto;
+                flex-shrink: 1;
+                display: flex;
+                flex-direction: column;
             }
 
             .ad-interstitial-header {
-                padding: 5px 12px;
-                font-size: 0.75rem;
+                padding: 6px 12px !important;
+                font-size: 0.75rem !important;
             }
 
-            /* Quebra o aspect-ratio fixo e deixa o centro ocupar
-               todo o espaço restante entre header e footer */
             .ad-center-wrapper {
-                aspect-ratio: auto;
-                flex: 1 1 auto;
-                min-height: 60px;
-                max-height: calc(100vh - 110px);
-            }
-
-            .ad-center-wrapper img {
-                padding: 6px;
+                aspect-ratio: 16 / 9 !important;
+                width: 100%;
+                height: auto;
+                max-height: calc(100vh - 100px);
+                flex: none !important; /* Impede o flexbox de achatar */
             }
 
             .ad-interstitial-footer {
-                padding: 5px 10px;
+                padding: 6px 12px !important;
                 gap: 6px !important;
-                flex-wrap: nowrap !important;
+                flex-wrap: wrap !important;
+                justify-content: center !important;
+                flex: none !important;
             }
 
             .ad-interstitial-footer button {
                 padding: 6px 12px !important;
-                font-size: 0.72rem !important;
+                font-size: 0.75rem !important;
                 white-space: nowrap;
-            }
-
-            .ad-close-btn {
-                padding: 6px 16px;
-                font-size: 0.75rem;
             }
         }
     </style>
@@ -2942,9 +2951,23 @@
         if (!adModal.dataset.adsMounted) {
             adModal.dataset.adsMounted = '1';
 
+            const isLandscapeMobile = window.matchMedia('(max-width: 950px) and (orientation: landscape)').matches;
             const isMobileView = window.matchMedia('(max-width: 1150px)').matches;
 
-            if (isMobileView) {
+            if (isLandscapeMobile) {
+                // Banner 160x300 nas laterais para Landscape mobile
+                mountStandardAd(
+                    document.getElementById('adNativeLeft'),
+                    { key: '9dda7ca26c536cc2dbcbbaf87dfc02c7', format: 'iframe', height: 300, width: 160, params: {} },
+                    'https://dcengg.org/22/9dda7ca26c536cc2dbcbbaf87dfc02c7'
+                );
+                mountStandardAd(
+                    document.getElementById('adNativeRight'),
+                    { key: '9dda7ca26c536cc2dbcbbaf87dfc02c7', format: 'iframe', height: 300, width: 160, params: {} },
+                    'https://dcengg.org/22/9dda7ca26c536cc2dbcbbaf87dfc02c7'
+                );
+            } else if (isMobileView) {
+                // Banner mobile portrait original
                 mountStandardAd(
                     document.getElementById('adMobileTop'),
                     { key: 'c7c3c36fda809c5dd35ae6ed9c4890ca', format: 'iframe', height: 50, width: 320, params: {} },
@@ -2956,6 +2979,7 @@
                     'https://dcengg.org/22/51efcb0e502dffc7c8c25030a1155128'
                 );
             } else {
+                // Desktop native original
                 mountNativeAd(
                     document.getElementById('adNativeLeft'),
                     'https://dcengg.org/21/efe34bd92ca74a51f85465ca14314dc7',
