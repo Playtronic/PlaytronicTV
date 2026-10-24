@@ -69,7 +69,7 @@
         /* ===== PAINEL DO USUÁRIO (DROPDOWN) ===== */
         .user-card {
             position: absolute; top: 60px; right: 0; background: #152961; border: 1px solid rgba(255,255,255,0.1);
-            border-radius: 12px; padding: 20px; min-width: 260px; display: none; flex-direction: column; z-index: 1000;
+            border-radius: 12px; padding: 20px; min-width: 280px; display: none; flex-direction: column; z-index: 1000;
             box-shadow: 0 10px 30px rgba(0,0,0,0.8);
         }
         .user-card.active { display: flex; }
@@ -79,17 +79,43 @@
         .user-actions { display: flex; flex-direction: column; gap: 10px; margin-bottom: 15px; }
         
         .user-card button {
-            width: 100%; padding: 10px; border-radius: 8px; border: none; font-weight: bold; font-size: 0.9rem; cursor: pointer; transition: 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px;
+            width: 100%; padding: 12px; border-radius: 8px; border: none; font-weight: bold; font-size: 0.9rem; cursor: pointer; transition: 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px;
         }
         .user-card #subscribeBtn { background: linear-gradient(135deg, #7c3aed, #6d28d9); color: #fff; }
         .user-card #subscribeBtn:hover { background: linear-gradient(135deg, #6d28d9, #5b21b6); }
         .user-card #myAdsBtn { background: #1e293b; color: #fff; border: 1px solid #334155; }
         .user-card #myAdsBtn:hover { background: #334155; }
-        .user-card .logout-btn { background: rgba(239, 68, 68, 0.15); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.3); }
-        .user-card .logout-btn:hover { background: #ef4444; color: #fff; }
+        
+        /* Botão Sair (Vermelho e Branco) */
+        .user-card .logout-btn { background: #ef4444; color: #ffffff; }
+        .user-card .logout-btn:hover { background: #dc2626; }
         
         .user-sub-info { font-size: 0.8rem; color: #fdbb2d; margin-bottom: 10px; display: none; font-weight: bold; text-align: center; background: rgba(253, 187, 45, 0.1); padding: 6px; border-radius: 6px; }
-        #subscriptionBadge { display: none; background: #16a34a; color: #fff; padding: 8px 14px; border-radius: 8px; font-size: 0.85rem; font-weight: bold; align-items: center; justify-content: center; gap: 6px; }
+        #subscriptionBadge { display: none; background: #16a34a; color: #fff; padding: 10px; border-radius: 8px; font-size: 0.85rem; font-weight: bold; align-items: center; justify-content: center; gap: 6px; width: 100%; text-align: center; }
+
+        /* ===== ADMIN MENU DENTRO DO USER CARD ===== */
+        #adminMenuContainer {
+            display: none;
+            flex-direction: column;
+            width: 100%;
+            margin-top: 5px;
+        }
+        #adminMenuBtn {
+            background: #fdbb2d; color: #000; padding: 12px; border-radius: 8px; font-weight: bold; font-size: 0.9rem; width: 100%; cursor: pointer; border: none;
+        }
+        #adminDropdown {
+            display: none;
+            flex-direction: column;
+            gap: 5px;
+            margin-top: 10px;
+            background: rgba(0,0,0,0.3);
+            padding: 10px;
+            border-radius: 8px;
+        }
+        #adminDropdown button {
+            background: rgba(255,255,255,0.05); color: #fff; padding: 10px; font-size: 0.85rem; text-align: left; justify-content: flex-start;
+        }
+        #adminDropdown button:hover { background: rgba(253,187,45,0.2); color: #fdbb2d; }
 
         #catalogScreen { flex: 1; padding-bottom: 40px; }
 
@@ -182,61 +208,6 @@
             color: #fff;
         }
         .watch-btn.locked:hover { background: linear-gradient(135deg, #6d28d9, #5b21b6); }
-
-        #adminMenuContainer {
-            position: fixed;
-            bottom: 30px;
-            right: 30px;
-            z-index: 9999;
-            display: none;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-        #adminMenuBtn {
-            background: #fdbb2d;
-            color: #000;
-            border: none;
-            padding: 10px 16px;
-            border-radius: 30px;
-            font-weight: bold;
-            cursor: pointer;
-            font-size: 0.95rem;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.4);
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-        #adminDropdown {
-            display: none;
-            position: absolute;
-            bottom: 50px;
-            right: 0;
-            background: #152961;
-            border: 1px solid rgba(255,255,255,0.2);
-            border-radius: 8px;
-            padding: 8px;
-            box-shadow: 0 8px 24px rgba(0,0,0,0.6);
-            min-width: 220px;
-            flex-direction: column;
-            gap: 6px;
-        }
-        #adminDropdown button {
-            background: rgba(255,255,255,0.05);
-            color: #fff;
-            border: none;
-            padding: 10px 14px;
-            border-radius: 6px;
-            text-align: left;
-            cursor: pointer;
-            font-size: 0.9rem;
-            transition: background 0.2s;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        #adminDropdown button:hover {
-            background: rgba(253,187,45,0.2);
-            color: #fdbb2d;
-        }
 
         .modal-overlay {
             position: fixed; inset: 0; background: rgba(0,0,0,0.72);
@@ -690,48 +661,50 @@
         /* ===== LAYOUT CORRIGIDO PARA MOBILE ===== */
         @media (max-width: 900px) {
             body {
-                padding-top: 140px;
-                padding-bottom: 80px;
+                padding-top: 150px; /* Ajustado para o novo header */
+                padding-bottom: 40px;
                 padding-left: 10px;
                 padding-right: 10px;
             }
 
             .header {
-                height: 120px;
+                height: auto;
                 padding: 10px 15px;
-                flex-wrap: wrap;
+                display: flex;
+                flex-direction: column;
+                align-items: stretch;
+                gap: 10px;
             }
 
+            /* Linha 1: Logo e Avatar */
             .header-brand {
-                width: auto;
-                flex: 1;
+                width: 100%;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
             }
 
-            .header-logo {
-                height: 50px;
-            }
+            .header-logo { height: 50px; }
 
             .auth-area {
-                position: absolute;
-                top: 15px;
-                right: 15px;
+                position: static; /* Remove o absolute que causava sobreposição */
+                width: auto;
             }
 
-            /* Painel do Usuário no Mobile */
+            /* O menu do usuário agora abre fixo na tela no mobile */
             .user-card {
                 position: fixed;
                 top: 80px;
                 right: 15px;
                 left: auto;
-                min-width: 250px;
+                min-width: 260px;
             }
 
+            /* Linha 2: Barra de Pesquisa isolada */
             .search-container {
                 width: 100%;
                 max-width: 100%;
                 margin: 0;
-                order: 3;
-                margin-top: 5px;
             }
 
             .catalog-grid {
@@ -739,30 +712,14 @@
                 gap: 15px;
             }
 
-            .card-title {
-                font-size: 1rem;
-                min-height: 2.6em;
-            }
-            .card-info {
-                padding: 10px;
-            }
-            .watch-btn {
-                font-size: 0.85rem;
-                padding: 8px;
-            }
-
-            #adminMenuContainer {
-                bottom: 15px;
-                right: 15px;
-            }
+            .card-title { font-size: 1rem; min-height: 2.6em; }
+            .card-info { padding: 10px; }
+            .watch-btn { font-size: 0.85rem; padding: 8px; }
 
             /* Player */
             #playerScreen { padding: 0; }
             .player-container { gap: 0; }
-            .player-wrapper {
-                max-height: calc(100vh - 40px);
-                border-radius: 0;
-            }
+            .player-wrapper { max-height: calc(100vh - 40px); border-radius: 0; }
             .player-vote-container { top: 10px; right: 10px; transform: scale(0.8); transform-origin: top right; }
             .close-player-btn { top: 10px; left: 10px; width: 35px; height: 35px; font-size: 1rem; }
             .player-video-title { top: 12px; left: 55px; font-size: 0.85rem; max-width: calc(100% - 160px); }
@@ -789,41 +746,47 @@
             <a href="javascript:void(0);" onclick="window.location.reload();" class="logo-link" title="Atualizar página">
                 <img src="https://i.ibb.co/rRgV3n8d/playtronictv.png" alt="Playtronic TV" class="header-logo">
             </a>
+            
+            <div class="auth-area">
+                <button class="login-btn" id="loginBtn">
+                    <svg width="18" height="18" viewBox="0 0 48 48"><path fill="#FFC107" d="M43.611,20.083H42V20H24v8h11.303c-1.649,4.657-6.08,8-11.303,8c-6.627,0-12-5.373-12-12c0-6.627,5.373-12,12-12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C12.955,4,4,12.955,4,24c0,11.045,8.955,20,20,20c11.045,0,20-8.955,20-20C44,22.659,43.862,21.35,43.611,20.083z"/><path fill="#FF3D00" d="M6.306,14.691l6.571,4.819C14.655,15.108,18.961,12,24,12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C16.318,4,9.656,8.337,6.306,14.691z"/><path fill="#4CAF50" d="M24,44c5.166,0,9.86-1.977,13.409-5.192l-6.19-5.238C29.211,35.091,26.715,36,24,36c-5.202,0-9.619-3.317-11.283-7.946l-6.522,5.025C9.505,39.556,16.227,44,24,44z"/><path fill="#1976D2" d="M43.611,20.083H42V20H24v8h11.303c-0.792,2.237-2.231,4.166-4.087,5.571c0.001-0.001,0.002-0.001,0.003-0.002l6.19,5.238C36.971,39.205,44,34,44,24C44,22.659,43.862,21.35,43.611,20.083z"/></svg>
+                    Entrar
+                </button>
+
+                <div class="user-info" id="userInfo">
+                    <img class="user-avatar" id="userAvatar" src="" alt="Avatar">
+                    <div class="user-card" id="userCard">
+                        <div class="user-name" id="userName"></div>
+                        <div class="user-email" id="userEmail"></div>
+
+                        <div id="subscriptionBadge">✓ Assinante</div>
+                        <div class="user-sub-info" id="userSubInfo"></div>
+                        
+                        <div class="user-actions">
+                            <button id="subscribeBtn" style="display:none;">⭐ Assinar</button>
+                            <button id="myAdsBtn" style="display:none;">📺 Meus Anúncios</button>
+                            
+                            <!-- MENU ADMIN AGORA DENTRO DO CARD -->
+                            <div id="adminMenuContainer">
+                                <button id="adminMenuBtn">⚙️ Painel Admin</button>
+                                <div id="adminDropdown">
+                                    <button id="addVideoBtn">➕ Inserir Vídeo</button>
+                                    <button id="configSubBtn">💰 Editar Assinatura</button>
+                                    <button id="configAdRateBtn">📊 Tarifa de Anúncio</button>
+                                    <button id="manageAdsBtn">🖼️ Gerenciar Anúncios Base</button>
+                                    <button id="simulateSubBtn" style="color: #a78bfa;">🧪 Simular Assinante</button>
+                                </div>
+                            </div>
+                            
+                            <button class="logout-btn" id="logoutBtn">Sair</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
         
         <div class="search-container">
             <input type="text" id="searchInput" placeholder="Pesquisar" autocomplete="off">
-        </div>
-
-        <div class="auth-area">
-            <button class="login-btn" id="loginBtn">
-                <svg width="18" height="18" viewBox="0 0 48 48"><path fill="#FFC107" d="M43.611,20.083H42V20H24v8h11.303c-1.649,4.657-6.08,8-11.303,8c-6.627,0-12-5.373-12-12c0-6.627,5.373-12,12-12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C12.955,4,4,12.955,4,24c0,11.045,8.955,20,20,20c11.045,0,20-8.955,20-20C44,22.659,43.862,21.35,43.611,20.083z"/><path fill="#FF3D00" d="M6.306,14.691l6.571,4.819C14.655,15.108,18.961,12,24,12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C16.318,4,9.656,8.337,6.306,14.691z"/><path fill="#4CAF50" d="M24,44c5.166,0,9.86-1.977,13.409-5.192l-6.19-5.238C29.211,35.091,26.715,36,24,36c-5.202,0-9.619-3.317-11.283-7.946l-6.522,5.025C9.505,39.556,16.227,44,24,44z"/><path fill="#1976D2" d="M43.611,20.083H42V20H24v8h11.303c-0.792,2.237-2.231,4.166-4.087,5.571c0.001-0.001,0.002-0.001,0.003-0.002l6.19,5.238C36.971,39.205,44,34,44,24C44,22.659,43.862,21.35,43.611,20.083z"/></svg>
-                Entrar
-            </button>
-
-            <div class="user-info" id="userInfo">
-                <img class="user-avatar" id="userAvatar" src="" alt="Avatar">
-                <div class="user-card" id="userCard">
-                    <div class="user-name" id="userName"></div>
-                    <div class="user-email" id="userEmail"></div>
-
-                    <div id="subscriptionBadge">
-                        ✓ Assinante
-                    </div>
-                    <div class="user-sub-info" id="userSubInfo"></div>
-                    
-                    <div class="user-actions">
-                        <button id="subscribeBtn" style="display:none;">
-                            ⭐ Assinar
-                        </button>
-                        <button id="myAdsBtn" style="display:none;">
-                            📺 Meus Anúncios
-                        </button>
-                    </div>
-                    
-                    <button class="logout-btn" id="logoutBtn">Sair</button>
-                </div>
-            </div>
         </div>
     </header>
 
@@ -848,19 +811,6 @@
             <img src="https://i.ibb.co/pjVXNp4P/Playtronic.png" alt="Playtronic Games" class="footer-logo">
         </a>
     </footer>
-
-    <div id="adminMenuContainer">
-        <button id="adminMenuBtn">
-            ⚙️ Admin
-        </button>
-        <div id="adminDropdown">
-            <button id="addVideoBtn">➕ Inserir Vídeo</button>
-            <button id="configSubBtn">💰 Editar Assinatura</button>
-            <button id="configAdRateBtn">📊 Tarifa de Anúncio</button>
-            <button id="manageAdsBtn">🖼️ Gerenciar Anúncios Base</button>
-            <button id="simulateSubBtn" style="color: #a78bfa;">🧪 Simular Assinante</button>
-        </div>
-    </div>
 
     <div class="modal-overlay" id="videoModal">
         <div class="modal">
@@ -1284,6 +1234,11 @@
     const myAdsBtn = document.getElementById('myAdsBtn');
     const subscribeBtn = document.getElementById('subscribeBtn');
     const subscriptionBadge = document.getElementById('subscriptionBadge');
+    
+    // Admin Elements
+    const adminContainer = document.getElementById('adminMenuContainer');
+    const adminMenuBtn = document.getElementById('adminMenuBtn');
+    const adminDropdown = document.getElementById('adminDropdown');
 
     loginBtn.addEventListener('click', async () => {
         try {
@@ -1313,6 +1268,12 @@
         }
     });
 
+    // Admin Button toggle
+    adminMenuBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        adminDropdown.style.display = adminDropdown.style.display === 'flex' ? 'none' : 'flex';
+    });
+
     auth.onAuthStateChanged((user) => {
         currentUser = user;
 
@@ -1326,7 +1287,15 @@
             userAvatar.src = user.photoURL || 'https://www.gravatar.com/avatar/?d=mp';
             userName.textContent = user.displayName || 'Usuário';
             userEmail.textContent = user.email || '';
-            document.body.classList.toggle('is-admin', user.email === ADMIN_EMAIL);
+            
+            // Mostra o botão admin se for admin
+            if (user.email === ADMIN_EMAIL) {
+                adminContainer.style.display = 'flex';
+                document.body.classList.add('is-admin');
+            } else {
+                adminContainer.style.display = 'none';
+                document.body.classList.remove('is-admin');
+            }
 
             favoritesRef = rtdb.ref('vod_favorites/' + user.uid);
             favoritesRef.on('value', (snap) => {
@@ -1343,6 +1312,7 @@
             subscribeBtn.style.display = 'none';
             subscriptionBadge.style.display = 'none';
             userSubInfo.style.display = 'none';
+            adminContainer.style.display = 'none';
             favoritesLoaded = true;
             tryRender();
         }
@@ -1703,35 +1673,13 @@
     }
 
     /* ========= MENU E LÓGICA DE ADMIN ========= */
-    auth.onAuthStateChanged((user) => {
-        const adminContainer = document.getElementById('adminMenuContainer');
-        if (user && user.email === ADMIN_EMAIL) {
-            adminContainer.style.display = 'block';
-        } else {
-            adminContainer.style.display = 'none';
-        }
-    });
-
-    document.getElementById('adminMenuBtn').addEventListener('click', (e) => {
-        e.stopPropagation();
-        const dropdown = document.getElementById('adminDropdown');
-        dropdown.style.display = dropdown.style.display === 'flex' ? 'none' : 'flex';
-    });
-
-    document.addEventListener('click', (e) => {
-        const dropdown = document.getElementById('adminDropdown');
-        if (dropdown.style.display === 'flex' && !e.target.closest('#adminMenuContainer')) {
-            dropdown.style.display = 'none';
-        }
-    });
-
     document.getElementById('addVideoBtn').addEventListener('click', () => {
-        document.getElementById('adminDropdown').style.display = 'none';
+        adminDropdown.style.display = 'none';
         openVideoModal('add');
     });
 
     document.getElementById('configSubBtn').addEventListener('click', async () => {
-        document.getElementById('adminDropdown').style.display = 'none';
+        adminDropdown.style.display = 'none';
         try {
             const doc = await db.collection('platform_config').doc('catalog').get();
             let precoAtual = "";
@@ -1765,7 +1713,7 @@
     });
 
     document.getElementById('configAdRateBtn').addEventListener('click', async () => {
-        document.getElementById('adminDropdown').style.display = 'none';
+        adminDropdown.style.display = 'none';
         try {
             const doc = await db.collection('platform_config').doc('catalog').get();
             let rateAtual = 1.00;
@@ -1800,7 +1748,7 @@
     const newAdImageUrl = document.getElementById('newAdImageUrl');
 
     document.getElementById('manageAdsBtn').addEventListener('click', () => {
-        document.getElementById('adminDropdown').style.display = 'none';
+        adminDropdown.style.display = 'none';
         manageAdsModal.classList.add('active');
         renderAdsList();
     });
@@ -1879,7 +1827,7 @@
 
     // Simulador de Assinante
     document.getElementById('simulateSubBtn').addEventListener('click', () => {
-        document.getElementById('adminDropdown').style.display = 'none';
+        adminDropdown.style.display = 'none';
         isSimulatingSub = !isSimulatingSub;
         
         if (isSimulatingSub) {
@@ -1931,7 +1879,7 @@
             userSubInfo.style.display = 'none';
         } else if (catalogSubscription.active) {
             subscribeBtn.style.display = 'none';
-            subscriptionBadge.style.display = 'flex'; // Alterado para flex para preencher o botão
+            subscriptionBadge.style.display = 'flex'; 
             
             if (catalogSubscription.expiresAt) {
                 const diffTime = catalogSubscription.expiresAt - Date.now();
@@ -1952,7 +1900,7 @@
     }
 
     async function openPixLightbox() {
-        userCard.classList.remove('active'); // Fecha o menu ao clicar
+        userCard.classList.remove('active'); 
         if (!currentUser) {
             try {
                 const provider = new firebase.auth.GoogleAuthProvider();
@@ -2327,7 +2275,7 @@
     }
 
     myAdsBtn.addEventListener('click', async () => {
-        userCard.classList.remove('active'); // Fecha o menu ao clicar
+        userCard.classList.remove('active');
         if (!currentUser) return;
         myAdsModal.classList.add('active');
         myAdsListContainer.innerHTML = '<p style="text-align:center; color:#94a3b8; padding: 20px;">Carregando...</p>';
@@ -2487,7 +2435,6 @@
     const playerBottomAd = document.getElementById('player-bottom-ad');
     const horizontalAdIframe = document.getElementById('horizontal-ad-iframe');
     const playerVideoTitle = document.getElementById('playerVideoTitle');
-    const adminMenuContainer = document.getElementById('adminMenuContainer');
     const playerLoadingOverlay = document.getElementById('playerLoadingOverlay');
 
     let player = null;
@@ -2536,7 +2483,7 @@
         closeAdBtn.textContent = 'Aguarde...';
         if (adTimerInterval) clearInterval(adTimerInterval);
 
-        if (isAdmin()) adminMenuContainer.style.display = 'none';
+        if (isAdmin()) adminContainer.style.display = 'none';
 
         let activePaidAds = [];
         try {
@@ -2550,7 +2497,7 @@
         }
 
         if (activePaidAds.length === 0 && !video.ad) {
-            if (isAdmin()) adminMenuContainer.style.display = 'block';
+            if (isAdmin()) adminContainer.style.display = 'flex';
             openPlayer(video);
             return;
         }
@@ -2679,7 +2626,7 @@
 
     document.getElementById('adSubscribeBtn').addEventListener('click', () => {
         adModal.classList.remove('active');
-        if (isAdmin()) adminMenuContainer.style.display = 'block';
+        if (isAdmin()) adminContainer.style.display = 'flex';
         if (adYtPlayer) { try { adYtPlayer.stopVideo(); adYtPlayer.destroy(); } catch(e){} adYtPlayer = null; }
         const sbIframe = document.getElementById('social-bar-iframe');
         if (sbIframe) sbIframe.remove();
@@ -2705,7 +2652,7 @@
             }
         }
 
-        if (isAdmin()) adminMenuContainer.style.display = 'none';
+        if (isAdmin()) adminContainer.style.display = 'none';
 
         playerScreen.classList.add('active');
         document.body.style.overflow = 'hidden';
@@ -2931,7 +2878,7 @@
 
         playerLoadingOverlay.classList.remove('hidden');
 
-        if (isAdmin()) adminMenuContainer.style.display = 'block';
+        if (isAdmin()) adminContainer.style.display = 'flex';
     }
 
     document.getElementById('closePlayerBtn').addEventListener('click', closePlayer);
