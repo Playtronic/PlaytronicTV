@@ -830,14 +830,14 @@
             .player-wrapper { max-height: calc(100vh - 40px); border-radius: 0; }
             #player-bottom-ad { display: none !important; }
 
-            /* Sombras do player muito mais suaves APENAS no mobile */
+            /* Sombras do player mais intensas no mobile para cobrir a UI do YouTube */
             .player-wrapper::before {
-                height: 70px;
-                background: linear-gradient(to bottom, rgba(0,0,0,0.55) 0%, transparent 100%);
+                height: 80px;
+                background: linear-gradient(to bottom, #000000 0%, rgba(0,0,0,0.8) 50%, transparent 100%);
             }
             .player-wrapper::after {
-                height: 90px;
-                background: linear-gradient(to top, rgba(0,0,0,0.65) 0%, transparent 100%);
+                height: 100px;
+                background: linear-gradient(to top, #000000 0%, rgba(0,0,0,0.8) 50%, transparent 100%);
             }
 
             .player-vote-container { top: 10px; right: 10px; transform: scale(0.8); transform-origin: top right; }
@@ -3040,11 +3040,20 @@
     playerWrapper.addEventListener('mouseleave', () => resetControlsTimer());
 
     playerWrapper.addEventListener('click', (e) => {
+        // Se o clique foi em um botão da interface, não faz nada aqui
         if (e.target.closest('.custom-ui')) return;
         if (!playerReady || !player) return;
-        if (isPlaying) player.pauseVideo();
-        else player.playVideo();
-        resetControlsTimer();
+
+        // Verifica se a interface está oculta no momento
+        if (customUI.classList.contains('player-ui-hidden')) {
+            // Se estiver oculta, o toque apenas mostra os controles
+            showControls();
+        } else {
+            // Se os controles estiverem visíveis, o toque na tela oculta eles
+            // O play/pause agora SÓ funciona se clicar no botão central
+            hideControls();
+            clearTimeout(controlsTimeout); // Impede que o timer os esconda novamente de imediato
+        }
     });
 
     document.addEventListener('fullscreenchange', () => {
