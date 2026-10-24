@@ -468,7 +468,7 @@
             font-size: 1.15rem;
             font-weight: 600;
             text-shadow: 1px 1px 4px rgba(0,0,0,0.9);
-            max-width: calc(100% - 220px);
+            max-width: calc(100% - 280px); /* Ajustado para não sobrepor os botões de voto */
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
@@ -575,6 +575,28 @@
             border-radius: 3px; cursor: pointer; position: relative; margin: 0 10px;
         }
         .progress-fill { height: 100%; background: #fdbb2d; border-radius: 3px; width: 0%; transition: width 0.1s linear; }
+        
+        /* NOVO: Bolinha da barra de progresso */
+        .progress-thumb {
+            position: absolute;
+            top: 50%;
+            width: 14px;
+            height: 14px;
+            background: #fdbb2d;
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            left: 0%;
+            pointer-events: none;
+            box-shadow: 0 0 5px rgba(0,0,0,0.5);
+            transition: left 0.1s linear, opacity 0.2s;
+            opacity: 0;
+            z-index: 2;
+        }
+        .progress-track:hover .progress-thumb,
+        .progress-track.dragging .progress-thumb {
+            opacity: 1;
+        }
+
         .time-label { font-family: monospace; font-size: 0.85rem; color: #ddd; min-width: 100px; text-align: right; }
 
         .volume-container { display: flex; align-items: center; gap: 8px; }
@@ -847,21 +869,25 @@
             #player-bottom-ad { display: none !important; }
 
             /* 
-             * SOMBRAS NO MOBILE - Reduzidas drasticamente para não cobrir o vídeo
-             * Antes estavam em 88px/104px, agora 40px/50px com gradiente curto.
+             * SOMBRAS NO MOBILE - Ajustadas para esconder legendas sem cobrir metade da tela
              */
             .player-wrapper::before {
-                height: 40px;
-                background: linear-gradient(to bottom, rgba(0,0,0,1) 0%, rgba(0,0,0,0.8) 40%, transparent 100%);
+                height: 80px;
+                background: linear-gradient(to bottom, #000000 0%, rgba(0,0,0,0.8) 60%, transparent 100%);
             }
             .player-wrapper::after {
-                height: 50px;
-                background: linear-gradient(to top, rgba(0,0,0,1) 0%, rgba(0,0,0,0.8) 40%, transparent 100%);
+                height: 100px;
+                background: linear-gradient(to top, #000000 0%, rgba(0,0,0,0.9) 40%, transparent 100%);
             }
 
             .player-vote-container { top: 10px; right: 10px; transform: scale(0.8); transform-origin: top right; }
             .close-player-btn { top: 10px; left: 10px; width: 35px; height: 35px; font-size: 1rem; }
-            .player-video-title { top: 12px; left: 55px; font-size: 0.85rem; max-width: calc(100% - 160px); }
+            .player-video-title { 
+                top: 12px; 
+                left: 55px; 
+                font-size: 0.85rem; 
+                max-width: calc(100% - 200px); /* Ajustado para mobile */
+            }
 
             /* Controles do player — layout estilo YouTube mobile */
             .player-controls {
@@ -876,11 +902,11 @@
                 flex: 0 0 100%;
                 width: 100%;
                 margin: 0 0 4px 0;
-                height: 6px; /* Aumentado para melhor toque */
-                background: rgba(255,255,255,0.3); /* Mais visível */
+                height: 6px;
+                background: rgba(255,255,255,0.3);
                 border-radius: 3px;
-                padding: 0; /* Removido o padding que quebrava o fundo */
-                background-clip: border-box; /* Garante que o fundo apareça */
+                padding: 0;
+                background-clip: border-box;
             }
             .progress-fill {
                 height: 100%;
@@ -1199,7 +1225,10 @@
                             <input type="range" class="volume-slider" id="volumeSlider" min="0" max="100" value="100">
                         </div>
 
-                        <div class="progress-track" id="progressTrack"><div class="progress-fill" id="progressFill"></div></div>
+                        <div class="progress-track" id="progressTrack">
+                            <div class="progress-fill" id="progressFill"></div>
+                            <div class="progress-thumb" id="progressThumb"></div>
+                        </div>
 
                         <span class="time-label" id="timeLabel">0:00 / 0:00</span>
 
@@ -2649,6 +2678,7 @@
     const btnForward10 = document.getElementById('btnForward10');
     const progressFill = document.getElementById('progressFill');
     const progressTrack = document.getElementById('progressTrack');
+    const progressThumb = document.getElementById('progressThumb');
     const timeLabel = document.getElementById('timeLabel');
     const muteBtn = document.getElementById('muteBtn');
     const volumeSlider = document.getElementById('volumeSlider');
@@ -2665,6 +2695,7 @@
     let isEnded = false;
     let isMuted = false;
     let currentVolume = 100;
+    let isSeeking = false; // Flag para controlar o timer durante arraste/buffer
 
     window.onYouTubeIframeAPIReady = function() {};
 
@@ -2982,6 +3013,7 @@
         playerReady = false;
         isPlaying = false;
         isEnded = false;
+        isSeeking = false;
 
         setPlayPauseVisual(false);
 
@@ -3021,7 +3053,14 @@
             isPlaying = true; isEnded = false;
             setPlayPauseVisual(true);
             removeCaptions(event.target);
-            resetControlsTimer();
+            
+            // Se estávamos arrastando/bufferizando, agora podemos iniciar o timer
+            if (isSeeking) {
+                isSeeking = false;
+                resetControlsTimer();
+            } else {
+                resetControlsTimer();
+            }
             
             playerLoadingOverlay.classList.add('hidden');
         } else if (event.data === 2) { // Paused
@@ -3051,6 +3090,12 @@
         customUI.classList.remove('player-ui-hidden');
         playerWrapper.classList.remove('hide-shadows');
         resetControlsTimer();
+    }
+
+    function showControlsNoTimer() {
+        customUI.classList.remove('player-ui-hidden');
+        playerWrapper.classList.remove('hide-shadows');
+        clearTimeout(controlsTimeout);
     }
 
     function hideControls() {
@@ -3141,18 +3186,27 @@
             const seekTime = duration * percentage;
             player.seekTo(seekTime, true);
             progressFill.style.width = `${percentage * 100}%`;
+            progressThumb.style.left = `${percentage * 100}%`;
             timeLabel.textContent = `${formatTime(seekTime)} / ${formatTime(duration)}`;
         }
     }
 
     progressTrack.addEventListener('mousedown', (e) => {
         isDragging = true;
+        isSeeking = true;
+        progressTrack.classList.add('dragging');
+        clearTimeout(controlsTimeout);
+        showControlsNoTimer();
         seekToPosition(e);
         e.stopPropagation();
     });
     
     progressTrack.addEventListener('touchstart', (e) => {
         isDragging = true;
+        isSeeking = true;
+        progressTrack.classList.add('dragging');
+        clearTimeout(controlsTimeout);
+        showControlsNoTimer();
         seekToPosition(e);
         e.stopPropagation();
     }, { passive: false });
@@ -3171,11 +3225,18 @@
     }, { passive: false });
 
     document.addEventListener('mouseup', () => {
-        isDragging = false;
+        if (isDragging) {
+            isDragging = false;
+            progressTrack.classList.remove('dragging');
+            // Não reseta o timer aqui; espera o evento PLAYING
+        }
     });
     
     document.addEventListener('touchend', () => {
-        isDragging = false;
+        if (isDragging) {
+            isDragging = false;
+            progressTrack.classList.remove('dragging');
+        }
     });
     /* ======================================== */
 
@@ -3214,10 +3275,12 @@
         if (player) { player.destroy(); player = null; }
         playerReady = false;
         isEnded = false;
+        isSeeking = false;
         currentPlayerVideoId = null;
         playerScreen.classList.remove('active');
         document.body.style.overflow = '';
         progressFill.style.width = '0%';
+        progressThumb.style.left = '0%';
         timeLabel.textContent = '0:00 / 0:00';
         clearTimeout(controlsTimeout);
         playerBottomAd.style.display = 'none';
@@ -3337,7 +3400,9 @@
                 const currentTime = player.getCurrentTime() || 0;
                 const duration = player.getDuration() || 0;
                 if (duration > 0) {
-                    progressFill.style.width = `${(currentTime / duration) * 100}%`;
+                    const percent = (currentTime / duration) * 100;
+                    progressFill.style.width = `${percent}%`;
+                    progressThumb.style.left = `${percent}%`;
                     timeLabel.textContent = `${formatTime(currentTime)} / ${formatTime(duration)}`;
                 }
             } catch (e) {}
