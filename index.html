@@ -478,8 +478,8 @@
 
         #player-bottom-ad {
             display: none;
-            width: 728px;
-            max-width: 100%;
+            width: 100%; /* Ajustado para 100% para funcionar no mobile */
+            max-width: 728px;
             height: 90px;
             background: transparent;
             border: none !important;
@@ -490,7 +490,8 @@
             position: relative;
         }
         #player-bottom-ad iframe {
-            display: block; border: 0; margin: 0 auto; width: 728px; height: 90px;
+            display: block; border: 0; margin: 0 auto;
+            width: 100%; height: 100%; /* Ajustado para preencher o container */
             position: absolute; top: 0; left: 0; z-index: 1;
         }
 
@@ -627,7 +628,7 @@
             #adminMenuContainer { bottom: 20px; right: 20px; }
             .carousel-track .card { flex: 0 0 200px; width: 200px; }
             .carousel-arrow { display: none; }
-            #player-bottom-ad { display: none !important; }
+            /* #player-bottom-ad { display: none !important; } <-- REMOVIDO PARA MOSTRAR NO MOBILE */
         }
     </style>
 </head>
@@ -810,8 +811,14 @@
             <h2>Histórico de Anúncios</h2>
             <p class="modal-sub" id="myAdsSub">Acompanhe o desempenho dos seus anúncios.</p>
             
-            <div class="form-group" style="margin-bottom: 20px;">
-                <input type="text" id="searchMyAds" placeholder="Pesquisar por ID do vídeo..." autocomplete="off">
+            <!-- Barra de pesquisa e classificação -->
+            <div style="display: flex; gap: 10px; margin-bottom: 20px;">
+                <input type="text" id="searchMyAds" placeholder="Pesquisar por ID do vídeo..." autocomplete="off" style="flex: 1; background: rgba(255,255,255,0.08); color: #fff; border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; padding: 11px 14px; font-size: 0.95rem; outline: none; transition: 0.2s;">
+                <select id="sortMyAds" style="background: rgba(255,255,255,0.08); color: #fff; border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; padding: 11px 14px; font-size: 0.95rem; outline: none; cursor: pointer;">
+                    <option value="createdAt">Data (Recente)</option>
+                    <option value="views">Visualizações</option>
+                    <option value="amountPaid">Valor Pago</option>
+                </select>
             </div>
 
             <div id="myAdsListContainer" style="max-height: 400px; overflow-y: auto; padding-right: 5px;">
@@ -883,7 +890,7 @@
             </div>
 
             <div id="player-bottom-ad">
-                <iframe id="horizontal-ad-iframe" width="728" height="90" frameborder="0" scrolling="no" style="display: block; border: 0; position: absolute; top: 0; left: 0; width: 100%; height: 100%;"></iframe>
+                <iframe id="horizontal-ad-iframe" frameborder="0" scrolling="no"></iframe>
             </div>
         </div>
     </div>
@@ -893,7 +900,6 @@
         <div style="background: #152961; border: 2px solid #fdbb2d; border-radius: 14px; padding: 30px; max-width: 480px; width: 90%; position: relative; text-align: center; color: #fff;">
             <button id="pixClose" style="position: absolute; top: 12px; right: 14px; background: transparent; border: none; color: #cbd5e1; font-size: 1.6rem; cursor: pointer;">×</button>
             
-            <!-- LOGO OFICIAL AQUI -->
             <img src="https://i.ibb.co/rRgV3n8d/playtronictv.png" style="height: 60px; margin-bottom: 15px; object-fit: contain;">
             
             <p style="color: #cbd5e1; font-size: 0.95rem; margin-bottom: 20px; text-wrap: balance; line-height: 1.4; max-width: 90%; margin-left: auto; margin-right: auto;">
@@ -2141,6 +2147,7 @@
     const myAdsModal = document.getElementById('myAdsModal');
     const myAdsListContainer = document.getElementById('myAdsListContainer');
     const searchMyAds = document.getElementById('searchMyAds');
+    const sortMyAds = document.getElementById('sortMyAds');
 
     async function checkMyAdsVisibility() {
         if (!currentUser) {
@@ -2193,7 +2200,6 @@
             });
             myAdsData = uniqueAds;
 
-            myAdsData.sort((a, b) => b.createdAt - a.createdAt);
             renderMyAds(myAdsData);
 
         } catch (e) {
@@ -2214,13 +2220,30 @@
         renderMyAds(window._currentMyAdsData || []);
     });
 
+    sortMyAds.addEventListener('change', () => {
+        renderMyAds(window._currentMyAdsData || []);
+    });
+
     function renderMyAds(dataArray) {
         window._currentMyAdsData = dataArray;
         const filter = searchMyAds.value.toLowerCase().trim();
-        const filtered = dataArray.filter(ad => 
+        const sortBy = sortMyAds.value;
+        
+        // Filtra
+        let filtered = dataArray.filter(ad => 
             (ad.videoId || '').toLowerCase().includes(filter) || 
             (ad.paymentId || '').toLowerCase().includes(filter)
         );
+
+        // Ordena
+        if (sortBy === 'views') {
+            filtered.sort((a, b) => (b.views || 0) - (a.views || 0));
+        } else if (sortBy === 'amountPaid') {
+            filtered.sort((a, b) => (b.amountPaid || 0) - (a.amountPaid || 0));
+        } else {
+            // createdAr (default) - Mais recente primeiro
+            filtered.sort((a, b) => b.createdAt - a.createdAt);
+        }
 
         if (filtered.length === 0) {
             myAdsListContainer.innerHTML = '<p style="text-align:center; color:#94a3b8;">Nenhum anúncio encontrado.</p>';
@@ -2239,6 +2262,9 @@
             const dateCreated = new Date(ad.createdAt).toLocaleDateString('pt-BR');
             const dateExpires = new Date(ad.expiresAt).toLocaleDateString('pt-BR');
             const price = `R$ ${(ad.amountPaid || 0).toFixed(2).replace('.', ',')}`;
+            
+            // Tenta encontrar o título do vídeo baseado no ID
+            const videoTitle = videos.find(v => v.youtubeId === ad.videoId)?.titulo || `Vídeo (${ad.videoId.substring(0, 6)}...)`;
 
             const card = document.createElement('div');
             card.style.cssText = 'display: flex; gap: 15px; background: rgba(255,255,255,0.05); padding: 15px; border-radius: 10px; margin-bottom: 10px; border: 1px solid rgba(255,255,255,0.1); align-items: center;';
@@ -2246,8 +2272,8 @@
             card.innerHTML = `
                 <img src="https://img.youtube.com/vi/${ad.videoId}/mqdefault.jpg" style="width: 80px; height: 45px; border-radius: 6px; object-fit: cover;">
                 <div style="flex: 1; overflow: hidden;">
-                    <div style="font-weight: bold; color: #fff; font-size: 0.9rem; margin-bottom: 3px;">
-                        <a href="https://youtube.com/watch?v=${ad.videoId}" target="_blank" style="color: #fdbb2d; text-decoration: none;">youtube.com/watch?v=${ad.videoId.substring(0,8)}...</a>
+                    <div style="font-weight: bold; color: #fff; font-size: 0.95rem; margin-bottom: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="${videoTitle}">
+                        ${videoTitle}
                     </div>
                     <div style="font-size: 0.75rem; color: #94a3b8;">
                         Publicado: ${dateCreated} • Expira: ${dateExpires}
@@ -2255,7 +2281,7 @@
                     <div style="font-size: 0.8rem; color: #cbd5e1; margin-top: 5px;">
                         👁️ <b>${ad.views || 0}</b> visualizações • 💰 Pago: <b>${price}</b>
                     </div>
-                    ${isAdmin() ? `<div style="font-size: 0.7rem; color: #a78bfa; margin-top: 3px;">ID Usuário: ${(ad.userId || 'Desconhecido').substring(0,8)}...</div>` : ''}
+                    ${isAdmin() ? `<div style="font-size: 0.7rem; color: #a78bfa; margin-top: 3px;">ID Usuário: ${(ad.userId || 'Desconhecido').substring(0,8)}... | Email: ${ad.payerEmail || 'N/A'}</div>` : ''}
                 </div>
                 <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 8px;">
                     <div style="background: ${statusBg}; color: ${statusColor}; padding: 4px 10px; border-radius: 12px; font-size: 0.75rem; font-weight: bold; border: 1px solid ${statusColor};">
@@ -2393,8 +2419,7 @@
             activePaidAds.sort((a, b) => (a.lastShownAt || 0) - (b.lastShownAt || 0));
             const chosenAd = activePaidAds[0];
 
-            // ✅ CORREÇÃO: Contabiliza a view IMEDIATAMENTE ao iniciar o comercial
-            // Assim, o usuário não perde a view se fechar rápido.
+            // ✅ Contabiliza a view IMEDIATAMENTE ao iniciar o comercial
             if (chosenAd) {
                 fetch(CF_BASE + '/incrementAdViews', {
                     method: 'POST',
@@ -2412,7 +2437,8 @@
                 videoId: chosenAd.videoId,
                 playerVars: {
                     'autoplay': 1, 'controls': 0, 'modestbranding': 1, 'rel': 0,
-                    'showinfo': 0, 'iv_load_policy': 3, 'playsinline': 1, 'cc_load_policy': 0
+                    'showinfo': 0, 'iv_load_policy': 3, 'playsinline': 1, 'cc_load_policy': 0,
+                    'disablekb': 1 // Garante que o teclado não interfira
                 },
                 events: {
                     'onReady': (event) => {
@@ -2492,7 +2518,6 @@
                 closeAdBtn.disabled = false;
                 closeAdBtn.classList.add('active');
                 closeAdBtn.textContent = 'Fechar e Assistir ▶';
-                // ❌ A view NÃO é mais contada aqui, e sim no início do anúncio!
             }
         }, 1000);
     }
@@ -2538,7 +2563,8 @@
 
         playerVideoTitle.textContent = video.titulo || 'Vídeo';
 
-        if (!window.matchMedia('(max-width: 900px)').matches && !catalogSubscription.active) {
+        // ✅ CORRIGIDO: Removido o '!window.matchMedia' para exibir no mobile
+        if (!catalogSubscription.active) {
             playerBottomAd.style.display = 'block';
             if (!playerBottomAd.dataset.mounted) {
                 playerBottomAd.dataset.mounted = '1';
@@ -2690,6 +2716,21 @@
         if (isPlaying) player.pauseVideo();
         else player.playVideo();
         resetControlsTimer();
+    });
+
+    // ✅ FUNÇÕES DOS BOTÕES -10s E +10s (CORRIGIDO)
+    btnRewind10.addEventListener('click', () => {
+        if (playerReady && player && typeof player.seekTo === 'function') {
+            player.seekTo(Math.max(0, player.getCurrentTime() - 10), true);
+            resetControlsTimer();
+        }
+    });
+
+    btnForward10.addEventListener('click', () => {
+        if (playerReady && player && typeof player.seekTo === 'function') {
+            player.seekTo(Math.min(player.getDuration(), player.getCurrentTime() + 10), true);
+            resetControlsTimer();
+        }
     });
 
     function updateVolumeUI(val) {
