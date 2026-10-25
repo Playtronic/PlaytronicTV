@@ -1989,6 +1989,16 @@
         }
     });
 
+    function normalizarBanners(raw) {
+        if (!raw) return [];
+        let arr = Array.isArray(raw) ? raw : Object.values(raw);
+        return arr.map(b => {
+            if (typeof b === 'string') return { src: b, link: 'https://playtronicgames.com.br', views: 0 };
+            if (b && typeof b === 'object') return { ...b, src: b.src || b.url || b.image, views: Number(b.views || 0) };
+            return null;
+        }).filter(b => b && b.src);
+    }
+
     const manageAdsModal = document.getElementById('manageAdsModal');
     const adsListContainer = document.getElementById('adsListContainer');
     const newAdImageUrl = document.getElementById('newAdImageUrl');
@@ -2011,12 +2021,7 @@
         try {
             const doc = await db.collection('platform_config').doc('custom_ads').get();
             if (doc.exists && doc.data().banners) {
-                const raw = doc.data().banners;
-                if (Array.isArray(raw)) {
-                    adBanners = raw;
-                } else if (typeof raw === 'object') {
-                    adBanners = Object.values(raw);
-                }
+                adBanners = normalizarBanners(doc.data().banners);
             }
         } catch (e) { console.warn('Erro ao recarregar anúncios:', e); }
 
@@ -2065,22 +2070,19 @@
     async function saveAdsToFirebase() {
         try {
             const doc = await db.collection('platform_config').doc('custom_ads').get();
-            
             let existing = [];
             if (doc.exists && doc.data().banners) {
-                const raw = doc.data().banners;
-                if (Array.isArray(raw)) {
-                    existing = raw;
-                } else if (typeof raw === 'object') {
-                    existing = Object.values(raw);
-                }
+                existing = normalizarBanners(doc.data().banners);
             }
 
             const viewsBySrc = {};
-            existing.forEach(b => { if (b && b.src) viewsBySrc[b.src] = Number(b.views || 0); });
+            existing.forEach(b => { 
+                if (b && b.src) viewsBySrc[b.src] = b.views; 
+            });
 
             const toSave = adBanners.map(b => ({
-                ...b,
+                src: b.src,
+                link: b.link || 'https://playtronicgames.com.br',
                 views: viewsBySrc[b.src] !== undefined ? viewsBySrc[b.src] : Number(b.views || 0)
             }));
 
@@ -2100,15 +2102,9 @@
                 rawBanners = doc.data().banners;
             }
 
-            if (rawBanners) {
-                if (Array.isArray(rawBanners)) {
-                    adBanners = rawBanners;
-                } else if (typeof rawBanners === 'object') {
-                    adBanners = Object.values(rawBanners);
-                }
-            }
+            adBanners = normalizarBanners(rawBanners);
 
-            if (!Array.isArray(adBanners) || adBanners.length === 0) {
+            if (adBanners.length === 0) {
                 adBanners = [
                     { src: 'https://i.ibb.co/1GpjQ5zD/image.png', link: 'https://playtronicgames.com.br', views: 0 },
                     { src: 'https://i.ibb.co/21QYYGKg/83697ff7-f124-4608-8b30-2bd6e05b5c39.png', link: 'https://playtronicgames.com.br', views: 0 }
@@ -3050,14 +3046,19 @@
                 if (currentAdBannerIndex >= adBanners.length) currentAdBannerIndex = 0;
                 const ad = adBanners[currentAdBannerIndex];
                 const shownSrc = ad.src;
-                adCenterWrapper.innerHTML = `<img src="${shownSrc}" alt="Publicidade" style="width:100%; height:100%; object-fit:contain; padding: 20px;">`;
+                
+                if (shownSrc) {
+                    adCenterWrapper.innerHTML = `<img src="${shownSrc}" alt="Publicidade" style="width:100%; height:100%; object-fit:contain; padding: 20px;">`;
 
-                fetch(CF_BASE + '/incrementInternalAdViews', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ adSrc: shownSrc }),
-                    keepalive: true
-                }).catch(e => console.warn("Erro ao registrar view interna:", e));
+                    fetch(CF_BASE + '/incrementInternalAdViews', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ adSrc: shownSrc }),
+                        keepalive: true
+                    }).catch(e => console.warn("Erro ao registrar view interna:", e));
+                } else {
+                    adCenterWrapper.innerHTML = '<div style="color:#fff; padding:20px;">Erro ao carregar anúncio.</div>';
+                }
 
                 currentAdBannerIndex = (currentAdBannerIndex + 1) % adBanners.length;
             }
