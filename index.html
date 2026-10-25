@@ -384,7 +384,6 @@
             color: #94a3b8;
             font-size: 0.9rem;
         }
-        /* NOVO: busca no desempenho */
         .perf-search-container {
             margin-top: 12px;
             margin-bottom: 4px;
@@ -1331,7 +1330,6 @@
         return `Vídeo (${videoId.substring(0,6)}...)`;
     }
 
-    /* ========= MONTAGEM DE BANNERS ========= */
     function mountStandardAd(container, opts, scriptSrc) {
         if (!container || container.dataset.mounted === '1') return;
         container.dataset.mounted = '1';
@@ -2010,16 +2008,20 @@
     });
 
     async function renderAdsList() {
-        // Recarrega do Firestore para pegar views atualizadas
         try {
             const doc = await db.collection('platform_config').doc('custom_ads').get();
-            if (doc.exists && Array.isArray(doc.data().banners)) {
-                adBanners = doc.data().banners;
+            if (doc.exists && doc.data().banners) {
+                const raw = doc.data().banners;
+                if (Array.isArray(raw)) {
+                    adBanners = raw;
+                } else if (typeof raw === 'object') {
+                    adBanners = Object.values(raw);
+                }
             }
         } catch (e) { console.warn('Erro ao recarregar anúncios:', e); }
 
         adsListContainer.innerHTML = '';
-        if (adBanners.length === 0) {
+        if (!Array.isArray(adBanners) || adBanners.length === 0) {
             adsListContainer.innerHTML = '<p style="font-size:0.85rem; color:#94a3b8; text-align:center; padding: 20px 0;">Nenhum anúncio interno cadastrado.</p>';
             return;
         }
@@ -2062,9 +2064,18 @@
 
     async function saveAdsToFirebase() {
         try {
-            // Faz fetch fresh para preservar views que possam ter chegado entre render e save
             const doc = await db.collection('platform_config').doc('custom_ads').get();
-            const existing = doc.exists ? (doc.data().banners || []) : [];
+            
+            let existing = [];
+            if (doc.exists && doc.data().banners) {
+                const raw = doc.data().banners;
+                if (Array.isArray(raw)) {
+                    existing = raw;
+                } else if (typeof raw === 'object') {
+                    existing = Object.values(raw);
+                }
+            }
+
             const viewsBySrc = {};
             existing.forEach(b => { if (b && b.src) viewsBySrc[b.src] = Number(b.views || 0); });
 
@@ -2077,16 +2088,31 @@
             adBanners = toSave;
         } catch (error) {
             console.error("Erro ao salvar anúncios:", error);
-            alert("Erro ao salvar. Verifique se as regras do Firestore permitem escrita.");
         }
     }
 
     async function loadCustomAds() {
         try {
             const doc = await db.collection('platform_config').doc('custom_ads').get();
-            if (doc.exists && doc.data().banners && doc.data().banners.length > 0) {
-                adBanners = doc.data().banners;
-            } else {
+            let rawBanners = null;
+            
+            if (doc.exists) {
+                rawBanners = doc.data().banners;
+            }
+
+            if (rawBanners) {
+                if (Array.isArray(rawBanners)) {
+                    adBanners = rawBanners;
+                } else if (typeof rawBanners === 'object') {
+                    adBanners = Object.values(rawBanners);
+                }
+            }
+
+            if (!Array.isArray(adBanners) || adBanners.length === 0) {
+                adBanners = [
+                    { src: 'https://i.ibb.co/1GpjQ5zD/image.png', link: 'https://playtronicgames.com.br', views: 0 },
+                    { src: 'https://i.ibb.co/21QYYGKg/83697ff7-f124-4608-8b30-2bd6e05b5c39.png', link: 'https://playtronicgames.com.br', views: 0 }
+                ];
                 await saveAdsToFirebase();
             }
         } catch (error) {
@@ -2114,7 +2140,6 @@
     document.getElementById('performanceBtn').addEventListener('click', () => {
         adminDropdown.style.display = 'none';
         performanceModal.classList.add('active');
-        // Limpa a busca ao abrir
         if (perfSearchInput) perfSearchInput.value = '';
         renderPerformanceTable();
     });
@@ -2127,7 +2152,6 @@
         if (e.target === performanceModal) performanceModal.classList.remove('active');
     });
 
-    // Busca ao vivo no desempenho
     if (perfSearchInput) {
         perfSearchInput.addEventListener('input', () => {
             renderPerformanceTable();
@@ -2154,7 +2178,6 @@
 
         const searchTerm = (perfSearchInput ? perfSearchInput.value : '').toLowerCase().trim();
 
-        // Filtro por busca
         let filtered = videos;
         if (searchTerm) {
             filtered = videos.filter(v => {
@@ -2205,7 +2228,6 @@
             </tr>
         `).join('');
 
-        // Contador de resultados quando há busca
         const countHtml = searchTerm
             ? `<div style="padding: 8px 12px; font-size: 0.78rem; color: #94a3b8; background: rgba(0,0,0,0.2); border-bottom: 1px solid rgba(255,255,255,0.08);">${filtered.length} resultado${filtered.length !== 1 ? 's' : ''} encontrado${filtered.length !== 1 ? 's' : ''}</div>`
             : '';
@@ -3025,13 +3047,11 @@
 
         } else {
             if (adBanners.length > 0) {
-                // Segurança: se o índice estiver fora do range (ex: admin removeu), reseta
                 if (currentAdBannerIndex >= adBanners.length) currentAdBannerIndex = 0;
                 const ad = adBanners[currentAdBannerIndex];
                 const shownSrc = ad.src;
                 adCenterWrapper.innerHTML = `<img src="${shownSrc}" alt="Publicidade" style="width:100%; height:100%; object-fit:contain; padding: 20px;">`;
 
-                // NOVO: registra view do anúncio interno
                 fetch(CF_BASE + '/incrementInternalAdViews', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
