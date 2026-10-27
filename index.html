@@ -186,22 +186,45 @@
         .watch-btn.locked { background: linear-gradient(135deg, #7c3aed, #6d28d9); color: #fff; }
         .watch-btn.locked:hover { background: linear-gradient(135deg, #6d28d9, #5b21b6); }
 
+        /* ===== ESTRUTURA DOS MODAIS ===== */
         .modal-overlay {
             position: fixed; inset: 0; background: rgba(0,0,0,0.72);
             display: none; align-items: center; justify-content: center;
             z-index: 1500; backdrop-filter: blur(6px); padding: 20px;
         }
         .modal-overlay.active { display: flex; }
+        
         .modal {
             background: #152961; border: 1px solid rgba(255,255,255,0.12);
             border-radius: 14px; padding: 26px; width: 100%; max-width: 520px;
             box-shadow: 0 25px 60px rgba(0,0,0,0.8);
             animation: modalIn 0.2s ease;
-            max-height: 90vh; overflow-y: auto;
+            max-height: 90vh; overflow-y: auto; /* Padrão para modais simples */
         }
+        
+        /* Padrão para modais que precisam de scroll APENAS no conteúdo (sem vazar botão) */
+        .modal.flex-modal {
+            display: flex;
+            flex-direction: column;
+            max-height: 85vh; /* Garante que o modal caiba na tela */
+            overflow: hidden; /* O modal inteiro NÃO rola. Quem rola é a div interna */
+        }
+        .modal.flex-modal .modal-scroll {
+            flex: 1;
+            overflow-y: auto; /* A rolagem única fica aqui */
+            min-height: 0; /* OBRIGATÓRIO para o flexbox permitir que o filho encolha e crie rolagem */
+            padding-right: 6px; /* Afasta um pouco o texto da barra de rolagem */
+        }
+        .modal.flex-modal .modal-actions {
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid rgba(255,255,255,0.08);
+            flex-shrink: 0; /* O botão fechar NUNCA vai encolher ou sumir */
+        }
+
         @keyframes modalIn { from { transform: scale(0.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-        .modal h2 { color: #fdbb2d; margin-bottom: 6px; font-size: 1.25rem; }
-        .modal-sub { color: #cbd5e1; font-size: 0.85rem; margin-bottom: 8px; }
+        .modal h2 { color: #fdbb2d; margin-bottom: 6px; font-size: 1.25rem; flex-shrink: 0; }
+        .modal-sub { color: #cbd5e1; font-size: 0.85rem; margin-bottom: 8px; flex-shrink: 0; }
         .modal label {
             display: block; color: #fdbb2d; font-size: 0.8rem; font-weight: 700;
             margin: 14px 0 6px; text-transform: uppercase; letter-spacing: 0.5px;
@@ -272,12 +295,9 @@
         .ad-status-badge { padding: 4px 10px; border-radius: 12px; font-size: 0.75rem; font-weight: bold; border: 1px solid; }
         .btn-delete-ad { background: #e74c3c; color: white; border: none; padding: 4px 10px; border-radius: 4px; cursor: pointer; font-size: 0.75rem; font-weight: bold; }
 
-        /* ===== LISTA DE ANÚNCIOS INTERNOS (CORRIGIDO) ===== */
+        /* ===== LISTA DE ANÚNCIOS INTERNOS ===== */
         #adsListContainer {
             margin-top: 15px;
-            max-height: 350px;
-            overflow-y: auto;
-            padding-right: 4px;
         }
         .ad-list-item {
             display: flex;
@@ -288,7 +308,7 @@
             border-radius: 8px;
             margin-bottom: 8px;
             border: 1px solid rgba(255,255,255,0.05);
-            min-width: 0; /* Impede o flex de estourar a largura do modal */
+            min-width: 0;
         }
         .ad-list-item img {
             width: 100px;
@@ -333,14 +353,39 @@
         }
         .remove-ad-btn:hover { background: #dc2626; }
 
-        #perfTableContainer {
-            margin-top: 15px;
-            max-height: 55vh;
-            overflow-y: auto;
-            border-radius: 8px;
-            border: 1px solid rgba(255,255,255,0.08);
-            background: rgba(0,0,0,0.15);
+        /* ===== TABELA DE DESEMPENHO ===== */
+        .perf-tabs { display: flex; gap: 10px; margin-bottom: 15px; margin-top: 5px; flex-shrink: 0; }
+        .perf-tab-btn {
+            flex: 1; padding: 10px; border-radius: 8px; border: none;
+            font-weight: bold; cursor: pointer; transition: 0.2s;
+            font-size: 0.9rem;
         }
+        .perf-tab-btn.active { background: #fdbb2d; color: #000; }
+        .perf-tab-btn:not(.active) { background: rgba(255,255,255,0.12); color: #fff; }
+        .perf-tab-btn:not(.active):hover { background: rgba(255,255,255,0.2); }
+
+        .perf-search-container {
+            margin-top: 10px;
+            margin-bottom: 10px;
+            flex-shrink: 0;
+        }
+        .perf-search-container input {
+            width: 100%;
+            background: rgba(255,255,255,0.08);
+            color: #fff;
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 8px;
+            padding: 11px 14px 11px 38px;
+            font-size: 0.9rem;
+            outline: none;
+            transition: 0.2s;
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="%2394a3b8" viewBox="0 0 16 16"><path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z"/></svg>');
+            background-repeat: no-repeat;
+            background-position: 12px center;
+        }
+        .perf-search-container input:focus { border-color: #fdbb2d; background-color: rgba(255,255,255,0.12); }
+        .perf-search-container input::placeholder { color: #64748b; }
+
         .perf-table {
             width: 100%;
             border-collapse: collapse;
@@ -388,38 +433,8 @@
             color: #94a3b8;
             font-size: 0.9rem;
         }
-        .perf-search-container {
-            margin-top: 12px;
-            margin-bottom: 4px;
-        }
-        .perf-search-container input {
-            width: 100%;
-            background: rgba(255,255,255,0.08);
-            color: #fff;
-            border: 1px solid rgba(255,255,255,0.2);
-            border-radius: 8px;
-            padding: 11px 14px 11px 38px;
-            font-size: 0.9rem;
-            outline: none;
-            transition: 0.2s;
-            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="%2394a3b8" viewBox="0 0 16 16"><path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z"/></svg>');
-            background-repeat: no-repeat;
-            background-position: 12px center;
-        }
-        .perf-search-container input:focus { border-color: #fdbb2d; background-color: rgba(255,255,255,0.12); }
-        .perf-search-container input::placeholder { color: #64748b; }
 
-        /* Abas de Navegação do Desempenho */
-        .perf-tabs { display: flex; gap: 10px; margin-bottom: 20px; margin-top: 15px; }
-        .perf-tab-btn {
-            flex: 1; padding: 10px; border-radius: 8px; border: none;
-            font-weight: bold; cursor: pointer; transition: 0.2s;
-            font-size: 0.9rem;
-        }
-        .perf-tab-btn.active { background: #fdbb2d; color: #000; }
-        .perf-tab-btn:not(.active) { background: rgba(255,255,255,0.12); color: #fff; }
-        .perf-tab-btn:not(.active):hover { background: rgba(255,255,255,0.2); }
-
+        /* ===== SELETOR DE PLANOS ===== */
         #pixPlanSelector {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
@@ -469,6 +484,7 @@
             border-radius: 10px;
         }
 
+        /* ===== PLAYER ===== */
         #playerScreen {
             position: fixed; inset: 0;
             background: linear-gradient(135deg, rgba(11,15,25,0.97) 0%, rgba(26,26,46,0.97) 50%, rgba(22,33,62,0.97) 100%);
@@ -965,12 +981,13 @@
         </div>
     </div>
 
+    <!-- MODAL: Anúncio Interno -->
     <div class="modal-overlay" id="manageAdsModal">
-        <div class="modal">
+        <div class="modal flex-modal">
             <h2>Anúncio Interno</h2>
             <p class="modal-sub">Adicione ou remova as imagens do anúncio central.</p>
             
-            <div style="display: flex; gap: 10px; align-items: flex-end;">
+            <div style="display: flex; gap: 10px; align-items: flex-end; flex-shrink: 0; margin-bottom: 10px;">
                 <div style="flex: 1;">
                     <label>URL da Imagem</label>
                     <input type="text" id="newAdImageUrl" placeholder="https://exemplo.com/imagem.png" autocomplete="off">
@@ -978,7 +995,7 @@
                 <button class="primary" id="addAdBtn" style="height: 42px; margin-bottom: 6px; padding: 0 16px; border-radius: 8px; border: none; font-weight: bold; cursor: pointer;">Adicionar</button>
             </div>
 
-            <div id="adsListContainer"></div>
+            <div id="adsListContainer" class="modal-scroll"></div>
 
             <div class="modal-actions">
                 <button class="secondary" id="closeManageAdsBtn">Fechar</button>
@@ -1009,9 +1026,9 @@
         </div>
     </div>
 
-    <!-- MODAL DE DESEMPENHO COM ABAS -->
+    <!-- MODAL: Desempenho -->
     <div class="modal-overlay" id="performanceModal">
-        <div class="modal" style="max-width: 950px;">
+        <div class="modal flex-modal" style="max-width: 950px;">
             <h2>📈 Desempenho</h2>
             
             <div class="perf-tabs">
@@ -1019,19 +1036,21 @@
                 <button id="tabSubsBtn" class="perf-tab-btn">Assinantes Ativos</button>
             </div>
 
-            <!-- Aba de Vídeos -->
-            <div id="viewVideos">
-                <p class="modal-sub">Clique nos cabeçalhos para ordenar por qualquer coluna.</p>
-                <div class="perf-search-container">
-                    <input type="text" id="perfSearchInput" placeholder="Buscar por título ou ID do vídeo..." autocomplete="off">
+            <div class="modal-scroll" style="display: flex; flex-direction: column;">
+                <!-- Aba de Vídeos -->
+                <div id="viewVideos" style="flex: 1; display: flex; flex-direction: column;">
+                    <p class="modal-sub" style="flex-shrink: 0;">Clique nos cabeçalhos para ordenar.</p>
+                    <div class="perf-search-container">
+                        <input type="text" id="perfSearchInput" placeholder="Buscar por título ou ID do vídeo..." autocomplete="off">
+                    </div>
+                    <div id="perfTableContainer" style="flex: 1; overflow-y: auto; border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; margin-top: 10px;"></div>
                 </div>
-                <div id="perfTableContainer"></div>
-            </div>
 
-            <!-- Aba de Assinantes -->
-            <div id="viewSubs" style="display:none;">
-                <p class="modal-sub">Usuários com assinatura ativa e data de expiração.</p>
-                <div id="subsListContainer" style="max-height:55vh; overflow-y:auto; background:rgba(0,0,0,0.2); border-radius:8px; padding:10px; border:1px solid rgba(255,255,255,0.05);"></div>
+                <!-- Aba de Assinantes -->
+                <div id="viewSubs" style="display: none; flex: 1; flex-direction: column;">
+                    <p class="modal-sub" style="flex-shrink: 0;">Usuários com assinatura ativa e data de expiração.</p>
+                    <div id="subsListContainer" style="flex: 1; overflow-y: auto; background: rgba(0,0,0,0.2); border-radius: 8px; padding: 10px; border: 1px solid rgba(255,255,255,0.05);"></div>
+                </div>
             </div>
 
             <div class="modal-actions">
@@ -2023,7 +2042,18 @@
         let arr = Array.isArray(raw) ? raw : Object.values(raw);
         return arr.map(b => {
             if (typeof b === 'string') return { src: b, link: 'https://playtronicgames.com.br', views: 0 };
-            if (b && typeof b === 'object') return { ...b, src: b.src || b.url || b.image, views: Number(b.views || 0) };
+            if (b && typeof b === 'object') {
+                let url = b.src || b.url || b.image || b.img || b.link;
+                if (!url || typeof url !== 'string' || !url.startsWith('http')) {
+                    for (const key in b) {
+                        if (typeof b[key] === 'string' && b[key].startsWith('http')) {
+                            url = b[key];
+                            break;
+                        }
+                    }
+                }
+                return { ...b, src: url, views: Number(b.views || 0) };
+            }
             return null;
         }).filter(b => b && b.src);
     }
@@ -2193,7 +2223,7 @@
     tabVideosBtn.addEventListener('click', () => {
         tabVideosBtn.classList.add('active');
         tabSubsBtn.classList.remove('active');
-        viewVideos.style.display = 'block';
+        viewVideos.style.display = 'flex'; // Mudou de block para flex
         viewSubs.style.display = 'none';
         renderPerformanceTable();
     });
@@ -2202,7 +2232,7 @@
         tabSubsBtn.classList.add('active');
         tabVideosBtn.classList.remove('active');
         viewVideos.style.display = 'none';
-        viewSubs.style.display = 'block';
+        viewSubs.style.display = 'flex'; // Mudou de block para flex
         renderSubsList();
     });
 
