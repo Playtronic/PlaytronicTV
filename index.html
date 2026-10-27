@@ -923,10 +923,13 @@
                 <!-- Aba de Assinantes -->
                 <div id="viewSubs" style="display: none; flex: 1; flex-direction: column;">
                     <div style="display: flex; gap: 10px; align-items: center; flex-shrink: 0; margin-bottom: 10px; flex-wrap: wrap;">
-                        <div style="color: #fdbb2d; font-weight: 700; font-size: 0.88rem;">
-                            <span id="subsTotalCount">0</span> usuários no site
-                            &nbsp;•&nbsp;
-                            <span id="subsActiveCount">0</span> assinantes ativos
+                        <div style="color: #fdbb2d; font-weight: 700; font-size: 0.88rem; display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
+                            <span style="display:inline-block; width:9px; height:9px; background:#22c55e; border-radius:50%; box-shadow: 0 0 6px #22c55e;"></span>
+                            <span id="subsOnlineCount">0</span> online no momento
+                            <span style="color: #64748b;">•</span>
+                            <span id="subsTotalCount">0</span> totais
+                            <span style="color: #64748b;">•</span>
+                            <span id="subsActiveCount">0</span> assinantes
                         </div>
                         <select id="subsFilterSelect" style="margin-left: auto; width: 210px; background: rgba(255,255,255,0.08); color: #fff; border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; padding: 8px 12px; font-size: 0.85rem; cursor: pointer; outline: none; font-family: inherit;">
                             <option value="all">Todos os usuários</option>
@@ -1206,6 +1209,7 @@
     let allUsersList = [];
     let allUsersTotalCount = 0;
     let allUsersActiveCount = 0;
+    let onlineUsersData = {};
 
     let perfSortField = 'views';
     let perfSortOrder = 'desc';
@@ -1464,6 +1468,43 @@
         }, { merge: true }).catch(e => console.warn('catalog_users write:', e));
     }
 
+    function setupPresence(user) {
+        if (!user) return;
+        const userStatusRef = rtdb.ref('/onlineUsers/' + user.uid);
+        
+        // Monitora o estado da conexão
+        rtdb.ref('.info/connected').on('value', (snapshot) => {
+            if (snapshot.val() === false) return;
+            
+            // Quando conectar, define o usuário como online
+            // E configura o onDisconnect para removê-lo quando cair a conexão
+            userStatusRef.onDisconnect().remove().then(() => {
+                userStatusRef.set({
+                    email: user.email || '',
+                    name: user.displayName || '',
+                    photoURL: user.photoURL || '',
+                    lastSeen: firebase.database.ServerValue.TIMESTAMP
+                });
+            });
+        });
+    }
+
+    // Listener em tempo real para o painel admin
+    rtdb.ref('onlineUsers').on('value', (snap) => {
+        onlineUsersData = snap.val() || {};
+        const count = Object.keys(onlineUsersData).length;
+        
+        // Atualiza o contador no HTML
+        const onlineCountEl = document.getElementById('subsOnlineCount');
+        if (onlineCountEl) onlineCountEl.textContent = count;
+
+        // Se a aba de assinantes estiver aberta, atualiza a lista para mostrar quem está online
+        if (document.getElementById('performanceModal')?.classList.contains('active') && 
+            document.getElementById('viewSubs')?.style.display !== 'none') {
+            renderSubsList();
+        }
+    });
+
     auth.onAuthStateChanged((user) => {
         currentUser = user;
 
@@ -1480,6 +1521,9 @@
 
             // ✅ Registra o usuário como integrante do Playtronic TV+ (único por site)
             registrarUsuarioPlaytronic(user);
+            
+            // ✅ Ativa a presença em tempo real
+            setupPresence(user);
 
             if (user.email === ADMIN_EMAIL) {
                 adminContainer.style.display = 'flex';
@@ -2125,6 +2169,7 @@
     const subsFilterSelect = document.getElementById('subsFilterSelect');
     const subsTotalCount = document.getElementById('subsTotalCount');
     const subsActiveCount = document.getElementById('subsActiveCount');
+    const subsOnlineCount = document.getElementById('subsOnlineCount');
 
     document.getElementById('performanceBtn').addEventListener('click', () => {
         adminDropdown.style.display = 'none';
@@ -2242,6 +2287,7 @@
 
         const rows = filtered.map(u => {
             let rightSide = '';
+            const isOnline = !!onlineUsersData[u.uid];
 
             if (u.isSubscriber) {
                 const daysLeft = Math.max(0, Math.ceil((u.expiresAt - now) / (1000 * 60 * 60 * 24)));
@@ -2265,16 +2311,22 @@
                 `;
             }
 
+            const onlineBadge = isOnline 
+                ? `<span style="display:inline-block; width:8px; height:8px; background:#22c55e; border-radius:50%; margin-right:6px; box-shadow: 0 0 5px #22c55e;"></span>` 
+                : `<span style="display:inline-block; width:8px; height:8px; background:#475569; border-radius:50%; margin-right:6px;"></span>`;
+
             return `
                 <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px; border-bottom: 1px solid rgba(255,255,255,0.05); gap: 12px;">
                     <div style="min-width: 0; flex: 1;">
-                        <div style="color: #fff; font-weight: bold; font-size: 0.9rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                        <div style="color: #fff; font-weight: bold; font-size: 0.9rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; display: flex; align-items: center;">
+                            ${onlineBadge}
                             ${escapeHtml(u.name || '(sem nome)')}
+                            ${isOnline ? '<span style="color:#22c55e; font-size:0.7rem; margin-left:8px; font-weight:bold;">(Online)</span>' : ''}
                         </div>
-                        <div style="color: #94a3b8; font-size: 0.75rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                        <div style="color: #94a3b8; font-size: 0.75rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin-left: 14px;">
                             ${escapeHtml(u.email || '(sem e-mail)')}
                         </div>
-                        <div style="color: #64748b; font-size: 0.7rem; margin-top: 3px;">
+                        <div style="color: #64748b; font-size: 0.7rem; margin-top: 3px; margin-left: 14px;">
                             🕓 Último login: ${escapeHtml(formatLastSignIn(u.lastSignIn))}
                         </div>
                     </div>
