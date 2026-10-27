@@ -1202,7 +1202,7 @@
     let adYtPlayer = null;
 
     let myAdsData = [];
-    // ===== NOVO: lista completa de usuários com status de assinatura =====
+    // ===== Lista completa de usuários do Playtronic com status de assinatura =====
     let allUsersList = [];
     let allUsersTotalCount = 0;
     let allUsersActiveCount = 0;
@@ -1449,6 +1449,21 @@
         adminDropdown.style.display = adminDropdown.style.display === 'flex' ? 'none' : 'flex';
     });
 
+    // Função auxiliar para registrar/atualizar o usuário no Playtronic TV+.
+    // A coleção `catalog_users` marca quem pertence a ESTE site, evitando
+    // que usuários do canaisdetv.online apareçam no painel admin.
+    function registrarUsuarioPlaytronic(user) {
+        if (!user) return;
+        db.collection('catalog_users').doc(user.uid).set({
+            uid: user.uid,
+            email: user.email || '',
+            name: user.displayName || '',
+            photoURL: user.photoURL || '',
+            lastLoginMs: Date.now(),
+            lastLogin: firebase.firestore.FieldValue.serverTimestamp()
+        }, { merge: true }).catch(e => console.warn('catalog_users write:', e));
+    }
+
     auth.onAuthStateChanged((user) => {
         currentUser = user;
 
@@ -1462,7 +1477,10 @@
             userAvatar.src = user.photoURL || 'https://www.gravatar.com/avatar/?d=mp';
             userName.textContent = user.displayName || 'Usuário';
             userEmail.textContent = user.email || '';
-            
+
+            // ✅ Registra o usuário como integrante do Playtronic TV+ (único por site)
+            registrarUsuarioPlaytronic(user);
+
             if (user.email === ADMIN_EMAIL) {
                 adminContainer.style.display = 'flex';
                 document.body.classList.add('is-admin');
