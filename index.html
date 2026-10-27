@@ -768,7 +768,7 @@
         </div>
         
         <div class="search-container">
-            <input type="text" id="searchInput" placeholder="Pesquisar por título, produtora, ano ou ID..." autocomplete="off">
+            <input type="text" id="searchInput" placeholder="Pesquisar por título, produtora ou ano..." autocomplete="off">
             <button id="clearMainSearchBtn" title="Limpar busca">✖</button>
         </div>
 
@@ -922,7 +922,7 @@
                 <div id="viewVideos" style="flex: 1; display: flex; flex-direction: column;">
                     <p class="modal-sub" style="flex-shrink: 0;">Clique nos cabeçalhos para ordenar.</p>
                     <div class="perf-search-container">
-                        <input type="text" id="perfSearchInput" placeholder="Buscar por título ou ID do vídeo..." autocomplete="off">
+                        <input type="text" id="perfSearchInput" placeholder="Buscar por título do vídeo..." autocomplete="off">
                     </div>
                     <div id="perfTableContainer" style="flex: 1; overflow-y: auto; border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; margin-top: 10px;"></div>
                 </div>
@@ -985,7 +985,7 @@
             <p class="modal-sub" id="myAdsSub">Acompanhe o desempenho dos seus anúncios.</p>
             
             <div class="my-ads-toolbar">
-                <input type="text" id="searchMyAds" placeholder="Pesquisar por ID ou título..." autocomplete="off">
+                <input type="text" id="searchMyAds" placeholder="Pesquisar por título ou ID de pagamento..." autocomplete="off">
                 <select id="sortMyAds">
                     <option value="createdAt">Data (Recente)</option>
                     <option value="views">Visualizações</option>
@@ -1679,16 +1679,14 @@
     function renderCards() {
         if (loadingMsg.style.display !== 'none') loadingMsg.style.display = 'none';
 
-        // AQUI ESTÁ A MÁGICA DA PESQUISA AVANÇADA
+        // ===== PESQUISA POR TÍTULO, PRODUTORA E ANO (sem busca por ID) =====
         const filtered = currentFilter
             ? videos.filter(v => {
                 const title = (v.titulo || '').toLowerCase();
-                const ytId = (v.youtubeId || '').toLowerCase();
                 const produtora = (v.produtora || '').toLowerCase();
                 const ano = v.ano ? String(v.ano).toLowerCase() : '';
                 
                 return title.includes(currentFilter) || 
-                       ytId.includes(currentFilter) || 
                        produtora.includes(currentFilter) || 
                        ano.includes(currentFilter);
             })
@@ -2211,12 +2209,12 @@
 
         const searchTerm = (perfSearchInput ? perfSearchInput.value : '').toLowerCase().trim();
 
+        // ===== FILTRO APENAS POR TÍTULO (sem busca por ID) =====
         let filtered = videos;
         if (searchTerm) {
             filtered = videos.filter(v => {
                 const title = (v.titulo || '').toLowerCase();
-                const ytId = (v.youtubeId || '').toLowerCase();
-                return title.includes(searchTerm) || ytId.includes(searchTerm);
+                return title.includes(searchTerm);
             });
         }
 
@@ -2820,10 +2818,10 @@
         const filter = searchMyAds.value.toLowerCase().trim();
         const sortBy = sortMyAds.value;
         
+        // ===== FILTRO POR TÍTULO E ID DE PAGAMENTO (sem videoId) =====
         let filtered = dataArray.filter(ad => {
             const title = myAdsTitlesCache[ad.videoId] || '';
-            return (ad.videoId || '').toLowerCase().includes(filter) || 
-                   (ad.paymentId || '').toLowerCase().includes(filter) ||
+            return (ad.paymentId || '').toLowerCase().includes(filter) ||
                    title.toLowerCase().includes(filter);
         });
 
