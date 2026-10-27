@@ -368,6 +368,7 @@
             margin-top: 10px;
             margin-bottom: 10px;
             flex-shrink: 0;
+            position: relative; /* Adicionado para posicionar o X */
         }
         .perf-search-container input {
             width: 100%;
@@ -375,7 +376,7 @@
             color: #fff;
             border: 1px solid rgba(255,255,255,0.2);
             border-radius: 8px;
-            padding: 11px 14px 11px 38px;
+            padding: 11px 40px 11px 38px; /* Aumentado padding à direita para o X */
             font-size: 0.9rem;
             outline: none;
             transition: 0.2s;
@@ -385,6 +386,21 @@
         }
         .perf-search-container input:focus { border-color: #fdbb2d; background-color: rgba(255,255,255,0.12); }
         .perf-search-container input::placeholder { color: #64748b; }
+        
+        #clearPerfSearchBtn {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: #94a3b8;
+            font-size: 1.2rem;
+            cursor: pointer;
+            display: none;
+            padding: 0 5px;
+        }
+        #clearPerfSearchBtn:hover { color: #fff; }
 
         .perf-table {
             width: 100%;
@@ -1041,7 +1057,8 @@
                 <div id="viewVideos" style="flex: 1; display: flex; flex-direction: column;">
                     <p class="modal-sub" style="flex-shrink: 0;">Clique nos cabeçalhos para ordenar.</p>
                     <div class="perf-search-container">
-                        <input type="text" id="perfSearchInput" placeholder="Buscar por título ou ID do vídeo..." autocomplete="off">
+                        <input type="text" id="perfSearchInput" placeholder="Buscar por título, ID, produtora ou ano..." autocomplete="off">
+                        <button id="clearPerfSearchBtn" title="Limpar busca">✖</button>
                     </div>
                     <div id="perfTableContainer" style="flex: 1; overflow-y: auto; border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; margin-top: 10px;"></div>
                 </div>
@@ -2194,6 +2211,7 @@
     const performanceModal = document.getElementById('performanceModal');
     const perfTableContainer = document.getElementById('perfTableContainer');
     const perfSearchInput = document.getElementById('perfSearchInput');
+    const clearPerfSearchBtn = document.getElementById('clearPerfSearchBtn');
     const tabVideosBtn = document.getElementById('tabVideosBtn');
     const tabSubsBtn = document.getElementById('tabSubsBtn');
     const viewVideos = document.getElementById('viewVideos');
@@ -2206,7 +2224,10 @@
         
         // Reseta para a aba de vídeos sempre que abrir
         tabVideosBtn.click();
-        if (perfSearchInput) perfSearchInput.value = '';
+        if (perfSearchInput) {
+            perfSearchInput.value = '';
+            clearPerfSearchBtn.style.display = 'none';
+        }
         
         // Busca assinantes proativamente (assim já fica carregado na outra aba)
         loadActiveSubscribers();
@@ -2238,7 +2259,21 @@
 
     if (perfSearchInput) {
         perfSearchInput.addEventListener('input', () => {
+            if (perfSearchInput.value.trim().length > 0) {
+                clearPerfSearchBtn.style.display = 'block';
+            } else {
+                clearPerfSearchBtn.style.display = 'none';
+            }
             renderPerformanceTable();
+        });
+    }
+
+    if (clearPerfSearchBtn) {
+        clearPerfSearchBtn.addEventListener('click', () => {
+            perfSearchInput.value = '';
+            clearPerfSearchBtn.style.display = 'none';
+            renderPerformanceTable();
+            perfSearchInput.focus();
         });
     }
 
@@ -2310,7 +2345,13 @@
             filtered = videos.filter(v => {
                 const title = (v.titulo || '').toLowerCase();
                 const ytId = (v.youtubeId || '').toLowerCase();
-                return title.includes(searchTerm) || ytId.includes(searchTerm);
+                const produtora = (v.produtora || '').toLowerCase(); // Adicionado
+                const ano = v.ano ? String(v.ano).toLowerCase() : ''; // Adicionado
+                
+                return title.includes(searchTerm) || 
+                       ytId.includes(searchTerm) || 
+                       produtora.includes(searchTerm) || 
+                       ano.includes(searchTerm);
             });
         }
 
