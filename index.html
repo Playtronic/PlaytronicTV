@@ -272,6 +272,7 @@
         .ad-status-badge { padding: 4px 10px; border-radius: 12px; font-size: 0.75rem; font-weight: bold; border: 1px solid; }
         .btn-delete-ad { background: #e74c3c; color: white; border: none; padding: 4px 10px; border-radius: 4px; cursor: pointer; font-size: 0.75rem; font-weight: bold; }
 
+        /* ===== LISTA DE ANÚNCIOS INTERNOS (CORRIGIDO) ===== */
         #adsListContainer {
             margin-top: 15px;
             max-height: 350px;
@@ -287,12 +288,13 @@
             border-radius: 8px;
             margin-bottom: 8px;
             border: 1px solid rgba(255,255,255,0.05);
+            min-width: 0; /* Impede o flex de estourar a largura do modal */
         }
         .ad-list-item img {
             width: 100px;
             height: 56px;
             border-radius: 6px;
-            object-fit: cover;
+            object-fit: contain;
             flex-shrink: 0;
             background: #0b0f19;
         }
@@ -300,6 +302,9 @@
             flex: 1;
             overflow: hidden;
             min-width: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
         }
         .ad-info-url {
             font-size: 0.75rem;
@@ -310,10 +315,9 @@
             font-family: monospace;
         }
         .ad-info-views {
-            font-size: 0.72rem;
+            font-size: 0.75rem;
             color: #fdbb2d;
             font-weight: 700;
-            margin-top: 4px;
         }
         .remove-ad-btn {
             background: #ef4444;
@@ -404,6 +408,17 @@
         }
         .perf-search-container input:focus { border-color: #fdbb2d; background-color: rgba(255,255,255,0.12); }
         .perf-search-container input::placeholder { color: #64748b; }
+
+        /* Abas de Navegação do Desempenho */
+        .perf-tabs { display: flex; gap: 10px; margin-bottom: 20px; margin-top: 15px; }
+        .perf-tab-btn {
+            flex: 1; padding: 10px; border-radius: 8px; border: none;
+            font-weight: bold; cursor: pointer; transition: 0.2s;
+            font-size: 0.9rem;
+        }
+        .perf-tab-btn.active { background: #fdbb2d; color: #000; }
+        .perf-tab-btn:not(.active) { background: rgba(255,255,255,0.12); color: #fff; }
+        .perf-tab-btn:not(.active):hover { background: rgba(255,255,255,0.2); }
 
         #pixPlanSelector {
             display: grid;
@@ -883,7 +898,7 @@
                             <button id="adminMenuBtn">⚙️ Painel Admin</button>
                             <div id="adminDropdown">
                                 <button id="addVideoBtn">➕ Inserir Vídeo</button>
-                                <button id="performanceBtn">📈 Desempenho dos Vídeos</button>
+                                <button id="performanceBtn">📈 Desempenho</button>
                                 <button id="pricingBtn">💰 Preços</button>
                                 <button id="manageAdsBtn">🖼️ Anúncio Interno</button>
                                 <button id="simulateSubBtn" style="color: #a78bfa;">🧪 Simular Assinante</button>
@@ -953,7 +968,7 @@
     <div class="modal-overlay" id="manageAdsModal">
         <div class="modal">
             <h2>Anúncio Interno</h2>
-            <p class="modal-sub">Adicione ou remova as imagens do anúncio central (usado quando não há anúncios pagos).</p>
+            <p class="modal-sub">Adicione ou remova as imagens do anúncio central.</p>
             
             <div style="display: flex; gap: 10px; align-items: flex-end;">
                 <div style="flex: 1;">
@@ -978,16 +993,12 @@
 
             <label>30 dias (R$)</label>
             <input type="text" id="priceMonthlyInput" placeholder="Ex.: 6,90" inputmode="decimal" autocomplete="off">
-
             <label>3 meses (R$)</label>
             <input type="text" id="priceQuarterlyInput" placeholder="Ex.: 17,90" inputmode="decimal" autocomplete="off">
-
             <label>6 meses (R$)</label>
             <input type="text" id="priceSemiannualInput" placeholder="Ex.: 29,90" inputmode="decimal" autocomplete="off">
-
             <label>1 ano (R$)</label>
             <input type="text" id="priceAnnualInput" placeholder="Ex.: 49,90" inputmode="decimal" autocomplete="off">
-
             <label>Tarifa de Anúncio por Segundo (R$)</label>
             <input type="text" id="priceAdRateInput" placeholder="Ex.: 0,50" inputmode="decimal" autocomplete="off">
 
@@ -998,14 +1009,31 @@
         </div>
     </div>
 
+    <!-- MODAL DE DESEMPENHO COM ABAS -->
     <div class="modal-overlay" id="performanceModal">
         <div class="modal" style="max-width: 950px;">
-            <h2>📈 Desempenho dos Vídeos</h2>
-            <p class="modal-sub">Clique nos cabeçalhos para ordenar por qualquer coluna.</p>
-            <div class="perf-search-container">
-                <input type="text" id="perfSearchInput" placeholder="Buscar por título ou ID do vídeo..." autocomplete="off">
+            <h2>📈 Desempenho</h2>
+            
+            <div class="perf-tabs">
+                <button id="tabVideosBtn" class="perf-tab-btn active">Vídeos</button>
+                <button id="tabSubsBtn" class="perf-tab-btn">Assinantes Ativos</button>
             </div>
-            <div id="perfTableContainer"></div>
+
+            <!-- Aba de Vídeos -->
+            <div id="viewVideos">
+                <p class="modal-sub">Clique nos cabeçalhos para ordenar por qualquer coluna.</p>
+                <div class="perf-search-container">
+                    <input type="text" id="perfSearchInput" placeholder="Buscar por título ou ID do vídeo..." autocomplete="off">
+                </div>
+                <div id="perfTableContainer"></div>
+            </div>
+
+            <!-- Aba de Assinantes -->
+            <div id="viewSubs" style="display:none;">
+                <p class="modal-sub">Usuários com assinatura ativa e data de expiração.</p>
+                <div id="subsListContainer" style="max-height:55vh; overflow-y:auto; background:rgba(0,0,0,0.2); border-radius:8px; padding:10px; border:1px solid rgba(255,255,255,0.05);"></div>
+            </div>
+
             <div class="modal-actions">
                 <button class="secondary" id="closePerformanceBtn">Fechar</button>
             </div>
@@ -1260,8 +1288,8 @@
     };
 
     let adBanners = [
-        { src: 'https://i.ibb.co/1GpjQ5zD/image.png', link: 'https://playtronicgames.com.br' },
-        { src: 'https://i.ibb.co/21QYYGKg/83697ff7-f124-4608-8b30-2bd6e05b5c39.png', link: 'https://playtronicgames.com.br' }
+        { src: 'https://i.ibb.co/1GpjQ5zD/image.png', link: 'https://playtronicgames.com.br', views: 0 },
+        { src: 'https://i.ibb.co/21QYYGKg/83697ff7-f124-4608-8b30-2bd6e05b5c39.png', link: 'https://playtronicgames.com.br', views: 0 }
     ];
     let currentAdBannerIndex = 0;
     let paidAdsCache = []; 
@@ -1270,6 +1298,7 @@
     let adYtPlayer = null;
 
     let myAdsData = [];
+    let activeSubscribersList = [];
 
     let perfSortField = 'views';
     let perfSortOrder = 'desc';
@@ -2129,15 +2158,28 @@
         checkCatalogSubscription();
     });
 
+    /* ========================================================= */
+    /* MODAL DE DESEMPENHO (ABAS)                                */
+    /* ========================================================= */
     const performanceModal = document.getElementById('performanceModal');
     const perfTableContainer = document.getElementById('perfTableContainer');
     const perfSearchInput = document.getElementById('perfSearchInput');
+    const tabVideosBtn = document.getElementById('tabVideosBtn');
+    const tabSubsBtn = document.getElementById('tabSubsBtn');
+    const viewVideos = document.getElementById('viewVideos');
+    const viewSubs = document.getElementById('viewSubs');
+    const subsListContainer = document.getElementById('subsListContainer');
 
     document.getElementById('performanceBtn').addEventListener('click', () => {
         adminDropdown.style.display = 'none';
         performanceModal.classList.add('active');
+        
+        // Reseta para a aba de vídeos sempre que abrir
+        tabVideosBtn.click();
         if (perfSearchInput) perfSearchInput.value = '';
-        renderPerformanceTable();
+        
+        // Busca assinantes proativamente (assim já fica carregado na outra aba)
+        loadActiveSubscribers();
     });
 
     document.getElementById('closePerformanceBtn').addEventListener('click', () => {
@@ -2148,10 +2190,69 @@
         if (e.target === performanceModal) performanceModal.classList.remove('active');
     });
 
+    tabVideosBtn.addEventListener('click', () => {
+        tabVideosBtn.classList.add('active');
+        tabSubsBtn.classList.remove('active');
+        viewVideos.style.display = 'block';
+        viewSubs.style.display = 'none';
+        renderPerformanceTable();
+    });
+
+    tabSubsBtn.addEventListener('click', () => {
+        tabSubsBtn.classList.add('active');
+        tabVideosBtn.classList.remove('active');
+        viewVideos.style.display = 'none';
+        viewSubs.style.display = 'block';
+        renderSubsList();
+    });
+
     if (perfSearchInput) {
         perfSearchInput.addEventListener('input', () => {
             renderPerformanceTable();
         });
+    }
+
+    async function loadActiveSubscribers() {
+        try {
+            const token = await currentUser.getIdToken();
+            const r = await fetch(CF_BASE + '/getActiveSubscribers', {
+                headers: { Authorization: 'Bearer ' + token }
+            });
+            const data = await r.json();
+            if (data.success) {
+                activeSubscribersList = data.subscribers || [];
+                if (tabSubsBtn.classList.contains('active')) renderSubsList();
+            }
+        } catch (e) {
+            console.warn('Erro ao buscar assinantes:', e);
+        }
+    }
+
+    function renderSubsList() {
+        if (!subsListContainer) return;
+        
+        if (activeSubscribersList.length === 0) {
+            subsListContainer.innerHTML = '<div class="perf-empty">Nenhum assinante ativo no momento.</div>';
+            return;
+        }
+
+        const now = Date.now();
+        const rows = activeSubscribersList.map(sub => {
+            const daysLeft = Math.ceil((sub.expiresAt - now) / (1000 * 60 * 60 * 24));
+            return `
+                <div style="display:flex; justify-content:space-between; align-items:center; padding:10px; border-bottom:1px solid rgba(255,255,255,0.05);">
+                    <div>
+                        <div style="color:#fff; font-weight:bold; font-size:0.9rem;">${escapeHtml(sub.email)}</div>
+                        <div style="color:#94a3b8; font-size:0.75rem;">Plano: ${escapeHtml(sub.planId)} | Vence em: ${new Date(sub.expiresAt).toLocaleDateString('pt-BR')}</div>
+                    </div>
+                    <div style="color:#22c55e; font-weight:bold; background:rgba(34,197,94,0.1); padding:4px 10px; border-radius:12px; font-size:0.8rem;">
+                        ${daysLeft} dia${daysLeft !== 1 ? 's' : ''}
+                    </div>
+                </div>
+            `;
+        }).join('');
+
+        subsListContainer.innerHTML = rows;
     }
 
     function getPerfSortValue(item, field) {
@@ -3053,7 +3154,7 @@
                     fetch(CF_BASE + '/incrementInternalAdViews', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ adSrc: shownSrc }),
+                        body: JSON.stringify({ adSrc: shownSrc.trim() }),
                         keepalive: true
                     }).catch(e => console.warn("Erro ao registrar view interna:", e));
                 } else {
