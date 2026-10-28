@@ -16,7 +16,7 @@
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: linear-gradient(135deg, #0b0f19 0%, #1a1a2e 50%, #16213e 100%); background-attachment: fixed; color: #e2e8f0; min-height: 100vh; padding-top: 100px; padding-left: 20px; padding-right: 20px; display: flex; flex-direction: column; }
         
-        /* HEADER REDUZIDO E SEMPRE VISÍVEL */
+        /* HEADER REDUZIDO */
         .header { position: fixed; top: 0; left: 0; width: 100%; height: 80px; display: flex; align-items: center; justify-content: space-between; padding: 0 20px; background: rgba(21, 41, 97, 0.85); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border-bottom: 1px solid rgba(255,255,255,0.08); z-index: 10000000; box-shadow: 0 4px 20px rgba(0,0,0,0.5); transition: height 0.3s ease; }
         .header-brand { display: flex; align-items: center; flex: 0 0 250px; }
         .logo-link { display: flex; align-items: center; text-decoration: none; cursor: pointer; }
@@ -162,7 +162,7 @@
         .plan-option .plan-price { color: #fdbb2d; font-weight: 800; font-size: 1.1rem; }
         .plan-option .plan-badge { position: absolute; top: -8px; right: 8px; background: #22c55e; color: #fff; font-size: 0.65rem; font-weight: 800; padding: 2px 8px; border-radius: 10px; }
         
-        /* PLAYER AJUSTADO PARA NÃO FICAR ATRÁS DO HEADER */
+        /* PLAYER */
         #playerScreen { position: fixed; inset: 0; background: linear-gradient(135deg, rgba(11,15,25,0.97) 0%, rgba(26,26,46,0.97) 50%, rgba(22,33,62,0.97) 100%); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); z-index: 2000; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; overflow-y: auto; padding: 100px 20px 20px 20px; opacity: 0; visibility: hidden; transition: opacity 0.4s ease, visibility 0.4s; }
         #playerScreen.active { opacity: 1; visibility: visible; }
         .player-container { width: 100%; max-width: 1200px; display: flex; flex-direction: column; align-items: center; gap: 15px; }
@@ -212,12 +212,12 @@
         .spinner { border: 4px solid rgba(253,187,45,0.2); border-top: 4px solid #fdbb2d; border-radius: 50%; width: 50px; height: 50px; animation: spin 1s linear infinite; margin-bottom: 15px; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
-        /* MODAL DE ANÚNCIO AJUSTADO PARA NÃO FICAR ATRÁS DO HEADER E SER RESPONSIVO */
+        /* MODAL DE ANÚNCIO */
         #adInterstitialModal { position: fixed; inset: 0; background: linear-gradient(135deg, rgba(11,15,25,0.97) 0%, rgba(26,26,46,0.97) 50%, rgba(22,33,62,0.97) 100%); z-index: 99999; display: none; align-items: center; justify-content: center; backdrop-filter: blur(10px); padding: 100px 20px 20px 20px; gap: 20px; flex-wrap: wrap; overflow-y: auto; }
         #adInterstitialModal.active { display: flex; }
         
-        .ad-native-side { width: 160px; height: 600px; max-height: calc(100vh - 140px); flex-shrink: 0; background: #ffffff; border-radius: 8px; overflow: hidden; position: relative; border: 1px solid rgba(255,255,255,0.2); }
-        .ad-native-side iframe { width: 100%; height: 100%; display: block; border: 0; position: absolute; top:0; left:0; background: #ffffff; }
+        .ad-native-side { width: 160px; height: 600px; max-height: calc(100vh - 140px); flex-shrink: 0; background: #0b0f19; border-radius: 8px; overflow: hidden; position: relative; border: 1px solid rgba(255,255,255,0.2); }
+        .ad-native-side iframe { width: 100%; height: 100%; display: block; border: 0; position: absolute; top:0; left:0; background: transparent; }
         
         .ad-mobile-top, .ad-mobile-bottom { display: none; position: relative; background: #ffffff; border-radius: 8px; overflow: hidden; flex-shrink: 0; border: 1px solid rgba(255,255,255,0.2); margin: 0 auto; }
         .ad-mobile-top { width: 320px; height: 50px; }
@@ -321,26 +321,26 @@
         @media (max-width: 1150px) {
             .ad-native-side { display: none !important; }
             #adInterstitialModal { flex-direction: column; padding: 90px 10px 20px 10px; justify-content: flex-start; }
-            .ad-mobile-top, .ad-mobile-bottom { display: block !important; margin: 10px auto; }
+            .ad-mobile-top, .ad-mobile-bottom { display: flex !important; margin: 10px auto; }
             .ad-interstitial-wrapper { max-width: 100%; flex-shrink: 0; }
         }
         
         @media (max-width: 900px) {
-            body { padding-top: 80px; padding-bottom: 40px; padding-left: 10px; padding-right: 10px; }
-            .header { display: grid; grid-template-columns: 1fr auto; grid-template-areas: "logo auth"; align-items: center; gap: 10px; height: auto; padding: 10px 15px; }
+            body { padding-top: 130px; padding-bottom: 40px; padding-left: 10px; padding-right: 10px; }
+            .header { display: grid; grid-template-columns: 1fr auto; grid-template-areas: "logo auth" "search search"; align-items: center; gap: 10px; height: auto; padding: 10px 15px; }
             .header-brand { grid-area: logo; display: flex; justify-content: flex-start; width: auto; flex: none; }
             .header-logo { height: 45px; }
             .auth-area { grid-area: auth; justify-content: flex-end; width: auto; }
-            .search-container { display: none; } 
-            .user-card { position: fixed; top: 70px; left: 10px; right: 10px; width: auto; min-width: auto; }
+            .search-container { grid-area: search; margin: 0; max-width: 100%; width: 100%; display: flex; }
+            .user-card { position: fixed; top: 130px; left: 10px; right: 10px; width: auto; min-width: auto; }
             .catalog-grid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 15px; }
             .card-title { font-size: 1rem; min-height: 2.6em; }
             .card-info { padding: 10px; }
             .watch-btn { font-size: 0.85rem; padding: 8px; }
             
-            #playerScreen { padding: 90px 10px 40px 10px; justify-content: flex-start; }
+            #playerScreen { padding: 130px 10px 40px 10px; justify-content: flex-start; }
             .player-container { gap: 10px; }
-            .player-wrapper { max-height: calc(100vh - 180px); border-radius: 0; }
+            .player-wrapper { max-height: calc(100vh - 200px); border-radius: 0; }
             
             #player-bottom-ad { display: none !important; }
             .player-vote-container { top: 10px; right: 10px; transform: scale(0.8); transform-origin: top right; }
@@ -369,16 +369,16 @@
             .comment-card { padding: 12px; }
             .comment-avatar { width: 36px; height: 36px; }
             
-            .modal-overlay, #banAlertModal, #blockAlertModal { padding: 90px 10px 20px 10px; }
+            .modal-overlay, #banAlertModal, #blockAlertModal { padding: 130px 10px 20px 10px; }
             
-            /* Ajuste dos botões do anúncio no mobile */
-            .ad-interstitial-footer { flex-direction: column; align-items: center; }
-            .ad-interstitial-footer > div { width: 100%; display: flex; flex-direction: row; justify-content: center; flex-wrap: wrap; gap: 10px; }
-            .ad-interstitial-footer button { flex: 1; min-width: 130px; padding: 10px 15px; font-size: 0.9rem; }
+            /* Ajuste dos botões do anúncio no mobile (Empilhados e tamanho normal) */
+            .ad-interstitial-footer { flex-direction: column; align-items: stretch; }
+            .ad-interstitial-footer > div { display: flex; flex-direction: column; gap: 10px; }
+            .ad-interstitial-footer button { width: 100%; padding: 10px 15px; font-size: 0.9rem; }
         }
         
         @media (max-width: 900px) and (orientation: portrait) {
-            .player-wrapper { max-height: calc(100vh - 320px); min-height: 180px; }
+            .player-wrapper { max-height: calc(100vh - 340px); min-height: 180px; }
             #playerMobileTop { display: block; }
             #playerMobileBottom { display: block; }
         }
@@ -665,7 +665,7 @@
 
             <div class="player-mobile-banner" id="playerMobileBottom"></div>
 
-            <!-- ===== SEÇÃO DE COMENTÁRIOS (abaixo do banner) ===== -->
+            <!-- ===== SEÇÃO DE COMENTÁRIOS ===== -->
             <div id="commentsSection">
                 <div class="comments-header">
                     <h3>💬 Comentários</h3>
@@ -685,7 +685,7 @@
         </div>
     </div>
 
-    <!-- LIGHTBOX: BLOQUEIO (fechável) -->
+    <!-- LIGHTBOX: BLOQUEIO -->
     <div id="blockAlertModal">
         <div class="alert-box">
             <h2>⛔ Acesso Restrito a Comentários</h2>
@@ -713,8 +713,9 @@
 
     <!-- INTERSTITIAL DE ANÚNCIOS -->
     <div id="adInterstitialModal">
-        <div class="ad-mobile-top" id="adMobileTop"></div>
+        <!-- Banner 160x600 Esquerda (Nativo/Vertical) -->
         <div class="ad-native-side left" id="adNativeLeft"></div>
+        
         <div class="ad-interstitial-wrapper">
             <div class="ad-interstitial-header"><span>Publicidade</span><span id="adTimerText">Aguarde 5s...</span></div>
             <div class="ad-center-wrapper" id="adCenterWrapper"></div>
@@ -726,7 +727,12 @@
                 </div>
             </div>
         </div>
+        
+        <!-- Banner 160x600 Direita (Nativo/Vertical) -->
         <div class="ad-native-side right" id="adNativeRight"></div>
+
+        <!-- Banners Mobile -->
+        <div class="ad-mobile-top" id="adMobileTop"></div>
         <div class="ad-mobile-bottom" id="adMobileBottom"></div>
     </div>
 
@@ -856,6 +862,7 @@
     }
 
     // ============ CONTROLE DE VISIBILIDADE DA BARRA DE PESQUISA ============
+    // Oculta a barra quando qualquer modal, player ou lightbox estiver ativo
     function updateSearchVisibility() {
         const searchContainer = document.querySelector('.search-container');
         if (!searchContainer) return;
@@ -871,10 +878,12 @@
         if (isModalOpen) {
             searchContainer.style.display = 'none';
         } else {
-            searchContainer.style.display = window.matchMedia('(max-width: 900px)').matches ? 'none' : 'flex';
+            // Restaura para o padrão (flex). O CSS do mobile cuidará do grid.
+            searchContainer.style.display = 'flex';
         }
     }
 
+    // Observador para monitorar alterações de classes e estilos em todo o body
     const domObserver = new MutationObserver((mutations) => {
         let shouldUpdate = false;
         mutations.forEach(mutation => {
@@ -2540,8 +2549,10 @@
 
     function mountStandardAd(container, opts, scriptSrc) {
         if (!container) return;
-        container.innerHTML = ''; 
+        // Não injetamos se já tiver sido montado para evitar duplicações
+        if (container.dataset.mounted === '1') return;
         container.dataset.mounted = '1';
+        
         const iframe = document.createElement('iframe');
         iframe.setAttribute('scrolling', 'no');
         iframe.setAttribute('frameborder', '0');
@@ -2581,9 +2592,17 @@
         adModal.classList.add('active');
         adCenterWrapper.innerHTML = '';
 
-        mountStandardAd(document.getElementById('adNativeLeft'), { key: '51efcb0e502dffc7c8c25030a1155128', format: 'iframe', height: 600, width: 160, params: {} }, 'https://dcengg.org/22/51efcb0e502dffc7c8c25030a1155128');
-        mountStandardAd(document.getElementById('adNativeRight'), { key: '51efcb0e502dffc7c8c25030a1155128', format: 'iframe', height: 600, width: 160, params: {} }, 'https://dcengg.org/22/51efcb0e502dffc7c8c25030a1155128');
+        // NOTA: Como não temos o ID do banner 160x600 da Adsterra, os laterais ficarão vazios (apenas fundo escuro).
+        // Se você tiver o ID do banner 160x600, descomente as linhas abaixo e substitua 'SUA_CHAVE_AQUI'.
+        /*
+        mountStandardAd(document.getElementById('adNativeLeft'), { key: 'SUA_CHAVE_AQUI', format: 'iframe', height: 600, width: 160, params: {} }, 'https://dcengg.org/22/SUA_CHAVE_AQUI');
+        mountStandardAd(document.getElementById('adNativeRight'), { key: 'SUA_CHAVE_AQUI', format: 'iframe', height: 600, width: 160, params: {} }, 'https://dcengg.org/22/SUA_CHAVE_AQUI');
+        */
+
+        // Banner de 320x50 (topo mobile)
         mountStandardAd(document.getElementById('adMobileTop'), { key: 'c7c3c36fda809c5dd35ae6ed9c4890ca', format: 'iframe', height: 50, width: 320, params: {} }, 'https://dcengg.org/22/c7c3c36fda809c5dd35ae6ed9c4890ca');
+        
+        // Banner de 300x250 (abaixo do modal / mobile bottom)
         mountStandardAd(document.getElementById('adMobileBottom'), { key: '51efcb0e502dffc7c8c25030a1155128', format: 'iframe', height: 250, width: 300, params: {} }, 'https://dcengg.org/22/51efcb0e502dffc7c8c25030a1155128');
 
         if (adYtPlayer) { try { adYtPlayer.stopVideo(); adYtPlayer.destroy(); } catch(e){} adYtPlayer = null; }
