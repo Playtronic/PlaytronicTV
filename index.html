@@ -213,10 +213,10 @@
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
         /* MODAL DE ANÚNCIO */
-        #adInterstitialModal { position: fixed; inset: 0; background: linear-gradient(135deg, rgba(11,15,25,0.97) 0%, rgba(26,26,46,0.97) 50%, rgba(22,33,62,0.97) 100%); z-index: 99999; display: none; align-items: center; justify-content: center; backdrop-filter: blur(10px); padding: 100px 20px 20px 20px; gap: 20px; flex-wrap: wrap; overflow-y: auto; }
+        #adInterstitialModal { position: fixed; inset: 0; background: linear-gradient(135deg, rgba(11,15,25,0.97) 0%, rgba(26,26,46,0.97) 50%, rgba(22,33,62,0.97) 100%); z-index: 99999; display: none; align-items: center; justify-content: center; backdrop-filter: blur(10px); padding: 100px 20px 20px 20px; gap: 20px; flex-wrap: wrap; overflow-y: auto; align-content: flex-start; }
         #adInterstitialModal.active { display: flex; }
         
-        .ad-native-side { width: 160px; height: 600px; max-height: calc(100vh - 140px); flex-shrink: 0; background: #0b0f19; border-radius: 8px; overflow: hidden; position: relative; border: 1px solid rgba(255,255,255,0.2); }
+        .ad-native-side { width: 160px; height: 600px; max-height: calc(100vh - 140px); flex-shrink: 0; background: transparent; border-radius: 8px; overflow: hidden; position: relative; border: 1px solid rgba(255,255,255,0.2); }
         .ad-native-side iframe { width: 100%; height: 100%; display: block; border: 0; position: absolute; top:0; left:0; background: transparent; }
         
         .ad-mobile-top, .ad-mobile-bottom { display: none; position: relative; background: #ffffff; border-radius: 8px; overflow: hidden; flex-shrink: 0; border: 1px solid rgba(255,255,255,0.2); margin: 0 auto; }
@@ -230,12 +230,23 @@
         .ad-center-wrapper img { width: 100%; height: 100%; object-fit: contain; padding: 20px; }
         .ad-center-wrapper iframe { width: 100%; height: 100%; border: none; position: absolute; top: 0; left: 0; pointer-events: none; }
         
-        /* RODAPÉ DO ANÚNCIO - BOTÕES NORMAIS */
         .ad-interstitial-footer { padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; border-top: 1px solid rgba(255,255,255,0.1); background: rgba(0,0,0,0.2); }
         .ad-interstitial-footer button { padding: 10px 20px; border-radius: 8px; font-weight: bold; font-size: 0.95rem; cursor: pointer; border: none; transition: 0.2s; }
         .ad-close-btn { background: #ef4444; color: #fff; opacity: 0.5; cursor: not-allowed; }
         .ad-close-btn.active { opacity: 1; cursor: pointer; background: #22c55e; }
         .ad-close-btn.active:hover { background: #16a34a; }
+
+        /* BANNER QUADRADO ABAIXO DO MODAL */
+        .ad-square-below {
+            display: none;
+            width: 100%;
+            justify-content: center;
+            margin: 20px auto 0;
+            flex-basis: 100%;
+            flex-shrink: 0;
+            z-index: 99999;
+        }
+        .ad-square-below iframe { display: block; border: 0; width: 300px; height: 250px; background: transparent; }
 
         .loading { text-align: center; padding: 60px; color: #fdbb2d; font-size: 1.2rem; font-weight: bold; }
         .empty-state { text-align: center; padding: 60px; color: #a0aec0; font-size: 1.1rem; display: none; }
@@ -320,9 +331,10 @@
         /* Responsividade Geral */
         @media (max-width: 1150px) {
             .ad-native-side { display: none !important; }
-            #adInterstitialModal { flex-direction: column; padding: 90px 10px 20px 10px; justify-content: flex-start; }
+            #adInterstitialModal { flex-direction: column; padding: 90px 10px 20px 10px; justify-content: flex-start; align-items: center; }
             .ad-mobile-top, .ad-mobile-bottom { display: flex !important; margin: 10px auto; }
             .ad-interstitial-wrapper { max-width: 100%; flex-shrink: 0; }
+            .ad-square-below { display: flex !important; margin: 15px auto; }
         }
         
         @media (max-width: 900px) {
@@ -371,7 +383,6 @@
             
             .modal-overlay, #banAlertModal, #blockAlertModal { padding: 130px 10px 20px 10px; }
             
-            /* Ajuste dos botões do anúncio no mobile (Empilhados e tamanho normal) */
             .ad-interstitial-footer { flex-direction: column; align-items: stretch; }
             .ad-interstitial-footer > div { display: flex; flex-direction: column; gap: 10px; }
             .ad-interstitial-footer button { width: 100%; padding: 10px 15px; font-size: 0.9rem; }
@@ -733,6 +744,10 @@
 
         <!-- Banners Mobile -->
         <div class="ad-mobile-top" id="adMobileTop"></div>
+        
+        <!-- BANNER QUADRADO ABAIXO DO MODAL -->
+        <div class="ad-square-below" id="adSquareBelow"></div>
+
         <div class="ad-mobile-bottom" id="adMobileBottom"></div>
     </div>
 
@@ -862,7 +877,6 @@
     }
 
     // ============ CONTROLE DE VISIBILIDADE DA BARRA DE PESQUISA ============
-    // Oculta a barra quando qualquer modal, player ou lightbox estiver ativo
     function updateSearchVisibility() {
         const searchContainer = document.querySelector('.search-container');
         if (!searchContainer) return;
@@ -878,12 +892,10 @@
         if (isModalOpen) {
             searchContainer.style.display = 'none';
         } else {
-            // Restaura para o padrão (flex). O CSS do mobile cuidará do grid.
-            searchContainer.style.display = 'flex';
+            searchContainer.style.display = ''; // Reverte para o CSS
         }
     }
 
-    // Observador para monitorar alterações de classes e estilos em todo o body
     const domObserver = new MutationObserver((mutations) => {
         let shouldUpdate = false;
         mutations.forEach(mutation => {
@@ -895,8 +907,17 @@
     });
     
     document.addEventListener('DOMContentLoaded', () => {
-        domObserver.observe(document.body, { attributes: true, subtree: true, attributeFilter: ['class', 'style'] });
+        const targets = [
+            document.getElementById('playerScreen'),
+            document.getElementById('adInterstitialModal'),
+            document.getElementById('pixLightbox'),
+            document.getElementById('banAlertModal'),
+            document.getElementById('blockAlertModal'),
+            ...document.querySelectorAll('.modal-overlay')
+        ];
+        targets.forEach(t => { if(t) domObserver.observe(t, { attributes: true, attributeFilter: ['class', 'style'] }); });
         updateSearchVisibility();
+        window.addEventListener('resize', updateSearchVisibility);
     });
 
     // ============ PRESENÇA (HEARTBEAT 3 MIN) ============
@@ -2549,7 +2570,6 @@
 
     function mountStandardAd(container, opts, scriptSrc) {
         if (!container) return;
-        // Não injetamos se já tiver sido montado para evitar duplicações
         if (container.dataset.mounted === '1') return;
         container.dataset.mounted = '1';
         
@@ -2568,6 +2588,74 @@
         clearInterval(adTimerInterval);
         const v = pendingVideo; pendingVideo = null;
         openPlayer(v);
+    }
+
+    // Função para injetar o Banner Nativo Esquerdo Exato
+    function injectLeftNativeAd() {
+        const container = document.getElementById('adNativeLeft');
+        if (!container) return;
+        container.innerHTML = '';
+
+        const adDiv = document.createElement('div');
+        adDiv.id = 'container-efe34bd92ca74a51f85465ca14314dc7';
+        container.appendChild(adDiv);
+
+        const script = document.createElement('script');
+        script.async = true;
+        script.setAttribute('data-cfasync', 'false');
+        script.src = 'https://dcengg.org/21/efe34bd92ca74a51f85465ca14314dc7';
+        container.appendChild(script);
+    }
+
+    // Função para injetar o Banner Padrão Direito Exato (160x600)
+    function injectRightStandardAd() {
+        const container = document.getElementById('adNativeRight');
+        if (!container) return;
+        container.innerHTML = '';
+
+        const iframe = document.createElement('iframe');
+        iframe.setAttribute('scrolling', 'no');
+        iframe.setAttribute('frameborder', '0');
+        iframe.style.cssText = 'display:block; border:0; position:absolute; top:0; left:0; width:100%; height:100%; overflow:hidden;';
+        iframe.srcdoc = `<!DOCTYPE html><html><head><meta charset="utf-8"><style>html,body{margin:0;padding:0;overflow:hidden;width:100%;height:100%;background:transparent;display:flex;align-items:center;justify-content:center;}</style></head><body>
+        <script type="text/javascript">
+          atOptions = {
+            'key' : '0b2a1dd49cefbcb5c3f10330c969042c',
+            'format' : 'iframe',
+            'height' : 600,
+            'width' : 160,
+            'params' : {}
+          };
+        <\/script>
+        <script type="text/javascript" src="https://dcengg.org/22/0b2a1dd49cefbcb5c3f10330c969042c"><\/script>
+        </body></html>`;
+        container.appendChild(iframe);
+    }
+
+    // Função para injetar o Banner Quadrado Abaixo do Modal
+    function injectSquareBelowAd() {
+        const container = document.getElementById('adSquareBelow');
+        if (!container) return;
+        container.innerHTML = '';
+        container.style.display = 'flex';
+
+        const iframe = document.createElement('iframe');
+        iframe.setAttribute('scrolling', 'no');
+        iframe.setAttribute('frameborder', '0');
+        iframe.style.cssText = 'display:block; border:0; width:300px; height:250px; overflow:hidden;';
+        iframe.srcdoc = `<!DOCTYPE html><html><head><meta charset="utf-8"><style>html,body{margin:0;padding:0;overflow:hidden;width:100%;height:100%;background:transparent;display:flex;align-items:center;justify-content:center;}</style></head><body>
+        <script type="text/javascript">
+          atOptions = {
+            'key' : '51efcb0e502dffc7c8c25030a1155128',
+            'format' : 'iframe',
+            'height' : 250,
+            'width' : 300,
+            'params' : {}
+          };
+        <\/script>
+        <script type="text/javascript" src="https://dcengg.org/22/51efcb0e502dffc7c8c25030a1155128"><\/script>
+        </body></html>`;
+        container.appendChild(iframe);
     }
 
     async function showAdInterstitial(video) {
@@ -2592,17 +2680,15 @@
         adModal.classList.add('active');
         adCenterWrapper.innerHTML = '';
 
-        // NOTA: Como não temos o ID do banner 160x600 da Adsterra, os laterais ficarão vazios (apenas fundo escuro).
-        // Se você tiver o ID do banner 160x600, descomente as linhas abaixo e substitua 'SUA_CHAVE_AQUI'.
-        /*
-        mountStandardAd(document.getElementById('adNativeLeft'), { key: 'SUA_CHAVE_AQUI', format: 'iframe', height: 600, width: 160, params: {} }, 'https://dcengg.org/22/SUA_CHAVE_AQUI');
-        mountStandardAd(document.getElementById('adNativeRight'), { key: 'SUA_CHAVE_AQUI', format: 'iframe', height: 600, width: 160, params: {} }, 'https://dcengg.org/22/SUA_CHAVE_AQUI');
-        */
-
+        // INJEÇÃO EXATA DOS BANNERS
+        injectLeftNativeAd();
+        injectRightStandardAd();
+        injectSquareBelowAd();
+        
         // Banner de 320x50 (topo mobile)
         mountStandardAd(document.getElementById('adMobileTop'), { key: 'c7c3c36fda809c5dd35ae6ed9c4890ca', format: 'iframe', height: 50, width: 320, params: {} }, 'https://dcengg.org/22/c7c3c36fda809c5dd35ae6ed9c4890ca');
         
-        // Banner de 300x250 (abaixo do modal / mobile bottom)
+        // Banner de 300x250 (mobile bottom)
         mountStandardAd(document.getElementById('adMobileBottom'), { key: '51efcb0e502dffc7c8c25030a1155128', format: 'iframe', height: 250, width: 300, params: {} }, 'https://dcengg.org/22/51efcb0e502dffc7c8c25030a1155128');
 
         if (adYtPlayer) { try { adYtPlayer.stopVideo(); adYtPlayer.destroy(); } catch(e){} adYtPlayer = null; }
