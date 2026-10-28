@@ -396,17 +396,18 @@
                 align-items: flex-start;
                 gap: 5px;
                 overflow-y: auto;
-                overflow-x: hidden; /* Evita rolagem horizontal */
+                overflow-x: hidden; 
             }
             
             .ad-side-banner {
-                display: flex;
+                display: flex !important;
                 width: 300px;
                 height: 250px;
-                max-height: none;
-                border: none;
                 flex-shrink: 0;
-                margin-top: 10px;
+                transform: scale(0.85); /* Reduz o tamanho para caber na tela */
+                transform-origin: top center;
+                background: #1e293b; /* Fundo escuro caso o anúncio não carregue */
+                margin-top: 15px;
             }
             .ad-side-banner iframe {
                 width: 300px;
@@ -416,12 +417,12 @@
             .ad-center-column {
                 flex: 1;
                 max-width: 450px;
-                min-width: 250px;
-                width: auto !important; /* Força a largura automática para não empurrar os banners */
+                min-width: 280px;
+                width: auto !important; 
                 height: auto;
                 display: flex;
                 flex-direction: column;
-                margin-top: 10px;
+                margin-top: 15px;
             }
             
             .ad-interstitial-wrapper {
@@ -437,27 +438,31 @@
                 flex: 1;
                 min-height: 120px; 
                 aspect-ratio: 16 / 9;
+                max-height: 220px; /* Limita a altura da imagem do anúncio */
             }
             
             .ad-interstitial-footer {
-                flex-direction: row; /* Botões lado a lado para economizar espaço vertical */
+                display: flex;
+                flex-direction: row; /* Botões lado a lado */
                 flex-wrap: wrap;
                 align-items: center;
                 justify-content: center;
                 padding: 8px;
-                gap: 8px;
+                gap: 6px;
             }
             
             .ad-interstitial-footer > div {
                 display: flex;
                 flex-direction: row;
-                gap: 8px;
-                width: auto;
+                gap: 6px;
+                width: 100%;
+                justify-content: center;
             }
             
             .ad-interstitial-footer button {
-                padding: 8px 12px;
-                font-size: 0.8rem;
+                flex: 1; /* Botões ocupam espaço igual */
+                padding: 8px 5px;
+                font-size: 0.75rem;
                 margin: 0;
                 white-space: nowrap;
             }
