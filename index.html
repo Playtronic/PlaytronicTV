@@ -786,10 +786,10 @@
     // ============ HELPERS ============
     function isAdmin() { return currentUser && currentUser.email === ADMIN_EMAIL; }
     function escapeHtml(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
-    function getCardColor(uid) {
+    function getCardColor(id) {
         const colors = ['#1e293b', '#312e81', '#3b0764', '#064e3b', '#701a75', '#7f1d1d', '#172554', '#1e3a8a', '#4c1d95', '#365314'];
         let hash = 0;
-        for (let i = 0; i < (uid || '').length; i++) hash = uid.charCodeAt(i) + ((hash << 5) - hash);
+        for (let i = 0; i < (id || '').length; i++) hash = id.charCodeAt(i) + ((hash << 5) - hash);
         return colors[Math.abs(hash) % colors.length];
     }
     function formatDate(ts) {
@@ -868,7 +868,8 @@
             return;
         }
         try {
-            const doc = await db.collection('catalog_users').doc(user.uid).get();
+            // Força a leitura do servidor em vez do cache
+            const doc = await db.collection('catalog_users').doc(user.uid).get({ source: 'server' });
             if (!doc.exists) return;
             const data = doc.data() || {};
             userRestrictions = data;
@@ -888,7 +889,7 @@
                 document.getElementById('blockAlertReason').textContent = data.blockReason ? 'Motivo: ' + data.blockReason : '';
                 blockModal.classList.add('active');
             } else if (data.commentBlockUntil && data.commentBlockUntil <= Date.now()) {
-                await db.collection('catalog_users').doc(user.uid).update({ commentBlockUntil: null, blockReason: null });
+                await db.collection('catalog_users').doc(user.uid).set({ commentBlockUntil: null, blockReason: null }, { merge: true });
                 userRestrictions = { ...data, commentBlockUntil: null, blockReason: null };
             }
         } catch (e) { console.warn('Erro ao verificar restrições:', e); }
@@ -902,7 +903,7 @@
         document.getElementById('commentCharCount').textContent = `${e.target.value.length}/500`;
     });
 
-    function openComments(videoId) {
+    async function openComments(videoId) {
         currentCommentsVideoId = videoId;
         const section = document.getElementById('commentsSection');
         section.style.display = 'flex';
@@ -912,8 +913,17 @@
             form.style.display = 'none';
         } else {
             document.getElementById('commentUserAvatar').src = currentUser.photoURL || 'https://www.gravatar.com/avatar/?d=mp';
-            const isBlocked = userRestrictions && userRestrictions.commentBlockUntil && userRestrictions.commentBlockUntil > Date.now();
-            form.style.display = isBlocked ? 'none' : 'flex';
+            form.style.display = 'flex'; 
+            
+            // Verifica o bloqueio em tempo real
+            try {
+                const doc = await db.collection('catalog_users').doc(currentUser.uid).get({ source: 'server' });
+                if (doc.exists) {
+                    const data = doc.data() || {};
+                    const isBlocked = (data.commentBlockUntil && data.commentBlockUntil > Date.now()) || data.isBanned;
+                    if (isBlocked) form.style.display = 'none';
+                }
+            } catch(e) {}
         }
 
         const list = document.getElementById('commentsList');
@@ -941,7 +951,8 @@
                 const isOwner = currentUser && currentUser.uid === c.uid;
                 const canDelete = isOwner || isAdmin();
                 const userVote = (c.userVotes || {})[currentUser ? currentUser.uid : ''] || null;
-                const cardColor = getCardColor(c.uid);
+                // Usa o ID do comentário para gerar uma cor aleatória para este comentário específico
+                const cardColor = getCardColor(c.id);
 
                 return `
                     <div class="comment-card ${c.isPinned ? 'pinned' : ''}" style="background: ${cardColor};">
@@ -994,7 +1005,20 @@
     async function postComment() {
         if (!currentUser) return alert('Faça login para comentar.');
         if (!currentCommentsVideoId) return;
-        if (userRestrictions && userRestrictions.commentBlockUntil && userRestrictions.commentBlockUntil > Date.now()) return alert('Você está bloqueado de comentar.');
+
+        // Verificação rigorosa em tempo real antes de enviar
+        try {
+            const doc = await db.collection('catalog_users').doc(currentUser.uid).get({ source: 'server' });
+            if (doc.exists) {
+                const data = doc.data() || {};
+                if (data.isBanned) return alert('Sua conta está banida.');
+                if (data.commentBlockUntil && data.commentBlockUntil > Date.now()) {
+                    const daysLeft = Math.ceil((data.commentBlockUntil - Date.now()) / (1000 * 60 * 60 * 24));
+                    return alert(`Você está bloqueado de comentar por mais ${daysLeft} dia(s). Motivo: ${data.blockReason || 'Não informado'}`);
+                }
+            }
+        } catch (e) { console.warn('Erro ao checar bloqueio:', e); }
+
         const input = document.getElementById('commentInput');
         const text = input.value.trim();
         if (!text) return alert('Escreva algo.');
@@ -1162,7 +1186,8 @@
         } catch (e) { console.warn('Erro ao buscar dados dos usuários:', e); }
 
         list.innerHTML = commentsToDisplay.map(c => {
-            const cardColor = getCardColor(c.uid);
+            // Usa o ID do comentário para gerar uma cor aleatória para este comentário específico
+            const cardColor = getCardColor(c.id);
             const u = usersCache[c.uid] || {};
 
             const displayName = u.name || c.name || 'Usuário';
@@ -1271,7 +1296,6 @@
         } catch (e) { alert(e.message); }
     }
 
-    // ✅ CORRIGIDA: Lógica robusta com rollback e ordem invertida
     async function restoreCommentAdmin(commentId) {
         if (!confirm('Restaurar este comentário?')) return;
         let backupData = null;
@@ -1326,7 +1350,8 @@
         else if (choice === '1') until = Date.now() + (7 * 24 * 60 * 60 * 1000);
         else return alert('Opção inválida.');
         try {
-            await db.collection('catalog_users').doc(uid).update({ commentBlockUntil: until, blockReason: reason });
+            // Usa set com merge: true para garantir que o documento exista e o bloqueio seja gravado
+            await db.collection('catalog_users').doc(uid).set({ commentBlockUntil: until, blockReason: reason }, { merge: true });
             alert('Usuário bloqueado.');
             if (currentAdminTab === 'blocked') loadBlockedUsersList(document.getElementById('adminCommentsListContainer'));
         } catch (e) { alert('Erro: ' + e.message); }
@@ -1336,20 +1361,20 @@
         if (!confirm('Banir este usuário permanentemente? Ele não poderá mais acessar o site.')) return;
         const reason = prompt('Motivo do banimento (opcional):') || '';
         try {
-            await db.collection('catalog_users').doc(uid).update({ isBanned: true, banReason: reason });
+            await db.collection('catalog_users').doc(uid).set({ isBanned: true, banReason: reason }, { merge: true });
             alert('Usuário banido.');
             if (currentAdminTab === 'blocked') loadBlockedUsersList(document.getElementById('adminCommentsListContainer'));
         } catch (e) { alert('Erro: ' + e.message); }
     }
     async function unblockUserAdmin(uid) {
         try {
-            await db.collection('catalog_users').doc(uid).update({ commentBlockUntil: null, blockReason: null });
+            await db.collection('catalog_users').doc(uid).set({ commentBlockUntil: null, blockReason: null }, { merge: true });
             loadBlockedUsersList(document.getElementById('adminCommentsListContainer'));
         } catch (e) { alert(e.message); }
     }
     async function unbanUserAdmin(uid) {
         try {
-            await db.collection('catalog_users').doc(uid).update({ isBanned: false, banReason: null });
+            await db.collection('catalog_users').doc(uid).set({ isBanned: false, banReason: null }, { merge: true });
             loadBlockedUsersList(document.getElementById('adminCommentsListContainer'));
         } catch (e) { alert(e.message); }
     }
