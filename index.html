@@ -1270,10 +1270,11 @@
             await rtdb.ref(`vod_comments/${videoId}/${commentId}`).remove();
         } catch (e) { alert(e.message); }
     }
-    
-    // ✅ CORRIGIDA: Lógica robusta com rollback para evitar duplicatas
+
+    // ✅ CORRIGIDA: Lógica robusta com rollback e ordem invertida
     async function restoreCommentAdmin(commentId) {
         if (!confirm('Restaurar este comentário?')) return;
+        let backupData = null;
         try {
             const snap = await rtdb.ref('deleted_comments').child(commentId).once('value');
             const data = snap.val();
@@ -1284,21 +1285,29 @@
                     alert('Não foi possível restaurar: videoId ausente.'); 
                     return; 
                 }
+                backupData = data;
 
-                // 1. Coloca o comentário de volta na lista ativa
+                // 1. Remove da lixeira (a UI atualiza imediatamente)
+                await rtdb.ref('deleted_comments').child(commentId).remove();
+                
+                // 2. Coloca o comentário de volta na lista ativa
                 await rtdb.ref(`vod_comments/${videoId}/${commentId}`).set(commentData);
-
-                // 2. Remove o comentário da lixeira
-                try {
-                    await rtdb.ref('deleted_comments').child(commentId).remove();
-                } catch (errRemove) {
-                    alert('O comentário voltou para os ativos, mas houve um erro ao limpar a lixeira: ' + errRemove.message);
-                    // Reverte para não deixar duplicado
-                    await rtdb.ref(`vod_comments/${videoId}/${commentId}`).remove();
-                }
+                
+                // Força a renderização para garantir que a UI atualize
+                renderAdminCommentsList();
             }
         } catch (e) { 
             alert('Erro ao restaurar: ' + e.message); 
+            if (backupData) {
+                try {
+                    // Rollback: tenta voltar para a lixeira se falhou ao colocar no ativo
+                    const { deletedAt, deletedBy, videoId, ...commentData } = backupData;
+                    const snapAtivo = await rtdb.ref(`vod_comments/${videoId}/${commentId}`).once('value');
+                    if (!snapAtivo.exists()) {
+                        await rtdb.ref('deleted_comments').child(commentId).set(backupData);
+                    }
+                } catch(err) { console.error('Falha no rollback', err); }
+            }
         }
     }
 
