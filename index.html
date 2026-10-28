@@ -84,6 +84,7 @@
         .watch-btn:hover { background: #ffcc44; transform: scale(1.02); }
         .watch-btn.locked { background: linear-gradient(135deg, #7c3aed, #6d28d9); color: #fff; }
         .watch-btn.locked:hover { background: linear-gradient(135deg, #6d28d9, #5b21b6); }
+        
         .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.72); display: none; align-items: center; justify-content: center; z-index: 1500; backdrop-filter: blur(6px); padding: 20px; }
         .modal-overlay.active { display: flex; }
         .modal { background: #152961; border: 1px solid rgba(255,255,255,0.12); border-radius: 14px; padding: 26px; width: 100%; max-width: 520px; box-shadow: 0 25px 60px rgba(0,0,0,0.8); animation: modalIn 0.2s ease; max-height: 90vh; overflow-y: auto; }
@@ -159,11 +160,17 @@
         #playerScreen { position: fixed; inset: 0; background: linear-gradient(135deg, rgba(11,15,25,0.97) 0%, rgba(26,26,46,0.97) 50%, rgba(22,33,62,0.97) 100%); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); z-index: 2000; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; overflow-y: auto; padding: 20px; opacity: 0; visibility: hidden; transition: opacity 0.4s ease, visibility 0.4s; }
         #playerScreen.active { opacity: 1; visibility: visible; }
         .player-container { width: 100%; max-width: 1200px; display: flex; flex-direction: column; align-items: center; gap: 15px; }
+        
+        /* CORREÇÃO DAS SOMBRAS DO PLAYER */
         .player-wrapper { width: 100%; max-height: calc(100vh - 160px); aspect-ratio: 16 / 9; background: #000; border-radius: 12px; overflow: hidden; position: relative; box-shadow: 0 20px 50px rgba(0,0,0,0.8); flex-shrink: 0; touch-action: manipulation; }
         .player-wrapper:fullscreen { width: 100vw; height: 100vh; max-height: 100vh; aspect-ratio: auto; border-radius: 0; }
+        .player-wrapper::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 180px; background: linear-gradient(to bottom, rgba(0,0,0,1) 0%, rgba(0,0,0,0.9) 40%, rgba(0,0,0,0) 100%); z-index: 5; pointer-events: none; transition: opacity 0.4s ease; }
+        .player-wrapper::after { content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 200px; background: linear-gradient(to top, rgba(0,0,0,1) 0%, rgba(0,0,0,0.9) 40%, rgba(0,0,0,0) 100%); z-index: 5; pointer-events: none; transition: opacity 0.4s ease; }
+        .player-wrapper.hide-shadows::before, .player-wrapper.hide-shadows::after { opacity: 0; }
         .player-wrapper iframe { width: 100%; height: 100%; display: block; border: none; position: absolute; top: 0; left: 0; z-index: 1; pointer-events: none; }
         .custom-ui { position: absolute; inset: 0; z-index: 20; pointer-events: none; transition: opacity 0.4s ease, visibility 0.4s ease; }
         .custom-ui.player-ui-hidden { opacity: 0 !important; visibility: hidden !important; }
+        
         .close-player-btn { position: absolute; top: 15px; left: 15px; background: rgba(0,0,0,0.6); border: 1px solid rgba(255,255,255,0.2); color: #fff; width: 40px; height: 40px; border-radius: 50%; font-size: 1.2rem; cursor: pointer; display: flex; align-items: center; justify-content: center; pointer-events: auto; }
         .close-player-btn:hover { background: #e74c3c; transform: scale(1.1); }
         .player-video-title { position: absolute; top: 22px; left: 68px; color: #fff; font-size: 1.15rem; font-weight: 600; text-shadow: 1px 1px 4px rgba(0,0,0,0.9); max-width: calc(100% - 280px); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; pointer-events: none; z-index: 25; padding: 5px 10px; background: rgba(0,0,0,0.3); border-radius: 6px; }
@@ -178,7 +185,7 @@
         .skip-btn:hover { transform: scale(1.12); color: #fdbb2d; }
         .skip-btn svg { display: block; width: 28px; height: 28px; }
         .skip-btn .skip-num { position: absolute; top: 53%; left: 50%; transform: translate(-50%, -50%); font-size: 9px; font-weight: 800; font-family: Arial, sans-serif; line-height: 1; color: currentColor; pointer-events: none; }
-        .player-controls { position: absolute; bottom: 0; left: 0; right: 0; padding: 20px 20px 15px; display: flex; align-items: center; gap: 15px; pointer-events: auto; background: linear-gradient(to top, rgba(0,0,0,0.9), transparent); }
+        .player-controls { position: absolute; bottom: 0; left: 0; right: 0; padding: 20px 20px 15px; display: flex; align-items: center; gap: 15px; pointer-events: auto; background: linear-gradient(to top, rgba(0,0,0,0.95), transparent); z-index: 25; }
         .control-btn { background: none; border: none; color: #fff; padding: 5px; cursor: pointer; font-size: 1.2rem; font-weight: bold; display: flex; align-items: center; justify-content: center; }
         .control-btn:hover { color: #fdbb2d; }
         .progress-track { flex: 1; height: 6px; background: rgba(255,255,255,0.2); border-radius: 3px; cursor: pointer; position: relative; margin: 0 10px; }
@@ -199,6 +206,7 @@
         .player-loading-overlay.hidden { opacity: 0; }
         .spinner { border: 4px solid rgba(253,187,45,0.2); border-top: 4px solid #fdbb2d; border-radius: 50%; width: 50px; height: 50px; animation: spin 1s linear infinite; margin-bottom: 15px; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        
         #adInterstitialModal { position: fixed; inset: 0; background: linear-gradient(135deg, rgba(11,15,25,0.97) 0%, rgba(26,26,46,0.97) 50%, rgba(22,33,62,0.97) 100%); z-index: 99999; display: none; align-items: center; justify-content: center; backdrop-filter: blur(10px); padding: 20px; gap: 20px; }
         #adInterstitialModal.active { display: flex; }
         .ad-native-side { width: 160px; height: 600px; flex-shrink: 0; background: #ffffff; display: block; border-radius: 8px; overflow: hidden; position: relative; border: 1px solid rgba(255,255,255,0.2); }
@@ -238,12 +246,14 @@
         #commentsSection { display: none; width: 100%; max-width: 1200px; margin: 5px auto 0; background: #152961; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); padding: 20px; color: #fff; flex-direction: column; gap: 15px; flex-shrink: 0; }
         .comments-header { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
         .comments-header h3 { color: #fdbb2d; font-size: 1.1rem; }
-        #closeCommentsBtn { background: none; border: none; color: #cbd5e1; font-size: 1.2rem; cursor: pointer; }
-        #closeCommentsBtn:hover { color: #fff; }
         .new-comment-form { display: flex; gap: 10px; align-items: flex-start; background: rgba(0,0,0,0.2); padding: 15px; border-radius: 10px; }
         .new-comment-form textarea { width: 100%; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; padding: 10px; color: #fff; resize: vertical; min-height: 60px; outline: none; font-family: inherit; font-size: 0.9rem; }
         .new-comment-form textarea:focus { border-color: #fdbb2d; }
-        .comment-card { display: flex; gap: 12px; padding: 15px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.1); word-break: break-word; }
+        
+        .comment-card { display: flex; gap: 12px; padding: 15px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.1); word-break: break-word; position: relative; }
+        .comment-card.pinned { border: 2px solid #10b981; box-shadow: 0 0 15px rgba(16, 185, 129, 0.2); }
+        .comment-card.pinned::before { content: '📌 Fixado'; position: absolute; top: -10px; left: 10px; background: #10b981; color: #fff; font-size: 0.65rem; font-weight: bold; padding: 2px 8px; border-radius: 10px; }
+        
         .comment-avatar { width: 42px; height: 42px; border-radius: 50%; object-fit: cover; flex-shrink: 0; border: 2px solid rgba(255,255,255,0.15); }
         .comment-content { flex: 1; min-width: 0; }
         .comment-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; flex-wrap: wrap; gap: 5px; }
@@ -257,6 +267,7 @@
         .comment-action-btn.active.dislike { color: #ef4444; font-weight: bold; }
         .comment-action-btn.report:hover { color: #f59e0b; }
         .comment-action-btn.delete:hover { color: #ef4444; }
+        .comment-action-btn.pin-btn:hover { color: #10b981; }
 
         /* ===== ADMIN COMENTÁRIOS ===== */
         .admin-tabs { display: flex; gap: 8px; margin-bottom: 15px; flex-wrap: wrap; flex-shrink: 0; }
@@ -270,6 +281,7 @@
         .btn-restore { background: #3b82f6; color: #fff; }
         .btn-delete { background: #7f1d1d; color: #fff; border: 1px solid #b91c1c; }
         .btn-toggle-report { background: #6b7280; color: #fff; }
+        .btn-pin { background: #10b981; color: #fff; }
 
         /* ===== LIGHTBOXES ===== */
         #blockAlertModal { position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(5px); z-index: 99998; display: none; align-items: center; justify-content: center; padding: 20px; }
@@ -624,7 +636,7 @@
             <div id="commentsSection">
                 <div class="comments-header">
                     <h3>💬 Comentários</h3>
-                    <button id="closeCommentsBtn" title="Fechar comentários">✖</button>
+                    <!-- Botão de fechar removido -->
                 </div>
                 <div class="new-comment-form" id="newCommentForm">
                     <img id="commentUserAvatar" src="" class="comment-avatar" alt="">
@@ -915,7 +927,12 @@
         commentsRef.on('value', (snap) => {
             const data = snap.val() || {};
             const comments = Object.entries(data).map(([id, c]) => ({ id, ...c }));
-            comments.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+            
+            // Lógica de ordenação: Fixados primeiro, depois por data (mais recente)
+            comments.sort((a, b) => {
+                if (!!a.isPinned !== !!b.isPinned) return a.isPinned ? -1 : 1;
+                return (b.timestamp || 0) - (a.timestamp || 0);
+            });
 
             if (comments.length === 0) {
                 list.innerHTML = '<p style="text-align:center; color:#94a3b8; padding: 20px;">Nenhum comentário ainda. Seja o primeiro!</p>';
@@ -929,7 +946,7 @@
                 const cardColor = getCardColor(c.uid);
                 
                 return `
-                    <div class="comment-card" style="background: ${cardColor};">
+                    <div class="comment-card ${c.isPinned ? 'pinned' : ''}" style="background: ${cardColor};">
                         <img src="${escapeHtml(c.photoURL || 'https://www.gravatar.com/avatar/?d=mp')}" class="comment-avatar" alt="">
                         <div class="comment-content">
                             <div class="comment-header">
@@ -938,20 +955,21 @@
                             </div>
                             <div class="comment-text">${escapeHtml(c.text)}</div>
                             <div class="comment-actions">
-                                <!-- CORREÇÃO: Passamos o ID como data-attribute para evitar conflito -->
                                 <button class="comment-action-btn ${userVote === 'like' ? 'active like' : ''}" data-action="like" data-cid="${c.id}">👍 <span>${c.likes || 0}</span></button>
                                 <button class="comment-action-btn ${userVote === 'dislike' ? 'active dislike' : ''}" data-action="dislike" data-cid="${c.id}">👎 <span>${c.dislikes || 0}</span></button>
                                 ${!isOwner && currentUser ? `<button class="comment-action-btn report" data-action="report" data-cid="${c.id}">🚩 Denunciar</button>` : ''}
                                 ${canDelete ? `<button class="comment-action-btn delete" data-action="delete" data-cid="${c.id}">🗑️ Excluir</button>` : ''}
+                                ${isAdmin() ? `<button class="comment-action-btn pin-btn" data-action="pin" data-pin="${!c.isPinned}" data-cid="${c.id}">📌 ${c.isPinned ? 'Desafixar' : 'Fixar'}</button>` : ''}
                             </div>
                         </div>
                     </div>
                 `;
             }).join('');
 
-            // ADICIONA OS LISTENERS DE CLIQUE CORRETAMENTE
+            // Event Listener para TODOS os botões de ação
             list.querySelectorAll('.comment-action-btn').forEach(btn => {
                 btn.addEventListener('click', (e) => {
+                    e.preventDefault();
                     const action = btn.getAttribute('data-action');
                     const cid = btn.getAttribute('data-cid');
                     if (!cid) return;
@@ -960,17 +978,22 @@
                     else if (action === 'dislike') votarComentario(videoId, cid, 'dislike');
                     else if (action === 'report') reportComment(videoId, cid);
                     else if (action === 'delete') deleteComment(videoId, cid);
+                    else if (action === 'pin') {
+                        const isPinned = btn.getAttribute('data-pin') === 'true';
+                        togglePinComment(videoId, cid, isPinned);
+                    }
                 });
             });
         });
     }
 
+    // A função closeComments foi mantida apenas para limpar a memória,
+    // mas não há mais interface para chamá-la durante a exibição do player.
     function closeComments() {
         document.getElementById('commentsSection').style.display = 'none';
         if (commentsRef) { commentsRef.off(); commentsRef = null; }
         currentCommentsVideoId = null;
     }
-    document.getElementById('closeCommentsBtn').addEventListener('click', closeComments);
 
     async function postComment() {
         if (!currentUser) return alert('Faça login para comentar.');
@@ -989,7 +1012,8 @@
                 photoURL: currentUser.photoURL || '',
                 text: text,
                 timestamp: firebase.database.ServerValue.TIMESTAMP,
-                likes: 0, dislikes: 0
+                likes: 0, dislikes: 0,
+                isPinned: false
             });
             input.value = '';
             document.getElementById('commentCharCount').textContent = '0/500';
@@ -1013,7 +1037,7 @@
                 await userVoteRef.set(tipo);
                 await ref.child(tipo === 'like' ? 'likes' : 'dislikes').transaction(c => (c || 0) + 1);
             }
-        } catch (e) { console.warn(e); }
+        } catch (e) { console.warn('Erro ao votar:', e); }
     }
     async function reportComment(videoId, commentId) {
         if (!confirm('Denunciar este comentário como impróprio?')) return;
@@ -1034,6 +1058,12 @@
             }
             await rtdb.ref(`vod_comments/${videoId}/${commentId}`).remove();
         } catch (e) { alert(e.message); }
+    }
+    async function togglePinComment(videoId, commentId, isPinned) {
+        if (!isAdmin()) return;
+        try {
+            await rtdb.ref(`vod_comments/${videoId}/${commentId}`).update({ isPinned: isPinned });
+        } catch (e) { alert('Erro ao fixar: ' + e.message); }
     }
 
     // ============ PAINEL ADMIN: COMENTÁRIOS ============
@@ -1089,7 +1119,7 @@
                     }
                 });
             });
-            // Denunciados primeiro, depois por data
+            // No painel admin, a ordem continua por denúncia e data.
             commentsToDisplay.sort((a, b) => {
                 if (!!a.isReported !== !!b.isReported) return a.isReported ? -1 : 1;
                 return (b.timestamp || 0) - (a.timestamp || 0);
@@ -1106,7 +1136,7 @@
             return;
         }
 
-        // CORREÇÃO: Buscar dados atualizados de cada usuário no Firestore
+        // Buscar dados atualizados de cada usuário no Firestore
         const uids = [...new Set(commentsToDisplay.map(c => c.uid))];
         const usersCache = {};
         try {
@@ -1122,7 +1152,6 @@
             const cardColor = getCardColor(c.uid);
             const u = usersCache[c.uid] || {};
             
-            // Pega o nome e a foto atualizados do Firestore, ou usa o que estava no comentário
             const displayName = u.name || c.name || 'Usuário';
             const displayPhoto = u.photoURL || c.photoURL || 'https://www.gravatar.com/avatar/?d=mp';
 
@@ -1135,19 +1164,20 @@
             } else {
                 actionsHtml = `
                     <button class="admin-action-btn btn-toggle-report" onclick="toggleReportStatus('${c.videoId}', '${c.id}', ${!c.isReported})">${c.isReported ? '✅ Remover Denúncia' : '🚩 Marcar Impróprio'}</button>
+                    <button class="admin-action-btn btn-pin" onclick="togglePinComment('${c.videoId}', '${c.id}', ${!c.isPinned})">📌 ${c.isPinned ? 'Desafixar' : 'Fixar'}</button>
                     <button class="admin-action-btn btn-delete" onclick="deleteCommentAdmin('${c.videoId}', '${c.id}')">🗑️ Remover</button>
                     <button class="admin-action-btn btn-block" onclick="blockUserAdmin('${c.uid}')">⏳ Bloquear</button>
                     <button class="admin-action-btn btn-ban" onclick="banUserAdmin('${c.uid}')">🚫 Banir</button>
                 `;
             }
             
-            // O ID do usuário não é mais mostrado. Apenas Nome e Foto.
             return `
-                <div class="admin-comment-wrapper" style="border-left: 4px solid ${c.isReported ? '#ef4444' : '#3b82f6'};">
+                <div class="admin-comment-wrapper" style="border-left: 4px solid ${c.isReported ? '#ef4444' : (c.isPinned ? '#10b981' : '#3b82f6')};">
                     <div style="display:flex; justify-content:space-between; font-size:0.75rem; margin-bottom:8px; flex-wrap:wrap; gap:4px; align-items:center;">
                         <div style="display:flex; align-items:center; gap:8px;">
                             <img src="${escapeHtml(displayPhoto)}" style="width:24px; height:24px; border-radius:50%; object-fit:cover;">
                             <span style="color:#fdbb2d; font-weight:bold; font-size:0.85rem;">${escapeHtml(displayName)}</span>
+                            ${c.isPinned ? '<span style="background:#10b981;color:#fff;padding:2px 6px;border-radius:10px;font-size:0.65rem;">Fixado</span>' : ''}
                         </div>
                         <span style="color:#94a3b8;">${formatDate(c.timestamp)} ${c.isReported ? '| <span style="color:#ef4444;font-weight:bold;">DENUNCIADO</span>' : ''}</span>
                     </div>
@@ -1183,7 +1213,6 @@
                     statusText = `⏳ Bloqueado (${days} dia${days !== 1 ? 's' : ''} restante${days !== 1 ? 's' : ''})`;
                 }
                 
-                // Fallback para nome e foto caso o usuário não tenha nome no Firestore
                 const displayName = u.name || u.email || 'Usuário Sem Nome';
                 const displayPhoto = u.photoURL || 'https://www.gravatar.com/avatar/?d=mp';
 
