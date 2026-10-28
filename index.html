@@ -15,7 +15,10 @@
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: linear-gradient(135deg, #0b0f19 0%, #1a1a2e 50%, #16213e 100%); background-attachment: fixed; color: #e2e8f0; min-height: 100vh; padding-top: 130px; padding-left: 20px; padding-right: 20px; display: flex; flex-direction: column; }
-        .header { position: fixed; top: 0; left: 0; width: 100%; height: 110px; display: flex; align-items: center; justify-content: space-between; padding: 0 40px; background: rgba(21, 41, 97, 0.75); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border-bottom: 1px solid rgba(255,255,255,0.08); z-index: 1000; box-shadow: 0 4px 20px rgba(0,0,0,0.5); }
+        
+        /* HEADER SEMPRE VISÍVEL */
+        .header { position: fixed; top: 0; left: 0; width: 100%; height: 110px; display: flex; align-items: center; justify-content: space-between; padding: 0 40px; background: rgba(21, 41, 97, 0.75); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border-bottom: 1px solid rgba(255,255,255,0.08); z-index: 10000000; box-shadow: 0 4px 20px rgba(0,0,0,0.5); }
+        
         .header-brand { display: flex; align-items: center; flex: 0 0 350px; }
         .logo-link { display: flex; align-items: center; text-decoration: none; cursor: pointer; }
         .header-logo { height: 80px; width: auto; object-fit: contain; transition: transform 0.3s, opacity 0.3s; }
@@ -32,7 +35,7 @@
         .user-info { display: none; align-items: center; gap: 10px; cursor: pointer; position: relative; }
         .user-info.active { display: flex; }
         .user-avatar { width: 45px; height: 45px; border-radius: 50%; border: 2px solid #fdbb2d; object-fit: cover; }
-        .user-card { position: absolute; top: 60px; right: 0; background: #152961; border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 20px; min-width: 280px; display: none; flex-direction: column; z-index: 1000; box-shadow: 0 10px 30px rgba(0,0,0,0.8); }
+        .user-card { position: absolute; top: 60px; right: 0; background: #152961; border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 20px; min-width: 280px; display: none; flex-direction: column; z-index: 10000001; box-shadow: 0 10px 30px rgba(0,0,0,0.8); }
         .user-card.active { display: flex; }
         .user-name { font-weight: bold; color: #fff; font-size: 1.1rem; margin-bottom: 2px; }
         .user-email { font-size: 0.8rem; color: #cbd5e1; margin-bottom: 15px; word-break: break-all; }
@@ -157,11 +160,13 @@
         .plan-option .plan-name { color: #fff; font-weight: 700; font-size: 0.95rem; margin-bottom: 4px; }
         .plan-option .plan-price { color: #fdbb2d; font-weight: 800; font-size: 1.1rem; }
         .plan-option .plan-badge { position: absolute; top: -8px; right: 8px; background: #22c55e; color: #fff; font-size: 0.65rem; font-weight: 800; padding: 2px 8px; border-radius: 10px; }
-        #playerScreen { position: fixed; inset: 0; background: linear-gradient(135deg, rgba(11,15,25,0.97) 0%, rgba(26,26,46,0.97) 50%, rgba(22,33,62,0.97) 100%); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); z-index: 2000; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; overflow-y: auto; padding: 20px; opacity: 0; visibility: hidden; transition: opacity 0.4s ease, visibility 0.4s; }
+        
+        /* PLAYER AJUSTADO PARA NÃO FICAR ATRÁS DO HEADER */
+        #playerScreen { position: fixed; inset: 0; background: linear-gradient(135deg, rgba(11,15,25,0.97) 0%, rgba(26,26,46,0.97) 50%, rgba(22,33,62,0.97) 100%); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); z-index: 2000; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; overflow-y: auto; padding: 130px 20px 20px 20px; opacity: 0; visibility: hidden; transition: opacity 0.4s ease, visibility 0.4s; }
         #playerScreen.active { opacity: 1; visibility: visible; }
         .player-container { width: 100%; max-width: 1200px; display: flex; flex-direction: column; align-items: center; gap: 15px; }
 
-        .player-wrapper { width: 100%; max-height: calc(100vh - 160px); aspect-ratio: 16 / 9; background: #000; border-radius: 12px; overflow: hidden; position: relative; box-shadow: 0 20px 50px rgba(0,0,0,0.8); flex-shrink: 0; touch-action: manipulation; }
+        .player-wrapper { width: 100%; max-height: calc(100vh - 170px); aspect-ratio: 16 / 9; background: #000; border-radius: 12px; overflow: hidden; position: relative; box-shadow: 0 20px 50px rgba(0,0,0,0.8); flex-shrink: 0; touch-action: manipulation; }
         .player-wrapper:fullscreen { width: 100vw; height: 100vh; max-height: 100vh; aspect-ratio: auto; border-radius: 0; }
         .player-wrapper::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 180px; background: linear-gradient(to bottom, rgba(0,0,0,1) 0%, rgba(0,0,0,0.9) 40%, rgba(0,0,0,0) 100%); z-index: 5; pointer-events: none; transition: opacity 0.4s ease; }
         .player-wrapper::after { content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 200px; background: linear-gradient(to top, rgba(0,0,0,1) 0%, rgba(0,0,0,0.9) 40%, rgba(0,0,0,0) 100%); z-index: 5; pointer-events: none; transition: opacity 0.4s ease; }
@@ -206,7 +211,8 @@
         .spinner { border: 4px solid rgba(253,187,45,0.2); border-top: 4px solid #fdbb2d; border-radius: 50%; width: 50px; height: 50px; animation: spin 1s linear infinite; margin-bottom: 15px; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
-        #adInterstitialModal { position: fixed; inset: 0; background: linear-gradient(135deg, rgba(11,15,25,0.97) 0%, rgba(26,26,46,0.97) 50%, rgba(22,33,62,0.97) 100%); z-index: 99999; display: none; align-items: center; justify-content: center; backdrop-filter: blur(10px); padding: 20px; gap: 20px; }
+        /* MODAL DE ANÚNCIO AJUSTADO PARA NÃO FICAR ATRÁS DO HEADER */
+        #adInterstitialModal { position: fixed; inset: 0; background: linear-gradient(135deg, rgba(11,15,25,0.97) 0%, rgba(26,26,46,0.97) 50%, rgba(22,33,62,0.97) 100%); z-index: 99999; display: none; align-items: center; justify-content: center; backdrop-filter: blur(10px); padding: 130px 20px 20px 20px; gap: 20px; }
         #adInterstitialModal.active { display: flex; }
         .ad-native-side { width: 160px; height: 600px; flex-shrink: 0; background: #ffffff; display: block; border-radius: 8px; overflow: hidden; position: relative; border: 1px solid rgba(255,255,255,0.2); }
         .ad-native-side iframe { width: 100%; height: 100%; display: block; border: 0; position: absolute; top:0; left:0; background: #ffffff; }
@@ -283,25 +289,30 @@
         .btn-pin { background: #10b981; color: #fff; }
 
         /* ===== LIGHTBOXES ===== */
-        #blockAlertModal { position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(5px); z-index: 99998; display: none; align-items: center; justify-content: center; padding: 20px; }
+        #blockAlertModal { position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(5px); z-index: 99998; display: none; align-items: center; justify-content: center; padding: 130px 20px 20px 20px; }
         #blockAlertModal.active { display: flex; }
-        #banAlertModal { position: fixed; inset: 0; background: rgba(0,0,0,0.95); backdrop-filter: blur(10px); z-index: 999999; display: none; align-items: center; justify-content: center; padding: 20px; }
+        #banAlertModal { position: fixed; inset: 0; background: rgba(0,0,0,0.95); backdrop-filter: blur(10px); z-index: 999999; display: none; align-items: center; justify-content: center; padding: 130px 20px 20px 20px; }
         #banAlertModal.active { display: flex; }
+        
         .alert-box { background: #1e293b; border-radius: 16px; padding: 30px; max-width: 500px; width: 100%; text-align: center; box-shadow: 0 20px 50px rgba(0,0,0,0.8); }
         .alert-box h2 { margin-bottom: 15px; font-size: 1.5rem; }
         .alert-box p { color: #cbd5e1; line-height: 1.5; margin-bottom: 15px; font-size: 0.95rem; }
         .alert-box .contact-info { background: rgba(0,0,0,0.3); padding: 12px; border-radius: 8px; font-size: 0.85rem; color: #fdbb2d; margin-top: 15px; line-height: 1.4; }
         .alert-box button { margin-top: 20px; padding: 12px 24px; border-radius: 8px; border: none; font-weight: bold; cursor: pointer; font-size: 1rem; width: 100%; font-family: inherit; }
+        
         #blockAlertModal .alert-box { border: 2px solid #f59e0b; }
         #blockAlertModal h2 { color: #f59e0b; }
         #blockAlertModal button { background: #f59e0b; color: #000; }
+        
+        /* CORREÇÃO: Exibir botão de logout no BanModal */
         #banAlertModal .alert-box { border: 2px solid #ef4444; }
         #banAlertModal h2 { color: #ef4444; }
-        #banAlertModal button { display: none; }
+        #banAlertModal #banLogoutBtn { display: block; background: #ef4444; color: #fff; }
+        #banAlertModal #banLogoutBtn:hover { background: #dc2626; }
 
         @media (max-width: 1150px) {
             .ad-native-side { display: none; }
-            #adInterstitialModal { flex-direction: column; overflow-y: auto; gap: 15px; padding: 15px 10px; align-items: center; justify-content: flex-start; }
+            #adInterstitialModal { flex-direction: column; overflow-y: auto; gap: 15px; padding: 150px 10px 15px 10px; align-items: center; justify-content: flex-start; }
             .ad-mobile-top, .ad-mobile-bottom { display: block; }
             .ad-interstitial-wrapper { max-width: 100%; flex-shrink: 0; }
         }
@@ -312,14 +323,17 @@
             .header-logo { height: 50px; }
             .auth-area { grid-area: auth; justify-content: flex-end; width: auto; }
             .search-container { grid-area: search; margin: 0; max-width: 100%; width: 100%; }
-            .user-card { position: fixed; top: 85px; left: 10px; right: 10px; width: auto; min-width: auto; }
+            .user-card { position: fixed; top: 130px; left: 10px; right: 10px; width: auto; min-width: auto; }
             .catalog-grid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 15px; }
             .card-title { font-size: 1rem; min-height: 2.6em; }
             .card-info { padding: 10px; }
             .watch-btn { font-size: 0.85rem; padding: 8px; }
-            #playerScreen { padding: 10px 0; justify-content: flex-start; }
+            
+            /* Ajuste do padding do player no mobile */
+            #playerScreen { padding: 150px 10px 40px 10px; justify-content: flex-start; }
             .player-container { gap: 10px; }
-            .player-wrapper { max-height: calc(100vh - 40px); border-radius: 0; }
+            .player-wrapper { max-height: calc(100vh - 200px); border-radius: 0; }
+            
             #player-bottom-ad { display: none !important; }
             .player-vote-container { top: 10px; right: 10px; transform: scale(0.8); transform-origin: top right; }
             .close-player-btn { top: 10px; left: 10px; width: 35px; height: 35px; font-size: 1rem; }
@@ -346,6 +360,9 @@
             #commentsSection { padding: 15px; border-radius: 0; }
             .comment-card { padding: 12px; }
             .comment-avatar { width: 36px; height: 36px; }
+            
+            /* Ajuste do padding do adInterstitial no mobile */
+            #blockAlertModal, #banAlertModal { padding: 150px 10px 20px 10px; }
         }
         @media (max-width: 900px) and (orientation: portrait) {
             .player-wrapper { max-height: calc(100vh - 340px); min-height: 180px; }
@@ -664,7 +681,7 @@
         </div>
     </div>
 
-    <!-- LIGHTBOX: BANIMENTO (não fechável) -->
+    <!-- LIGHTBOX: BANIMENTO -->
     <div id="banAlertModal">
         <div class="alert-box">
             <h2>🚫 Conta Banida</h2>
@@ -673,6 +690,8 @@
             <div class="contact-info">
                 Se você acredita que isso foi um erro, envie um e-mail para <strong>playtronic@mail.com</strong> usando o e-mail da sua conta Google como remetente.
             </div>
+            <!-- Botão adicionado para permitir sair da conta -->
+            <button id="banLogoutBtn">Sair da Conta</button>
         </div>
     </div>
 
@@ -774,7 +793,7 @@
     let onlineUsersData = {};
     let presenceInterval = null;
     let userRestrictions = null;
-    let unsubRestrictions = null; // Variável para guardar o listener do Firestore
+    let unsubRestrictions = null; 
 
     // Estado de comentários
     let currentCommentsVideoId = null;
@@ -859,7 +878,6 @@
     });
 
     // ============ VERIFICAÇÃO DE BLOQUEIO / BANIMENTO ============
-    // CORREÇÃO: Usando onSnapshot para tempo real e adicionando a variável unsubRestrictions
     function setupUserRestrictions(user) {
         if (unsubRestrictions) { unsubRestrictions(); unsubRestrictions = null; }
 
@@ -893,7 +911,6 @@
                 document.getElementById('blockAlertReason').textContent = data.blockReason ? 'Motivo: ' + data.blockReason : '';
                 blockModal.classList.add('active');
             } else {
-                // Se não estiver bloqueado, fecha os modais e limpa o banco se o tempo expirou
                 banModal.classList.remove('active');
                 blockModal.classList.remove('active');
                 if (!document.querySelector('.modal-overlay.active') && (!document.getElementById('pixLightbox') || document.getElementById('pixLightbox').style.display !== 'flex')) {
@@ -908,10 +925,18 @@
         });
     }
     
-    // CORREÇÃO: Restaurar o scroll ao fechar o modal de bloqueio
     document.getElementById('closeBlockAlertBtn').addEventListener('click', () => {
         document.getElementById('blockAlertModal').classList.remove('active');
         document.body.style.overflow = '';
+    });
+
+    // Lógica de Logout adicionada ao Ban Modal
+    document.getElementById('banLogoutBtn').addEventListener('click', () => {
+        if (currentUser) {
+            rtdb.ref('/onlineUsers/' + currentUser.uid).remove();
+            if (presenceInterval) { clearInterval(presenceInterval); presenceInterval = null; }
+        }
+        auth.signOut().then(() => window.location.reload());
     });
 
     // ============ COMENTÁRIOS ============
@@ -952,7 +977,6 @@
             const data = snap.val() || {};
             const comments = Object.entries(data).map(([id, c]) => ({ id, ...c }));
 
-            // Lógica de ordenação: Fixados primeiro, depois por data (mais recente)
             comments.sort((a, b) => {
                 if (!!a.isPinned !== !!b.isPinned) return a.isPinned ? -1 : 1;
                 return (b.timestamp || 0) - (a.timestamp || 0);
@@ -967,7 +991,6 @@
                 const isOwner = currentUser && currentUser.uid === c.uid;
                 const canDelete = isOwner || isAdmin();
                 const userVote = (c.userVotes || {})[currentUser ? currentUser.uid : ''] || null;
-                // Usa o ID do comentário para gerar uma cor aleatória para este comentário específico
                 const cardColor = getCardColor(c.id);
 
                 return `
@@ -991,7 +1014,6 @@
                 `;
             }).join('');
 
-            // Event Listener para TODOS os botões de ação
             list.querySelectorAll('.comment-action-btn').forEach(btn => {
                 btn.addEventListener('click', (e) => {
                     e.preventDefault();
@@ -1022,7 +1044,6 @@
         if (!currentUser) return alert('Faça login para comentar.');
         if (!currentCommentsVideoId) return;
 
-        // Verificação rigorosa em tempo real antes de enviar
         try {
             const doc = await db.collection('catalog_users').doc(currentUser.uid).get();
             if (doc.exists) {
@@ -1090,7 +1111,6 @@
 
             const isOwner     = currentUser.uid === data.uid;
             const isAdminUser = isAdmin();
-            // Só vai para a lixeira quando o ADMIN apaga o comentário de OUTRA pessoa
             const sendToTrash = isAdminUser && !isOwner;
 
             const msg = sendToTrash
@@ -1172,7 +1192,6 @@
                     }
                 });
             });
-            // No painel admin, a ordem continua por denúncia e data.
             commentsToDisplay.sort((a, b) => {
                 if (!!a.isReported !== !!b.isReported) return a.isReported ? -1 : 1;
                 return (b.timestamp || 0) - (a.timestamp || 0);
@@ -1189,7 +1208,6 @@
             return;
         }
 
-        // Buscar dados atualizados de cada usuário no Firestore
         const uids = [...new Set(commentsToDisplay.map(c => c.uid))];
         const usersCache = {};
         try {
@@ -1202,7 +1220,6 @@
         } catch (e) { console.warn('Erro ao buscar dados dos usuários:', e); }
 
         list.innerHTML = commentsToDisplay.map(c => {
-            // Usa o ID do comentário para gerar uma cor aleatória para este comentário específico
             const cardColor = getCardColor(c.id);
             const u = usersCache[c.uid] || {};
 
@@ -1327,20 +1344,14 @@
                 }
                 backupData = data;
 
-                // 1. Remove da lixeira (a UI atualiza imediatamente)
                 await rtdb.ref('deleted_comments').child(commentId).remove();
-                
-                // 2. Coloca o comentário de volta na lista ativa
                 await rtdb.ref(`vod_comments/${videoId}/${commentId}`).set(commentData);
-                
-                // Força a renderização para garantir que a UI atualize
                 renderAdminCommentsList();
             }
         } catch (e) { 
             alert('Erro ao restaurar: ' + e.message); 
             if (backupData) {
                 try {
-                    // Rollback: tenta voltar para a lixeira se falhou ao colocar no ativo
                     const { deletedAt, deletedBy, videoId, ...commentData } = backupData;
                     const snapAtivo = await rtdb.ref(`vod_comments/${videoId}/${commentId}`).once('value');
                     if (!snapAtivo.exists()) {
@@ -1362,11 +1373,10 @@
         const choice = prompt('Duração do bloqueio:\n1 = 7 dias\n2 = Permanente\n\nDigite 1 ou 2:', '1');
         if (choice === null) return;
         let until;
-        if (choice === '2') until = Date.now() + (3650 * 24 * 60 * 60 * 1000); // 10 anos = permanente
+        if (choice === '2') until = Date.now() + (3650 * 24 * 60 * 60 * 1000);
         else if (choice === '1') until = Date.now() + (7 * 24 * 60 * 60 * 1000);
         else return alert('Opção inválida.');
         try {
-            // Usa set com merge: true para garantir que o documento exista e o bloqueio seja gravado
             await db.collection('catalog_users').doc(uid).set({ commentBlockUntil: until, blockReason: reason }, { merge: true });
             alert('Usuário bloqueado.');
             if (currentAdminTab === 'blocked') loadBlockedUsersList(document.getElementById('adminCommentsListContainer'));
@@ -1467,7 +1477,7 @@
             userEmail.textContent = user.email || '';
             registrarUsuarioPlaytronic(user);
             setupPresence(user);
-            setupUserRestrictions(user); // CORREÇÃO APLICADA AQUI
+            setupUserRestrictions(user);
             if (user.email === ADMIN_EMAIL) {
                 adminContainer.style.display = 'flex';
                 document.body.classList.add('is-admin');
@@ -1493,7 +1503,7 @@
             adminContainer.style.display = 'none';
             userRestrictions = null;
             if (presenceInterval) { clearInterval(presenceInterval); presenceInterval = null; }
-            setupUserRestrictions(null); // CORREÇÃO APLICADA AQUI
+            setupUserRestrictions(null);
             favoritesLoaded = true;
             tryRender();
         }
@@ -2511,8 +2521,6 @@
             snap.forEach(doc => activePaidAds.push({ id: doc.id, ...doc.data() }));
         } catch (e) {}
 
-        // CORREÇÃO: Incluímos adBanners.length na verificação. Antes, se não houvesse anúncios pagos no YT, 
-        // ele pulava o modal inteiro e ignorava os seus banners internos.
         if (activePaidAds.length === 0 && adBanners.length === 0 && !video.ad) {
             if (isAdmin()) adminContainer.style.display = 'flex';
             openPlayer(video);
@@ -2523,8 +2531,6 @@
         adModal.classList.add('active');
         adCenterWrapper.innerHTML = '';
 
-        // CORREÇÃO: Monta os anúncios nas laterais e no topo/rodapé mobile do modal.
-        // Antes eles estavam vazios porque o script deles nunca era carregado aqui (só no player).
         mountStandardAd(document.getElementById('adNativeLeft'), { key: '51efcb0e502dffc7c8c25030a1155128', format: 'iframe', height: 600, width: 160, params: {} }, 'https://dcengg.org/22/51efcb0e502dffc7c8c25030a1155128');
         mountStandardAd(document.getElementById('adNativeRight'), { key: '51efcb0e502dffc7c8c25030a1155128', format: 'iframe', height: 600, width: 160, params: {} }, 'https://dcengg.org/22/51efcb0e502dffc7c8c25030a1155128');
         mountStandardAd(document.getElementById('adMobileTop'), { key: 'c7c3c36fda809c5dd35ae6ed9c4890ca', format: 'iframe', height: 50, width: 320, params: {} }, 'https://dcengg.org/22/c7c3c36fda809c5dd35ae6ed9c4890ca');
