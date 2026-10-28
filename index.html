@@ -774,6 +774,7 @@
     let onlineUsersData = {};
     let presenceInterval = null;
     let userRestrictions = null;
+    let unsubRestrictions = null; // Variável para guardar o listener do Firestore
 
     // Estado de comentários
     let currentCommentsVideoId = null;
@@ -858,18 +859,21 @@
     });
 
     // ============ VERIFICAÇÃO DE BLOQUEIO / BANIMENTO ============
-    async function checkUserRestrictions(user) {
+    // CORREÇÃO: Usando onSnapshot para tempo real e adicionando a variável unsubRestrictions
+    function setupUserRestrictions(user) {
+        if (unsubRestrictions) { unsubRestrictions(); unsubRestrictions = null; }
+
         const banModal = document.getElementById('banAlertModal');
         const blockModal = document.getElementById('blockAlertModal');
+
         if (!user) {
             banModal.classList.remove('active');
             blockModal.classList.remove('active');
             document.body.style.overflow = '';
             return;
         }
-        try {
-            // Leitura padrão (cache primeiro, depois servidor) para evitar falhas silenciosas
-            const doc = await db.collection('catalog_users').doc(user.uid).get();
+
+        unsubRestrictions = db.collection('catalog_users').doc(user.uid).onSnapshot((doc) => {
             if (!doc.exists) return;
             const data = doc.data() || {};
             userRestrictions = data;
@@ -888,16 +892,26 @@
                 document.getElementById('blockAlertReason').style.display = data.blockReason ? 'block' : 'none';
                 document.getElementById('blockAlertReason').textContent = data.blockReason ? 'Motivo: ' + data.blockReason : '';
                 blockModal.classList.add('active');
-            } else if (data.commentBlockUntil && data.commentBlockUntil <= Date.now()) {
-                await db.collection('catalog_users').doc(user.uid).set({ commentBlockUntil: null, blockReason: null }, { merge: true });
-                userRestrictions = { ...data, commentBlockUntil: null, blockReason: null };
+            } else {
+                // Se não estiver bloqueado, fecha os modais e limpa o banco se o tempo expirou
+                banModal.classList.remove('active');
+                blockModal.classList.remove('active');
+                if (!document.querySelector('.modal-overlay.active') && (!document.getElementById('pixLightbox') || document.getElementById('pixLightbox').style.display !== 'flex')) {
+                    document.body.style.overflow = '';
+                }
+                if (data.commentBlockUntil && data.commentBlockUntil <= Date.now()) {
+                    db.collection('catalog_users').doc(user.uid).set({ commentBlockUntil: null, blockReason: null }, { merge: true });
+                }
             }
-        } catch (e) { 
-            console.error('Erro ao verificar restrições:', e); 
-        }
+        }, (error) => {
+            console.error("Erro no listener de restrições:", error);
+        });
     }
+    
+    // CORREÇÃO: Restaurar o scroll ao fechar o modal de bloqueio
     document.getElementById('closeBlockAlertBtn').addEventListener('click', () => {
         document.getElementById('blockAlertModal').classList.remove('active');
+        document.body.style.overflow = '';
     });
 
     // ============ COMENTÁRIOS ============
@@ -1453,7 +1467,7 @@
             userEmail.textContent = user.email || '';
             registrarUsuarioPlaytronic(user);
             setupPresence(user);
-            checkUserRestrictions(user);
+            setupUserRestrictions(user); // CORREÇÃO APLICADA AQUI
             if (user.email === ADMIN_EMAIL) {
                 adminContainer.style.display = 'flex';
                 document.body.classList.add('is-admin');
@@ -1479,9 +1493,7 @@
             adminContainer.style.display = 'none';
             userRestrictions = null;
             if (presenceInterval) { clearInterval(presenceInterval); presenceInterval = null; }
-            document.getElementById('banAlertModal').classList.remove('active');
-            document.getElementById('blockAlertModal').classList.remove('active');
-            document.body.style.overflow = '';
+            setupUserRestrictions(null); // CORREÇÃO APLICADA AQUI
             favoritesLoaded = true;
             tryRender();
         }
@@ -2499,14 +2511,24 @@
             snap.forEach(doc => activePaidAds.push({ id: doc.id, ...doc.data() }));
         } catch (e) {}
 
-        if (activePaidAds.length === 0 && !video.ad) {
+        // CORREÇÃO: Incluímos adBanners.length na verificação. Antes, se não houvesse anúncios pagos no YT, 
+        // ele pulava o modal inteiro e ignorava os seus banners internos.
+        if (activePaidAds.length === 0 && adBanners.length === 0 && !video.ad) {
             if (isAdmin()) adminContainer.style.display = 'flex';
             openPlayer(video);
             return;
         }
+        
         pendingVideo = video;
         adModal.classList.add('active');
         adCenterWrapper.innerHTML = '';
+
+        // CORREÇÃO: Monta os anúncios nas laterais e no topo/rodapé mobile do modal.
+        // Antes eles estavam vazios porque o script deles nunca era carregado aqui (só no player).
+        mountStandardAd(document.getElementById('adNativeLeft'), { key: '51efcb0e502dffc7c8c25030a1155128', format: 'iframe', height: 600, width: 160, params: {} }, 'https://dcengg.org/22/51efcb0e502dffc7c8c25030a1155128');
+        mountStandardAd(document.getElementById('adNativeRight'), { key: '51efcb0e502dffc7c8c25030a1155128', format: 'iframe', height: 600, width: 160, params: {} }, 'https://dcengg.org/22/51efcb0e502dffc7c8c25030a1155128');
+        mountStandardAd(document.getElementById('adMobileTop'), { key: 'c7c3c36fda809c5dd35ae6ed9c4890ca', format: 'iframe', height: 50, width: 320, params: {} }, 'https://dcengg.org/22/c7c3c36fda809c5dd35ae6ed9c4890ca');
+        mountStandardAd(document.getElementById('adMobileBottom'), { key: '51efcb0e502dffc7c8c25030a1155128', format: 'iframe', height: 250, width: 300, params: {} }, 'https://dcengg.org/22/51efcb0e502dffc7c8c25030a1155128');
 
         if (adYtPlayer) { try { adYtPlayer.stopVideo(); adYtPlayer.destroy(); } catch(e){} adYtPlayer = null; }
 
