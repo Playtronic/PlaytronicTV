@@ -16,6 +16,9 @@
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: linear-gradient(135deg, #0b0f19 0%, #1a1a2e 50%, #16213e 100%); background-attachment: fixed; color: #e2e8f0; min-height: 100vh; padding-top: 100px; padding-left: 20px; padding-right: 20px; display: flex; flex-direction: column; }
         
+        /* OCULTA O HEADER QUANDO O MODAL DE ANÚNCIOS ESTIVER ATIVO */
+        body.ad-modal-open .header { display: none !important; }
+
         /* HEADER REDUZIDO */
         .header { position: fixed; top: 0; left: 0; width: 100%; height: 80px; display: flex; align-items: center; justify-content: space-between; padding: 0 20px; background: rgba(21, 41, 97, 0.85); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border-bottom: 1px solid rgba(255,255,255,0.08); z-index: 10000000; box-shadow: 0 4px 20px rgba(0,0,0,0.5); transition: height 0.3s ease; }
         .header-brand { display: flex; align-items: center; flex: 0 0 250px; }
@@ -339,6 +342,10 @@
             .player-container { gap: 10px; }
             .player-wrapper { max-height: calc(100vh - 200px); border-radius: 0; }
             
+            /* REDUÇÃO DAS SOMBRAS DO PLAYER NO CELULAR */
+            .player-wrapper::before { height: 60px !important; background: linear-gradient(to bottom, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0) 100%) !important; }
+            .player-wrapper::after { height: 80px !important; background: linear-gradient(to top, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0) 100%) !important; }
+
             #player-bottom-ad { display: none !important; }
             .player-vote-container { top: 10px; right: 10px; transform: scale(0.8); transform-origin: top right; }
             .close-player-btn { top: 10px; left: 10px; width: 35px; height: 35px; font-size: 1rem; }
@@ -391,38 +398,21 @@
         @media (max-width: 900px) and (orientation: landscape) {
             #adInterstitialModal {
                 flex-direction: row;
-                padding: 60px 5px 10px 5px; 
-                justify-content: center; 
-                align-items: flex-start;
-                gap: 5px;
+                justify-content: flex-start; /* Alinhado à esquerda */
+                align-items: center;
+                padding: 10px 20px;
+                gap: 20px;
                 overflow-y: auto;
-                overflow-x: hidden; 
+                overflow-x: hidden;
             }
             
-            .ad-side-banner {
-                display: flex !important;
-                width: 300px;
-                height: 250px;
-                flex-shrink: 0;
-                transform: scale(0.85); /* Reduz o tamanho para caber na tela */
-                transform-origin: top center;
-                background: #1e293b; /* Fundo escuro caso o anúncio não carregue */
-                margin-top: 15px;
-            }
-            .ad-side-banner iframe {
-                width: 300px;
-                height: 250px;
-            }
-            
+            /* O modal ocupa a esquerda, com tamanho ajustado */
             .ad-center-column {
-                flex: 1;
-                max-width: 450px;
-                min-width: 280px;
-                width: auto !important; 
+                flex: 0 0 auto;
+                width: 60%;
+                max-width: 500px;
+                margin: 0;
                 height: auto;
-                display: flex;
-                flex-direction: column;
-                margin-top: 15px;
             }
             
             .ad-interstitial-wrapper {
@@ -438,12 +428,12 @@
                 flex: 1;
                 min-height: 120px; 
                 aspect-ratio: 16 / 9;
-                max-height: 220px; /* Limita a altura da imagem do anúncio */
+                max-height: 220px;
             }
             
             .ad-interstitial-footer {
                 display: flex;
-                flex-direction: row; /* Botões lado a lado */
+                flex-direction: row;
                 flex-wrap: wrap;
                 align-items: center;
                 justify-content: center;
@@ -460,7 +450,7 @@
             }
             
             .ad-interstitial-footer button {
-                flex: 1; /* Botões ocupam espaço igual */
+                flex: 1;
                 padding: 8px 5px;
                 font-size: 0.75rem;
                 margin: 0;
@@ -474,6 +464,17 @@
 
             .ad-mobile-top-banner, .ad-mobile-bottom-banner {
                 display: none !important;
+            }
+
+            /* Apenas 1 banner 300x250 à direita */
+            .ad-side-banner { display: none !important; }
+            #adNativeRight {
+                display: flex !important;
+                width: 300px;
+                height: 250px;
+                flex-shrink: 0;
+                transform: none;
+                margin: 0;
             }
             
             .player-container { display: flex; flex-direction: column; }
@@ -798,13 +799,13 @@
             <div class="contact-info">
                 Se você acredita que isso foi um erro, envie um e-mail para <strong>playtronic@mail.com</strong> usando o e-mail da sua conta Google como remetente.
             </div>
-            <button id="banLogoutBtn">Sair da Conta</button>
+            <!-- Botão Sair da Conta Removido -->
         </div>
     </div>
 
     <!-- INTERSTITIAL DE ANÚNCIOS -->
     <div id="adInterstitialModal">
-        <!-- Banner Esquerdo (Nativo no Desktop, 300x250 no Landscape) -->
+        <!-- Banner Esquerdo (Oculto no Landscape) -->
         <div class="ad-side-banner" id="adNativeLeft"></div>
         
         <!-- Coluna Central (Modal e Banners Mobile) -->
@@ -1065,9 +1066,12 @@
             } else if (data.commentBlockUntil && data.commentBlockUntil > Date.now()) {
                 const daysLeft = Math.ceil((data.commentBlockUntil - Date.now()) / (1000 * 60 * 60 * 24));
                 const isPerm = data.commentBlockUntil > Date.now() + (3650 * 24 * 60 * 60 * 1000);
+                
+                // Texto corrigido
                 document.getElementById('blockAlertMsg').innerHTML = isPerm
-                    ? 'Você está <strong>bloqueado permanentemente</strong> de fazer novos comentários.'
-                    : `Você está bloqueado de fazer novos comentários por <strong>${daysLeft} dia(s)</strong>.`;
+                    ? 'Você está <strong>permanentemente bloqueado</strong> para fazer comentários.'
+                    : `Você está bloqueado para fazer comentários por <strong>${daysLeft} dia(s)</strong>.`;
+                    
                 document.getElementById('blockAlertReason').style.display = data.blockReason ? 'block' : 'none';
                 document.getElementById('blockAlertReason').textContent = data.blockReason ? 'Motivo: ' + data.blockReason : '';
                 blockModal.classList.add('active');
@@ -1091,13 +1095,7 @@
         document.body.style.overflow = '';
     });
 
-    document.getElementById('banLogoutBtn').addEventListener('click', () => {
-        if (currentUser) {
-            rtdb.ref('/onlineUsers/' + currentUser.uid).remove();
-            if (presenceInterval) { clearInterval(presenceInterval); presenceInterval = null; }
-        }
-        auth.signOut().then(() => window.location.reload());
-    });
+    // Listener do botão de banimento removido (pois o botão foi excluído do HTML)
 
     // ============ COMENTÁRIOS ============
     document.getElementById('commentInput').addEventListener('input', (e) => {
@@ -1210,7 +1208,8 @@
                 if (data.isBanned) return alert('Sua conta está banida.');
                 if (data.commentBlockUntil && data.commentBlockUntil > Date.now()) {
                     const daysLeft = Math.ceil((data.commentBlockUntil - Date.now()) / (1000 * 60 * 60 * 24));
-                    return alert(`Você está bloqueado de comentar por mais ${daysLeft} dia(s). Motivo: ${data.blockReason || 'Não informado'}`);
+                    // Texto corrigido
+                    return alert(`Você está bloqueado para comentar por mais ${daysLeft} dia(s). Motivo: ${data.blockReason || 'Não informado'}`);
                 }
             }
         } catch (e) { console.warn('Erro ao checar bloqueio:', e); }
@@ -2402,6 +2401,7 @@
 
     document.getElementById('openInsertAdBtn').addEventListener('click', async () => {
         adModal.classList.remove('active');
+        document.body.classList.remove('ad-modal-open');
         if (adYtPlayer) { try { adYtPlayer.stopVideo(); adYtPlayer.destroy(); } catch(e){} adYtPlayer = null; }
         insertAdModal.classList.add('active');
         adInsertStep1.style.display = 'block';
@@ -2650,27 +2650,33 @@
     let pendingVideo = null;
     let adTimerInterval = null;
 
+    // Função modificada para usar Blob URL e evitar falha nos scripts de anúncio
     function mountStandardAd(container, opts, scriptSrc) {
         if (!container) return;
-        container.innerHTML = ''; // Clear previous
+        container.innerHTML = ''; 
         const iframe = document.createElement('iframe');
         iframe.setAttribute('scrolling', 'no');
         iframe.setAttribute('frameborder', '0');
         iframe.style.cssText = 'display:block; border:0; position:absolute; top:0; left:0; width:100%; height:100%; overflow:hidden;';
-        iframe.srcdoc = `<!DOCTYPE html><html><head><meta charset="utf-8"><style>html,body{margin:0;padding:0;overflow:hidden;width:100%;height:100%;background:#fff;display:flex;align-items:center;justify-content:center;}</style></head><body><script type="text/javascript">atOptions=${JSON.stringify(opts)};<\/script><script type="text/javascript" src="${scriptSrc}"><\/script></body></html>`;
+        
+        const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><style>html,body{margin:0;padding:0;overflow:hidden;width:100%;height:100%;background:transparent;display:flex;align-items:center;justify-content:center;}</style></head><body><script type="text/javascript">atOptions=${JSON.stringify(opts)};<\/script><script type="text/javascript" src="${scriptSrc}"><\/script></body></html>`;
+        
+        const blob = new Blob([html], { type: 'text/html' });
+        iframe.src = URL.createObjectURL(blob);
         container.appendChild(iframe);
     }
 
     function closeAdAndPlay() {
         if (!pendingVideo || !adModal.classList.contains('active')) return;
         adModal.classList.remove('active');
+        document.body.classList.remove('ad-modal-open'); // Remove ocultação do header
         if (adYtPlayer) { try { adYtPlayer.stopVideo(); adYtPlayer.destroy(); } catch(e){} adYtPlayer = null; }
         clearInterval(adTimerInterval);
         const v = pendingVideo; pendingVideo = null;
         openPlayer(v);
     }
 
-    // Função para injetar o Banner Nativo Esquerdo Exato
+    // Injeção nativa usando Blob URL
     function injectLeftNativeAd() {
         const container = document.getElementById('adNativeLeft');
         if (!container) return;
@@ -2687,7 +2693,7 @@
         container.appendChild(script);
     }
 
-    // Função para injetar o Banner Padrão Direito Exato (160x600)
+    // Injeção padrão usando Blob URL
     function injectRightStandardAd() {
         const container = document.getElementById('adNativeRight');
         if (!container) return;
@@ -2697,18 +2703,11 @@
         iframe.setAttribute('scrolling', 'no');
         iframe.setAttribute('frameborder', '0');
         iframe.style.cssText = 'display:block; border:0; position:absolute; top:0; left:0; width:100%; height:100%; overflow:hidden;';
-        iframe.srcdoc = `<!DOCTYPE html><html><head><meta charset="utf-8"><style>html,body{margin:0;padding:0;overflow:hidden;width:100%;height:100%;background:transparent;display:flex;align-items:center;justify-content:center;}</style></head><body>
-        <script type="text/javascript">
-          atOptions = {
-            'key' : '0b2a1dd49cefbcb5c3f10330c969042c',
-            'format' : 'iframe',
-            'height' : 600,
-            'width' : 160,
-            'params' : {}
-          };
-        <\/script>
-        <script type="text/javascript" src="https://dcengg.org/22/0b2a1dd49cefbcb5c3f10330c969042c"><\/script>
-        </body></html>`;
+        
+        const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><style>html,body{margin:0;padding:0;overflow:hidden;width:100%;height:100%;background:transparent;display:flex;align-items:center;justify-content:center;}</style></head><body><script type="text/javascript">atOptions = {'key' : '0b2a1dd49cefbcb5c3f10330c969042c','format' : 'iframe','height' : 600,'width' : 160,'params' : {}};<\/script><script type="text/javascript" src="https://dcengg.org/22/0b2a1dd49cefbcb5c3f10330c969042c"><\/script></body></html>`;
+        
+        const blob = new Blob([html], { type: 'text/html' });
+        iframe.src = URL.createObjectURL(blob);
         container.appendChild(iframe);
     }
 
@@ -2732,6 +2731,7 @@
         
         pendingVideo = video;
         adModal.classList.add('active');
+        document.body.classList.add('ad-modal-open'); // Oculta o header enquanto o anúncio estiver ativo
         adCenterWrapper.innerHTML = '';
 
         // Limpa todos os containers
@@ -2744,8 +2744,7 @@
         const isPortrait = window.matchMedia('(max-width: 900px) and (orientation: portrait)').matches;
 
         if (isLandscape) {
-            // Landscape: 300x250 em ambos os lados
-            mountStandardAd(document.getElementById('adNativeLeft'), { key: '51efcb0e502dffc7c8c25030a1155128', format: 'iframe', height: 250, width: 300, params: {} }, 'https://dcengg.org/22/51efcb0e502dffc7c8c25030a1155128');
+            // Landscape: Apenas banner 300x250 na direita
             mountStandardAd(document.getElementById('adNativeRight'), { key: '51efcb0e502dffc7c8c25030a1155128', format: 'iframe', height: 250, width: 300, params: {} }, 'https://dcengg.org/22/51efcb0e502dffc7c8c25030a1155128');
         } else if (isPortrait) {
             // Portrait: 320x50 em cima, 300x250 embaixo
@@ -2805,6 +2804,7 @@
     closeAdBtn.addEventListener('click', () => { if (!closeAdBtn.disabled) closeAdAndPlay(); });
     document.getElementById('adSubscribeBtn').addEventListener('click', () => {
         adModal.classList.remove('active');
+        document.body.classList.remove('ad-modal-open'); // Remove ocultação do header
         if (isAdmin()) adminContainer.style.display = 'flex';
         if (adYtPlayer) { try { adYtPlayer.stopVideo(); adYtPlayer.destroy(); } catch(e){} adYtPlayer = null; }
         clearInterval(adTimerInterval);
@@ -2838,7 +2838,9 @@
                 playerBottomAd.style.display = 'block';
                 if (!playerBottomAd.dataset.mounted) {
                     playerBottomAd.dataset.mounted = '1';
-                    horizontalAdIframe.srcdoc = `<!DOCTYPE html><html><head><meta charset="utf-8"><style>html,body{margin:0;padding:0;overflow:hidden;background:transparent;width:100%;height:100%;display:flex;align-items:center;justify-content:center;}</style></head><body><script type="text/javascript">atOptions={'key':'c0b67a9be1ab830aba44c6c24a020adc','format':'iframe','height':90,'width':728,'params':{}};<\/script><script type="text/javascript" src="https://dcengg.org/22/c0b67a9be1ab830aba44c6c24a020adc"><\/script></body></html>`;
+                    const htmlAd = `<!DOCTYPE html><html><head><meta charset="utf-8"><style>html,body{margin:0;padding:0;overflow:hidden;background:transparent;width:100%;height:100%;display:flex;align-items:center;justify-content:center;}</style></head><body><script type="text/javascript">atOptions={'key':'c0b67a9be1ab830aba44c6c24a020adc','format':'iframe','height':90,'width':728,'params':{}};<\/script><script type="text/javascript" src="https://dcengg.org/22/c0b67a9be1ab830aba44c6c24a020adc"><\/script></body></html>`;
+                    const blobAd = new Blob([htmlAd], { type: 'text/html' });
+                    horizontalAdIframe.src = URL.createObjectURL(blobAd);
                 }
             }
         } else {
