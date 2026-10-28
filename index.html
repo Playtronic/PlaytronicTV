@@ -909,6 +909,7 @@
         const list = document.getElementById('commentsList');
         list.innerHTML = '<p style="text-align:center; color:#94a3b8; padding: 20px;">Carregando comentários...</p>';
         if (commentsRef) commentsRef.off();
+        
         commentsRef = rtdb.ref('vod_comments/' + videoId).orderByChild('timestamp').limitToLast(100);
 
         commentsRef.on('value', (snap) => {
@@ -926,6 +927,7 @@
                 const canDelete = isOwner || isAdmin();
                 const userVote = (c.userVotes || {})[currentUser ? currentUser.uid : ''] || null;
                 const cardColor = getCardColor(c.uid);
+                
                 return `
                     <div class="comment-card" style="background: ${cardColor};">
                         <img src="${escapeHtml(c.photoURL || 'https://www.gravatar.com/avatar/?d=mp')}" class="comment-avatar" alt="">
@@ -936,17 +938,33 @@
                             </div>
                             <div class="comment-text">${escapeHtml(c.text)}</div>
                             <div class="comment-actions">
-                                <button class="comment-action-btn ${userVote === 'like' ? 'active like' : ''}" onclick="votarComentario('${videoId}', '${c.id}', 'like')">👍 <span>${c.likes || 0}</span></button>
-                                <button class="comment-action-btn ${userVote === 'dislike' ? 'active dislike' : ''}" onclick="votarComentario('${videoId}', '${c.id}', 'dislike')">👎 <span>${c.dislikes || 0}</span></button>
-                                ${!isOwner && currentUser ? `<button class="comment-action-btn report" onclick="reportComment('${videoId}', '${c.id}')">🚩 Denunciar</button>` : ''}
-                                ${canDelete ? `<button class="comment-action-btn delete" onclick="deleteComment('${videoId}', '${c.id}')">🗑️ Excluir</button>` : ''}
+                                <!-- CORREÇÃO: Passamos o ID como data-attribute para evitar conflito -->
+                                <button class="comment-action-btn ${userVote === 'like' ? 'active like' : ''}" data-action="like" data-cid="${c.id}">👍 <span>${c.likes || 0}</span></button>
+                                <button class="comment-action-btn ${userVote === 'dislike' ? 'active dislike' : ''}" data-action="dislike" data-cid="${c.id}">👎 <span>${c.dislikes || 0}</span></button>
+                                ${!isOwner && currentUser ? `<button class="comment-action-btn report" data-action="report" data-cid="${c.id}">🚩 Denunciar</button>` : ''}
+                                ${canDelete ? `<button class="comment-action-btn delete" data-action="delete" data-cid="${c.id}">🗑️ Excluir</button>` : ''}
                             </div>
                         </div>
                     </div>
                 `;
             }).join('');
+
+            // ADICIONA OS LISTENERS DE CLIQUE CORRETAMENTE
+            list.querySelectorAll('.comment-action-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const action = btn.getAttribute('data-action');
+                    const cid = btn.getAttribute('data-cid');
+                    if (!cid) return;
+
+                    if (action === 'like') votarComentario(videoId, cid, 'like');
+                    else if (action === 'dislike') votarComentario(videoId, cid, 'dislike');
+                    else if (action === 'report') reportComment(videoId, cid);
+                    else if (action === 'delete') deleteComment(videoId, cid);
+                });
+            });
         });
     }
+
     function closeComments() {
         document.getElementById('commentsSection').style.display = 'none';
         if (commentsRef) { commentsRef.off(); commentsRef = null; }
@@ -1057,7 +1075,7 @@
         deletedCommentsRef.on('value', snap => { deletedData = snap.val() || {}; tryRender(); });
     }
 
-    function renderAdminCommentsList() {
+    async function renderAdminCommentsList() {
         const list = document.getElementById('adminCommentsListContainer');
         if (currentAdminTab === 'blocked') { loadBlockedUsersList(list); return; }
 
@@ -1088,8 +1106,26 @@
             return;
         }
 
+        // CORREÇÃO: Buscar dados atualizados de cada usuário no Firestore
+        const uids = [...new Set(commentsToDisplay.map(c => c.uid))];
+        const usersCache = {};
+        try {
+            const chunks = [];
+            for (let i = 0; i < uids.length; i += 10) chunks.push(uids.slice(i, i + 10));
+            for (const chunk of chunks) {
+                const snap = await db.collection('catalog_users').where('uid', 'in', chunk).get();
+                snap.forEach(doc => { usersCache[doc.id] = doc.data(); });
+            }
+        } catch (e) { console.warn('Erro ao buscar dados dos usuários:', e); }
+
         list.innerHTML = commentsToDisplay.map(c => {
             const cardColor = getCardColor(c.uid);
+            const u = usersCache[c.uid] || {};
+            
+            // Pega o nome e a foto atualizados do Firestore, ou usa o que estava no comentário
+            const displayName = u.name || c.name || 'Usuário';
+            const displayPhoto = u.photoURL || c.photoURL || 'https://www.gravatar.com/avatar/?d=mp';
+
             let actionsHtml = '';
             if (c.isDeleted) {
                 actionsHtml = `
@@ -1104,10 +1140,15 @@
                     <button class="admin-action-btn btn-ban" onclick="banUserAdmin('${c.uid}')">🚫 Banir</button>
                 `;
             }
+            
+            // O ID do usuário não é mais mostrado. Apenas Nome e Foto.
             return `
                 <div class="admin-comment-wrapper" style="border-left: 4px solid ${c.isReported ? '#ef4444' : '#3b82f6'};">
-                    <div style="display:flex; justify-content:space-between; font-size:0.75rem; margin-bottom:8px; flex-wrap:wrap; gap:4px;">
-                        <span style="color:#fdbb2d; font-weight:bold;">${escapeHtml(c.name || 'Usuário')} (${escapeHtml((c.uid||'').substring(0,8))}...)</span>
+                    <div style="display:flex; justify-content:space-between; font-size:0.75rem; margin-bottom:8px; flex-wrap:wrap; gap:4px; align-items:center;">
+                        <div style="display:flex; align-items:center; gap:8px;">
+                            <img src="${escapeHtml(displayPhoto)}" style="width:24px; height:24px; border-radius:50%; object-fit:cover;">
+                            <span style="color:#fdbb2d; font-weight:bold; font-size:0.85rem;">${escapeHtml(displayName)}</span>
+                        </div>
                         <span style="color:#94a3b8;">${formatDate(c.timestamp)} ${c.isReported ? '| <span style="color:#ef4444;font-weight:bold;">DENUNCIADO</span>' : ''}</span>
                     </div>
                     <div style="background:${cardColor}; padding:12px; border-radius:6px; color:#fff; font-size:0.9rem; margin-bottom:8px; word-break:break-word;">${escapeHtml(c.text)}</div>
@@ -1141,13 +1182,21 @@
                     const days = Math.ceil((u.commentBlockUntil - Date.now()) / (1000 * 60 * 60 * 24));
                     statusText = `⏳ Bloqueado (${days} dia${days !== 1 ? 's' : ''} restante${days !== 1 ? 's' : ''})`;
                 }
+                
+                // Fallback para nome e foto caso o usuário não tenha nome no Firestore
+                const displayName = u.name || u.email || 'Usuário Sem Nome';
+                const displayPhoto = u.photoURL || 'https://www.gravatar.com/avatar/?d=mp';
+
                 return `
                     <div class="admin-comment-wrapper">
                         <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
-                            <div style="min-width:0; flex:1;">
-                                <div style="font-weight:bold; color:#fff; word-break:break-all;">${escapeHtml(u.name || u.email || u.uid)}</div>
-                                <div style="font-size:0.75rem; color:#ef4444; margin-top:4px;">${statusText}</div>
-                                ${(u.blockReason || u.banReason) ? `<div style="font-size:0.75rem; color:#94a3b8; margin-top:2px;">Motivo: ${escapeHtml(u.blockReason || u.banReason)}</div>` : ''}
+                            <div style="min-width:0; flex:1; display:flex; align-items:center; gap:10px;">
+                                <img src="${escapeHtml(displayPhoto)}" style="width:32px; height:32px; border-radius:50%; object-fit:cover;">
+                                <div>
+                                    <div style="font-weight:bold; color:#fff; word-break:break-all;">${escapeHtml(displayName)}</div>
+                                    <div style="font-size:0.75rem; color:#ef4444; margin-top:4px;">${statusText}</div>
+                                    ${(u.blockReason || u.banReason) ? `<div style="font-size:0.75rem; color:#94a3b8; margin-top:2px;">Motivo: ${escapeHtml(u.blockReason || u.banReason)}</div>` : ''}
+                                </div>
                             </div>
                             <div style="display:flex; gap:8px; flex-wrap:wrap;">
                                 ${u.isBanned ? `<button class="admin-action-btn btn-restore" onclick="unbanUserAdmin('${u.uid}')">✅ Desbanir</button>` : ''}
@@ -2467,7 +2516,6 @@
             events: { 'onReady': onPlayerReady, 'onStateChange': onPlayerStateChange }
         });
 
-        // ✅ ABRE COMENTÁRIOS DO VÍDEO
         openComments(video.youtubeId);
     }
 
@@ -2583,7 +2631,6 @@
         playerVideoTitle.textContent = '';
         playerLoadingOverlay.classList.remove('hidden');
         if (isAdmin()) adminContainer.style.display = 'flex';
-        // ✅ FECHA COMENTÁRIOS
         closeComments();
     }
     document.getElementById('closePlayerBtn').addEventListener('click', closePlayer);
