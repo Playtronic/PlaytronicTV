@@ -84,7 +84,7 @@
         .watch-btn:hover { background: #ffcc44; transform: scale(1.02); }
         .watch-btn.locked { background: linear-gradient(135deg, #7c3aed, #6d28d9); color: #fff; }
         .watch-btn.locked:hover { background: linear-gradient(135deg, #6d28d9, #5b21b6); }
-        
+
         .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.72); display: none; align-items: center; justify-content: center; z-index: 1500; backdrop-filter: blur(6px); padding: 20px; }
         .modal-overlay.active { display: flex; }
         .modal { background: #152961; border: 1px solid rgba(255,255,255,0.12); border-radius: 14px; padding: 26px; width: 100%; max-width: 520px; box-shadow: 0 25px 60px rgba(0,0,0,0.8); animation: modalIn 0.2s ease; max-height: 90vh; overflow-y: auto; }
@@ -160,7 +160,7 @@
         #playerScreen { position: fixed; inset: 0; background: linear-gradient(135deg, rgba(11,15,25,0.97) 0%, rgba(26,26,46,0.97) 50%, rgba(22,33,62,0.97) 100%); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); z-index: 2000; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; overflow-y: auto; padding: 20px; opacity: 0; visibility: hidden; transition: opacity 0.4s ease, visibility 0.4s; }
         #playerScreen.active { opacity: 1; visibility: visible; }
         .player-container { width: 100%; max-width: 1200px; display: flex; flex-direction: column; align-items: center; gap: 15px; }
-        
+
         /* CORREÇÃO DAS SOMBRAS DO PLAYER */
         .player-wrapper { width: 100%; max-height: calc(100vh - 160px); aspect-ratio: 16 / 9; background: #000; border-radius: 12px; overflow: hidden; position: relative; box-shadow: 0 20px 50px rgba(0,0,0,0.8); flex-shrink: 0; touch-action: manipulation; }
         .player-wrapper:fullscreen { width: 100vw; height: 100vh; max-height: 100vh; aspect-ratio: auto; border-radius: 0; }
@@ -170,7 +170,7 @@
         .player-wrapper iframe { width: 100%; height: 100%; display: block; border: none; position: absolute; top: 0; left: 0; z-index: 1; pointer-events: none; }
         .custom-ui { position: absolute; inset: 0; z-index: 20; pointer-events: none; transition: opacity 0.4s ease, visibility 0.4s ease; }
         .custom-ui.player-ui-hidden { opacity: 0 !important; visibility: hidden !important; }
-        
+
         .close-player-btn { position: absolute; top: 15px; left: 15px; background: rgba(0,0,0,0.6); border: 1px solid rgba(255,255,255,0.2); color: #fff; width: 40px; height: 40px; border-radius: 50%; font-size: 1.2rem; cursor: pointer; display: flex; align-items: center; justify-content: center; pointer-events: auto; }
         .close-player-btn:hover { background: #e74c3c; transform: scale(1.1); }
         .player-video-title { position: absolute; top: 22px; left: 68px; color: #fff; font-size: 1.15rem; font-weight: 600; text-shadow: 1px 1px 4px rgba(0,0,0,0.9); max-width: calc(100% - 280px); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; pointer-events: none; z-index: 25; padding: 5px 10px; background: rgba(0,0,0,0.3); border-radius: 6px; }
@@ -206,7 +206,7 @@
         .player-loading-overlay.hidden { opacity: 0; }
         .spinner { border: 4px solid rgba(253,187,45,0.2); border-top: 4px solid #fdbb2d; border-radius: 50%; width: 50px; height: 50px; animation: spin 1s linear infinite; margin-bottom: 15px; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        
+
         #adInterstitialModal { position: fixed; inset: 0; background: linear-gradient(135deg, rgba(11,15,25,0.97) 0%, rgba(26,26,46,0.97) 50%, rgba(22,33,62,0.97) 100%); z-index: 99999; display: none; align-items: center; justify-content: center; backdrop-filter: blur(10px); padding: 20px; gap: 20px; }
         #adInterstitialModal.active { display: flex; }
         .ad-native-side { width: 160px; height: 600px; flex-shrink: 0; background: #ffffff; display: block; border-radius: 8px; overflow: hidden; position: relative; border: 1px solid rgba(255,255,255,0.2); }
@@ -249,11 +249,11 @@
         .new-comment-form { display: flex; gap: 10px; align-items: flex-start; background: rgba(0,0,0,0.2); padding: 15px; border-radius: 10px; }
         .new-comment-form textarea { width: 100%; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; padding: 10px; color: #fff; resize: vertical; min-height: 60px; outline: none; font-family: inherit; font-size: 0.9rem; }
         .new-comment-form textarea:focus { border-color: #fdbb2d; }
-        
+
         .comment-card { display: flex; gap: 12px; padding: 15px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.1); word-break: break-word; position: relative; }
         .comment-card.pinned { border: 2px solid #10b981; box-shadow: 0 0 15px rgba(16, 185, 129, 0.2); }
         .comment-card.pinned::before { content: '📌 Fixado'; position: absolute; top: -10px; left: 10px; background: #10b981; color: #fff; font-size: 0.65rem; font-weight: bold; padding: 2px 8px; border-radius: 10px; }
-        
+
         .comment-avatar { width: 42px; height: 42px; border-radius: 50%; object-fit: cover; flex-shrink: 0; border: 2px solid rgba(255,255,255,0.15); }
         .comment-content { flex: 1; min-width: 0; }
         .comment-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; flex-wrap: wrap; gap: 5px; }
@@ -921,13 +921,13 @@
         const list = document.getElementById('commentsList');
         list.innerHTML = '<p style="text-align:center; color:#94a3b8; padding: 20px;">Carregando comentários...</p>';
         if (commentsRef) commentsRef.off();
-        
+
         commentsRef = rtdb.ref('vod_comments/' + videoId).orderByChild('timestamp').limitToLast(100);
 
         commentsRef.on('value', (snap) => {
             const data = snap.val() || {};
             const comments = Object.entries(data).map(([id, c]) => ({ id, ...c }));
-            
+
             // Lógica de ordenação: Fixados primeiro, depois por data (mais recente)
             comments.sort((a, b) => {
                 if (!!a.isPinned !== !!b.isPinned) return a.isPinned ? -1 : 1;
@@ -944,7 +944,7 @@
                 const canDelete = isOwner || isAdmin();
                 const userVote = (c.userVotes || {})[currentUser ? currentUser.uid : ''] || null;
                 const cardColor = getCardColor(c.uid);
-                
+
                 return `
                     <div class="comment-card ${c.isPinned ? 'pinned' : ''}" style="background: ${cardColor};">
                         <img src="${escapeHtml(c.photoURL || 'https://www.gravatar.com/avatar/?d=mp')}" class="comment-avatar" alt="">
@@ -1044,21 +1044,39 @@
         try { await rtdb.ref(`vod_comments/${videoId}/${commentId}`).update({ isReported: true }); alert('Comentário denunciado. Obrigado!'); }
         catch (e) { alert(e.message); }
     }
+
+    // ✅ CORRIGIDA: dono apaga definitivamente; admin apagando terceiro envia para lixeira restaurável
     async function deleteComment(videoId, commentId) {
-        if (!confirm('Excluir este comentário?')) return;
+        if (!currentUser) return;
         try {
             const snap = await rtdb.ref(`vod_comments/${videoId}/${commentId}`).once('value');
             const data = snap.val();
-            if (data) {
+            if (!data) return;
+
+            const isOwner     = currentUser.uid === data.uid;
+            const isAdminUser = isAdmin();
+            // Só vai para a lixeira quando o ADMIN apaga o comentário de OUTRA pessoa
+            const sendToTrash = isAdminUser && !isOwner;
+
+            const msg = sendToTrash
+                ? 'Remover este comentário? Ele poderá ser restaurado depois pelo painel admin.'
+                : 'Excluir este comentário permanentemente? Esta ação não pode ser desfeita.';
+            if (!confirm(msg)) return;
+
+            if (sendToTrash) {
                 await rtdb.ref('deleted_comments').child(commentId).set({
-                    ...data, videoId,
+                    ...data,
+                    videoId,
                     deletedAt: firebase.database.ServerValue.TIMESTAMP,
                     deletedBy: currentUser.uid
                 });
             }
             await rtdb.ref(`vod_comments/${videoId}/${commentId}`).remove();
-        } catch (e) { alert(e.message); }
+        } catch (e) {
+            alert('Erro ao excluir: ' + e.message);
+        }
     }
+
     async function togglePinComment(videoId, commentId, isPinned) {
         if (!isAdmin()) return;
         try {
@@ -1151,7 +1169,7 @@
         list.innerHTML = commentsToDisplay.map(c => {
             const cardColor = getCardColor(c.uid);
             const u = usersCache[c.uid] || {};
-            
+
             const displayName = u.name || c.name || 'Usuário';
             const displayPhoto = u.photoURL || c.photoURL || 'https://www.gravatar.com/avatar/?d=mp';
 
@@ -1170,7 +1188,7 @@
                     <button class="admin-action-btn btn-ban" onclick="banUserAdmin('${c.uid}')">🚫 Banir</button>
                 `;
             }
-            
+
             return `
                 <div class="admin-comment-wrapper" style="border-left: 4px solid ${c.isReported ? '#ef4444' : (c.isPinned ? '#10b981' : '#3b82f6')};">
                     <div style="display:flex; justify-content:space-between; font-size:0.75rem; margin-bottom:8px; flex-wrap:wrap; gap:4px; align-items:center;">
@@ -1212,7 +1230,7 @@
                     const days = Math.ceil((u.commentBlockUntil - Date.now()) / (1000 * 60 * 60 * 24));
                     statusText = `⏳ Bloqueado (${days} dia${days !== 1 ? 's' : ''} restante${days !== 1 ? 's' : ''})`;
                 }
-                
+
                 const displayName = u.name || u.email || 'Usuário Sem Nome';
                 const displayPhoto = u.photoURL || 'https://www.gravatar.com/avatar/?d=mp';
 
