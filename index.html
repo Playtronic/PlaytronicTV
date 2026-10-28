@@ -389,13 +389,73 @@
 
         /* Landscape Mobile Fixes */
         @media (max-width: 900px) and (orientation: landscape) {
-            #adInterstitialModal { flex-direction: row; padding: 70px 10px 10px 10px; justify-content: center; align-items: center; gap: 15px; overflow: hidden; }
-            .ad-side-banner { display: flex; width: 300px; height: 250px; max-height: none; border: none; }
-            .ad-side-banner iframe { width: 300px; height: 250px; }
-            .ad-center-column { flex: 1; max-width: 500px; height: 100%; max-height: calc(100vh - 80px); }
-            .ad-center-wrapper { flex: 1; min-height: 200px; aspect-ratio: auto; }
-            .ad-interstitial-wrapper { height: 100%; }
-            .ad-mobile-top-banner, .ad-mobile-bottom-banner { display: none !important; }
+            #adInterstitialModal {
+                flex-direction: row;
+                padding: 130px 10px 20px 10px; /* Padding no topo para não sobrepor o cabeçalho móvel */
+                justify-content: flex-start; /* Alinha à esquerda para não cortar o banner esquerdo */
+                align-items: flex-start; /* Alinha ao topo para não cortar o conteúdo */
+                gap: 10px;
+                overflow: auto; /* Permite rolagem caso a tela seja muito pequena e evita que o conteúdo suma */
+            }
+            
+            .ad-side-banner {
+                display: flex;
+                width: 300px;
+                height: 250px;
+                max-height: none;
+                border: none;
+                flex-shrink: 0; /* Impede que os banners 300x250 sejam esmagados */
+                margin-top: 10px;
+            }
+            .ad-side-banner iframe {
+                width: 300px;
+                height: 250px;
+            }
+            
+            .ad-center-column {
+                flex: 1;
+                max-width: 500px;
+                min-width: 300px; /* Impede que a coluna central suma */
+                height: auto; /* Deixa a altura crescer conforme o conteúdo */
+                display: flex;
+                flex-direction: column;
+            }
+            
+            .ad-interstitial-wrapper {
+                height: auto; /* Remove a altura fixa que cortava os botões */
+                flex-shrink: 0;
+                display: flex;
+                flex-direction: column;
+            }
+            
+            .ad-center-wrapper {
+                flex: 1;
+                min-height: 200px;
+                aspect-ratio: 16 / 9; /* Restaura a proporção correta da publicidade */
+            }
+            
+            .ad-interstitial-footer {
+                flex-direction: column;
+                align-items: stretch;
+                padding: 10px;
+                gap: 10px;
+            }
+            .ad-interstitial-footer > div {
+                display: flex;
+                flex-direction: column;
+                gap: 10px;
+                width: 100%;
+            }
+            .ad-interstitial-footer button {
+                width: 100%;
+                padding: 10px;
+                font-size: 0.9rem;
+                margin: 0;
+            }
+
+            .ad-mobile-top-banner, .ad-mobile-bottom-banner {
+                display: none !important;
+            }
             
             .player-container { display: flex; flex-direction: column; }
             .player-wrapper { order: 1; max-height: calc(100vh - 150px); min-height: 150px; }
