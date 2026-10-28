@@ -213,23 +213,30 @@
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
         /* MODAL DE ANÚNCIO AJUSTADO PARA NÃO FICAR ATRÁS DO HEADER E SER RESPONSIVO */
-        #adInterstitialModal { position: fixed; inset: 0; background: linear-gradient(135deg, rgba(11,15,25,0.97) 0%, rgba(26,26,46,0.97) 50%, rgba(22,33,62,0.97) 100%); z-index: 99999; display: none; align-items: center; justify-content: center; backdrop-filter: blur(10px); padding: 100px 20px 20px 20px; gap: 20px; flex-wrap: wrap; }
+        #adInterstitialModal { position: fixed; inset: 0; background: linear-gradient(135deg, rgba(11,15,25,0.97) 0%, rgba(26,26,46,0.97) 50%, rgba(22,33,62,0.97) 100%); z-index: 99999; display: none; align-items: center; justify-content: center; backdrop-filter: blur(10px); padding: 100px 20px 20px 20px; gap: 20px; flex-wrap: wrap; overflow-y: auto; }
         #adInterstitialModal.active { display: flex; }
-        .ad-native-side { width: 160px; height: 600px; max-height: calc(100vh - 140px); flex-shrink: 0; background: #ffffff; display: block; border-radius: 8px; overflow: hidden; position: relative; border: 1px solid rgba(255,255,255,0.2); }
+        
+        .ad-native-side { width: 160px; height: 600px; max-height: calc(100vh - 140px); flex-shrink: 0; background: #ffffff; border-radius: 8px; overflow: hidden; position: relative; border: 1px solid rgba(255,255,255,0.2); }
         .ad-native-side iframe { width: 100%; height: 100%; display: block; border: 0; position: absolute; top:0; left:0; background: #ffffff; }
+        
         .ad-mobile-top, .ad-mobile-bottom { display: none; position: relative; background: #ffffff; border-radius: 8px; overflow: hidden; flex-shrink: 0; border: 1px solid rgba(255,255,255,0.2); margin: 0 auto; }
         .ad-mobile-top { width: 320px; height: 50px; }
         .ad-mobile-bottom { width: 300px; height: 250px; }
         .ad-mobile-top iframe, .ad-mobile-bottom iframe { width: 100%; height: 100%; display: block; border: 0; position: absolute; z-index: 1; top: 0; left: 0; background: #ffffff; }
-        .ad-interstitial-wrapper { background: #152961; border: 2px solid #fdbb2d; border-radius: 12px; width: 100%; max-width: 800px; display: flex; flex-direction: column; box-shadow: 0 0 60px rgba(253,187,45,0.2); overflow: hidden; flex-shrink: 0; }
+        
+        .ad-interstitial-wrapper { background: #152961; border: 2px solid #fdbb2d; border-radius: 12px; width: 100%; max-width: 800px; display: flex; flex-direction: column; box-shadow: 0 0 60px rgba(253,187,45,0.2); overflow: hidden; flex-shrink: 0; margin: 0 auto; }
         .ad-interstitial-header { background: rgba(253,187,45,0.1); padding: 15px 25px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.1); color: #fdbb2d; font-weight: bold; font-size: 1rem; }
         .ad-center-wrapper { width: 100%; aspect-ratio: 16 / 9; background: #0b0f19; display: flex; align-items: center; justify-content: center; overflow: hidden; position: relative; }
         .ad-center-wrapper img { width: 100%; height: 100%; object-fit: contain; padding: 20px; }
         .ad-center-wrapper iframe { width: 100%; height: 100%; border: none; position: absolute; top: 0; left: 0; pointer-events: none; }
-        .ad-interstitial-footer { padding: 15px 20px; text-align: center; border-top: 1px solid rgba(255,255,255,0.1); background: rgba(0,0,0,0.2); }
-        .ad-close-btn { background: #ef4444; color: #fff; border: none; padding: 12px 40px; border-radius: 8px; font-weight: bold; font-size: 1rem; cursor: pointer; transition: 0.3s; opacity: 0.5; cursor: not-allowed; }
+        
+        /* RODAPÉ DO ANÚNCIO - BOTÕES NORMAIS */
+        .ad-interstitial-footer { padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; border-top: 1px solid rgba(255,255,255,0.1); background: rgba(0,0,0,0.2); }
+        .ad-interstitial-footer button { padding: 10px 20px; border-radius: 8px; font-weight: bold; font-size: 0.95rem; cursor: pointer; border: none; transition: 0.2s; }
+        .ad-close-btn { background: #ef4444; color: #fff; opacity: 0.5; cursor: not-allowed; }
         .ad-close-btn.active { opacity: 1; cursor: pointer; background: #22c55e; }
-        .ad-close-btn.active:hover { background: #16a34a; transform: scale(1.05); }
+        .ad-close-btn.active:hover { background: #16a34a; }
+
         .loading { text-align: center; padding: 60px; color: #fdbb2d; font-size: 1.2rem; font-weight: bold; }
         .empty-state { text-align: center; padding: 60px; color: #a0aec0; font-size: 1.1rem; display: none; }
         .site-footer { background-color: #101c36; text-align: center; padding: 35px 20px; margin-top: auto; border-top: 1px solid rgba(255,255,255,0.08); width: 100%; display: flex; flex-direction: column; align-items: center; }
@@ -312,18 +319,19 @@
 
         /* Responsividade Geral */
         @media (max-width: 1150px) {
-            .ad-native-side { display: none; }
-            #adInterstitialModal { flex-direction: column; overflow-y: auto; gap: 15px; padding: 100px 10px 15px 10px; align-items: center; justify-content: flex-start; }
-            .ad-mobile-top, .ad-mobile-bottom { display: block; }
+            .ad-native-side { display: none !important; }
+            #adInterstitialModal { flex-direction: column; padding: 90px 10px 20px 10px; justify-content: flex-start; }
+            .ad-mobile-top, .ad-mobile-bottom { display: block !important; margin: 10px auto; }
             .ad-interstitial-wrapper { max-width: 100%; flex-shrink: 0; }
         }
+        
         @media (max-width: 900px) {
             body { padding-top: 80px; padding-bottom: 40px; padding-left: 10px; padding-right: 10px; }
             .header { display: grid; grid-template-columns: 1fr auto; grid-template-areas: "logo auth"; align-items: center; gap: 10px; height: auto; padding: 10px 15px; }
             .header-brand { grid-area: logo; display: flex; justify-content: flex-start; width: auto; flex: none; }
             .header-logo { height: 45px; }
             .auth-area { grid-area: auth; justify-content: flex-end; width: auto; }
-            .search-container { display: none; } /* Ocultado no mobile na tela principal (o usuário pode buscar via admin se precisar) */
+            .search-container { display: none; } 
             .user-card { position: fixed; top: 70px; left: 10px; right: 10px; width: auto; min-width: auto; }
             .catalog-grid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 15px; }
             .card-title { font-size: 1rem; min-height: 2.6em; }
@@ -362,8 +370,13 @@
             .comment-avatar { width: 36px; height: 36px; }
             
             .modal-overlay, #banAlertModal, #blockAlertModal { padding: 90px 10px 20px 10px; }
-            .ad-interstitial-wrapper { width: 100%; max-width: 100%; }
+            
+            /* Ajuste dos botões do anúncio no mobile */
+            .ad-interstitial-footer { flex-direction: column; align-items: center; }
+            .ad-interstitial-footer > div { width: 100%; display: flex; flex-direction: row; justify-content: center; flex-wrap: wrap; gap: 10px; }
+            .ad-interstitial-footer button { flex: 1; min-width: 130px; padding: 10px 15px; font-size: 0.9rem; }
         }
+        
         @media (max-width: 900px) and (orientation: portrait) {
             .player-wrapper { max-height: calc(100vh - 320px); min-height: 180px; }
             #playerMobileTop { display: block; }
@@ -373,11 +386,9 @@
             .player-wrapper { max-height: calc(100vh - 80px); min-height: 150px; }
             #playerMobileTop { display: block; order: 10; }
             #playerMobileBottom { display: none !important; }
-            
-            /* Ajuste para modais em landscape mobile */
             .modal, .ad-interstitial-wrapper { max-width: 90%; max-height: 80vh; }
             #adInterstitialModal { flex-direction: row; overflow-y: auto; padding-top: 90px; justify-content: center; }
-            .ad-native-side, .ad-mobile-bottom { display: none; } /* Esconde banners laterais no landscape mobile para caber */
+            .ad-native-side, .ad-mobile-bottom { display: none !important; }
             .ad-mobile-top { display: block; margin-bottom: 10px; }
         }
     </style>
@@ -707,10 +718,10 @@
         <div class="ad-interstitial-wrapper">
             <div class="ad-interstitial-header"><span>Publicidade</span><span id="adTimerText">Aguarde 5s...</span></div>
             <div class="ad-center-wrapper" id="adCenterWrapper"></div>
-            <div class="ad-interstitial-footer" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
-                <button id="openInsertAdBtn" style="background: #000; color: #fff; border: 1px solid #333; padding: 10px 20px; border-radius: 8px; font-weight: bold; cursor: pointer;">Inserir um anúncio</button>
+            <div class="ad-interstitial-footer">
+                <button id="openInsertAdBtn" style="background: #000; color: #fff; border: 1px solid #333;">Inserir um anúncio</button>
                 <div style="display: flex; gap: 10px;">
-                    <button id="adSubscribeBtn" style="background: #7c3aed; color: #fff; border: 1px solid #6d28d9; padding: 10px 20px; border-radius: 8px; font-weight: bold; cursor: pointer;">⭐ Remover Anúncios</button>
+                    <button id="adSubscribeBtn" style="background: #7c3aed; color: #fff; border: 1px solid #6d28d9;">⭐ Remover Anúncios</button>
                     <button id="closeInterstitialBtn" class="ad-close-btn" disabled>Fechar e Assistir</button>
                 </div>
             </div>
@@ -845,7 +856,6 @@
     }
 
     // ============ CONTROLE DE VISIBILIDADE DA BARRA DE PESQUISA ============
-    // Oculta a barra de pesquisa quando qualquer modal, player ou lightbox estiver ativo
     function updateSearchVisibility() {
         const searchContainer = document.querySelector('.search-container');
         if (!searchContainer) return;
@@ -858,20 +868,13 @@
             document.getElementById('blockAlertModal').classList.contains('active') ||
             document.getElementById('pixLightbox').style.display === 'flex';
             
-        // Em telas menores que 900px, a barra já é ocultada via CSS, mas aqui garantimos
         if (isModalOpen) {
             searchContainer.style.display = 'none';
         } else {
-            // Restaura para o padrão dependendo do tamanho da tela
-            if (window.matchMedia('(max-width: 900px)').matches) {
-                searchContainer.style.display = 'none';
-            } else {
-                searchContainer.style.display = 'flex';
-            }
+            searchContainer.style.display = window.matchMedia('(max-width: 900px)').matches ? 'none' : 'flex';
         }
     }
 
-    // Observador para monitorar alterações de classes e estilos em todo o body
     const domObserver = new MutationObserver((mutations) => {
         let shouldUpdate = false;
         mutations.forEach(mutation => {
@@ -882,7 +885,6 @@
         if (shouldUpdate) updateSearchVisibility();
     });
     
-    // Inicia o observador após o carregamento do DOM
     document.addEventListener('DOMContentLoaded', () => {
         domObserver.observe(document.body, { attributes: true, subtree: true, attributeFilter: ['class', 'style'] });
         updateSearchVisibility();
@@ -2538,7 +2540,7 @@
 
     function mountStandardAd(container, opts, scriptSrc) {
         if (!container) return;
-        container.innerHTML = ''; // Limpa antes de injetar para evitar duplicações
+        container.innerHTML = ''; 
         container.dataset.mounted = '1';
         const iframe = document.createElement('iframe');
         iframe.setAttribute('scrolling', 'no');
