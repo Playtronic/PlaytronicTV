@@ -868,8 +868,8 @@
             return;
         }
         try {
-            // Força a leitura do servidor em vez do cache
-            const doc = await db.collection('catalog_users').doc(user.uid).get({ source: 'server' });
+            // Leitura padrão (cache primeiro, depois servidor) para evitar falhas silenciosas
+            const doc = await db.collection('catalog_users').doc(user.uid).get();
             if (!doc.exists) return;
             const data = doc.data() || {};
             userRestrictions = data;
@@ -892,7 +892,9 @@
                 await db.collection('catalog_users').doc(user.uid).set({ commentBlockUntil: null, blockReason: null }, { merge: true });
                 userRestrictions = { ...data, commentBlockUntil: null, blockReason: null };
             }
-        } catch (e) { console.warn('Erro ao verificar restrições:', e); }
+        } catch (e) { 
+            console.error('Erro ao verificar restrições:', e); 
+        }
     }
     document.getElementById('closeBlockAlertBtn').addEventListener('click', () => {
         document.getElementById('blockAlertModal').classList.remove('active');
@@ -917,7 +919,7 @@
             
             // Verifica o bloqueio em tempo real
             try {
-                const doc = await db.collection('catalog_users').doc(currentUser.uid).get({ source: 'server' });
+                const doc = await db.collection('catalog_users').doc(currentUser.uid).get();
                 if (doc.exists) {
                     const data = doc.data() || {};
                     const isBlocked = (data.commentBlockUntil && data.commentBlockUntil > Date.now()) || data.isBanned;
@@ -1008,7 +1010,7 @@
 
         // Verificação rigorosa em tempo real antes de enviar
         try {
-            const doc = await db.collection('catalog_users').doc(currentUser.uid).get({ source: 'server' });
+            const doc = await db.collection('catalog_users').doc(currentUser.uid).get();
             if (doc.exists) {
                 const data = doc.data() || {};
                 if (data.isBanned) return alert('Sua conta está banida.');
