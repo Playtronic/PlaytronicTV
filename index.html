@@ -14,28 +14,29 @@
 
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: linear-gradient(135deg, #0b0f19 0%, #1a1a2e 50%, #16213e 100%); background-attachment: fixed; color: #e2e8f0; min-height: 100vh; padding-top: 130px; padding-left: 20px; padding-right: 20px; display: flex; flex-direction: column; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: linear-gradient(135deg, #0b0f19 0%, #1a1a2e 50%, #16213e 100%); background-attachment: fixed; color: #e2e8f0; min-height: 100vh; padding-top: 100px; padding-left: 20px; padding-right: 20px; display: flex; flex-direction: column; }
         
-        /* HEADER SEMPRE VISÍVEL */
-        .header { position: fixed; top: 0; left: 0; width: 100%; height: 110px; display: flex; align-items: center; justify-content: space-between; padding: 0 40px; background: rgba(21, 41, 97, 0.75); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border-bottom: 1px solid rgba(255,255,255,0.08); z-index: 10000000; box-shadow: 0 4px 20px rgba(0,0,0,0.5); }
-        
-        .header-brand { display: flex; align-items: center; flex: 0 0 350px; }
+        /* HEADER REDUZIDO E SEMPRE VISÍVEL */
+        .header { position: fixed; top: 0; left: 0; width: 100%; height: 80px; display: flex; align-items: center; justify-content: space-between; padding: 0 20px; background: rgba(21, 41, 97, 0.85); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border-bottom: 1px solid rgba(255,255,255,0.08); z-index: 10000000; box-shadow: 0 4px 20px rgba(0,0,0,0.5); transition: height 0.3s ease; }
+        .header-brand { display: flex; align-items: center; flex: 0 0 250px; }
         .logo-link { display: flex; align-items: center; text-decoration: none; cursor: pointer; }
-        .header-logo { height: 80px; width: auto; object-fit: contain; transition: transform 0.3s, opacity 0.3s; }
+        .header-logo { height: 60px; width: auto; object-fit: contain; transition: transform 0.3s, opacity 0.3s; }
         .logo-link:hover .header-logo { transform: scale(1.05); opacity: 0.85; }
-        .search-container { flex: 1; max-width: 500px; margin: 0 20px; position: relative; }
-        .search-container input { width: 100%; background-color: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: #fff; padding: 12px 40px 12px 42px; border-radius: 25px; font-size: 1rem; outline: none; transition: all 0.3s ease; background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="%23a0aec0" viewBox="0 0 16 16"><path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z"/></svg>'); background-repeat: no-repeat; background-position: 15px center; }
+        
+        .search-container { flex: 1; max-width: 500px; margin: 0 20px; position: relative; transition: opacity 0.3s; }
+        .search-container input { width: 100%; background-color: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: #fff; padding: 10px 40px 10px 42px; border-radius: 25px; font-size: 0.95rem; outline: none; transition: all 0.3s ease; background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="%23a0aec0" viewBox="0 0 16 16"><path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z"/></svg>'); background-repeat: no-repeat; background-position: 15px center; }
         .search-container input:focus { background-color: rgba(255,255,255,0.15); border-color: #fdbb2d; box-shadow: 0 0 15px rgba(253, 187, 45, 0.2); }
         .search-container input::placeholder { color: #cbd5e1; }
         #clearMainSearchBtn { position: absolute; right: 15px; top: 50%; transform: translateY(-50%); background: none; border: none; color: #a0aec0; font-size: 1.2rem; cursor: pointer; display: none; padding: 0; }
         #clearMainSearchBtn:hover { color: #fff; }
+        
         .auth-area { display: flex; align-items: center; gap: 12px; justify-content: flex-end; flex: 0 0 auto; }
-        .login-btn { background: #4285f4; color: #fff; border: none; padding: 10px 18px; border-radius: 8px; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: background 0.3s; }
+        .login-btn { background: #4285f4; color: #fff; border: none; padding: 8px 16px; border-radius: 8px; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: background 0.3s; }
         .login-btn:hover { background: #3367d6; }
         .user-info { display: none; align-items: center; gap: 10px; cursor: pointer; position: relative; }
         .user-info.active { display: flex; }
-        .user-avatar { width: 45px; height: 45px; border-radius: 50%; border: 2px solid #fdbb2d; object-fit: cover; }
-        .user-card { position: absolute; top: 60px; right: 0; background: #152961; border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 20px; min-width: 280px; display: none; flex-direction: column; z-index: 10000001; box-shadow: 0 10px 30px rgba(0,0,0,0.8); }
+        .user-avatar { width: 40px; height: 40px; border-radius: 50%; border: 2px solid #fdbb2d; object-fit: cover; }
+        .user-card { position: absolute; top: 50px; right: 0; background: #152961; border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 20px; min-width: 280px; display: none; flex-direction: column; z-index: 10000001; box-shadow: 0 10px 30px rgba(0,0,0,0.8); }
         .user-card.active { display: flex; }
         .user-name { font-weight: bold; color: #fff; font-size: 1.1rem; margin-bottom: 2px; }
         .user-email { font-size: 0.8rem; color: #cbd5e1; margin-bottom: 15px; word-break: break-all; }
@@ -88,9 +89,9 @@
         .watch-btn.locked { background: linear-gradient(135deg, #7c3aed, #6d28d9); color: #fff; }
         .watch-btn.locked:hover { background: linear-gradient(135deg, #6d28d9, #5b21b6); }
 
-        .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.72); display: none; align-items: center; justify-content: center; z-index: 1500; backdrop-filter: blur(6px); padding: 20px; }
+        .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.72); display: none; align-items: center; justify-content: center; z-index: 1500; backdrop-filter: blur(6px); padding: 100px 20px 20px 20px; }
         .modal-overlay.active { display: flex; }
-        .modal { background: #152961; border: 1px solid rgba(255,255,255,0.12); border-radius: 14px; padding: 26px; width: 100%; max-width: 520px; box-shadow: 0 25px 60px rgba(0,0,0,0.8); animation: modalIn 0.2s ease; max-height: 90vh; overflow-y: auto; }
+        .modal { background: #152961; border: 1px solid rgba(255,255,255,0.12); border-radius: 14px; padding: 26px; width: 100%; max-width: 520px; box-shadow: 0 25px 60px rgba(0,0,0,0.8); animation: modalIn 0.2s ease; max-height: 85vh; overflow-y: auto; }
         .modal.flex-modal { display: flex; flex-direction: column; max-height: 85vh; overflow: hidden; }
         .modal.flex-modal .modal-scroll { flex: 1; overflow-y: auto; min-height: 0; padding-right: 6px; }
         .modal.flex-modal .modal-actions { margin-top: 15px; padding-top: 15px; border-top: 1px solid rgba(255,255,255,0.08); flex-shrink: 0; }
@@ -162,11 +163,11 @@
         .plan-option .plan-badge { position: absolute; top: -8px; right: 8px; background: #22c55e; color: #fff; font-size: 0.65rem; font-weight: 800; padding: 2px 8px; border-radius: 10px; }
         
         /* PLAYER AJUSTADO PARA NÃO FICAR ATRÁS DO HEADER */
-        #playerScreen { position: fixed; inset: 0; background: linear-gradient(135deg, rgba(11,15,25,0.97) 0%, rgba(26,26,46,0.97) 50%, rgba(22,33,62,0.97) 100%); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); z-index: 2000; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; overflow-y: auto; padding: 130px 20px 20px 20px; opacity: 0; visibility: hidden; transition: opacity 0.4s ease, visibility 0.4s; }
+        #playerScreen { position: fixed; inset: 0; background: linear-gradient(135deg, rgba(11,15,25,0.97) 0%, rgba(26,26,46,0.97) 50%, rgba(22,33,62,0.97) 100%); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); z-index: 2000; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; overflow-y: auto; padding: 100px 20px 20px 20px; opacity: 0; visibility: hidden; transition: opacity 0.4s ease, visibility 0.4s; }
         #playerScreen.active { opacity: 1; visibility: visible; }
         .player-container { width: 100%; max-width: 1200px; display: flex; flex-direction: column; align-items: center; gap: 15px; }
 
-        .player-wrapper { width: 100%; max-height: calc(100vh - 170px); aspect-ratio: 16 / 9; background: #000; border-radius: 12px; overflow: hidden; position: relative; box-shadow: 0 20px 50px rgba(0,0,0,0.8); flex-shrink: 0; touch-action: manipulation; }
+        .player-wrapper { width: 100%; max-height: calc(100vh - 150px); aspect-ratio: 16 / 9; background: #000; border-radius: 12px; overflow: hidden; position: relative; box-shadow: 0 20px 50px rgba(0,0,0,0.8); flex-shrink: 0; touch-action: manipulation; }
         .player-wrapper:fullscreen { width: 100vw; height: 100vh; max-height: 100vh; aspect-ratio: auto; border-radius: 0; }
         .player-wrapper::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 180px; background: linear-gradient(to bottom, rgba(0,0,0,1) 0%, rgba(0,0,0,0.9) 40%, rgba(0,0,0,0) 100%); z-index: 5; pointer-events: none; transition: opacity 0.4s ease; }
         .player-wrapper::after { content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 200px; background: linear-gradient(to top, rgba(0,0,0,1) 0%, rgba(0,0,0,0.9) 40%, rgba(0,0,0,0) 100%); z-index: 5; pointer-events: none; transition: opacity 0.4s ease; }
@@ -211,10 +212,10 @@
         .spinner { border: 4px solid rgba(253,187,45,0.2); border-top: 4px solid #fdbb2d; border-radius: 50%; width: 50px; height: 50px; animation: spin 1s linear infinite; margin-bottom: 15px; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
-        /* MODAL DE ANÚNCIO AJUSTADO PARA NÃO FICAR ATRÁS DO HEADER */
-        #adInterstitialModal { position: fixed; inset: 0; background: linear-gradient(135deg, rgba(11,15,25,0.97) 0%, rgba(26,26,46,0.97) 50%, rgba(22,33,62,0.97) 100%); z-index: 99999; display: none; align-items: center; justify-content: center; backdrop-filter: blur(10px); padding: 130px 20px 20px 20px; gap: 20px; }
+        /* MODAL DE ANÚNCIO AJUSTADO PARA NÃO FICAR ATRÁS DO HEADER E SER RESPONSIVO */
+        #adInterstitialModal { position: fixed; inset: 0; background: linear-gradient(135deg, rgba(11,15,25,0.97) 0%, rgba(26,26,46,0.97) 50%, rgba(22,33,62,0.97) 100%); z-index: 99999; display: none; align-items: center; justify-content: center; backdrop-filter: blur(10px); padding: 100px 20px 20px 20px; gap: 20px; flex-wrap: wrap; }
         #adInterstitialModal.active { display: flex; }
-        .ad-native-side { width: 160px; height: 600px; flex-shrink: 0; background: #ffffff; display: block; border-radius: 8px; overflow: hidden; position: relative; border: 1px solid rgba(255,255,255,0.2); }
+        .ad-native-side { width: 160px; height: 600px; max-height: calc(100vh - 140px); flex-shrink: 0; background: #ffffff; display: block; border-radius: 8px; overflow: hidden; position: relative; border: 1px solid rgba(255,255,255,0.2); }
         .ad-native-side iframe { width: 100%; height: 100%; display: block; border: 0; position: absolute; top:0; left:0; background: #ffffff; }
         .ad-mobile-top, .ad-mobile-bottom { display: none; position: relative; background: #ffffff; border-radius: 8px; overflow: hidden; flex-shrink: 0; border: 1px solid rgba(255,255,255,0.2); margin: 0 auto; }
         .ad-mobile-top { width: 320px; height: 50px; }
@@ -289,9 +290,9 @@
         .btn-pin { background: #10b981; color: #fff; }
 
         /* ===== LIGHTBOXES ===== */
-        #blockAlertModal { position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(5px); z-index: 99998; display: none; align-items: center; justify-content: center; padding: 130px 20px 20px 20px; }
+        #blockAlertModal { position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(5px); z-index: 99998; display: none; align-items: center; justify-content: center; padding: 100px 20px 20px 20px; }
         #blockAlertModal.active { display: flex; }
-        #banAlertModal { position: fixed; inset: 0; background: rgba(0,0,0,0.95); backdrop-filter: blur(10px); z-index: 999999; display: none; align-items: center; justify-content: center; padding: 130px 20px 20px 20px; }
+        #banAlertModal { position: fixed; inset: 0; background: rgba(0,0,0,0.95); backdrop-filter: blur(10px); z-index: 999999; display: none; align-items: center; justify-content: center; padding: 100px 20px 20px 20px; }
         #banAlertModal.active { display: flex; }
         
         .alert-box { background: #1e293b; border-radius: 16px; padding: 30px; max-width: 500px; width: 100%; text-align: center; box-shadow: 0 20px 50px rgba(0,0,0,0.8); }
@@ -304,35 +305,34 @@
         #blockAlertModal h2 { color: #f59e0b; }
         #blockAlertModal button { background: #f59e0b; color: #000; }
         
-        /* CORREÇÃO: Exibir botão de logout no BanModal */
         #banAlertModal .alert-box { border: 2px solid #ef4444; }
         #banAlertModal h2 { color: #ef4444; }
         #banAlertModal #banLogoutBtn { display: block; background: #ef4444; color: #fff; }
         #banAlertModal #banLogoutBtn:hover { background: #dc2626; }
 
+        /* Responsividade Geral */
         @media (max-width: 1150px) {
             .ad-native-side { display: none; }
-            #adInterstitialModal { flex-direction: column; overflow-y: auto; gap: 15px; padding: 150px 10px 15px 10px; align-items: center; justify-content: flex-start; }
+            #adInterstitialModal { flex-direction: column; overflow-y: auto; gap: 15px; padding: 100px 10px 15px 10px; align-items: center; justify-content: flex-start; }
             .ad-mobile-top, .ad-mobile-bottom { display: block; }
             .ad-interstitial-wrapper { max-width: 100%; flex-shrink: 0; }
         }
         @media (max-width: 900px) {
-            body { padding-top: 150px; padding-bottom: 40px; padding-left: 10px; padding-right: 10px; }
-            .header { display: grid; grid-template-columns: 1fr auto; grid-template-areas: "logo auth" "search search"; align-items: center; gap: 10px; height: auto; padding: 15px; }
-            .header-brand { grid-area: logo; display: flex; justify-content: flex-start; width: auto; }
-            .header-logo { height: 50px; }
+            body { padding-top: 80px; padding-bottom: 40px; padding-left: 10px; padding-right: 10px; }
+            .header { display: grid; grid-template-columns: 1fr auto; grid-template-areas: "logo auth"; align-items: center; gap: 10px; height: auto; padding: 10px 15px; }
+            .header-brand { grid-area: logo; display: flex; justify-content: flex-start; width: auto; flex: none; }
+            .header-logo { height: 45px; }
             .auth-area { grid-area: auth; justify-content: flex-end; width: auto; }
-            .search-container { grid-area: search; margin: 0; max-width: 100%; width: 100%; }
-            .user-card { position: fixed; top: 130px; left: 10px; right: 10px; width: auto; min-width: auto; }
+            .search-container { display: none; } /* Ocultado no mobile na tela principal (o usuário pode buscar via admin se precisar) */
+            .user-card { position: fixed; top: 70px; left: 10px; right: 10px; width: auto; min-width: auto; }
             .catalog-grid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 15px; }
             .card-title { font-size: 1rem; min-height: 2.6em; }
             .card-info { padding: 10px; }
             .watch-btn { font-size: 0.85rem; padding: 8px; }
             
-            /* Ajuste do padding do player no mobile */
-            #playerScreen { padding: 150px 10px 40px 10px; justify-content: flex-start; }
+            #playerScreen { padding: 90px 10px 40px 10px; justify-content: flex-start; }
             .player-container { gap: 10px; }
-            .player-wrapper { max-height: calc(100vh - 200px); border-radius: 0; }
+            .player-wrapper { max-height: calc(100vh - 180px); border-radius: 0; }
             
             #player-bottom-ad { display: none !important; }
             .player-vote-container { top: 10px; right: 10px; transform: scale(0.8); transform-origin: top right; }
@@ -361,11 +361,11 @@
             .comment-card { padding: 12px; }
             .comment-avatar { width: 36px; height: 36px; }
             
-            /* Ajuste do padding do adInterstitial no mobile */
-            #blockAlertModal, #banAlertModal { padding: 150px 10px 20px 10px; }
+            .modal-overlay, #banAlertModal, #blockAlertModal { padding: 90px 10px 20px 10px; }
+            .ad-interstitial-wrapper { width: 100%; max-width: 100%; }
         }
         @media (max-width: 900px) and (orientation: portrait) {
-            .player-wrapper { max-height: calc(100vh - 340px); min-height: 180px; }
+            .player-wrapper { max-height: calc(100vh - 320px); min-height: 180px; }
             #playerMobileTop { display: block; }
             #playerMobileBottom { display: block; }
         }
@@ -373,6 +373,12 @@
             .player-wrapper { max-height: calc(100vh - 80px); min-height: 150px; }
             #playerMobileTop { display: block; order: 10; }
             #playerMobileBottom { display: none !important; }
+            
+            /* Ajuste para modais em landscape mobile */
+            .modal, .ad-interstitial-wrapper { max-width: 90%; max-height: 80vh; }
+            #adInterstitialModal { flex-direction: row; overflow-y: auto; padding-top: 90px; justify-content: center; }
+            .ad-native-side, .ad-mobile-bottom { display: none; } /* Esconde banners laterais no landscape mobile para caber */
+            .ad-mobile-top { display: block; margin-bottom: 10px; }
         }
     </style>
 </head>
@@ -690,7 +696,6 @@
             <div class="contact-info">
                 Se você acredita que isso foi um erro, envie um e-mail para <strong>playtronic@mail.com</strong> usando o e-mail da sua conta Google como remetente.
             </div>
-            <!-- Botão adicionado para permitir sair da conta -->
             <button id="banLogoutBtn">Sair da Conta</button>
         </div>
     </div>
@@ -715,8 +720,8 @@
     </div>
 
     <!-- PIX SUBSCRIPTION -->
-    <div id="pixLightbox" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 99999; justify-content: center; align-items: center; backdrop-filter: blur(6px);">
-        <div style="background: #152961; border: 2px solid #fdbb2d; border-radius: 14px; padding: 30px; max-width: 480px; width: 90%; position: relative; text-align: center; color: #fff; max-height: 92vh; overflow-y: auto;">
+    <div id="pixLightbox" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 99999; justify-content: center; align-items: center; backdrop-filter: blur(6px); padding: 100px 20px 20px 20px;">
+        <div style="background: #152961; border: 2px solid #fdbb2d; border-radius: 14px; padding: 30px; max-width: 480px; width: 100%; position: relative; text-align: center; color: #fff; max-height: 85vh; overflow-y: auto;">
             <button id="pixClose" style="position: absolute; top: 12px; right: 14px; background: transparent; border: none; color: #cbd5e1; font-size: 1.6rem; cursor: pointer;">×</button>
             <img src="https://i.ibb.co/rRgV3n8d/playtronictv.png" style="height: 60px; margin-bottom: 15px;">
             <p style="color: #cbd5e1; font-size: 0.95rem; margin-bottom: 20px;">Assine para ter acesso a conteúdos exclusivos e sem anúncios.</p>
@@ -839,6 +844,50 @@
         return null;
     }
 
+    // ============ CONTROLE DE VISIBILIDADE DA BARRA DE PESQUISA ============
+    // Oculta a barra de pesquisa quando qualquer modal, player ou lightbox estiver ativo
+    function updateSearchVisibility() {
+        const searchContainer = document.querySelector('.search-container');
+        if (!searchContainer) return;
+        
+        const isModalOpen = 
+            document.querySelector('.modal-overlay.active') || 
+            document.getElementById('playerScreen').classList.contains('active') ||
+            document.getElementById('adInterstitialModal').classList.contains('active') ||
+            document.getElementById('banAlertModal').classList.contains('active') ||
+            document.getElementById('blockAlertModal').classList.contains('active') ||
+            document.getElementById('pixLightbox').style.display === 'flex';
+            
+        // Em telas menores que 900px, a barra já é ocultada via CSS, mas aqui garantimos
+        if (isModalOpen) {
+            searchContainer.style.display = 'none';
+        } else {
+            // Restaura para o padrão dependendo do tamanho da tela
+            if (window.matchMedia('(max-width: 900px)').matches) {
+                searchContainer.style.display = 'none';
+            } else {
+                searchContainer.style.display = 'flex';
+            }
+        }
+    }
+
+    // Observador para monitorar alterações de classes e estilos em todo o body
+    const domObserver = new MutationObserver((mutations) => {
+        let shouldUpdate = false;
+        mutations.forEach(mutation => {
+            if (mutation.type === 'attributes' && (mutation.attributeName === 'class' || mutation.attributeName === 'style')) {
+                shouldUpdate = true;
+            }
+        });
+        if (shouldUpdate) updateSearchVisibility();
+    });
+    
+    // Inicia o observador após o carregamento do DOM
+    document.addEventListener('DOMContentLoaded', () => {
+        domObserver.observe(document.body, { attributes: true, subtree: true, attributeFilter: ['class', 'style'] });
+        updateSearchVisibility();
+    });
+
     // ============ PRESENÇA (HEARTBEAT 3 MIN) ============
     function setupPresence(user) {
         if (!user) return;
@@ -848,7 +897,6 @@
             userStatusRef.onDisconnect().remove().then(() => {
                 userStatusRef.set({ email: user.email || '', name: user.displayName || '', photoURL: user.photoURL || '', lastSeen: firebase.database.ServerValue.TIMESTAMP });
                 if (presenceInterval) clearInterval(presenceInterval);
-                // Heartbeat a cada 3 minutos = 180000ms
                 presenceInterval = setInterval(() => {
                     if (auth.currentUser) userStatusRef.update({ lastSeen: firebase.database.ServerValue.TIMESTAMP });
                 }, 180000);
@@ -857,7 +905,6 @@
     }
     function checkIsOnline(uid) {
         const ud = onlineUsersData[uid];
-        // Tolerância 3.5 min = 210000ms
         return ud && ud.lastSeen && (Date.now() - ud.lastSeen < 210000);
     }
     function updateOnlineCountDisplay() {
@@ -930,7 +977,6 @@
         document.body.style.overflow = '';
     });
 
-    // Lógica de Logout adicionada ao Ban Modal
     document.getElementById('banLogoutBtn').addEventListener('click', () => {
         if (currentUser) {
             rtdb.ref('/onlineUsers/' + currentUser.uid).remove();
@@ -956,7 +1002,6 @@
             document.getElementById('commentUserAvatar').src = currentUser.photoURL || 'https://www.gravatar.com/avatar/?d=mp';
             form.style.display = 'flex'; 
             
-            // Verifica o bloqueio em tempo real
             try {
                 const doc = await db.collection('catalog_users').doc(currentUser.uid).get();
                 if (doc.exists) {
@@ -2141,6 +2186,7 @@
             if (p) el.querySelector('.plan-price-value').textContent = Number(p.price).toFixed(2).replace('.', ',');
         });
         selectPlan('monthly');
+        updateSearchVisibility();
     }
     function selectPlan(planId) {
         currentPlanId = planId;
@@ -2156,6 +2202,7 @@
         document.getElementById('pixLightbox').style.display = 'none';
         if (pixPaymentCheckInterval) { clearInterval(pixPaymentCheckInterval); pixPaymentCheckInterval = null; }
         pixCurrentPayment = null;
+        updateSearchVisibility();
     }
     async function generateCatalogPix() {
         const btn = document.getElementById('generatePixBtn');
@@ -2490,13 +2537,14 @@
     let adTimerInterval = null;
 
     function mountStandardAd(container, opts, scriptSrc) {
-        if (!container || container.dataset.mounted === '1') return;
+        if (!container) return;
+        container.innerHTML = ''; // Limpa antes de injetar para evitar duplicações
         container.dataset.mounted = '1';
         const iframe = document.createElement('iframe');
         iframe.setAttribute('scrolling', 'no');
         iframe.setAttribute('frameborder', '0');
-        iframe.style.cssText = 'display:block; border:0; margin:0 auto; overflow:hidden; position:absolute; top:0; left:0; width:100%; height:100%;';
-        iframe.srcdoc = `<!DOCTYPE html><html><head><meta charset="utf-8"><style>html,body{margin:0;padding:0;overflow:hidden;width:100%;height:100%;background:#fff;display:flex;align-items:center;justify-content:center;}</style></head><body><script>atOptions=${JSON.stringify(opts)};<\/script><script src="${scriptSrc}"><\/script></body></html>`;
+        iframe.style.cssText = 'display:block; border:0; position:absolute; top:0; left:0; width:100%; height:100%; overflow:hidden;';
+        iframe.srcdoc = `<!DOCTYPE html><html><head><meta charset="utf-8"><style>html,body{margin:0;padding:0;overflow:hidden;width:100%;height:100%;background:#fff;display:flex;align-items:center;justify-content:center;}</style></head><body><script type="text/javascript">atOptions=${JSON.stringify(opts)};<\/script><script type="text/javascript" src="${scriptSrc}"><\/script></body></html>`;
         container.appendChild(iframe);
     }
 
