@@ -213,29 +213,29 @@
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
         /* MODAL DE ANÚNCIO */
-        #adInterstitialModal { position: fixed; inset: 0; background: linear-gradient(135deg, rgba(11,15,25,0.97) 0%, rgba(26,26,46,0.97) 50%, rgba(22,33,62,0.97) 100%); z-index: 99999; display: none; align-items: center; justify-content: center; backdrop-filter: blur(10px); padding: 100px 20px 20px 20px; gap: 20px; flex-wrap: nowrap; overflow-y: auto; }
+        #adInterstitialModal { position: fixed; inset: 0; background: linear-gradient(135deg, rgba(11,15,25,0.97) 0%, rgba(26,26,46,0.97) 50%, rgba(22,33,62,0.97) 100%); z-index: 99999; display: none; align-items: center; justify-content: center; backdrop-filter: blur(10px); padding: 100px 20px 20px 20px; gap: 20px; overflow-y: auto; }
         #adInterstitialModal.active { display: flex; }
         
-        .ad-side-banner { width: 160px; height: 600px; max-height: calc(100vh - 140px); flex-shrink: 0; background: transparent; border-radius: 8px; overflow: hidden; position: relative; border: 1px solid rgba(255,255,255,0.2); display: none; }
-        .ad-side-banner iframe { width: 100%; height: 100%; display: block; border: 0; position: absolute; top:0; left:0; background: transparent; }
-
-        .ad-center-column { display: flex; flex-direction: column; align-items: center; gap: 20px; width: 100%; max-width: 800px; flex-shrink: 1; }
+        .ad-center-column { display: flex; flex-direction: column; align-items: center; gap: 15px; width: 100%; max-width: 800px; flex-shrink: 1; }
         
-        .ad-mobile-top-banner { display: none; width: 320px; height: 50px; background: #ffffff; border-radius: 8px; overflow: hidden; flex-shrink: 0; border: 1px solid rgba(255,255,255,0.2); }
-        .ad-mobile-bottom-banner { display: none; width: 300px; height: 250px; background: #ffffff; border-radius: 8px; overflow: hidden; flex-shrink: 0; border: 1px solid rgba(255,255,255,0.2); }
-        .ad-mobile-top-banner iframe, .ad-mobile-bottom-banner iframe { width: 100%; height: 100%; display: block; border: 0; background: #ffffff; }
-        
-        .ad-interstitial-wrapper { background: #152961; border: 2px solid #fdbb2d; border-radius: 12px; width: 100%; display: flex; flex-direction: column; box-shadow: 0 0 60px rgba(253,187,45,0.2); overflow: hidden; flex-shrink: 0; }
+        .ad-interstitial-wrapper { background: #152961; border: 2px solid #fdbb2d; border-radius: 12px; width: 100%; display: flex; flex-direction: column; box-shadow: 0 0 60px rgba(253,187,45,0.2); overflow: hidden; flex-shrink: 0; z-index: 2; }
         .ad-interstitial-header { background: rgba(253,187,45,0.1); padding: 15px 25px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.1); color: #fdbb2d; font-weight: bold; font-size: 1rem; }
         .ad-center-wrapper { width: 100%; aspect-ratio: 16 / 9; background: #0b0f19; display: flex; align-items: center; justify-content: center; overflow: hidden; position: relative; }
-        .ad-center-wrapper img { width: 100%; height: 100%; object-fit: contain; padding: 20px; }
+        .ad-center-wrapper img { width: 100%; height: 100%; object-fit: contain; }
         .ad-center-wrapper iframe { width: 100%; height: 100%; border: none; position: absolute; top: 0; left: 0; pointer-events: none; }
-        
         .ad-interstitial-footer { padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; border-top: 1px solid rgba(255,255,255,0.1); background: rgba(0,0,0,0.2); }
         .ad-interstitial-footer button { padding: 10px 20px; border-radius: 8px; font-weight: bold; font-size: 0.95rem; cursor: pointer; border: none; transition: 0.2s; }
         .ad-close-btn { background: #ef4444; color: #fff; opacity: 0.5; cursor: not-allowed; }
         .ad-close-btn.active { opacity: 1; cursor: pointer; background: #22c55e; }
         .ad-close-btn.active:hover { background: #16a34a; }
+
+        .ad-side-banner { width: 160px; height: 600px; max-height: calc(100vh - 140px); flex-shrink: 0; background: transparent; border-radius: 8px; overflow: hidden; position: relative; border: 1px solid rgba(255,255,255,0.2); display: none; z-index: 2;}
+        .ad-side-banner iframe { width: 100%; height: 100%; display: block; border: 0; position: absolute; top:0; left:0; background: transparent; }
+
+        .ad-mobile-top-banner, .ad-mobile-bottom-banner { display: none; width: 100%; max-width: 320px; background: #ffffff; border-radius: 8px; overflow: hidden; flex-shrink: 0; border: 1px solid rgba(255,255,255,0.2); position: relative; z-index: 2; }
+        .ad-mobile-top-banner { height: 50px; }
+        .ad-mobile-bottom-banner { height: 250px; max-width: 300px; }
+        .ad-mobile-top-banner iframe, .ad-mobile-bottom-banner iframe { width: 100%; height: 100%; display: block; border: 0; background: #ffffff; }
 
         .loading { text-align: center; padding: 60px; color: #fdbb2d; font-size: 1.2rem; font-weight: bold; }
         .empty-state { text-align: center; padding: 60px; color: #a0aec0; font-size: 1.1rem; display: none; }
@@ -321,7 +321,7 @@
         @media (min-width: 901px) {
             .ad-side-banner { display: block; }
         }
-        
+
         @media (max-width: 900px) {
             body { padding-top: 130px; padding-bottom: 40px; padding-left: 10px; padding-right: 10px; }
             .header { display: grid; grid-template-columns: 1fr auto; grid-template-areas: "logo auth" "search search"; align-items: center; gap: 10px; height: auto; padding: 10px 15px; }
@@ -373,28 +373,35 @@
             .ad-interstitial-footer button { width: 100%; padding: 10px 15px; font-size: 0.9rem; }
         }
         
+        /* Portrait Mobile Fixes */
         @media (max-width: 900px) and (orientation: portrait) {
-            .player-wrapper { max-height: calc(100vh - 340px); min-height: 180px; }
-            #playerMobileTop { display: block; }
-            #playerMobileBottom { display: block; }
+            #adInterstitialModal { flex-direction: column; justify-content: flex-start; padding: 90px 10px 40px 10px; gap: 15px; overflow-y: auto; }
+            .ad-side-banner { display: none !important; }
+            .ad-mobile-top-banner { display: flex; }
+            .ad-mobile-bottom-banner { display: flex; }
             
-            /* PORTRAIT AD LAYOUT */
-            .ad-mobile-top-banner { display: block; }
-            .ad-mobile-bottom-banner { display: block; }
+            .player-container { display: flex; flex-direction: column; }
+            #playerMobileTop { display: block; order: 1; }
+            #playerWrapper { order: 2; }
+            #playerMobileBottom { display: block; order: 3; }
+            #commentsSection { order: 4; }
         }
-        
+
+        /* Landscape Mobile Fixes */
         @media (max-width: 900px) and (orientation: landscape) {
-            .player-wrapper { max-height: calc(100vh - 80px); min-height: 150px; }
-            #playerMobileTop { display: block; order: 10; }
-            #playerMobileBottom { display: none !important; }
-            .modal, .ad-interstitial-wrapper { max-width: 90%; max-height: 80vh; }
-            
-            /* LANDSCAPE AD LAYOUT (DESKTOP LIKE) */
-            #adInterstitialModal { flex-direction: row; padding-top: 90px; justify-content: center; gap: 15px; }
-            .ad-side-banner { display: block; height: 500px; width: 133px; }
-            .ad-side-banner iframe { width: 133px; height: 500px; }
-            .ad-center-column { width: auto; max-width: calc(100vw - 320px); }
+            #adInterstitialModal { flex-direction: row; padding: 70px 10px 10px 10px; justify-content: center; align-items: center; gap: 15px; overflow: hidden; }
+            .ad-side-banner { display: flex; width: 300px; height: 250px; max-height: none; border: none; }
+            .ad-side-banner iframe { width: 300px; height: 250px; }
+            .ad-center-column { flex: 1; max-width: 500px; height: 100%; max-height: calc(100vh - 80px); }
+            .ad-center-wrapper { flex: 1; min-height: 200px; aspect-ratio: auto; }
+            .ad-interstitial-wrapper { height: 100%; }
             .ad-mobile-top-banner, .ad-mobile-bottom-banner { display: none !important; }
+            
+            .player-container { display: flex; flex-direction: column; }
+            .player-wrapper { order: 1; max-height: calc(100vh - 150px); min-height: 150px; }
+            #playerMobileTop { display: block; order: 2; margin: 10px auto; width: 320px; height: 50px; }
+            #commentsSection { order: 3; margin-top: 10px; }
+            #playerMobileBottom { display: none !important; }
         }
     </style>
 </head>
@@ -718,7 +725,7 @@
 
     <!-- INTERSTITIAL DE ANÚNCIOS -->
     <div id="adInterstitialModal">
-        <!-- Banner 160x600 Esquerda (Nativo/Vertical) -->
+        <!-- Banner Esquerdo (Nativo no Desktop, 300x250 no Landscape) -->
         <div class="ad-side-banner" id="adNativeLeft"></div>
         
         <!-- Coluna Central (Modal e Banners Mobile) -->
@@ -743,7 +750,7 @@
             <div class="ad-mobile-bottom-banner" id="adMobileBottom"></div>
         </div>
         
-        <!-- Banner 160x600 Direita (Nativo/Vertical) -->
+        <!-- Banner Direito (Padrão 160x600 no Desktop, 300x250 no Landscape) -->
         <div class="ad-side-banner" id="adNativeRight"></div>
     </div>
 
@@ -2566,9 +2573,7 @@
 
     function mountStandardAd(container, opts, scriptSrc) {
         if (!container) return;
-        if (container.dataset.mounted === '1') return;
-        container.dataset.mounted = '1';
-        
+        container.innerHTML = ''; // Clear previous
         const iframe = document.createElement('iframe');
         iframe.setAttribute('scrolling', 'no');
         iframe.setAttribute('frameborder', '0');
@@ -2650,15 +2655,28 @@
         adModal.classList.add('active');
         adCenterWrapper.innerHTML = '';
 
-        // INJEÇÃO EXATA DOS BANNERS
-        injectLeftNativeAd();
-        injectRightStandardAd();
-        
-        // Banner de 320x50 (topo mobile)
-        mountStandardAd(document.getElementById('adMobileTop'), { key: 'c7c3c36fda809c5dd35ae6ed9c4890ca', format: 'iframe', height: 50, width: 320, params: {} }, 'https://dcengg.org/22/c7c3c36fda809c5dd35ae6ed9c4890ca');
-        
-        // Banner de 300x250 (mobile bottom)
-        mountStandardAd(document.getElementById('adMobileBottom'), { key: '51efcb0e502dffc7c8c25030a1155128', format: 'iframe', height: 250, width: 300, params: {} }, 'https://dcengg.org/22/51efcb0e502dffc7c8c25030a1155128');
+        // Limpa todos os containers
+        document.getElementById('adNativeLeft').innerHTML = '';
+        document.getElementById('adNativeRight').innerHTML = '';
+        document.getElementById('adMobileTop').innerHTML = '';
+        document.getElementById('adMobileBottom').innerHTML = '';
+
+        const isLandscape = window.matchMedia('(max-width: 900px) and (orientation: landscape)').matches;
+        const isPortrait = window.matchMedia('(max-width: 900px) and (orientation: portrait)').matches;
+
+        if (isLandscape) {
+            // Landscape: 300x250 em ambos os lados
+            mountStandardAd(document.getElementById('adNativeLeft'), { key: '51efcb0e502dffc7c8c25030a1155128', format: 'iframe', height: 250, width: 300, params: {} }, 'https://dcengg.org/22/51efcb0e502dffc7c8c25030a1155128');
+            mountStandardAd(document.getElementById('adNativeRight'), { key: '51efcb0e502dffc7c8c25030a1155128', format: 'iframe', height: 250, width: 300, params: {} }, 'https://dcengg.org/22/51efcb0e502dffc7c8c25030a1155128');
+        } else if (isPortrait) {
+            // Portrait: 320x50 em cima, 300x250 embaixo
+            mountStandardAd(document.getElementById('adMobileTop'), { key: 'c7c3c36fda809c5dd35ae6ed9c4890ca', format: 'iframe', height: 50, width: 320, params: {} }, 'https://dcengg.org/22/c7c3c36fda809c5dd35ae6ed9c4890ca');
+            mountStandardAd(document.getElementById('adMobileBottom'), { key: '51efcb0e502dffc7c8c25030a1155128', format: 'iframe', height: 250, width: 300, params: {} }, 'https://dcengg.org/22/51efcb0e502dffc7c8c25030a1155128');
+        } else {
+            // Desktop: Nativo Esquerda e Padrão Direita
+            injectLeftNativeAd();
+            injectRightStandardAd();
+        }
 
         if (adYtPlayer) { try { adYtPlayer.stopVideo(); adYtPlayer.destroy(); } catch(e){} adYtPlayer = null; }
 
@@ -2683,7 +2701,7 @@
         } else if (adBanners.length > 0) {
             if (currentAdBannerIndex >= adBanners.length) currentAdBannerIndex = 0;
             const ad = adBanners[currentAdBannerIndex];
-            adCenterWrapper.innerHTML = `<img src="${ad.src}" alt="Publicidade" style="width:100%; height:100%; object-fit:contain; padding: 20px;">`;
+            adCenterWrapper.innerHTML = `<img src="${ad.src}" alt="Publicidade" style="width:100%; height:100%; object-fit:contain;">`;
             fetch(CF_BASE + '/incrementInternalAdViews', {
                 method: 'POST', headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ adSrc: ad.src.trim() }), keepalive: true
