@@ -25,7 +25,9 @@
 
         /* HEADER REDUZIDO E CORRIGIDO PARA NÃO SOBREPOR A BARRA DE ROLAGEM */
         .header { 
-            position: fixed; top: 0; left: 0; right: 0; width: auto; height: 80px; 
+            position: fixed; top: 0; left: 0; 
+            width: calc(100% - 17px); /* Desconta a largura da barra de rolagem */
+            height: 80px; 
             display: flex; align-items: center; justify-content: space-between; 
             padding: 0 20px; background: rgba(21, 41, 97, 0.85); 
             backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); 
@@ -355,7 +357,7 @@
 
         @media (max-width: 900px) {
             body { padding-top: 130px; padding-bottom: 40px; padding-left: 10px; padding-right: 10px; }
-            .header { display: grid; grid-template-columns: 1fr auto; grid-template-areas: "logo auth" "search search"; align-items: center; gap: 10px; height: auto; padding: 10px 15px; }
+            .header { width: 100%; display: grid; grid-template-columns: 1fr auto; grid-template-areas: "logo auth" "search search"; align-items: center; gap: 10px; height: auto; padding: 10px 15px; }
             .header-brand { grid-area: logo; display: flex; justify-content: flex-start; width: auto; flex: none; }
             .header-logo { height: 45px; }
             .auth-area { grid-area: auth; justify-content: flex-end; width: auto; }
@@ -2979,7 +2981,7 @@
         }
     }
     
-    // FUNÇÕES DE CONTROLE DE UI RESTAURADAS PARA SINCRONIZAR A SOMBRA
+    // FUNÇÕES DE CONTROLE DE UI TOTALMENTE SINCRONIZADAS COM A SOMBRA
     function showControls() { 
         customUI.classList.remove('player-ui-hidden'); 
         playerWrapper.classList.remove('hide-shadows'); 
