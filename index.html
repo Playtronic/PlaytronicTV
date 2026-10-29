@@ -24,20 +24,20 @@
         body.ad-modal-open .header { display: none !important; }
 
         /* HEADER REDUZIDO */
-        .header { position: fixed; top: 0; left: 0; width: 100%; height: 80px; display: flex; align-items: center; justify-content: space-between; padding: 0 20px; background: rgba(21, 41, 97, 0.85); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border-bottom: 1px solid rgba(255,255,255,0.08); z-index: 10000000; box-shadow: 0 4px 20px rgba(0,0,0,0.5); transition: height 0.3s ease; }
-        .header-brand { display: flex; align-items: center; flex: 0 0 250px; }
+        .header { position: fixed; top: 0; left: 0; width: 100%; height: 80px; display: flex; align-items: center; justify-content: space-between; padding: 0 20px; background: rgba(21, 41, 97, 0.85); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border-bottom: 1px solid rgba(255,255,255,0.08); z-index: 10000000; box-shadow: 0 4px 20px rgba(0,0,0,0.5); transition: height 0.3s ease; pointer-events: none; /* Permite clicar na barra de rolagem por baixo */ }
+        .header-brand { display: flex; align-items: center; flex: 0 0 250px; pointer-events: auto; }
         .logo-link { display: flex; align-items: center; text-decoration: none; cursor: pointer; }
         .header-logo { height: 60px; width: auto; object-fit: contain; transition: transform 0.3s, opacity 0.3s; }
         .logo-link:hover .header-logo { transform: scale(1.05); opacity: 0.85; }
         
-        .search-container { flex: 1; max-width: 500px; margin: 0 20px; position: relative; transition: opacity 0.3s; }
+        .search-container { flex: 1; max-width: 500px; margin: 0 20px; position: relative; transition: opacity 0.3s; pointer-events: auto; }
         .search-container input { width: 100%; background-color: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: #fff; padding: 10px 40px 10px 42px; border-radius: 25px; font-size: 0.95rem; outline: none; transition: all 0.3s ease; background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="%23a0aec0" viewBox="0 0 16 16"><path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z"/></svg>'); background-repeat: no-repeat; background-position: 15px center; }
         .search-container input:focus { background-color: rgba(255,255,255,0.15); border-color: #fdbb2d; box-shadow: 0 0 15px rgba(253, 187, 45, 0.2); }
         .search-container input::placeholder { color: #cbd5e1; }
         #clearMainSearchBtn { position: absolute; right: 15px; top: 50%; transform: translateY(-50%); background: none; border: none; color: #a0aec0; font-size: 1.2rem; cursor: pointer; display: none; padding: 0; }
         #clearMainSearchBtn:hover { color: #fff; }
         
-        .auth-area { display: flex; align-items: center; gap: 12px; justify-content: flex-end; flex: 0 0 auto; }
+        .auth-area { display: flex; align-items: center; gap: 12px; justify-content: flex-end; flex: 0 0 auto; pointer-events: auto; }
         .login-btn { background: #4285f4; color: #fff; border: none; padding: 8px 16px; border-radius: 8px; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: background 0.3s; }
         .login-btn:hover { background: #3367d6; }
         .user-info { display: none; align-items: center; gap: 10px; cursor: pointer; position: relative; }
@@ -178,10 +178,8 @@
         .player-wrapper:fullscreen { width: 100vw; height: 100vh; max-height: 100vh; aspect-ratio: auto; border-radius: 0; }
         
         /* SOMBRAS AJUSTADAS: Cobrem controles nativos sem esconder legendas */
-        .player-wrapper::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 50px; background: linear-gradient(to bottom, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.6) 50%, transparent 100%); z-index: 5; pointer-events: none; transition: opacity 0.4s ease; }
-        .player-wrapper::after { content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 80px; background: linear-gradient(to top, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.6) 50%, transparent 100%); z-index: 5; pointer-events: none; transition: opacity 0.4s ease; }
-        
-        .player-wrapper.hide-shadows::before, .player-wrapper.hide-shadows::after { opacity: 0; }
+        .player-wrapper::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 80px; background: linear-gradient(to bottom, #000 0%, #000 40%, transparent 100%); z-index: 5; pointer-events: none; transition: opacity 0.4s ease; }
+        .player-wrapper::after { content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 100px; background: linear-gradient(to top, #000 0%, #000 50%, transparent 100%); z-index: 5; pointer-events: none; transition: opacity 0.4s ease; }
         
         /* CORREÇÃO: SEM SCALE, SEM CORTES */
         .player-wrapper iframe { width: 100%; height: 100%; display: block; border: none; position: absolute; top: 0; left: 0; z-index: 1; pointer-events: none; }
@@ -354,8 +352,8 @@
             .player-wrapper { max-height: calc(100vh - 200px); border-radius: 0; }
             
             /* SOMBRAS MOBILE: Ajustadas para cobrir controles nativos sem esconder legendas */
-            .player-wrapper::before { height: 50px !important; background: linear-gradient(to bottom, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.6) 50%, transparent 100%) !important; }
-            .player-wrapper::after { height: 70px !important; background: linear-gradient(to top, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.6) 50%, transparent 100%) !important; }
+            .player-wrapper::before { height: 70px !important; background: linear-gradient(to bottom, #000 0%, #000 40%, transparent 100%) !important; }
+            .player-wrapper::after { height: 90px !important; background: linear-gradient(to top, #000 0%, #000 50%, transparent 100%) !important; }
             .player-controls { padding: 8px 12px 10px !important; background: linear-gradient(to top, #000 0%, #000 90%, transparent 100%) !important; }
 
             #player-bottom-ad { display: none !important; }
@@ -2961,9 +2959,9 @@
             try { event.target.unloadModule('captions'); event.target.unloadModule('cc'); } catch(e) {}
         }
     }
-    function showControls() { customUI.classList.remove('player-ui-hidden'); playerWrapper.classList.remove('hide-shadows'); resetControlsTimer(); }
-    function showControlsNoTimer() { customUI.classList.remove('player-ui-hidden'); playerWrapper.classList.remove('hide-shadows'); clearTimeout(controlsTimeout); }
-    function hideControls() { if (isEnded || isSeeking) return; customUI.classList.add('player-ui-hidden'); playerWrapper.classList.add('hide-shadows'); }
+    function showControls() { customUI.classList.remove('player-ui-hidden'); resetControlsTimer(); }
+    function showControlsNoTimer() { customUI.classList.remove('player-ui-hidden'); clearTimeout(controlsTimeout); }
+    function hideControls() { if (isEnded || isSeeking) return; customUI.classList.add('player-ui-hidden'); }
     function resetControlsTimer() { clearTimeout(controlsTimeout); if (isEnded || isSeeking) return; controlsTimeout = setTimeout(hideControls, 5500); }
 
     if (window.matchMedia('(pointer: fine)').matches) {
