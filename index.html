@@ -172,8 +172,11 @@
 
         .player-wrapper { width: 100%; max-height: calc(100vh - 150px); aspect-ratio: 16 / 9; background: #000; border-radius: 12px; overflow: hidden; position: relative; box-shadow: 0 20px 50px rgba(0,0,0,0.8); flex-shrink: 0; touch-action: manipulation; }
         .player-wrapper:fullscreen { width: 100vw; height: 100vh; max-height: 100vh; aspect-ratio: auto; border-radius: 0; }
+        
+        /* SOMBRAS RESTAURADAS PARA OCULTAR CONTROLES DO YOUTUBE */
         .player-wrapper::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 180px; background: linear-gradient(to bottom, rgba(0,0,0,1) 0%, rgba(0,0,0,0.9) 40%, rgba(0,0,0,0) 100%); z-index: 5; pointer-events: none; transition: opacity 0.4s ease; }
         .player-wrapper::after { content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 200px; background: linear-gradient(to top, rgba(0,0,0,1) 0%, rgba(0,0,0,0.9) 40%, rgba(0,0,0,0) 100%); z-index: 5; pointer-events: none; transition: opacity 0.4s ease; }
+        
         .player-wrapper.hide-shadows::before, .player-wrapper.hide-shadows::after { opacity: 0; }
         .player-wrapper iframe { width: 100%; height: 100%; display: block; border: none; position: absolute; top: 0; left: 0; z-index: 1; pointer-events: none; }
         .custom-ui { position: absolute; inset: 0; z-index: 20; pointer-events: none; transition: opacity 0.4s ease, visibility 0.4s ease; }
@@ -317,8 +320,6 @@
         
         #banAlertModal .alert-box { border: 2px solid #ef4444; }
         #banAlertModal h2 { color: #ef4444; }
-        #banAlertModal #banLogoutBtn { display: block; background: #ef4444; color: #fff; }
-        #banAlertModal #banLogoutBtn:hover { background: #dc2626; }
 
         /* Responsividade Geral */
         @media (min-width: 901px) {
@@ -342,10 +343,6 @@
             .player-container { gap: 10px; }
             .player-wrapper { max-height: calc(100vh - 200px); border-radius: 0; }
             
-            /* REDUÇÃO DAS SOMBRAS DO PLAYER NO CELULAR */
-            .player-wrapper::before { height: 60px !important; background: linear-gradient(to bottom, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0) 100%) !important; }
-            .player-wrapper::after { height: 80px !important; background: linear-gradient(to top, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0) 100%) !important; }
-
             #player-bottom-ad { display: none !important; }
             .player-vote-container { top: 10px; right: 10px; transform: scale(0.8); transform-origin: top right; }
             .close-player-btn { top: 10px; left: 10px; width: 35px; height: 35px; font-size: 1rem; }
@@ -401,15 +398,14 @@
                 justify-content: flex-start; /* Alinhado à esquerda */
                 align-items: center;
                 padding: 10px 20px;
-                gap: 20px;
+                gap: 15px;
                 overflow-y: auto;
                 overflow-x: hidden;
             }
             
-            /* O modal ocupa a esquerda, com tamanho ajustado */
             .ad-center-column {
                 flex: 0 0 auto;
-                width: 60%;
+                width: calc(100% - 320px);
                 max-width: 500px;
                 margin: 0;
                 height: auto;
@@ -466,7 +462,7 @@
                 display: none !important;
             }
 
-            /* Apenas 1 banner 300x250 à direita */
+            /* Banner 300x250 à direita */
             .ad-side-banner { display: none !important; }
             #adNativeRight {
                 display: flex !important;
@@ -478,10 +474,12 @@
             }
             
             .player-container { display: flex; flex-direction: column; }
-            .player-wrapper { order: 1; max-height: calc(100vh - 100px); min-height: 150px; }
-            #playerMobileTop { display: none !important; } 
-            #commentsSection { order: 3; margin-top: 10px; }
-            #playerMobileBottom { display: none !important; }
+            .player-wrapper { order: 1; max-height: calc(100vh - 150px); min-height: 150px; }
+            
+            /* Restaura os banners no player mobile landscape */
+            #playerMobileTop { display: block !important; order: 2; margin-top: 10px; } /* 320x50 abaixo do player */
+            #playerMobileBottom { display: block !important; order: 3; margin-top: 10px; } /* 300x250 */
+            #commentsSection { order: 4; margin-top: 10px; }
         }
     </style>
 </head>
@@ -799,7 +797,7 @@
             <div class="contact-info">
                 Se você acredita que isso foi um erro, envie um e-mail para <strong>playtronic@mail.com</strong> usando o e-mail da sua conta Google como remetente.
             </div>
-            <!-- Botão Sair da Conta Removido -->
+            <!-- Botão Sair da Conta Removido Conforme Solicitado -->
         </div>
     </div>
 
@@ -1095,7 +1093,7 @@
         document.body.style.overflow = '';
     });
 
-    // Listener do botão de banimento removido (pois o botão foi excluído do HTML)
+    // Listener do botão de banimento foi removido (pois o botão foi excluído do HTML)
 
     // ============ COMENTÁRIOS ============
     document.getElementById('commentInput').addEventListener('input', (e) => {
@@ -2650,7 +2648,7 @@
     let pendingVideo = null;
     let adTimerInterval = null;
 
-    // Função modificada para usar Blob URL e evitar falha nos scripts de anúncio
+    // Função usando srcdoc para contornar bloqueios e garantir montagem
     function mountStandardAd(container, opts, scriptSrc) {
         if (!container) return;
         container.innerHTML = ''; 
@@ -2659,10 +2657,8 @@
         iframe.setAttribute('frameborder', '0');
         iframe.style.cssText = 'display:block; border:0; position:absolute; top:0; left:0; width:100%; height:100%; overflow:hidden;';
         
-        const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><style>html,body{margin:0;padding:0;overflow:hidden;width:100%;height:100%;background:transparent;display:flex;align-items:center;justify-content:center;}</style></head><body><script type="text/javascript">atOptions=${JSON.stringify(opts)};<\/script><script type="text/javascript" src="${scriptSrc}"><\/script></body></html>`;
+        iframe.srcdoc = `<!DOCTYPE html><html><head><meta charset="utf-8"><style>html,body{margin:0;padding:0;overflow:hidden;width:100%;height:100%;background:transparent;display:flex;align-items:center;justify-content:center;}</style></head><body><script type="text/javascript">atOptions=${JSON.stringify(opts)};<\/script><script type="text/javascript" src="${scriptSrc}"><\/script></body></html>`;
         
-        const blob = new Blob([html], { type: 'text/html' });
-        iframe.src = URL.createObjectURL(blob);
         container.appendChild(iframe);
     }
 
@@ -2676,7 +2672,7 @@
         openPlayer(v);
     }
 
-    // Injeção nativa usando Blob URL
+    // Injeção nativa usando srcdoc
     function injectLeftNativeAd() {
         const container = document.getElementById('adNativeLeft');
         if (!container) return;
@@ -2693,7 +2689,7 @@
         container.appendChild(script);
     }
 
-    // Injeção padrão usando Blob URL
+    // Injeção padrão usando srcdoc
     function injectRightStandardAd() {
         const container = document.getElementById('adNativeRight');
         if (!container) return;
@@ -2704,10 +2700,8 @@
         iframe.setAttribute('frameborder', '0');
         iframe.style.cssText = 'display:block; border:0; position:absolute; top:0; left:0; width:100%; height:100%; overflow:hidden;';
         
-        const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><style>html,body{margin:0;padding:0;overflow:hidden;width:100%;height:100%;background:transparent;display:flex;align-items:center;justify-content:center;}</style></head><body><script type="text/javascript">atOptions = {'key' : '0b2a1dd49cefbcb5c3f10330c969042c','format' : 'iframe','height' : 600,'width' : 160,'params' : {}};<\/script><script type="text/javascript" src="https://dcengg.org/22/0b2a1dd49cefbcb5c3f10330c969042c"><\/script></body></html>`;
+        iframe.srcdoc = `<!DOCTYPE html><html><head><meta charset="utf-8"><style>html,body{margin:0;padding:0;overflow:hidden;width:100%;height:100%;background:transparent;display:flex;align-items:center;justify-content:center;}</style></head><body><script type="text/javascript">atOptions = {'key' : '0b2a1dd49cefbcb5c3f10330c969042c','format' : 'iframe','height' : 600,'width' : 160,'params' : {}};<\/script><script type="text/javascript" src="https://dcengg.org/22/0b2a1dd49cefbcb5c3f10330c969042c"><\/script></body></html>`;
         
-        const blob = new Blob([html], { type: 'text/html' });
-        iframe.src = URL.createObjectURL(blob);
         container.appendChild(iframe);
     }
 
@@ -2744,7 +2738,7 @@
         const isPortrait = window.matchMedia('(max-width: 900px) and (orientation: portrait)').matches;
 
         if (isLandscape) {
-            // Landscape: Apenas banner 300x250 na direita
+            // Landscape: Banner 300x250 na direita
             mountStandardAd(document.getElementById('adNativeRight'), { key: '51efcb0e502dffc7c8c25030a1155128', format: 'iframe', height: 250, width: 300, params: {} }, 'https://dcengg.org/22/51efcb0e502dffc7c8c25030a1155128');
         } else if (isPortrait) {
             // Portrait: 320x50 em cima, 300x250 embaixo
@@ -2839,8 +2833,7 @@
                 if (!playerBottomAd.dataset.mounted) {
                     playerBottomAd.dataset.mounted = '1';
                     const htmlAd = `<!DOCTYPE html><html><head><meta charset="utf-8"><style>html,body{margin:0;padding:0;overflow:hidden;background:transparent;width:100%;height:100%;display:flex;align-items:center;justify-content:center;}</style></head><body><script type="text/javascript">atOptions={'key':'c0b67a9be1ab830aba44c6c24a020adc','format':'iframe','height':90,'width':728,'params':{}};<\/script><script type="text/javascript" src="https://dcengg.org/22/c0b67a9be1ab830aba44c6c24a020adc"><\/script></body></html>`;
-                    const blobAd = new Blob([htmlAd], { type: 'text/html' });
-                    horizontalAdIframe.src = URL.createObjectURL(blobAd);
+                    horizontalAdIframe.srcdoc = htmlAd;
                 }
             }
         } else {
