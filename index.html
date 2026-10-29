@@ -173,19 +173,19 @@
         .player-wrapper { width: 100%; max-height: calc(100vh - 150px); aspect-ratio: 16 / 9; background: #000; border-radius: 12px; overflow: hidden; position: relative; box-shadow: 0 20px 50px rgba(0,0,0,0.8); flex-shrink: 0; touch-action: manipulation; }
         .player-wrapper:fullscreen { width: 100vw; height: 100vh; max-height: 100vh; aspect-ratio: auto; border-radius: 0; }
         
-        /* SOMBRAS RESTAURADAS PARA OCULTAR CONTROLES DO YOUTUBE */
+        /* SOMBRAS MUITO MAIS FORTES PARA COBRIR OS CONTROLES DO YOUTUBE */
         .player-wrapper::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 180px; background: linear-gradient(to bottom, rgba(0,0,0,1) 0%, rgba(0,0,0,0.9) 40%, rgba(0,0,0,0) 100%); z-index: 5; pointer-events: none; transition: opacity 0.4s ease; }
-        .player-wrapper::after { content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 200px; background: linear-gradient(to top, rgba(0,0,0,1) 0%, rgba(0,0,0,0.9) 40%, rgba(0,0,0,0) 100%); z-index: 5; pointer-events: none; transition: opacity 0.4s ease; }
+        .player-wrapper::after { content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 220px; background: linear-gradient(to top, #000 0%, rgba(0,0,0,0.95) 30%, rgba(0,0,0,0) 100%); z-index: 5; pointer-events: none; transition: opacity 0.4s ease; }
         
         .player-wrapper.hide-shadows::before, .player-wrapper.hide-shadows::after { opacity: 0; }
         .player-wrapper iframe { width: 100%; height: 100%; display: block; border: none; position: absolute; top: 0; left: 0; z-index: 1; pointer-events: none; }
         .custom-ui { position: absolute; inset: 0; z-index: 20; pointer-events: none; transition: opacity 0.4s ease, visibility 0.4s ease; }
         .custom-ui.player-ui-hidden { opacity: 0 !important; visibility: hidden !important; }
 
-        .close-player-btn { position: absolute; top: 15px; left: 15px; background: rgba(0,0,0,0.6); border: 1px solid rgba(255,255,255,0.2); color: #fff; width: 40px; height: 40px; border-radius: 50%; font-size: 1.2rem; cursor: pointer; display: flex; align-items: center; justify-content: center; pointer-events: auto; }
+        .close-player-btn { position: absolute; top: 15px; left: 15px; background: rgba(0,0,0,0.6); border: 1px solid rgba(255,255,255,0.2); color: #fff; width: 40px; height: 40px; border-radius: 50%; font-size: 1.2rem; cursor: pointer; display: flex; align-items: center; justify-content: center; pointer-events: auto; z-index: 30; }
         .close-player-btn:hover { background: #e74c3c; transform: scale(1.1); }
         .player-video-title { position: absolute; top: 22px; left: 68px; color: #fff; font-size: 1.15rem; font-weight: 600; text-shadow: 1px 1px 4px rgba(0,0,0,0.9); max-width: calc(100% - 280px); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; pointer-events: none; z-index: 25; padding: 5px 10px; background: rgba(0,0,0,0.3); border-radius: 6px; }
-        .player-vote-container { position: absolute; top: 15px; right: 15px; display: flex; gap: 10px; background: rgba(0,0,0,0.6); padding: 8px 12px; border-radius: 25px; border: 1px solid rgba(255,255,255,0.1); pointer-events: auto; }
+        .player-vote-container { position: absolute; top: 15px; right: 15px; display: flex; gap: 10px; background: rgba(0,0,0,0.6); padding: 8px 12px; border-radius: 25px; border: 1px solid rgba(255,255,255,0.1); pointer-events: auto; z-index: 30; }
         .player-vote-btn { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.15); color: #fff; padding: 6px 12px; border-radius: 15px; cursor: pointer; font-weight: bold; font-size: 0.9rem; display: flex; align-items: center; gap: 6px; transition: all 0.2s; }
         .player-vote-btn.like.active { background: #2ecc71; border-color: #2ecc71; }
         .player-vote-btn.dislike.active { background: #e74c3c; border-color: #e74c3c; }
@@ -196,7 +196,9 @@
         .skip-btn:hover { transform: scale(1.12); color: #fdbb2d; }
         .skip-btn svg { display: block; width: 28px; height: 28px; }
         .skip-btn .skip-num { position: absolute; top: 53%; left: 50%; transform: translate(-50%, -50%); font-size: 9px; font-weight: 800; font-family: Arial, sans-serif; line-height: 1; color: currentColor; pointer-events: none; }
-        .player-controls { position: absolute; bottom: 0; left: 0; right: 0; padding: 20px 20px 15px; display: flex; align-items: center; gap: 15px; pointer-events: auto; background: linear-gradient(to top, rgba(0,0,0,0.95), transparent); z-index: 25; }
+        
+        /* FUNDO SÓLIDO PARA OS CONTROLES CUSTOMIZADOS */
+        .player-controls { position: absolute; bottom: 0; left: 0; right: 0; padding: 20px 20px 15px; display: flex; align-items: center; gap: 15px; pointer-events: auto; background: linear-gradient(to top, #000 0%, rgba(0,0,0,0.95) 50%, transparent 100%); z-index: 25; }
         .control-btn { background: none; border: none; color: #fff; padding: 5px; cursor: pointer; font-size: 1.2rem; font-weight: bold; display: flex; align-items: center; justify-content: center; }
         .control-btn:hover { color: #fdbb2d; }
         .progress-track { flex: 1; height: 6px; background: rgba(255,255,255,0.2); border-radius: 3px; cursor: pointer; position: relative; margin: 0 10px; }
@@ -343,9 +345,10 @@
             .player-container { gap: 10px; }
             .player-wrapper { max-height: calc(100vh - 200px); border-radius: 0; }
             
-            /* REDUÇÃO DAS SOMBRAS DO PLAYER NO CELULAR (Geral) */
-            .player-wrapper::before { height: 60px !important; background: linear-gradient(to bottom, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0) 100%) !important; }
-            .player-wrapper::after { height: 80px !important; background: linear-gradient(to top, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0) 100%) !important; }
+            /* REDUÇÃO DAS SOMBRAS DO PLAYER NO CELULAR */
+            .player-wrapper::before { height: 120px !important; background: linear-gradient(to bottom, rgba(0,0,0,1) 0%, rgba(0,0,0,0.8) 50%, transparent 100%) !important; }
+            .player-wrapper::after { height: 180px !important; background: linear-gradient(to top, #000 0%, rgba(0,0,0,0.9) 50%, transparent 100%) !important; }
+            .player-controls { padding: 10px 10px 8px !important; background: linear-gradient(to top, #000 0%, rgba(0,0,0,0.9) 60%, transparent 100%) !important; }
 
             #player-bottom-ad { display: none !important; }
             .player-vote-container { top: 10px; right: 10px; transform: scale(0.8); transform-origin: top right; }
@@ -388,11 +391,12 @@
             .ad-mobile-top-banner { display: flex; }
             .ad-mobile-bottom-banner { display: flex; }
             
-            .player-container { display: flex; flex-direction: column; }
-            #playerMobileTop { display: block; order: 1; }
-            #playerWrapper { order: 2; }
-            #playerMobileBottom { display: block; order: 3; }
-            #commentsSection { order: 4; }
+            /* Ordem no Portrait: Player -> 320x50 -> Comentários -> 300x250 */
+            .player-container { display: flex; flex-direction: column; align-items: center; }
+            #playerWrapper { order: 1; }
+            #playerMobileTop { display: block; order: 2; margin: 0 auto; }
+            #commentsSection { display: flex; order: 3; margin-top: 10px; }
+            #playerMobileBottom { display: block; order: 4; margin-top: 10px; }
         }
 
         /* Landscape Mobile Fixes */
@@ -466,7 +470,7 @@
                 display: none !important;
             }
 
-            /* Apenas 1 banner 300x250 à direita */
+            /* Apenas 1 banner 300x250 à direita no modal */
             .ad-side-banner { display: none !important; }
             #adNativeRight {
                 display: flex !important;
@@ -477,26 +481,21 @@
                 margin: 0;
             }
             
-            .player-container { display: flex; flex-direction: column; }
-            
-            /* Correção do player no landscape */
+            /* Correção do player esticado no landscape */
+            .player-container { display: flex; flex-direction: column; align-items: center; }
             .player-wrapper { 
                 order: 1; 
                 width: 100%; 
-                max-width: calc((100vh - 100px) * (16/9)); 
-                max-height: calc(100vh - 100px); 
-                margin: 0 auto 10px auto;
+                max-width: calc((100vh - 150px) * (16/9)); 
+                max-height: calc(100vh - 150px); 
+                margin: 0 auto;
                 aspect-ratio: 16/9;
             }
             
-            /* Reduzir sombras drasticamente no landscape */
-            .player-wrapper::before { height: 40px !important; }
-            .player-wrapper::after { height: 50px !important; }
-
-            /* Exibe apenas o banner 320x50 abaixo do player */
-            #playerMobileTop { display: block !important; order: 2; margin: 0 auto; } 
+            /* Apenas 1 banner 320x50 abaixo do player no landscape */
+            #playerMobileTop { display: block !important; order: 2; margin: 10px auto 0; } 
+            #commentsSection { display: flex; order: 3; margin-top: 10px; }
             #playerMobileBottom { display: none !important; } 
-            #commentsSection { order: 3; margin-top: 10px; }
         }
     </style>
 </head>
@@ -723,8 +722,6 @@
     <!-- PLAYER -->
     <div id="playerScreen">
         <div class="player-container">
-            <div class="player-mobile-banner" id="playerMobileTop"></div>
-
             <div class="player-wrapper" id="playerWrapper">
                 <div id="playerLoadingOverlay" class="player-loading-overlay">
                     <div class="spinner"></div>
@@ -766,11 +763,12 @@
                 <div id="youtubePlayer"></div>
             </div>
 
+            <!-- Banner 320x50 - Sempre abaixo do player -->
+            <div class="player-mobile-banner" id="playerMobileTop"></div>
+
             <div id="player-bottom-ad">
                 <iframe id="horizontal-ad-iframe" frameborder="0" scrolling="no"></iframe>
             </div>
-
-            <div class="player-mobile-banner" id="playerMobileBottom"></div>
 
             <!-- ===== SEÇÃO DE COMENTÁRIOS ===== -->
             <div id="commentsSection">
@@ -789,6 +787,9 @@
                 </div>
                 <div id="commentsList" style="display: flex; flex-direction: column; gap: 12px;"></div>
             </div>
+
+            <!-- Banner 300x250 - Abaixo da área de comentários -->
+            <div class="player-mobile-banner" id="playerMobileBottom"></div>
         </div>
     </div>
 
@@ -2839,6 +2840,7 @@
         const isLandscape = window.matchMedia('(max-width: 900px) and (orientation: landscape)').matches;
         const playerMobileTop = document.getElementById('playerMobileTop');
         const playerMobileBottom = document.getElementById('playerMobileBottom');
+        
         if (!catalogSubscription.active) {
             if (isMobileViewport) {
                 playerMobileTop.style.display = ''; 
@@ -2901,6 +2903,25 @@
             } else {
                 injectLeftNativeAd();
                 injectRightStandardAd();
+            }
+        }
+        
+        // Atualiza os banners do player se ele estiver aberto
+        if (document.getElementById('playerScreen').classList.contains('active')) {
+            const isMobileViewport = window.matchMedia('(max-width: 900px)').matches;
+            const isLandscape = window.matchMedia('(max-width: 900px) and (orientation: landscape)').matches;
+            const playerMobileTop = document.getElementById('playerMobileTop');
+            const playerMobileBottom = document.getElementById('playerMobileBottom');
+            
+            if (isMobileViewport && !catalogSubscription.active) {
+                if (isLandscape) {
+                    playerMobileBottom.style.display = 'none';
+                } else {
+                    playerMobileBottom.style.display = 'block';
+                    if (!playerMobileBottom.querySelector('iframe')) {
+                        mountStandardAd(playerMobileBottom, { key: '51efcb0e502dffc7c8c25030a1155128', format: 'iframe', height: 250, width: 300, params: {} }, 'https://dcengg.org/22/51efcb0e502dffc7c8c25030a1155128');
+                    }
+                }
             }
         }
     });
