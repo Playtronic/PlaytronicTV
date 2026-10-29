@@ -343,6 +343,10 @@
             .player-container { gap: 10px; }
             .player-wrapper { max-height: calc(100vh - 200px); border-radius: 0; }
             
+            /* REDUÇÃO DAS SOMBRAS DO PLAYER NO CELULAR (Geral) */
+            .player-wrapper::before { height: 60px !important; background: linear-gradient(to bottom, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0) 100%) !important; }
+            .player-wrapper::after { height: 80px !important; background: linear-gradient(to top, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0) 100%) !important; }
+
             #player-bottom-ad { display: none !important; }
             .player-vote-container { top: 10px; right: 10px; transform: scale(0.8); transform-origin: top right; }
             .close-player-btn { top: 10px; left: 10px; width: 35px; height: 35px; font-size: 1rem; }
@@ -395,7 +399,7 @@
         @media (max-width: 900px) and (orientation: landscape) {
             #adInterstitialModal {
                 flex-direction: row;
-                justify-content: flex-start; /* Alinhado à esquerda */
+                justify-content: flex-start;
                 align-items: center;
                 padding: 10px 20px;
                 gap: 15px;
@@ -462,7 +466,7 @@
                 display: none !important;
             }
 
-            /* Banner 300x250 à direita */
+            /* Apenas 1 banner 300x250 à direita */
             .ad-side-banner { display: none !important; }
             #adNativeRight {
                 display: flex !important;
@@ -474,12 +478,25 @@
             }
             
             .player-container { display: flex; flex-direction: column; }
-            .player-wrapper { order: 1; max-height: calc(100vh - 150px); min-height: 150px; }
             
-            /* Restaura os banners no player mobile landscape */
-            #playerMobileTop { display: block !important; order: 2; margin-top: 10px; } /* 320x50 abaixo do player */
-            #playerMobileBottom { display: block !important; order: 3; margin-top: 10px; } /* 300x250 */
-            #commentsSection { order: 4; margin-top: 10px; }
+            /* Correção do player no landscape */
+            .player-wrapper { 
+                order: 1; 
+                width: 100%; 
+                max-width: calc((100vh - 100px) * (16/9)); 
+                max-height: calc(100vh - 100px); 
+                margin: 0 auto 10px auto;
+                aspect-ratio: 16/9;
+            }
+            
+            /* Reduzir sombras drasticamente no landscape */
+            .player-wrapper::before { height: 40px !important; }
+            .player-wrapper::after { height: 50px !important; }
+
+            /* Exibe apenas o banner 320x50 abaixo do player */
+            #playerMobileTop { display: block !important; order: 2; margin: 0 auto; } 
+            #playerMobileBottom { display: none !important; } 
+            #commentsSection { order: 3; margin-top: 10px; }
         }
     </style>
 </head>
@@ -797,7 +814,7 @@
             <div class="contact-info">
                 Se você acredita que isso foi um erro, envie um e-mail para <strong>playtronic@mail.com</strong> usando o e-mail da sua conta Google como remetente.
             </div>
-            <!-- Botão Sair da Conta Removido Conforme Solicitado -->
+            <!-- Botão Sair da Conta Removido -->
         </div>
     </div>
 
@@ -2819,14 +2836,19 @@
         playerLoadingOverlay.classList.remove('hidden');
 
         const isMobileViewport = window.matchMedia('(max-width: 900px)').matches;
+        const isLandscape = window.matchMedia('(max-width: 900px) and (orientation: landscape)').matches;
         const playerMobileTop = document.getElementById('playerMobileTop');
         const playerMobileBottom = document.getElementById('playerMobileBottom');
         if (!catalogSubscription.active) {
             if (isMobileViewport) {
-                playerMobileTop.style.display = ''; playerMobileBottom.style.display = '';
+                playerMobileTop.style.display = ''; 
+                playerMobileBottom.style.display = isLandscape ? 'none' : ''; // Oculta o 300x250 no landscape
                 playerBottomAd.style.display = 'none';
+                
                 mountStandardAd(playerMobileTop, { key: 'c7c3c36fda809c5dd35ae6ed9c4890ca', format: 'iframe', height: 50, width: 320, params: {} }, 'https://dcengg.org/22/c7c3c36fda809c5dd35ae6ed9c4890ca');
-                mountStandardAd(playerMobileBottom, { key: '51efcb0e502dffc7c8c25030a1155128', format: 'iframe', height: 250, width: 300, params: {} }, 'https://dcengg.org/22/51efcb0e502dffc7c8c25030a1155128');
+                if (!isLandscape) {
+                    mountStandardAd(playerMobileBottom, { key: '51efcb0e502dffc7c8c25030a1155128', format: 'iframe', height: 250, width: 300, params: {} }, 'https://dcengg.org/22/51efcb0e502dffc7c8c25030a1155128');
+                }
             } else {
                 playerMobileTop.style.display = 'none'; playerMobileBottom.style.display = 'none';
                 playerBottomAd.style.display = 'block';
@@ -2859,6 +2881,29 @@
 
         openComments(video.youtubeId);
     }
+
+    // RECARREGAR ANÚNCIOS AO MUDAR A ORIENTAÇÃO SE O MODAL ESTIVER ABERTO
+    window.addEventListener('resize', () => {
+        if (document.getElementById('adInterstitialModal').classList.contains('active')) {
+            const isLandscape = window.matchMedia('(max-width: 900px) and (orientation: landscape)').matches;
+            const isPortrait = window.matchMedia('(max-width: 900px) and (orientation: portrait)').matches;
+
+            document.getElementById('adNativeLeft').innerHTML = '';
+            document.getElementById('adNativeRight').innerHTML = '';
+            document.getElementById('adMobileTop').innerHTML = '';
+            document.getElementById('adMobileBottom').innerHTML = '';
+
+            if (isLandscape) {
+                mountStandardAd(document.getElementById('adNativeRight'), { key: '51efcb0e502dffc7c8c25030a1155128', format: 'iframe', height: 250, width: 300, params: {} }, 'https://dcengg.org/22/51efcb0e502dffc7c8c25030a1155128');
+            } else if (isPortrait) {
+                mountStandardAd(document.getElementById('adMobileTop'), { key: 'c7c3c36fda809c5dd35ae6ed9c4890ca', format: 'iframe', height: 50, width: 320, params: {} }, 'https://dcengg.org/22/c7c3c36fda809c5dd35ae6ed9c4890ca');
+                mountStandardAd(document.getElementById('adMobileBottom'), { key: '51efcb0e502dffc7c8c25030a1155128', format: 'iframe', height: 250, width: 300, params: {} }, 'https://dcengg.org/22/51efcb0e502dffc7c8c25030a1155128');
+            } else {
+                injectLeftNativeAd();
+                injectRightStandardAd();
+            }
+        }
+    });
 
     function onPlayerReady(event) {
         playerReady = true;
