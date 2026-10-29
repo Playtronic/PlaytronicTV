@@ -16,7 +16,7 @@
         * { margin: 0; padding: 0; box-sizing: border-box; }
         html { height: 100%; }
         
-        /* BODY AGORA NÃO TEM MAIS ROLAGEM NATIVA */
+        /* BODY SEM ROLAGEM NATIVA */
         body { 
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
             background: linear-gradient(135deg, #0b0f19 0%, #1a1a2e 50%, #16213e 100%); 
@@ -82,7 +82,7 @@
         #adminDropdown button { background: rgba(255,255,255,0.05); color: #fff; padding: 10px; font-size: 0.85rem; text-align: left; justify-content: flex-start; }
         #adminDropdown button:hover { background: rgba(253,187,45,0.2); color: #fdbb2d; }
         
-        /* NOVA DIV DE ROLAGEM: COMEÇA EXATAMENTE ABAIXO DO HEADER */
+        /* DIV DE ROLAGEM DA TELA INICIAL */
         .main-scroll-wrapper { 
             position: fixed; 
             top: 80px; 
@@ -203,7 +203,7 @@
         .plan-option .plan-price { color: #fdbb2d; font-weight: 800; font-size: 1.1rem; }
         .plan-option .plan-badge { position: absolute; top: -8px; right: 8px; background: #22c55e; color: #fff; font-size: 0.65rem; font-weight: 800; padding: 2px 8px; border-radius: 10px; }
         
-        /* PLAYER - CORRIGIDO PARA COMEÇAR ABAIXO DO HEADER */
+        /* PLAYER */
         #playerScreen { 
             position: fixed; 
             top: 80px; 
@@ -281,25 +281,54 @@
         .spinner { border: 4px solid rgba(253,187,45,0.2); border-top: 4px solid #fdbb2d; border-radius: 50%; width: 50px; height: 50px; animation: spin 1s linear infinite; margin-bottom: 15px; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
-        /* MODAL DE ANÚNCIO */
-        #adInterstitialModal { position: fixed; inset: 0; background: linear-gradient(135deg, rgba(11,15,25,0.97) 0%, rgba(26,26,46,0.97) 50%, rgba(22,33,62,0.97) 100%); z-index: 99999; display: none; align-items: center; justify-content: center; backdrop-filter: blur(10px); padding: 100px 20px 20px 20px; gap: 20px; overflow: hidden !important; }
+        /* MODAL DE ANÚNCIO - CORRIGIDO */
+        #adInterstitialModal { 
+            position: fixed; inset: 0; 
+            background: linear-gradient(135deg, rgba(11,15,25,0.97) 0%, rgba(26,26,46,0.97) 50%, rgba(22,33,62,0.97) 100%); 
+            z-index: 99999; 
+            display: none; 
+            align-items: center; 
+            justify-content: center; 
+            backdrop-filter: blur(10px); 
+            padding: 20px; /* Padding base normal */
+            gap: 20px; 
+            overflow: hidden !important; 
+        }
         #adInterstitialModal.active { display: flex; }
         
-        .ad-center-column { display: flex; flex-direction: column; align-items: center; gap: 15px; width: 100%; max-width: 800px; flex-shrink: 1; max-height: 100%; overflow-y: auto; -ms-overflow-style: none; scrollbar-width: none; }
+        .ad-center-column { 
+            display: flex; flex-direction: column; align-items: center; gap: 15px; 
+            width: 100%; max-width: 800px; flex-shrink: 1; max-height: 100%; 
+            overflow-y: auto; -ms-overflow-style: none; scrollbar-width: none; 
+        }
         .ad-center-column::-webkit-scrollbar { display: none; }
         
-        .ad-interstitial-wrapper { background: #152961; border: 2px solid #fdbb2d; border-radius: 12px; width: 100%; display: flex; flex-direction: column; box-shadow: 0 0 60px rgba(253,187,45,0.2); overflow: hidden; flex-shrink: 0; z-index: 2; }
-        .ad-interstitial-header { background: rgba(253,187,45,0.1); padding: 15px 25px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.1); color: #fdbb2d; font-weight: bold; font-size: 1rem; }
-        .ad-center-wrapper { width: 100%; aspect-ratio: 16 / 9; background: #0b0f19; display: flex; align-items: center; justify-content: center; overflow: hidden; position: relative; }
+        .ad-interstitial-wrapper { 
+            background: #152961; border: 2px solid #fdbb2d; border-radius: 12px; 
+            width: 100%; display: flex; flex-direction: column; 
+            box-shadow: 0 0 60px rgba(253,187,45,0.2); overflow: hidden; 
+            flex-shrink: 0; z-index: 2; max-height: 100%;
+        }
+        .ad-interstitial-header { background: rgba(253,187,45,0.1); padding: 15px 25px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.1); color: #fdbb2d; font-weight: bold; font-size: 1rem; flex-shrink: 0; }
+        .ad-center-wrapper { 
+            width: 100%; flex: 1; min-height: 0;
+            background: #0b0f19; display: flex; align-items: center; justify-content: center; 
+            overflow: hidden; position: relative; aspect-ratio: 16 / 9; 
+        }
         .ad-center-wrapper img { width: 100%; height: 100%; object-fit: contain; }
         .ad-center-wrapper iframe { width: 100%; height: 100%; border: none; position: absolute; top: 0; left: 0; pointer-events: none; }
-        .ad-interstitial-footer { padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; border-top: 1px solid rgba(255,255,255,0.1); background: rgba(0,0,0,0.2); }
+        
+        .ad-interstitial-footer { 
+            padding: 15px 20px; display: flex; justify-content: center; align-items: center; 
+            flex-wrap: wrap; gap: 10px; border-top: 1px solid rgba(255,255,255,0.1); 
+            background: rgba(0,0,0,0.2); flex-shrink: 0;
+        }
         .ad-interstitial-footer button { padding: 10px 20px; border-radius: 8px; font-weight: bold; font-size: 0.95rem; cursor: pointer; border: none; transition: 0.2s; }
         .ad-close-btn { background: #ef4444; color: #fff; opacity: 0.5; cursor: not-allowed; }
         .ad-close-btn.active { opacity: 1; cursor: pointer; background: #22c55e; }
         .ad-close-btn.active:hover { background: #16a34a; }
 
-        .ad-side-banner { width: 160px; height: 600px; max-height: calc(100vh - 140px); flex-shrink: 0; background: transparent; border-radius: 8px; overflow: hidden; position: relative; border: 1px solid rgba(255,255,255,0.2); display: none; z-index: 2;}
+        .ad-side-banner { width: 160px; height: 600px; max-height: calc(100vh - 40px); flex-shrink: 0; background: transparent; border-radius: 8px; overflow: hidden; position: relative; border: 1px solid rgba(255,255,255,0.2); display: none; z-index: 2;}
         .ad-side-banner iframe { width: 100%; height: 100%; display: block; border: 0; position: absolute; top:0; left:0; background: transparent; }
 
         .ad-mobile-top-banner, .ad-mobile-bottom-banner { display: none; width: 100%; max-width: 320px; background: #ffffff; border-radius: 8px; overflow: hidden; flex-shrink: 0; border: 1px solid rgba(255,255,255,0.2); position: relative; z-index: 2; }
@@ -440,10 +469,15 @@
             .comment-card { padding: 12px; }
             .comment-avatar { width: 36px; height: 36px; }
             
+            /* Mantém o padding para modais que TÊM header */
             .modal-overlay, #banAlertModal, #blockAlertModal { padding: 130px 10px 20px 10px; }
             
-            /* MODAL DE ANÚNCIO */
-            #adInterstitialModal { padding: 130px 10px 20px 10px; }
+            /* MODAL DE ANÚNCIO - CORRIGIDO PARA MOBILE (PORTRAIT) */
+            #adInterstitialModal {
+                padding: 20px 10px 10px 10px; /* Padding normal, sem o vão gigante de 130px */
+                align-items: center; 
+                justify-content: center;
+            }
             .ad-interstitial-footer { flex-direction: column; align-items: stretch; }
             .ad-interstitial-footer > div { display: flex; flex-direction: column; gap: 10px; }
             .ad-interstitial-footer button { width: 100%; padding: 10px 15px; font-size: 0.9rem; }
@@ -464,22 +498,23 @@
 
         /* Landscape Mobile Fixes */
         @media (max-width: 900px) and (orientation: landscape) {
+            /* MODAL DE ANÚNCIO - CORRIGIDO PARA MOBILE (LANDSCAPE) */
             #adInterstitialModal {
                 flex-direction: row;
                 justify-content: center;
-                align-items: flex-start;
-                padding: 130px 10px 10px 10px; /* Ajustado para não cobrir o header */
+                align-items: center;
+                padding: 10px; /* Sem vão superior */
                 gap: 10px;
-                overflow-y: auto; /* Permite rolar se necessário */
+                overflow: hidden !important;
             }
             
             .ad-center-column {
                 flex: 1;
                 max-width: 100%;
-                height: calc(100vh - 140px); /* Preenche o espaço restante */
+                height: 100%; /* Ocupa toda a altura disponível */
                 display: flex;
                 flex-direction: column;
-                align-items: center;
+                justify-content: center;
                 margin: 0;
             }
             
@@ -487,29 +522,27 @@
                 height: 100%;
                 max-height: 100%;
                 width: 100%;
-                flex-shrink: 0;
                 display: flex;
                 flex-direction: column;
-                overflow: hidden;
+                justify-content: space-between;
             }
             
             .ad-center-wrapper {
-                flex: 1;
+                flex: 1; /* Faz o player/imagem encolher para caber */
                 min-height: 0;
-                max-height: none;
-                aspect-ratio: auto;
+                aspect-ratio: auto; 
                 background: #000;
             }
             
             .ad-interstitial-footer {
                 display: flex;
                 flex-direction: row; /* Botões lado a lado */
-                flex-wrap: nowrap;
+                flex-wrap: nowrap; /* Proíbe quebra de linha */
                 align-items: center;
                 justify-content: center;
-                padding: 8px;
+                padding: 6px 10px;
                 gap: 8px;
-                background: #152961;
+                flex-shrink: 0;
             }
             
             .ad-interstitial-footer > div {
@@ -522,7 +555,7 @@
             .ad-interstitial-footer button {
                 width: auto;
                 padding: 8px 12px;
-                font-size: 0.75rem;
+                font-size: 0.75rem; /* Fonte menor para caber os 3 botões */
                 white-space: nowrap;
                 margin: 0;
             }
@@ -530,22 +563,14 @@
             .ad-interstitial-header {
                 padding: 5px 15px;
                 font-size: 0.8rem;
-            }
-
-            .ad-mobile-top-banner, .ad-mobile-bottom-banner {
-                display: none !important;
-            }
-
-            .ad-side-banner { display: none !important; }
-            #adNativeRight {
-                display: flex !important;
-                width: 300px;
-                height: 250px;
                 flex-shrink: 0;
-                transform: none;
-                margin: 0;
             }
+
+            /* Oculta banners laterais para não espremer o modal principal */
+            .ad-mobile-top-banner, .ad-mobile-bottom-banner, .ad-side-banner { display: none !important; }
+            #adNativeRight { display: none !important; }
             
+            /* Player Landscape */
             .player-container { display: flex; flex-direction: column; align-items: center; }
             .player-wrapper { 
                 order: 1; 
@@ -607,7 +632,6 @@
         </div>
     </header>
 
-    <!-- DIV DE ROLAGEM DA TELA INICIAL -->
     <div class="main-scroll-wrapper" id="mainScrollWrapper">
         <div id="catalogScreen">
             <div id="loadingMsg" class="loading">Carregando catálogo...</div>
@@ -881,21 +905,16 @@
             <div class="contact-info">
                 Se você acredita que isso foi um erro, envie um e-mail para <strong>playtronic@mail.com</strong> usando o e-mail da sua conta Google como remetente.
             </div>
-            <!-- Botão Sair da Conta Removido -->
         </div>
     </div>
 
     <!-- INTERSTITIAL DE ANÚNCIOS -->
     <div id="adInterstitialModal">
-        <!-- Banner Esquerdo (Oculto no Landscape) -->
         <div class="ad-side-banner" id="adNativeLeft"></div>
         
-        <!-- Coluna Central (Modal e Banners Mobile) -->
         <div class="ad-center-column">
-            <!-- Banner 320x50 (Acima do Modal - Mobile Portrait) -->
             <div class="ad-mobile-top-banner" id="adMobileTop"></div>
 
-            <!-- Modal de Anúncio -->
             <div class="ad-interstitial-wrapper">
                 <div class="ad-interstitial-header"><span>Publicidade</span><span id="adTimerText">Aguarde 5s...</span></div>
                 <div class="ad-center-wrapper" id="adCenterWrapper"></div>
@@ -908,11 +927,9 @@
                 </div>
             </div>
 
-            <!-- Banner 300x250 (Abaixo do Modal - Mobile Portrait) -->
             <div class="ad-mobile-bottom-banner" id="adMobileBottom"></div>
         </div>
         
-        <!-- Banner Direito (Padrão 160x600 no Desktop, 300x250 no Landscape) -->
         <div class="ad-side-banner" id="adNativeRight"></div>
     </div>
 
