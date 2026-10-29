@@ -14,20 +14,29 @@
 
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        html, body { height: 100%; overflow-x: hidden; }
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: linear-gradient(135deg, #0b0f19 0%, #1a1a2e 50%, #16213e 100%); background-attachment: fixed; color: #e2e8f0; min-height: 100vh; padding-top: 100px; padding-left: 20px; padding-right: 20px; display: flex; flex-direction: column; }
+        html { height: 100%; }
         
-        /* Bloqueio de rolagem */
-        body.no-scroll { overflow: hidden; }
+        /* BODY AGORA NÃO TEM MAIS ROLAGEM NATIVA */
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            background: linear-gradient(135deg, #0b0f19 0%, #1a1a2e 50%, #16213e 100%); 
+            background-attachment: fixed; 
+            color: #e2e8f0; 
+            height: 100vh; 
+            overflow: hidden; 
+            display: flex; 
+            flex-direction: column; 
+        }
+        
+        /* BLOQUEIO DE ROLAGEM PARA MODAIS */
+        body.no-scroll .main-scroll-wrapper { overflow: hidden; }
         
         /* OCULTA O HEADER QUANDO O MODAL DE ANÚNCIOS ESTIVER ATIVO */
         body.ad-modal-open .header { display: none !important; }
 
-        /* HEADER REDUZIDO E CORRIGIDO PARA NÃO SOBREPOR A BARRA DE ROLAGEM */
+        /* HEADER REDUZIDO */
         .header { 
-            position: fixed; top: 0; left: 0; 
-            width: calc(100% - 17px); /* Desconta a largura da barra de rolagem */
-            height: 80px; 
+            position: fixed; top: 0; left: 0; width: 100%; height: 80px; 
             display: flex; align-items: center; justify-content: space-between; 
             padding: 0 20px; background: rgba(21, 41, 97, 0.85); 
             backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); 
@@ -72,6 +81,21 @@
         #adminDropdown { display: none; flex-direction: column; gap: 5px; margin-top: 10px; background: rgba(0,0,0,0.3); padding: 10px; border-radius: 8px; }
         #adminDropdown button { background: rgba(255,255,255,0.05); color: #fff; padding: 10px; font-size: 0.85rem; text-align: left; justify-content: flex-start; }
         #adminDropdown button:hover { background: rgba(253,187,45,0.2); color: #fdbb2d; }
+        
+        /* NOVA DIV DE ROLAGEM: COMEÇA EXATAMENTE ABAIXO DO HEADER */
+        .main-scroll-wrapper { 
+            position: fixed; 
+            top: 80px; 
+            left: 0; 
+            right: 0; 
+            bottom: 0; 
+            overflow-y: auto; 
+            overflow-x: hidden; 
+            padding: 20px; 
+            display: flex; 
+            flex-direction: column; 
+        }
+
         #catalogScreen { flex: 1; padding-bottom: 40px; }
         .catalog-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 30px; max-width: 1400px; margin: 0 auto; width: 100%; }
         .card { background: #1e305c; border: 1px solid #2f4780; border-radius: 12px; overflow: hidden; transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease; display: flex; flex-direction: column; position: relative; width: 100%; }
@@ -187,7 +211,7 @@
         .player-wrapper { width: 100%; max-height: calc(100vh - 150px); aspect-ratio: 16 / 9; background: #000; border-radius: 12px; overflow: hidden; position: relative; box-shadow: 0 20px 50px rgba(0,0,0,0.8); flex-shrink: 0; touch-action: manipulation; }
         .player-wrapper:fullscreen { width: 100vw; height: 100vh; max-height: 100vh; aspect-ratio: auto; border-radius: 0; }
         
-        /* SOMBRAS AJUSTADAS: Altura aumentada e transição suave */
+        /* SOMBRAS AJUSTADAS */
         .player-wrapper::before { 
             content: ''; position: absolute; top: 0; left: 0; right: 0; height: 110px; 
             background: linear-gradient(to bottom, #000 0%, #000 50%, transparent 100%); 
@@ -202,7 +226,6 @@
         /* CLASSE PARA OCULTAR AS SOMBRAS JUNTO COM OS CONTROLES */
         .player-wrapper.hide-shadows::before, .player-wrapper.hide-shadows::after { opacity: 0; }
 
-        /* CORREÇÃO: SEM SCALE, SEM CORTES */
         .player-wrapper iframe { width: 100%; height: 100%; display: block; border: none; position: absolute; top: 0; left: 0; z-index: 1; pointer-events: none; }
         
         .custom-ui { position: absolute; inset: 0; z-index: 20; pointer-events: none; transition: opacity 0.4s ease, visibility 0.4s ease; }
@@ -223,7 +246,6 @@
         .skip-btn svg { display: block; width: 28px; height: 28px; }
         .skip-btn .skip-num { position: absolute; top: 53%; left: 50%; transform: translate(-50%, -50%); font-size: 9px; font-weight: 800; font-family: Arial, sans-serif; line-height: 1; color: currentColor; pointer-events: none; }
         
-        /* FUNDO SÓLIDO PARA OS CONTROLES CUSTOMIZADOS (COBRE O YOUTUBE) */
         .player-controls { position: absolute; bottom: 0; left: 0; right: 0; padding: 20px 20px 15px; display: flex; align-items: center; gap: 15px; pointer-events: auto; background: linear-gradient(to top, #000 0%, #000 80%, transparent 100%); z-index: 25; }
         .control-btn { background: none; border: none; color: #fff; padding: 5px; cursor: pointer; font-size: 1.2rem; font-weight: bold; display: flex; align-items: center; justify-content: center; }
         .control-btn:hover { color: #fdbb2d; }
@@ -356,13 +378,15 @@
         }
 
         @media (max-width: 900px) {
-            body { padding-top: 130px; padding-bottom: 40px; padding-left: 10px; padding-right: 10px; }
-            .header { width: 100%; display: grid; grid-template-columns: 1fr auto; grid-template-areas: "logo auth" "search search"; align-items: center; gap: 10px; height: auto; padding: 10px 15px; }
+            .header { display: grid; grid-template-columns: 1fr auto; grid-template-areas: "logo auth" "search search"; align-items: center; gap: 10px; height: auto; padding: 10px 15px; }
             .header-brand { grid-area: logo; display: flex; justify-content: flex-start; width: auto; flex: none; }
             .header-logo { height: 45px; }
             .auth-area { grid-area: auth; justify-content: flex-end; width: auto; }
             .search-container { grid-area: search; margin: 0; max-width: 100%; width: 100%; display: flex; }
             .user-card { position: fixed; top: 130px; left: 10px; right: 10px; width: auto; min-width: auto; }
+            
+            .main-scroll-wrapper { top: 130px; padding: 10px; }
+            
             .catalog-grid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 15px; }
             .card-title { font-size: 1rem; min-height: 2.6em; }
             .card-info { padding: 10px; }
@@ -372,7 +396,6 @@
             .player-container { gap: 10px; }
             .player-wrapper { max-height: calc(100vh - 200px); border-radius: 0; }
             
-            /* SOMBRAS MOBILE: Ajustadas para cobrir controles nativos sem esconder legendas */
             .player-wrapper::before { height: 90px !important; background: linear-gradient(to bottom, #000 0%, #000 50%, transparent 100%) !important; }
             .player-wrapper::after { height: 90px !important; background: linear-gradient(to top, #000 0%, #000 50%, transparent 100%) !important; }
             .player-controls { padding: 8px 12px 10px !important; background: linear-gradient(to top, #000 0%, #000 90%, transparent 100%) !important; }
@@ -418,7 +441,6 @@
             .ad-mobile-top-banner { display: flex; }
             .ad-mobile-bottom-banner { display: flex; }
             
-            /* Ordem no Portrait: Player -> 320x50 -> Comentários -> 300x250 */
             .player-container { display: flex; flex-direction: column; align-items: center; }
             #playerWrapper { order: 1; }
             #playerMobileTop { display: block; order: 2; margin: 0 auto; }
@@ -497,7 +519,6 @@
                 display: none !important;
             }
 
-            /* Apenas 1 banner 300x250 à direita no modal */
             .ad-side-banner { display: none !important; }
             #adNativeRight {
                 display: flex !important;
@@ -508,7 +529,6 @@
                 margin: 0;
             }
             
-            /* Correção do player esticado no landscape */
             .player-container { display: flex; flex-direction: column; align-items: center; }
             .player-wrapper { 
                 order: 1; 
@@ -519,7 +539,6 @@
                 aspect-ratio: 16/9;
             }
             
-            /* Apenas 1 banner 320x50 abaixo do player no landscape */
             #playerMobileTop { display: block !important; order: 2; margin: 10px auto 0; } 
             #commentsSection { display: flex; order: 3; margin-top: 10px; }
             #playerMobileBottom { display: none !important; } 
@@ -571,27 +590,30 @@
         </div>
     </header>
 
-    <div id="catalogScreen">
-        <div id="loadingMsg" class="loading">Carregando catálogo...</div>
-        <div id="favoritesSection" style="display: none;">
-            <h2 class="carousel-title">Seus Favoritos</h2>
-            <div class="carousel-wrapper">
-                <button class="carousel-arrow left" id="carouselLeft">❮</button>
-                <div class="carousel-track" id="favoritesTrack"></div>
-                <button class="carousel-arrow right" id="carouselRight">❯</button>
+    <!-- NOVA DIV DE ROLAGEM -->
+    <div class="main-scroll-wrapper" id="mainScrollWrapper">
+        <div id="catalogScreen">
+            <div id="loadingMsg" class="loading">Carregando catálogo...</div>
+            <div id="favoritesSection" style="display: none;">
+                <h2 class="carousel-title">Seus Favoritos</h2>
+                <div class="carousel-wrapper">
+                    <button class="carousel-arrow left" id="carouselLeft">❮</button>
+                    <div class="carousel-track" id="favoritesTrack"></div>
+                    <button class="carousel-arrow right" id="carouselRight">❯</button>
+                </div>
             </div>
+            <div id="catalogGrid" class="catalog-grid"></div>
+            <div id="emptyState" class="empty-state"></div>
         </div>
-        <div id="catalogGrid" class="catalog-grid"></div>
-        <div id="emptyState" class="empty-state"></div>
-    </div>
 
-    <footer class="site-footer">
-        <p><strong>Playtronic TV+</strong> - TODOS OS DIREITOS RESERVADOS</p>
-        <p>Contato: <a href="mailto:playtronic@mail.com" class="contact-link">playtronic@mail.com</a></p>
-        <a href="https://playtronicgames.com.br" target="_blank" class="footer-logo-link">
-            <img src="https://i.ibb.co/pjVXNp4P/Playtronic.png" alt="Playtronic Games" class="footer-logo">
-        </a>
-    </footer>
+        <footer class="site-footer">
+            <p><strong>Playtronic TV+</strong> - TODOS OS DIREITOS RESERVADOS</p>
+            <p>Contato: <a href="mailto:playtronic@mail.com" class="contact-link">playtronic@mail.com</a></p>
+            <a href="https://playtronicgames.com.br" target="_blank" class="footer-logo-link">
+                <img src="https://i.ibb.co/pjVXNp4P/Playtronic.png" alt="Playtronic Games" class="footer-logo">
+            </a>
+        </footer>
+    </div>
 
     <!-- MODAIS DO ADMIN -->
     <div class="modal-overlay" id="videoModal">
@@ -1018,11 +1040,9 @@
         if (isModalOpen) {
             searchContainer.style.display = 'none';
             document.body.classList.add('no-scroll');
-            document.documentElement.style.overflow = 'hidden';
         } else {
             searchContainer.style.display = ''; 
             document.body.classList.remove('no-scroll');
-            document.documentElement.style.overflow = '';
         }
     }
 
@@ -2693,7 +2713,6 @@
     let pendingVideo = null;
     let adTimerInterval = null;
 
-    // Função usando srcdoc para contornar bloqueios e garantir montagem
     function mountStandardAd(container, opts, scriptSrc) {
         if (!container) return;
         container.innerHTML = ''; 
@@ -2710,14 +2729,13 @@
     function closeAdAndPlay() {
         if (!pendingVideo || !adModal.classList.contains('active')) return;
         adModal.classList.remove('active');
-        document.body.classList.remove('ad-modal-open'); // Remove ocultação do header
+        document.body.classList.remove('ad-modal-open');
         if (adYtPlayer) { try { adYtPlayer.stopVideo(); adYtPlayer.destroy(); } catch(e){} adYtPlayer = null; }
         clearInterval(adTimerInterval);
         const v = pendingVideo; pendingVideo = null;
         openPlayer(v);
     }
 
-    // Injeção nativa usando srcdoc
     function injectLeftNativeAd() {
         const container = document.getElementById('adNativeLeft');
         if (!container) return;
@@ -2734,7 +2752,6 @@
         container.appendChild(script);
     }
 
-    // Injeção padrão usando srcdoc
     function injectRightStandardAd() {
         const container = document.getElementById('adNativeRight');
         if (!container) return;
@@ -2770,10 +2787,9 @@
         
         pendingVideo = video;
         adModal.classList.add('active');
-        document.body.classList.add('ad-modal-open'); // Oculta o header enquanto o anúncio estiver ativo
+        document.body.classList.add('ad-modal-open');
         adCenterWrapper.innerHTML = '';
 
-        // Limpa todos os containers
         document.getElementById('adNativeLeft').innerHTML = '';
         document.getElementById('adNativeRight').innerHTML = '';
         document.getElementById('adMobileTop').innerHTML = '';
@@ -2783,14 +2799,11 @@
         const isPortrait = window.matchMedia('(max-width: 900px) and (orientation: portrait)').matches;
 
         if (isLandscape) {
-            // Landscape: Banner 300x250 na direita
             mountStandardAd(document.getElementById('adNativeRight'), { key: '51efcb0e502dffc7c8c25030a1155128', format: 'iframe', height: 250, width: 300, params: {} }, 'https://dcengg.org/22/51efcb0e502dffc7c8c25030a1155128');
         } else if (isPortrait) {
-            // Portrait: 320x50 em cima, 300x250 embaixo
             mountStandardAd(document.getElementById('adMobileTop'), { key: 'c7c3c36fda809c5dd35ae6ed9c4890ca', format: 'iframe', height: 50, width: 320, params: {} }, 'https://dcengg.org/22/c7c3c36fda809c5dd35ae6ed9c4890ca');
             mountStandardAd(document.getElementById('adMobileBottom'), { key: '51efcb0e502dffc7c8c25030a1155128', format: 'iframe', height: 250, width: 300, params: {} }, 'https://dcengg.org/22/51efcb0e502dffc7c8c25030a1155128');
         } else {
-            // Desktop: Nativo Esquerda e Padrão Direita
             injectLeftNativeAd();
             injectRightStandardAd();
         }
@@ -2843,7 +2856,7 @@
     closeAdBtn.addEventListener('click', () => { if (!closeAdBtn.disabled) closeAdAndPlay(); });
     document.getElementById('adSubscribeBtn').addEventListener('click', () => {
         adModal.classList.remove('active');
-        document.body.classList.remove('ad-modal-open'); // Remove ocultação do header
+        document.body.classList.remove('ad-modal-open');
         if (isAdmin()) adminContainer.style.display = 'flex';
         if (adYtPlayer) { try { adYtPlayer.stopVideo(); adYtPlayer.destroy(); } catch(e){} adYtPlayer = null; }
         clearInterval(adTimerInterval);
@@ -2871,7 +2884,7 @@
         if (!catalogSubscription.active) {
             if (isMobileViewport) {
                 playerMobileTop.style.display = ''; 
-                playerMobileBottom.style.display = isLandscape ? 'none' : ''; // Oculta o 300x250 no landscape
+                playerMobileBottom.style.display = isLandscape ? 'none' : '';
                 playerBottomAd.style.display = 'none';
                 
                 mountStandardAd(playerMobileTop, { key: 'c7c3c36fda809c5dd35ae6ed9c4890ca', format: 'iframe', height: 50, width: 320, params: {} }, 'https://dcengg.org/22/c7c3c36fda809c5dd35ae6ed9c4890ca');
@@ -2911,7 +2924,6 @@
         openComments(video.youtubeId);
     }
 
-    // RECARREGAR ANÚNCIOS AO MUDAR A ORIENTAÇÃO SE O MODAL ESTIVER ABERTO
     window.addEventListener('resize', () => {
         if (document.getElementById('adInterstitialModal').classList.contains('active')) {
             const isLandscape = window.matchMedia('(max-width: 900px) and (orientation: landscape)').matches;
@@ -2933,7 +2945,6 @@
             }
         }
         
-        // Atualiza os banners do player se ele estiver aberto
         if (document.getElementById('playerScreen').classList.contains('active')) {
             const isMobileViewport = window.matchMedia('(max-width: 900px)').matches;
             const isLandscape = window.matchMedia('(max-width: 900px) and (orientation: landscape)').matches;
@@ -2981,7 +2992,6 @@
         }
     }
     
-    // FUNÇÕES DE CONTROLE DE UI TOTALMENTE SINCRONIZADAS COM A SOMBRA
     function showControls() { 
         customUI.classList.remove('player-ui-hidden'); 
         playerWrapper.classList.remove('hide-shadows'); 
