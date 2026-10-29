@@ -14,16 +14,6 @@
 
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        
-        /* OCULTA A BARRA DE ROLAGEM GLOBALMENTE */
-        ::-webkit-scrollbar {
-            display: none;
-        }
-        * {
-            -ms-overflow-style: none;
-            scrollbar-width: none;
-        }
-
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: linear-gradient(135deg, #0b0f19 0%, #1a1a2e 50%, #16213e 100%); background-attachment: fixed; color: #e2e8f0; min-height: 100vh; padding-top: 100px; padding-left: 20px; padding-right: 20px; display: flex; flex-direction: column; }
         
         /* OCULTA O HEADER QUANDO O MODAL DE ANÚNCIOS ESTIVER ATIVO */
@@ -183,12 +173,15 @@
         .player-wrapper { width: 100%; max-height: calc(100vh - 150px); aspect-ratio: 16 / 9; background: #000; border-radius: 12px; overflow: hidden; position: relative; box-shadow: 0 20px 50px rgba(0,0,0,0.8); flex-shrink: 0; touch-action: manipulation; }
         .player-wrapper:fullscreen { width: 100vw; height: 100vh; max-height: 100vh; aspect-ratio: auto; border-radius: 0; }
         
-        /* SOMBRAS DESKTOP: Sólidas para cobrir os controles do YouTube */
-        .player-wrapper::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 120px; background: linear-gradient(to bottom, #000 0%, #000 30%, rgba(0,0,0,0.8) 60%, transparent 100%); z-index: 5; pointer-events: none; transition: opacity 0.4s ease; }
-        .player-wrapper::after { content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 140px; background: linear-gradient(to top, #000 0%, #000 40%, rgba(0,0,0,0.8) 60%, transparent 100%); z-index: 5; pointer-events: none; transition: opacity 0.4s ease; }
+        /* SOMBRAS DESKTOP: Altas e opacas para cobrir os controles do YouTube */
+        .player-wrapper::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 120px; background: linear-gradient(to bottom, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0.8) 40%, rgba(0,0,0,0) 100%); z-index: 5; pointer-events: none; transition: opacity 0.4s ease; }
+        .player-wrapper::after { content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 140px; background: linear-gradient(to top, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0.8) 40%, rgba(0,0,0,0) 100%); z-index: 5; pointer-events: none; transition: opacity 0.4s ease; }
         
         .player-wrapper.hide-shadows::before, .player-wrapper.hide-shadows::after { opacity: 0; }
-        .player-wrapper iframe { width: 100%; height: 100%; display: block; border: none; position: absolute; top: 0; left: 0; z-index: 1; pointer-events: none; }
+        
+        /* CORREÇÃO: transform: scale para ocultar controles nativos do YouTube */
+        .player-wrapper iframe { width: 100%; height: 100%; display: block; border: none; position: absolute; top: 0; left: 0; z-index: 1; pointer-events: none; transform: scale(1.2); transform-origin: center center; }
+        
         .custom-ui { position: absolute; inset: 0; z-index: 20; pointer-events: none; transition: opacity 0.4s ease, visibility 0.4s ease; }
         .custom-ui.player-ui-hidden { opacity: 0 !important; visibility: hidden !important; }
 
@@ -207,8 +200,8 @@
         .skip-btn svg { display: block; width: 28px; height: 28px; }
         .skip-btn .skip-num { position: absolute; top: 53%; left: 50%; transform: translate(-50%, -50%); font-size: 9px; font-weight: 800; font-family: Arial, sans-serif; line-height: 1; color: currentColor; pointer-events: none; }
         
-        /* FUNDO SÓLIDO PARA OS CONTROLES CUSTOMIZADOS */
-        .player-controls { position: absolute; bottom: 0; left: 0; right: 0; padding: 20px 20px 15px; display: flex; align-items: center; gap: 15px; pointer-events: auto; background: linear-gradient(to top, #000 0%, #000 30%, rgba(0,0,0,0.8) 60%, transparent 100%); z-index: 25; }
+        /* FUNDO SÓLIDO PARA OS CONTROLES CUSTOMIZADOS (COBRE O YOUTUBE) */
+        .player-controls { position: absolute; bottom: 0; left: 0; right: 0; padding: 20px 20px 15px; display: flex; align-items: center; gap: 15px; pointer-events: auto; background: linear-gradient(to top, #000 0%, rgba(0,0,0,0.95) 50%, transparent 100%); z-index: 25; }
         .control-btn { background: none; border: none; color: #fff; padding: 5px; cursor: pointer; font-size: 1.2rem; font-weight: bold; display: flex; align-items: center; justify-content: center; }
         .control-btn:hover { color: #fdbb2d; }
         .progress-track { flex: 1; height: 6px; background: rgba(255,255,255,0.2); border-radius: 3px; cursor: pointer; position: relative; margin: 0 10px; }
@@ -231,7 +224,8 @@
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
         /* MODAL DE ANÚNCIO */
-        #adInterstitialModal { position: fixed; inset: 0; background: linear-gradient(135deg, rgba(11,15,25,0.97) 0%, rgba(26,26,46,0.97) 50%, rgba(22,33,62,0.97) 100%); z-index: 99999; display: none; align-items: center; justify-content: center; backdrop-filter: blur(10px); padding: 100px 20px 20px 20px; gap: 20px; overflow-y: auto; }
+        #adInterstitialModal { position: fixed; inset: 0; background: linear-gradient(135deg, rgba(11,15,25,0.97) 0%, rgba(26,26,46,0.97) 50%, rgba(22,33,62,0.97) 100%); z-index: 99999; display: none; align-items: center; justify-content: center; backdrop-filter: blur(10px); padding: 100px 20px 20px 20px; gap: 20px; overflow-y: auto; -ms-overflow-style: none; scrollbar-width: none; }
+        #adInterstitialModal::-webkit-scrollbar { display: none; }
         #adInterstitialModal.active { display: flex; }
         
         .ad-center-column { display: flex; flex-direction: column; align-items: center; gap: 15px; width: 100%; max-width: 800px; flex-shrink: 1; }
@@ -356,9 +350,9 @@
             .player-wrapper { max-height: calc(100vh - 200px); border-radius: 0; }
             
             /* SOMBRAS MOBILE: Ajustadas para cobrir os controles do YouTube no celular */
-            .player-wrapper::before { height: 80px !important; background: linear-gradient(to bottom, #000 0%, #000 40%, transparent 100%) !important; }
-            .player-wrapper::after { height: 100px !important; background: linear-gradient(to top, #000 0%, #000 50%, transparent 100%) !important; }
-            .player-controls { padding: 8px 12px 10px !important; background: linear-gradient(to top, #000 0%, #000 60%, transparent 100%) !important; }
+            .player-wrapper::before { height: 70px !important; background: linear-gradient(to bottom, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0.8) 50%, transparent 100%) !important; }
+            .player-wrapper::after { height: 90px !important; background: linear-gradient(to top, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0.8) 50%, transparent 100%) !important; }
+            .player-controls { padding: 8px 12px 10px !important; background: linear-gradient(to top, #000 0%, rgba(0,0,0,0.9) 60%, transparent 100%) !important; }
 
             #player-bottom-ad { display: none !important; }
             .player-vote-container { top: 10px; right: 10px; transform: scale(0.8); transform-origin: top right; }
