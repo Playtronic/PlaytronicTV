@@ -329,7 +329,6 @@
         .ad-close-btn.active:hover { background: #16a34a; }
 
         .ad-side-banner { width: 160px; height: 600px; max-height: calc(100vh - 40px); flex-shrink: 0; background: transparent; border-radius: 8px; overflow: hidden; position: relative; border: 1px solid rgba(255,255,255,0.2); display: none; z-index: 2;}
-        #adNativeRight { width: 300px; height: 250px; }
         .ad-side-banner iframe { width: 100%; height: 100%; display: block; border: 0; position: absolute; top:0; left:0; background: transparent; }
 
         .ad-mobile-top-banner, .ad-mobile-bottom-banner { display: none; width: 100%; max-width: 320px; background: #ffffff; border-radius: 8px; overflow: hidden; flex-shrink: 0; border: 1px solid rgba(255,255,255,0.2); position: relative; z-index: 2; }
@@ -421,21 +420,38 @@
         }
 
         @media (max-width: 900px) {
-            .header { display: grid; grid-template-columns: 1fr auto; grid-template-areas: "logo auth" "search search"; align-items: center; gap: 10px; height: auto; padding: 10px 15px; }
-            .header-brand { grid-area: logo; display: flex; justify-content: flex-start; width: auto; flex: none; }
+            .header {
+                display: flex;
+                flex-wrap: wrap;
+                justify-content: space-between;
+                align-items: center;
+                height: auto;
+                padding: 10px 15px;
+            }
+            .header-brand { flex: 1 1 auto; }
             .header-logo { height: 45px; }
-            .auth-area { grid-area: auth; justify-content: flex-end; width: auto; }
-            .search-container { grid-area: search; margin: 0; max-width: 100%; width: 100%; display: flex; }
+            .auth-area { flex: 0 0 auto; }
+            .search-container {
+                flex: 1 1 100%;
+                margin: 10px 0 0 0;
+                max-width: 100%;
+            }
             .user-card { position: fixed; top: 130px; left: 10px; right: 10px; width: auto; min-width: auto; }
             
             .main-scroll-wrapper { top: 130px; padding: 10px; }
+            #playerScreen { top: 130px; padding: 10px; }
+            
+            /* FIX: Quando os modais estão abertos (classe .no-scroll no body), o player e o catalogo sobem para colar no header */
+            body.no-scroll .main-scroll-wrapper,
+            body.no-scroll #playerScreen {
+                top: 75px;
+            }
             
             .catalog-grid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 15px; }
             .card-title { font-size: 1rem; min-height: 2.6em; }
             .card-info { padding: 10px; }
             .watch-btn { font-size: 0.85rem; padding: 8px; }
             
-            #playerScreen { top: 130px; padding: 10px; }
             .player-container { gap: 10px; }
             .player-wrapper { max-height: calc(100vh - 250px); border-radius: 0; }
             
@@ -470,12 +486,10 @@
             .comment-card { padding: 12px; }
             .comment-avatar { width: 36px; height: 36px; }
             
-            /* Mantém o padding para modais que TÊM header */
             .modal-overlay, #banAlertModal, #blockAlertModal { padding: 130px 10px 20px 10px; }
             
-            /* MODAL DE ANÚNCIO - CORRIGIDO PARA MOBILE (PORTRAIT) */
             #adInterstitialModal {
-                padding: 20px 10px 10px 10px; /* Padding normal, sem o vão gigante de 130px */
+                padding: 20px 10px 10px 10px;
                 align-items: center; 
                 justify-content: center;
             }
@@ -499,12 +513,11 @@
 
         /* Landscape Mobile Fixes */
         @media (max-width: 900px) and (orientation: landscape) {
-            /* MODAL DE ANÚNCIO - CORRIGIDO PARA MOBILE (LANDSCAPE) */
             #adInterstitialModal {
                 flex-direction: row;
                 justify-content: center;
                 align-items: center;
-                padding: 10px; /* Sem vão superior */
+                padding: 10px;
                 gap: 10px;
                 overflow: hidden !important;
             }
@@ -512,7 +525,7 @@
             .ad-center-column {
                 flex: 1;
                 max-width: 100%;
-                height: 100%; /* Ocupa toda a altura disponível */
+                height: 100%;
                 display: flex;
                 flex-direction: column;
                 justify-content: center;
@@ -529,7 +542,7 @@
             }
             
             .ad-center-wrapper {
-                flex: 1; /* Faz o player/imagem encolher para caber */
+                flex: 1;
                 min-height: 0;
                 aspect-ratio: auto; 
                 background: #000;
@@ -537,8 +550,8 @@
             
             .ad-interstitial-footer {
                 display: flex;
-                flex-direction: row; /* Botões lado a lado */
-                flex-wrap: nowrap; /* Proíbe quebra de linha */
+                flex-direction: row;
+                flex-wrap: nowrap;
                 align-items: center;
                 justify-content: center;
                 padding: 6px 10px;
@@ -556,7 +569,7 @@
             .ad-interstitial-footer button {
                 width: auto;
                 padding: 8px 12px;
-                font-size: 0.75rem; /* Fonte menor para caber os 3 botões */
+                font-size: 0.75rem;
                 white-space: nowrap;
                 margin: 0;
             }
@@ -567,10 +580,10 @@
                 flex-shrink: 0;
             }
 
-            /* Mostra o banner 300x250 à direita */
+            /* FIX: 300x250 na esquerda, oculta os outros */
             .ad-mobile-top-banner, .ad-mobile-bottom-banner, .ad-side-banner { display: none !important; }
-            #adNativeRight { display: block !important; width: 300px; height: 250px; flex-shrink: 0; }
-            #adNativeLeft { display: none !important; }
+            #adNativeLeft { display: block !important; width: 300px !important; height: 250px !important; flex-shrink: 0; }
+            #adNativeRight { display: none !important; }
             
             /* Player Landscape */
             .player-container { display: flex; flex-direction: column; align-items: center; }
@@ -2798,8 +2811,8 @@
         iframe.setAttribute('frameborder', '0');
         iframe.style.cssText = 'display:block; border:0; position:absolute; top:0; left:0; width:100%; height:100%; overflow:hidden;';
         
-        // Correção: Injetando o banner 300x250 correto
-        iframe.srcdoc = `<!DOCTYPE html><html><head><meta charset="utf-8"><style>html,body{margin:0;padding:0;overflow:hidden;width:100%;height:100%;background:transparent;display:flex;align-items:center;justify-content:center;}</style></head><body><script type="text/javascript">atOptions = {'key' : '51efcb0e502dffc7c8c25030a1155128','format' : 'iframe','height' : 250,'width' : 300,'params' : {}};<\/script><script type="text/javascript" src="https://dcengg.org/22/51efcb0e502dffc7c8c25030a1155128"><\/script></body></html>`;
+        // FIX: Volta a ser o banner vertical 160x600 no desktop
+        iframe.srcdoc = `<!DOCTYPE html><html><head><meta charset="utf-8"><style>html,body{margin:0;padding:0;overflow:hidden;width:100%;height:100%;background:transparent;display:flex;align-items:center;justify-content:center;}</style></head><body><script type="text/javascript">atOptions = {'key' : '0b2a1dd49cefbcb5c3f10330c969042c','format' : 'iframe','height' : 600,'width' : 160,'params' : {}};<\/script><script type="text/javascript" src="https://dcengg.org/22/0b2a1dd49cefbcb5c3f10330c969042c"><\/script></body></html>`;
         
         container.appendChild(iframe);
     }
@@ -2836,11 +2849,13 @@
         const isPortrait = window.matchMedia('(max-width: 900px) and (orientation: portrait)').matches;
 
         if (isLandscape) {
-            mountStandardAd(document.getElementById('adNativeRight'), { key: '51efcb0e502dffc7c8c25030a1155128', format: 'iframe', height: 250, width: 300, params: {} }, 'https://dcengg.org/22/51efcb0e502dffc7c8c25030a1155128');
+            // FIX: No celular landscape, mostra o banner 300x250 à ESQUERDA
+            mountStandardAd(document.getElementById('adNativeLeft'), { key: '51efcb0e502dffc7c8c25030a1155128', format: 'iframe', height: 250, width: 300, params: {} }, 'https://dcengg.org/22/51efcb0e502dffc7c8c25030a1155128');
         } else if (isPortrait) {
             mountStandardAd(document.getElementById('adMobileTop'), { key: 'c7c3c36fda809c5dd35ae6ed9c4890ca', format: 'iframe', height: 50, width: 320, params: {} }, 'https://dcengg.org/22/c7c3c36fda809c5dd35ae6ed9c4890ca');
             mountStandardAd(document.getElementById('adMobileBottom'), { key: '51efcb0e502dffc7c8c25030a1155128', format: 'iframe', height: 250, width: 300, params: {} }, 'https://dcengg.org/22/51efcb0e502dffc7c8c25030a1155128');
         } else {
+            // FIX: No Desktop, mostra os banners verticais dos dois lados
             injectLeftNativeAd();
             injectRightStandardAd();
         }
@@ -2972,7 +2987,7 @@
             document.getElementById('adMobileBottom').innerHTML = '';
 
             if (isLandscape) {
-                mountStandardAd(document.getElementById('adNativeRight'), { key: '51efcb0e502dffc7c8c25030a1155128', format: 'iframe', height: 250, width: 300, params: {} }, 'https://dcengg.org/22/51efcb0e502dffc7c8c25030a1155128');
+                mountStandardAd(document.getElementById('adNativeLeft'), { key: '51efcb0e502dffc7c8c25030a1155128', format: 'iframe', height: 250, width: 300, params: {} }, 'https://dcengg.org/22/51efcb0e502dffc7c8c25030a1155128');
             } else if (isPortrait) {
                 mountStandardAd(document.getElementById('adMobileTop'), { key: 'c7c3c36fda809c5dd35ae6ed9c4890ca', format: 'iframe', height: 50, width: 320, params: {} }, 'https://dcengg.org/22/c7c3c36fda809c5dd35ae6ed9c4890ca');
                 mountStandardAd(document.getElementById('adMobileBottom'), { key: '51efcb0e502dffc7c8c25030a1155128', format: 'iframe', height: 250, width: 300, params: {} }, 'https://dcengg.org/22/51efcb0e502dffc7c8c25030a1155128');
