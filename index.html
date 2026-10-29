@@ -979,7 +979,7 @@
         return null;
     }
 
-    // ============ CONTROLE DE VISIBILIDADE DA BARRA DE PESQUISA ============
+    // ============ CONTROLE DE VISIBILIDADE DA BARRA DE PESQUISA E BLOQUEIO DE SCROLL ============
     function updateSearchVisibility() {
         const searchContainer = document.querySelector('.search-container');
         if (!searchContainer) return;
@@ -994,8 +994,10 @@
             
         if (isModalOpen) {
             searchContainer.style.display = 'none';
+            document.body.style.overflow = 'hidden'; // BLOQUEIA O SCROLL DO FUNDO
         } else {
             searchContainer.style.display = ''; // Reverte para o CSS
+            document.body.style.overflow = ''; // LIBERA O SCROLL DO FUNDO
         }
     }
 
