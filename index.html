@@ -203,12 +203,25 @@
         .plan-option .plan-price { color: #fdbb2d; font-weight: 800; font-size: 1.1rem; }
         .plan-option .plan-badge { position: absolute; top: -8px; right: 8px; background: #22c55e; color: #fff; font-size: 0.65rem; font-weight: 800; padding: 2px 8px; border-radius: 10px; }
         
-        /* PLAYER */
-        #playerScreen { position: fixed; inset: 0; background: linear-gradient(135deg, rgba(11,15,25,0.97) 0%, rgba(26,26,46,0.97) 50%, rgba(22,33,62,0.97) 100%); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); z-index: 2000; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; overflow-y: auto; padding: 100px 20px 20px 20px; opacity: 0; visibility: hidden; transition: opacity 0.4s ease, visibility 0.4s; }
+        /* PLAYER - CORRIGIDO PARA COMEÇAR ABAIXO DO HEADER */
+        #playerScreen { 
+            position: fixed; 
+            top: 80px; 
+            left: 0; 
+            right: 0; 
+            bottom: 0; 
+            background: linear-gradient(135deg, rgba(11,15,25,0.97) 0%, rgba(26,26,46,0.97) 50%, rgba(22,33,62,0.97) 100%); 
+            backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); 
+            z-index: 2000; 
+            display: flex; flex-direction: column; align-items: center; justify-content: flex-start; 
+            overflow-y: auto; 
+            padding: 20px; 
+            opacity: 0; visibility: hidden; transition: opacity 0.4s ease, visibility 0.4s; 
+        }
         #playerScreen.active { opacity: 1; visibility: visible; }
         .player-container { width: 100%; max-width: 1200px; display: flex; flex-direction: column; align-items: center; gap: 15px; }
 
-        .player-wrapper { width: 100%; max-height: calc(100vh - 150px); aspect-ratio: 16 / 9; background: #000; border-radius: 12px; overflow: hidden; position: relative; box-shadow: 0 20px 50px rgba(0,0,0,0.8); flex-shrink: 0; touch-action: manipulation; }
+        .player-wrapper { width: 100%; max-height: calc(100vh - 200px); aspect-ratio: 16 / 9; background: #000; border-radius: 12px; overflow: hidden; position: relative; box-shadow: 0 20px 50px rgba(0,0,0,0.8); flex-shrink: 0; touch-action: manipulation; }
         .player-wrapper:fullscreen { width: 100vw; height: 100vh; max-height: 100vh; aspect-ratio: auto; border-radius: 0; }
         
         /* SOMBRAS AJUSTADAS */
@@ -392,9 +405,9 @@
             .card-info { padding: 10px; }
             .watch-btn { font-size: 0.85rem; padding: 8px; }
             
-            #playerScreen { padding: 130px 10px 40px 10px; justify-content: flex-start; }
+            #playerScreen { top: 130px; padding: 10px; }
             .player-container { gap: 10px; }
-            .player-wrapper { max-height: calc(100vh - 200px); border-radius: 0; }
+            .player-wrapper { max-height: calc(100vh - 250px); border-radius: 0; }
             
             .player-wrapper::before { height: 90px !important; background: linear-gradient(to bottom, #000 0%, #000 50%, transparent 100%) !important; }
             .player-wrapper::after { height: 90px !important; background: linear-gradient(to top, #000 0%, #000 50%, transparent 100%) !important; }
@@ -429,6 +442,8 @@
             
             .modal-overlay, #banAlertModal, #blockAlertModal { padding: 130px 10px 20px 10px; }
             
+            /* MODAL DE ANÚNCIO */
+            #adInterstitialModal { padding: 130px 10px 20px 10px; }
             .ad-interstitial-footer { flex-direction: column; align-items: stretch; }
             .ad-interstitial-footer > div { display: flex; flex-direction: column; gap: 10px; }
             .ad-interstitial-footer button { width: 100%; padding: 10px 15px; font-size: 0.9rem; }
@@ -436,7 +451,6 @@
         
         /* Portrait Mobile Fixes */
         @media (max-width: 900px) and (orientation: portrait) {
-            #adInterstitialModal { flex-direction: column; justify-content: flex-start; padding: 90px 10px 40px 10px; gap: 15px; overflow-y: auto; }
             .ad-side-banner { display: none !important; }
             .ad-mobile-top-banner { display: flex; }
             .ad-mobile-bottom-banner { display: flex; }
@@ -452,67 +466,70 @@
         @media (max-width: 900px) and (orientation: landscape) {
             #adInterstitialModal {
                 flex-direction: row;
-                justify-content: flex-start;
-                align-items: center;
-                padding: 10px 20px;
-                gap: 15px;
-                overflow: hidden !important;
-                overflow-x: hidden;
+                justify-content: center;
+                align-items: flex-start;
+                padding: 130px 10px 10px 10px; /* Ajustado para não cobrir o header */
+                gap: 10px;
+                overflow-y: auto; /* Permite rolar se necessário */
             }
             
             .ad-center-column {
-                flex: 0 0 auto;
-                width: calc(100% - 320px);
-                max-width: 500px;
+                flex: 1;
+                max-width: 100%;
+                height: calc(100vh - 140px); /* Preenche o espaço restante */
+                display: flex;
+                flex-direction: column;
+                align-items: center;
                 margin: 0;
-                height: auto;
             }
             
             .ad-interstitial-wrapper {
-                height: auto;
+                height: 100%;
+                max-height: 100%;
                 width: 100%;
                 flex-shrink: 0;
                 display: flex;
                 flex-direction: column;
+                overflow: hidden;
             }
             
             .ad-center-wrapper {
-                width: 100%;
                 flex: 1;
-                min-height: 120px; 
-                aspect-ratio: 16 / 9;
-                max-height: 220px;
+                min-height: 0;
+                max-height: none;
+                aspect-ratio: auto;
+                background: #000;
             }
             
             .ad-interstitial-footer {
                 display: flex;
-                flex-direction: row;
-                flex-wrap: wrap;
+                flex-direction: row; /* Botões lado a lado */
+                flex-wrap: nowrap;
                 align-items: center;
                 justify-content: center;
                 padding: 8px;
-                gap: 6px;
+                gap: 8px;
+                background: #152961;
             }
             
             .ad-interstitial-footer > div {
                 display: flex;
                 flex-direction: row;
-                gap: 6px;
-                width: 100%;
-                justify-content: center;
+                gap: 8px;
+                width: auto;
             }
             
             .ad-interstitial-footer button {
-                flex: 1;
-                padding: 8px 5px;
+                width: auto;
+                padding: 8px 12px;
                 font-size: 0.75rem;
-                margin: 0;
                 white-space: nowrap;
+                margin: 0;
             }
             
             .ad-interstitial-header {
-                padding: 8px 15px;
-                font-size: 0.85rem;
+                padding: 5px 15px;
+                font-size: 0.8rem;
             }
 
             .ad-mobile-top-banner, .ad-mobile-bottom-banner {
@@ -533,8 +550,8 @@
             .player-wrapper { 
                 order: 1; 
                 width: 100%; 
-                max-width: calc((100vh - 150px) * (16/9)); 
-                max-height: calc(100vh - 150px); 
+                max-width: calc((100vh - 250px) * (16/9)); 
+                max-height: calc(100vh - 250px); 
                 margin: 0 auto;
                 aspect-ratio: 16/9;
             }
@@ -590,7 +607,7 @@
         </div>
     </header>
 
-    <!-- NOVA DIV DE ROLAGEM -->
+    <!-- DIV DE ROLAGEM DA TELA INICIAL -->
     <div class="main-scroll-wrapper" id="mainScrollWrapper">
         <div id="catalogScreen">
             <div id="loadingMsg" class="loading">Carregando catálogo...</div>
