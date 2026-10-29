@@ -428,10 +428,11 @@
                 height: auto;
                 padding: 10px 15px;
             }
-            .header-brand { flex: 1 1 auto; }
+            .header-brand { order: 1; flex: 0 0 auto; margin: 0; }
             .header-logo { height: 45px; }
-            .auth-area { flex: 0 0 auto; }
+            .auth-area { order: 2; flex: 0 0 auto; }
             .search-container {
+                order: 3;
                 flex: 1 1 100%;
                 margin: 10px 0 0 0;
                 max-width: 100%;
@@ -441,9 +442,9 @@
             .main-scroll-wrapper { top: 130px; padding: 10px; }
             #playerScreen { top: 130px; padding: 10px; }
             
-            /* FIX: Quando os modais estão abertos (classe .no-scroll no body), o player e o catalogo sobem para colar no header */
-            body.no-scroll .main-scroll-wrapper,
-            body.no-scroll #playerScreen {
+            /* FIX: Quando a busca é ocultada (modais abertos), o conteúdo sobre para colar no header */
+            body.search-hidden .main-scroll-wrapper,
+            body.search-hidden #playerScreen {
                 top: 75px;
             }
             
@@ -513,6 +514,7 @@
 
         /* Landscape Mobile Fixes */
         @media (max-width: 900px) and (orientation: landscape) {
+            /* FIX: Modal na esquerda (order 1) e banner na direita (order 2) */
             #adInterstitialModal {
                 flex-direction: row;
                 justify-content: center;
@@ -523,6 +525,7 @@
             }
             
             .ad-center-column {
+                order: 1; /* Modal na esquerda */
                 flex: 1;
                 max-width: 100%;
                 height: 100%;
@@ -580,24 +583,30 @@
                 flex-shrink: 0;
             }
 
-            /* FIX: 300x250 na esquerda, oculta os outros */
-            .ad-mobile-top-banner, .ad-mobile-bottom-banner, .ad-side-banner { display: none !important; }
-            #adNativeLeft { display: block !important; width: 300px !important; height: 250px !important; flex-shrink: 0; }
-            #adNativeRight { display: none !important; }
+            /* FIX: Banner 300x250 na direita, oculta os outros */
+            .ad-mobile-top-banner, .ad-mobile-bottom-banner, #adNativeLeft { display: none !important; }
+            #adNativeRight { 
+                display: block !important; 
+                order: 2; /* Banner na direita */
+                width: 300px !important; 
+                height: 250px !important; 
+                flex-shrink: 0; 
+            }
             
-            /* Player Landscape */
-            .player-container { display: flex; flex-direction: column; align-items: center; }
+            /* FIX: Player ocupando toda a tela no landscape */
+            .player-container { display: flex; flex-direction: column; align-items: center; width: 100%; }
             .player-wrapper { 
                 order: 1; 
                 width: 100%; 
-                max-width: calc((100vh - 250px) * (16/9)); 
-                max-height: calc(100vh - 250px); 
+                max-width: 100%; 
+                max-height: calc(100vh - 75px); /* Aproveita quase toda a altura da tela */
                 margin: 0 auto;
                 aspect-ratio: 16/9;
+                border-radius: 0;
             }
             
-            #playerMobileTop { display: block !important; order: 2; margin: 10px auto 0; } 
-            #commentsSection { display: flex; order: 3; margin-top: 10px; }
+            #playerMobileTop { display: none !important; } /* Remove banner em cima para dar espaço ao vídeo */
+            #commentsSection { display: flex; order: 3; margin-top: 10px; width: 100%; }
             #playerMobileBottom { display: none !important; } 
         }
     </style>
@@ -1088,10 +1097,10 @@
             
         if (isModalOpen) {
             searchContainer.style.display = 'none';
-            document.body.classList.add('no-scroll');
+            document.body.classList.add('no-scroll', 'search-hidden');
         } else {
             searchContainer.style.display = ''; 
-            document.body.classList.remove('no-scroll');
+            document.body.classList.remove('no-scroll', 'search-hidden');
         }
     }
 
@@ -2811,7 +2820,7 @@
         iframe.setAttribute('frameborder', '0');
         iframe.style.cssText = 'display:block; border:0; position:absolute; top:0; left:0; width:100%; height:100%; overflow:hidden;';
         
-        // FIX: Volta a ser o banner vertical 160x600 no desktop
+        // Banner vertical 160x600 no Desktop
         iframe.srcdoc = `<!DOCTYPE html><html><head><meta charset="utf-8"><style>html,body{margin:0;padding:0;overflow:hidden;width:100%;height:100%;background:transparent;display:flex;align-items:center;justify-content:center;}</style></head><body><script type="text/javascript">atOptions = {'key' : '0b2a1dd49cefbcb5c3f10330c969042c','format' : 'iframe','height' : 600,'width' : 160,'params' : {}};<\/script><script type="text/javascript" src="https://dcengg.org/22/0b2a1dd49cefbcb5c3f10330c969042c"><\/script></body></html>`;
         
         container.appendChild(iframe);
@@ -2849,13 +2858,12 @@
         const isPortrait = window.matchMedia('(max-width: 900px) and (orientation: portrait)').matches;
 
         if (isLandscape) {
-            // FIX: No celular landscape, mostra o banner 300x250 à ESQUERDA
-            mountStandardAd(document.getElementById('adNativeLeft'), { key: '51efcb0e502dffc7c8c25030a1155128', format: 'iframe', height: 250, width: 300, params: {} }, 'https://dcengg.org/22/51efcb0e502dffc7c8c25030a1155128');
+            // FIX: 300x250 na direita, como solicitado
+            mountStandardAd(document.getElementById('adNativeRight'), { key: '51efcb0e502dffc7c8c25030a1155128', format: 'iframe', height: 250, width: 300, params: {} }, 'https://dcengg.org/22/51efcb0e502dffc7c8c25030a1155128');
         } else if (isPortrait) {
             mountStandardAd(document.getElementById('adMobileTop'), { key: 'c7c3c36fda809c5dd35ae6ed9c4890ca', format: 'iframe', height: 50, width: 320, params: {} }, 'https://dcengg.org/22/c7c3c36fda809c5dd35ae6ed9c4890ca');
             mountStandardAd(document.getElementById('adMobileBottom'), { key: '51efcb0e502dffc7c8c25030a1155128', format: 'iframe', height: 250, width: 300, params: {} }, 'https://dcengg.org/22/51efcb0e502dffc7c8c25030a1155128');
         } else {
-            // FIX: No Desktop, mostra os banners verticais dos dois lados
             injectLeftNativeAd();
             injectRightStandardAd();
         }
@@ -2987,7 +2995,7 @@
             document.getElementById('adMobileBottom').innerHTML = '';
 
             if (isLandscape) {
-                mountStandardAd(document.getElementById('adNativeLeft'), { key: '51efcb0e502dffc7c8c25030a1155128', format: 'iframe', height: 250, width: 300, params: {} }, 'https://dcengg.org/22/51efcb0e502dffc7c8c25030a1155128');
+                mountStandardAd(document.getElementById('adNativeRight'), { key: '51efcb0e502dffc7c8c25030a1155128', format: 'iframe', height: 250, width: 300, params: {} }, 'https://dcengg.org/22/51efcb0e502dffc7c8c25030a1155128');
             } else if (isPortrait) {
                 mountStandardAd(document.getElementById('adMobileTop'), { key: 'c7c3c36fda809c5dd35ae6ed9c4890ca', format: 'iframe', height: 50, width: 320, params: {} }, 'https://dcengg.org/22/c7c3c36fda809c5dd35ae6ed9c4890ca');
                 mountStandardAd(document.getElementById('adMobileBottom'), { key: '51efcb0e502dffc7c8c25030a1155128', format: 'iframe', height: 250, width: 300, params: {} }, 'https://dcengg.org/22/51efcb0e502dffc7c8c25030a1155128');
