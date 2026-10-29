@@ -14,7 +14,11 @@
 
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
+        html, body { height: 100%; overflow-x: hidden; }
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: linear-gradient(135deg, #0b0f19 0%, #1a1a2e 50%, #16213e 100%); background-attachment: fixed; color: #e2e8f0; min-height: 100vh; padding-top: 100px; padding-left: 20px; padding-right: 20px; display: flex; flex-direction: column; }
+        
+        /* Bloqueio de rolagem */
+        body.no-scroll { overflow: hidden; }
         
         /* OCULTA O HEADER QUANDO O MODAL DE ANÚNCIOS ESTIVER ATIVO */
         body.ad-modal-open .header { display: none !important; }
@@ -173,14 +177,14 @@
         .player-wrapper { width: 100%; max-height: calc(100vh - 150px); aspect-ratio: 16 / 9; background: #000; border-radius: 12px; overflow: hidden; position: relative; box-shadow: 0 20px 50px rgba(0,0,0,0.8); flex-shrink: 0; touch-action: manipulation; }
         .player-wrapper:fullscreen { width: 100vw; height: 100vh; max-height: 100vh; aspect-ratio: auto; border-radius: 0; }
         
-        /* SOMBRAS DESKTOP: Altas e opacas para cobrir os controles do YouTube */
-        .player-wrapper::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 140px; background: linear-gradient(to bottom, #000 0%, #000 30%, rgba(0,0,0,0) 100%); z-index: 5; pointer-events: none; transition: opacity 0.4s ease; }
-        .player-wrapper::after { content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 180px; background: linear-gradient(to top, #000 0%, #000 50%, rgba(0,0,0,0) 100%); z-index: 5; pointer-events: none; transition: opacity 0.4s ease; }
+        /* SOMBRAS AJUSTADAS: Cobrem controles nativos sem esconder legendas */
+        .player-wrapper::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 50px; background: linear-gradient(to bottom, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.6) 50%, transparent 100%); z-index: 5; pointer-events: none; transition: opacity 0.4s ease; }
+        .player-wrapper::after { content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 80px; background: linear-gradient(to top, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.6) 50%, transparent 100%); z-index: 5; pointer-events: none; transition: opacity 0.4s ease; }
         
         .player-wrapper.hide-shadows::before, .player-wrapper.hide-shadows::after { opacity: 0; }
         
-        /* CORREÇÃO: transform: scale para ocultar controles nativos do YouTube */
-        .player-wrapper iframe { width: 100%; height: 100%; display: block; border: none; position: absolute; top: 0; left: 0; z-index: 1; pointer-events: none; transform: scale(1.35); transform-origin: center center; }
+        /* CORREÇÃO: SEM SCALE, SEM CORTES */
+        .player-wrapper iframe { width: 100%; height: 100%; display: block; border: none; position: absolute; top: 0; left: 0; z-index: 1; pointer-events: none; }
         
         .custom-ui { position: absolute; inset: 0; z-index: 20; pointer-events: none; transition: opacity 0.4s ease, visibility 0.4s ease; }
         .custom-ui.player-ui-hidden { opacity: 0 !important; visibility: hidden !important; }
@@ -349,9 +353,9 @@
             .player-container { gap: 10px; }
             .player-wrapper { max-height: calc(100vh - 200px); border-radius: 0; }
             
-            /* SOMBRAS MOBILE: Ajustadas para cobrir os controles do YouTube no celular */
-            .player-wrapper::before { height: 90px !important; background: linear-gradient(to bottom, #000 0%, #000 40%, transparent 100%) !important; }
-            .player-wrapper::after { height: 120px !important; background: linear-gradient(to top, #000 0%, #000 50%, transparent 100%) !important; }
+            /* SOMBRAS MOBILE: Ajustadas para cobrir controles nativos sem esconder legendas */
+            .player-wrapper::before { height: 50px !important; background: linear-gradient(to bottom, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.6) 50%, transparent 100%) !important; }
+            .player-wrapper::after { height: 70px !important; background: linear-gradient(to top, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.6) 50%, transparent 100%) !important; }
             .player-controls { padding: 8px 12px 10px !important; background: linear-gradient(to top, #000 0%, #000 90%, transparent 100%) !important; }
 
             #player-bottom-ad { display: none !important; }
@@ -994,12 +998,12 @@
             
         if (isModalOpen) {
             searchContainer.style.display = 'none';
+            document.body.classList.add('no-scroll');
             document.documentElement.style.overflow = 'hidden';
-            document.body.style.overflow = 'hidden';
         } else {
             searchContainer.style.display = ''; 
+            document.body.classList.remove('no-scroll');
             document.documentElement.style.overflow = '';
-            document.body.style.overflow = ''; 
         }
     }
 
@@ -1073,7 +1077,7 @@
         if (!user) {
             banModal.classList.remove('active');
             blockModal.classList.remove('active');
-            document.body.style.overflow = '';
+            document.body.classList.remove('no-scroll');
             return;
         }
 
@@ -1086,12 +1090,11 @@
                 document.getElementById('banAlertReason').style.display = data.banReason ? 'block' : 'none';
                 document.getElementById('banAlertReason').textContent = data.banReason ? 'Motivo: ' + data.banReason : '';
                 banModal.classList.add('active');
-                document.body.style.overflow = 'hidden';
+                document.body.classList.add('no-scroll');
             } else if (data.commentBlockUntil && data.commentBlockUntil > Date.now()) {
                 const daysLeft = Math.ceil((data.commentBlockUntil - Date.now()) / (1000 * 60 * 60 * 24));
                 const isPerm = data.commentBlockUntil > Date.now() + (3650 * 24 * 60 * 60 * 1000);
                 
-                // Texto corrigido
                 document.getElementById('blockAlertMsg').innerHTML = isPerm
                     ? 'Você está <strong>permanentemente bloqueado</strong> para fazer comentários.'
                     : `Você está bloqueado para fazer comentários por <strong>${daysLeft} dia(s)</strong>.`;
@@ -1103,7 +1106,7 @@
                 banModal.classList.remove('active');
                 blockModal.classList.remove('active');
                 if (!document.querySelector('.modal-overlay.active') && (!document.getElementById('pixLightbox') || document.getElementById('pixLightbox').style.display !== 'flex')) {
-                    document.body.style.overflow = '';
+                    document.body.classList.remove('no-scroll');
                 }
                 if (data.commentBlockUntil && data.commentBlockUntil <= Date.now()) {
                     db.collection('catalog_users').doc(user.uid).set({ commentBlockUntil: null, blockReason: null }, { merge: true });
@@ -1116,10 +1119,8 @@
     
     document.getElementById('closeBlockAlertBtn').addEventListener('click', () => {
         document.getElementById('blockAlertModal').classList.remove('active');
-        document.body.style.overflow = '';
+        document.body.classList.remove('no-scroll');
     });
-
-    // Listener do botão de banimento foi removido (pois o botão foi excluído do HTML)
 
     // ============ COMENTÁRIOS ============
     document.getElementById('commentInput').addEventListener('input', (e) => {
@@ -1232,7 +1233,6 @@
                 if (data.isBanned) return alert('Sua conta está banida.');
                 if (data.commentBlockUntil && data.commentBlockUntil > Date.now()) {
                     const daysLeft = Math.ceil((data.commentBlockUntil - Date.now()) / (1000 * 60 * 60 * 24));
-                    // Texto corrigido
                     return alert(`Você está bloqueado para comentar por mais ${daysLeft} dia(s). Motivo: ${data.blockReason || 'Não informado'}`);
                 }
             }
@@ -2839,7 +2839,7 @@
         }
         if (isAdmin()) adminContainer.style.display = 'none';
         playerScreen.classList.add('active');
-        document.body.style.overflow = 'hidden';
+        document.body.classList.add('no-scroll');
         playerVideoTitle.textContent = video.titulo || 'Vídeo';
         viewAlreadyCounted = false;
         playerLoadingOverlay.classList.remove('hidden');
@@ -3038,7 +3038,7 @@
         playerReady = false; isEnded = false; isSeeking = false;
         currentPlayerVideoId = null; viewAlreadyCounted = false;
         playerScreen.classList.remove('active');
-        document.body.style.overflow = '';
+        document.body.classList.remove('no-scroll');
         progressFill.style.width = '0%'; progressThumb.style.left = '0%';
         timeLabel.textContent = '0:00 / 0:00';
         clearTimeout(controlsTimeout);
