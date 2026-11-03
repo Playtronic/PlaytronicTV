@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
@@ -92,7 +91,7 @@
 
         #catalogScreen { flex: 1; padding-bottom: 40px; }
 
-        /* ===== BARRA DE ORDENAÇÃO ===== */
+        /* ===== BARRA DE ORDENAÇÃO E FILTRO ===== */
         .catalog-sort-bar {
             display: flex;
             align-items: center;
@@ -140,6 +139,13 @@
         }
         .catalog-sort-bar #sortOrderSelect {
             min-width: 130px;
+        }
+        /* Separador visual entre filtro e ordenação */
+        .catalog-sort-bar .bar-divider {
+            width: 1px;
+            height: 24px;
+            background: rgba(255,255,255,0.15);
+            margin: 0 4px;
         }
 
         .catalog-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 30px; max-width: 1400px; margin: 0 auto; width: 100%; }
@@ -499,6 +505,9 @@
                 font-size: 0.8rem;
                 padding: 7px 10px;
             }
+            .catalog-sort-bar .bar-divider {
+                display: none;
+            }
             
             .catalog-grid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 15px; }
             .card-title { font-size: 1rem; min-height: 2.6em; }
@@ -707,12 +716,21 @@
         <div id="catalogScreen">
             <div id="loadingMsg" class="loading">Carregando catálogo...</div>
 
-            <!-- ===== BARRA DE ORDENAÇÃO ===== -->
+            <!-- ===== BARRA DE FILTRO E ORDENAÇÃO ===== -->
             <div class="catalog-sort-bar" id="catalogSortBar" style="display:none;">
+                <span class="sort-label">📺 Mostrar:</span>
+                <select id="contentFilterSelect">
+                    <option value="all">Todos os conteúdos</option>
+                    <option value="free">Apenas gratuitos</option>
+                    <option value="paid">Apenas pagos</option>
+                </select>
+
+                <div class="bar-divider"></div>
+
                 <span class="sort-label">🔀 Ordenar por:</span>
                 <select id="sortFieldSelect">
                     <option value="order">Data de inclusão</option>
-                    <option value="produtora">Produtora (qtd. de vídeos)</option>
+                    <option value="produtora">Produtora</option>
                     <option value="ano">Ano</option>
                     <option value="likes">Curtidas</option>
                     <option value="views">Visualizações</option>
@@ -1089,9 +1107,10 @@
     let perfSortField = 'views';
     let perfSortOrder = 'desc';
 
-    // Ordenação do catálogo
+    // Filtro e ordenação do catálogo
     let currentSortField = 'order';
     let currentSortOrder = 'desc';
+    let currentContentFilter = 'all'; // 'all' | 'free' | 'paid'
 
     // Presença / restrições
     let onlineUsersData = {};
@@ -1499,28 +1518,23 @@
         });
     });
 
-    // Localiza vídeo por YouTube ID
     function getVideoByYoutubeId(ytid) {
         return videos.find(v => v.youtubeId === ytid) || null;
     }
 
-    // Abre o player a partir do painel admin de comentários
     function viewVideoFromAdmin(ytid) {
         const video = getVideoByYoutubeId(ytid);
         if (!video) {
             alert('Vídeo não encontrado no catálogo. Ele pode ter sido removido.');
             return;
         }
-        // Fecha o modal de comentários admin
         document.getElementById('adminCommentsModal').classList.remove('active');
         if (adminCommentsRef) { adminCommentsRef.off(); adminCommentsRef = null; }
         if (deletedCommentsRef) { deletedCommentsRef.off(); deletedCommentsRef = null; }
-        // Abre o player com comentários
         openPlayer(video);
     }
     window.viewVideoFromAdmin = viewVideoFromAdmin;
 
-    // Bloco HTML de informação do vídeo (título + botão ver)
     function buildAdminCommentVideoInfo(videoId) {
         const video = getVideoByYoutubeId(videoId);
         const title = video ? (video.titulo || '(sem título)') : '(vídeo removido do catálogo)';
@@ -1925,7 +1939,6 @@
         if (currentSortField === 'views' && videosLoaded && favoritesLoaded) renderCards();
     });
 
-    // Contador global de comentários por vídeo
     rtdb.ref('vod_comments').on('value', (snap) => {
         const data = snap.val() || {};
         const counts = {};
@@ -1966,6 +1979,7 @@
     const catalogSortBar = document.getElementById('catalogSortBar');
     const sortFieldSelect = document.getElementById('sortFieldSelect');
     const sortOrderSelect = document.getElementById('sortOrderSelect');
+    const contentFilterSelect = document.getElementById('contentFilterSelect');
 
     if (sortFieldSelect) {
         sortFieldSelect.addEventListener('change', () => {
@@ -1976,6 +1990,12 @@
     if (sortOrderSelect) {
         sortOrderSelect.addEventListener('change', () => {
             currentSortOrder = sortOrderSelect.value;
+            if (videosLoaded && favoritesLoaded) renderCards();
+        });
+    }
+    if (contentFilterSelect) {
+        contentFilterSelect.addEventListener('change', () => {
+            currentContentFilter = contentFilterSelect.value;
             if (videosLoaded && favoritesLoaded) renderCards();
         });
     }
@@ -1996,12 +2016,8 @@
         const order = currentSortOrder;
         const arr = [...list];
 
-        // ─────────────────────────────────────────────────────
         // CASO ESPECIAL: Produtora → ordenar por QUANTIDADE de vídeos
-        // ─────────────────────────────────────────────────────
         if (field === 'produtora') {
-            // Conta quantos vídeos cada produtora tem no SITE (catálogo completo,
-            // independente do filtro de busca ativo no momento).
             const produtoraCounts = {};
             videos.forEach(v => {
                 const key = (v.produtora || '').toLowerCase().trim();
@@ -2014,7 +2030,6 @@
                 const aMissing = !pa;
                 const bMissing = !pb;
 
-                // Vídeos sem produtora sempre vão para o final
                 if (aMissing && !bMissing) return 1;
                 if (!aMissing && bMissing) return -1;
                 if (aMissing && bMissing) {
@@ -2024,22 +2039,15 @@
                 const ca = produtoraCounts[pa] || 0;
                 const cb = produtoraCounts[pb] || 0;
 
-                // 1) Primário: quantidade de vídeos da produtora
                 if (ca !== cb) return order === 'asc' ? ca - cb : cb - ca;
-
-                // 2) Secundário: nome da produtora (agrupa produtoras do mesmo tamanho)
                 if (pa !== pb) return pa.localeCompare(pb);
-
-                // 3) Terciário: título (A-Z dentro do grupo)
                 return (a.titulo || '').toLowerCase().localeCompare((b.titulo || '').toLowerCase());
             });
 
             return arr;
         }
 
-        // ─────────────────────────────────────────────────────
         // DEMAIS CAMPOS
-        // ─────────────────────────────────────────────────────
         arr.sort((a, b) => {
             let av, bv;
             let aMissing = false, bMissing = false;
@@ -2139,14 +2147,26 @@
 
     function renderCards() {
         if (loadingMsg.style.display !== 'none') loadingMsg.style.display = 'none';
-        const filtered = currentFilter
-            ? videos.filter(v => {
+
+        // ─── FILTRO DE CONTEÚDO (Todos / Gratuitos / Pagos) ───
+        let filtered = videos;
+        if (currentContentFilter === 'free') {
+            filtered = filtered.filter(v => !v.pago);
+        } else if (currentContentFilter === 'paid') {
+            filtered = filtered.filter(v => v.pago);
+        }
+
+        // ─── FILTRO DE BUSCA (título/produtora/ano) ───
+        if (currentFilter) {
+            filtered = filtered.filter(v => {
                 const title = (v.titulo || '').toLowerCase();
                 const produtora = (v.produtora || '').toLowerCase();
                 const ano = v.ano ? String(v.ano).toLowerCase() : '';
                 return title.includes(currentFilter) || produtora.includes(currentFilter) || ano.includes(currentFilter);
-            })
-            : videos;
+            });
+        }
+
+        // ─── ORDENAÇÃO ───
         const sorted = sortVideos(filtered);
 
         catalogGrid.innerHTML = '';
@@ -2165,7 +2185,11 @@
             return;
         }
         if (filtered.length === 0) {
-            emptyState.textContent = `Nenhum resultado para "${currentFilter}".`;
+            let msg = 'Nenhum vídeo encontrado';
+            if (currentContentFilter === 'paid') msg = 'Nenhum conteúdo pago encontrado';
+            else if (currentContentFilter === 'free') msg = 'Nenhum conteúdo gratuito encontrado';
+            if (currentFilter) msg += ` para "${currentFilter}"`;
+            emptyState.textContent = msg + '.';
             emptyState.style.display = 'block';
             if (favSection) favSection.style.display = 'none';
             return;
@@ -2174,6 +2198,8 @@
 
         sorted.forEach(item => {
             catalogGrid.appendChild(buildCard(item));
+            // Favoritos sempre mostram todos os favoritados (independente do filtro atual),
+            // para o usuário não "perder" itens que ele marcou.
             if (userFavorites[item.youtubeId] && favTrack) { favTrack.appendChild(buildCard(item)); favCount++; }
         });
         if (favSection) favSection.style.display = favCount > 0 ? 'block' : 'none';
