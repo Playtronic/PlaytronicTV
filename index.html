@@ -16,7 +16,6 @@
         * { margin: 0; padding: 0; box-sizing: border-box; }
         html { height: 100%; }
         
-        /* BODY SEM ROLAGEM NATIVA */
         body { 
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
             background: linear-gradient(135deg, #0b0f19 0%, #1a1a2e 50%, #16213e 100%); 
@@ -27,14 +26,9 @@
             display: flex; 
             flex-direction: column; 
         }
-        
-        /* BLOQUEIO DE ROLAGEM PARA MODAIS */
         body.no-scroll .main-scroll-wrapper { overflow: hidden; }
-        
-        /* OCULTA O HEADER QUANDO O MODAL DE ANÚNCIOS ESTIVER ATIVO */
         body.ad-modal-open .header { display: none !important; }
 
-        /* HEADER REDUZIDO */
         .header { 
             position: fixed; top: 0; left: 0; width: 100%; height: 80px; 
             display: flex; align-items: center; justify-content: space-between; 
@@ -82,7 +76,6 @@
         #adminDropdown button { background: rgba(255,255,255,0.05); color: #fff; padding: 10px; font-size: 0.85rem; text-align: left; justify-content: flex-start; }
         #adminDropdown button:hover { background: rgba(253,187,45,0.2); color: #fdbb2d; }
         
-        /* DIV DE ROLAGEM DA TELA INICIAL */
         .main-scroll-wrapper { 
             position: fixed; 
             top: 80px; 
@@ -97,6 +90,57 @@
         }
 
         #catalogScreen { flex: 1; padding-bottom: 40px; }
+
+        /* ===== BARRA DE ORDENAÇÃO DO CATÁLOGO ===== */
+        .catalog-sort-bar {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            background: rgba(30, 48, 92, 0.7);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 10px;
+            margin: 0 auto 20px auto;
+            flex-wrap: wrap;
+            width: 100%;
+            max-width: 1400px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.25);
+        }
+        .catalog-sort-bar .sort-label {
+            color: #fdbb2d;
+            font-weight: 700;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .catalog-sort-bar select {
+            background: rgba(255,255,255,0.08);
+            color: #fff;
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 8px;
+            padding: 8px 12px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            outline: none;
+            font-family: inherit;
+            transition: 0.2s;
+            min-width: 160px;
+        }
+        .catalog-sort-bar select:focus {
+            border-color: #fdbb2d;
+            background: rgba(255,255,255,0.12);
+        }
+        .catalog-sort-bar select option {
+            background: #152961;
+            color: #fff;
+        }
+        .catalog-sort-bar #sortOrderSelect {
+            min-width: 130px;
+        }
+
         .catalog-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 30px; max-width: 1400px; margin: 0 auto; width: 100%; }
         .card { background: #1e305c; border: 1px solid #2f4780; border-radius: 12px; overflow: hidden; transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease; display: flex; flex-direction: column; position: relative; width: 100%; }
         .card:hover { transform: translateY(-5px); box-shadow: 0 12px 30px rgba(0,0,0,0.5); border-color: #4a5568; }
@@ -203,7 +247,6 @@
         .plan-option .plan-price { color: #fdbb2d; font-weight: 800; font-size: 1.1rem; }
         .plan-option .plan-badge { position: absolute; top: -8px; right: 8px; background: #22c55e; color: #fff; font-size: 0.65rem; font-weight: 800; padding: 2px 8px; border-radius: 10px; }
         
-        /* PLAYER */
         #playerScreen { 
             position: fixed; 
             top: 80px; 
@@ -224,7 +267,6 @@
         .player-wrapper { width: 100%; max-height: calc(100vh - 200px); aspect-ratio: 16 / 9; background: #000; border-radius: 12px; overflow: hidden; position: relative; box-shadow: 0 20px 50px rgba(0,0,0,0.8); flex-shrink: 0; touch-action: manipulation; }
         .player-wrapper:fullscreen { width: 100vw; height: 100vh; max-height: 100vh; aspect-ratio: auto; border-radius: 0; }
         
-        /* SOMBRAS AJUSTADAS */
         .player-wrapper::before { 
             content: ''; position: absolute; top: 0; left: 0; right: 0; height: 110px; 
             background: linear-gradient(to bottom, #000 0%, #000 50%, transparent 100%); 
@@ -236,7 +278,6 @@
             z-index: 5; pointer-events: none; transition: opacity 0.4s ease; 
         }
         
-        /* CLASSE PARA OCULTAR AS SOMBRAS JUNTO COM OS CONTROLES */
         .player-wrapper.hide-shadows::before, .player-wrapper.hide-shadows::after { opacity: 0; }
 
         .player-wrapper iframe { width: 100%; height: 100%; display: block; border: none; position: absolute; top: 0; left: 0; z-index: 1; pointer-events: none; }
@@ -281,7 +322,6 @@
         .spinner { border: 4px solid rgba(253,187,45,0.2); border-top: 4px solid #fdbb2d; border-radius: 50%; width: 50px; height: 50px; animation: spin 1s linear infinite; margin-bottom: 15px; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
-        /* MODAL DE ANÚNCIO - CORRIGIDO */
         #adInterstitialModal { 
             position: fixed; inset: 0; 
             background: linear-gradient(135deg, rgba(11,15,25,0.97) 0%, rgba(26,26,46,0.97) 50%, rgba(22,33,62,0.97) 100%); 
@@ -290,7 +330,7 @@
             align-items: center; 
             justify-content: center; 
             backdrop-filter: blur(10px); 
-            padding: 20px; /* Padding base normal */
+            padding: 20px;
             gap: 20px; 
             overflow: hidden !important; 
         }
@@ -354,7 +394,6 @@
         .carousel-arrow.left { left: -15px; }
         .carousel-arrow.right { right: -15px; }
 
-        /* ===== COMENTÁRIOS ===== */
         #commentsSection { display: none; width: 100%; max-width: 1200px; margin: 5px auto 0; background: #152961; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); padding: 20px; color: #fff; flex-direction: column; gap: 15px; flex-shrink: 0; }
         .comments-header { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
         .comments-header h3 { color: #fdbb2d; font-size: 1.1rem; }
@@ -381,7 +420,6 @@
         .comment-action-btn.delete:hover { color: #ef4444; }
         .comment-action-btn.pin-btn:hover { color: #10b981; }
 
-        /* ===== ADMIN COMENTÁRIOS ===== */
         .admin-tabs { display: flex; gap: 8px; margin-bottom: 15px; flex-wrap: wrap; flex-shrink: 0; }
         .admin-tab-btn { flex: 1; min-width: 100px; padding: 10px; border-radius: 8px; border: none; font-weight: bold; cursor: pointer; transition: 0.2s; font-size: 0.82rem; background: rgba(255,255,255,0.12); color: #fff; font-family: inherit; }
         .admin-tab-btn.active { background: #fdbb2d; color: #000; }
@@ -395,7 +433,6 @@
         .btn-toggle-report { background: #6b7280; color: #fff; }
         .btn-pin { background: #10b981; color: #fff; }
 
-        /* ===== LIGHTBOXES ===== */
         #blockAlertModal { position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(5px); z-index: 99998; display: none; align-items: center; justify-content: center; padding: 100px 20px 20px 20px; }
         #blockAlertModal.active { display: flex; }
         #banAlertModal { position: fixed; inset: 0; background: rgba(0,0,0,0.95); backdrop-filter: blur(10px); z-index: 999999; display: none; align-items: center; justify-content: center; padding: 100px 20px 20px 20px; }
@@ -414,7 +451,6 @@
         #banAlertModal .alert-box { border: 2px solid #ef4444; }
         #banAlertModal h2 { color: #ef4444; }
 
-        /* Responsividade Geral */
         @media (min-width: 901px) {
             .ad-side-banner { display: block; }
         }
@@ -442,10 +478,26 @@
             .main-scroll-wrapper { top: 130px; padding: 10px; }
             #playerScreen { top: 130px; padding: 10px; }
             
-            /* FIX: Quando a busca é ocultada (modais abertos), o conteúdo sobre para colar no header */
             body.search-hidden .main-scroll-wrapper,
             body.search-hidden #playerScreen {
                 top: 75px;
+            }
+
+            /* Sort bar mobile */
+            .catalog-sort-bar {
+                gap: 8px;
+                padding: 10px 12px;
+                margin-bottom: 14px;
+            }
+            .catalog-sort-bar .sort-label {
+                font-size: 0.72rem;
+                width: 100%;
+            }
+            .catalog-sort-bar select {
+                flex: 1;
+                min-width: 0;
+                font-size: 0.8rem;
+                padding: 7px 10px;
             }
             
             .catalog-grid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 15px; }
@@ -499,7 +551,6 @@
             .ad-interstitial-footer button { width: 100%; padding: 10px 15px; font-size: 0.9rem; }
         }
         
-        /* Portrait Mobile Fixes */
         @media (max-width: 900px) and (orientation: portrait) {
             .ad-side-banner { display: none !important; }
             .ad-mobile-top-banner { display: flex; }
@@ -512,9 +563,7 @@
             #playerMobileBottom { display: block; order: 4; margin-top: 10px; }
         }
 
-        /* Landscape Mobile Fixes */
         @media (max-width: 900px) and (orientation: landscape) {
-            /* FIX: Modal na esquerda (order 1) e banner na direita (order 2) */
             #adInterstitialModal {
                 flex-direction: row;
                 justify-content: center;
@@ -525,7 +574,7 @@
             }
             
             .ad-center-column {
-                order: 1; /* Modal na esquerda */
+                order: 1;
                 flex: 1;
                 max-width: 100%;
                 height: 100%;
@@ -583,29 +632,27 @@
                 flex-shrink: 0;
             }
 
-            /* FIX: Banner 300x250 na direita, oculta os outros */
             .ad-mobile-top-banner, .ad-mobile-bottom-banner, #adNativeLeft { display: none !important; }
             #adNativeRight { 
                 display: block !important; 
-                order: 2; /* Banner na direita */
+                order: 2;
                 width: 300px !important; 
                 height: 250px !important; 
                 flex-shrink: 0; 
             }
             
-            /* FIX: Player ocupando toda a tela no landscape */
             .player-container { display: flex; flex-direction: column; align-items: center; width: 100%; }
             .player-wrapper { 
                 order: 1; 
                 width: 100%; 
                 max-width: 100%; 
-                max-height: calc(100vh - 75px); /* Aproveita quase toda a altura da tela */
+                max-height: calc(100vh - 75px);
                 margin: 0 auto;
                 aspect-ratio: 16/9;
                 border-radius: 0;
             }
             
-            #playerMobileTop { display: none !important; } /* Remove banner em cima para dar espaço ao vídeo */
+            #playerMobileTop { display: none !important; }
             #commentsSection { display: flex; order: 3; margin-top: 10px; width: 100%; }
             #playerMobileBottom { display: none !important; } 
         }
@@ -659,6 +706,25 @@
     <div class="main-scroll-wrapper" id="mainScrollWrapper">
         <div id="catalogScreen">
             <div id="loadingMsg" class="loading">Carregando catálogo...</div>
+
+            <!-- ===== BARRA DE ORDENAÇÃO ===== -->
+            <div class="catalog-sort-bar" id="catalogSortBar" style="display:none;">
+                <span class="sort-label">🔀 Ordenar por:</span>
+                <select id="sortFieldSelect">
+                    <option value="order">Data de inclusão</option>
+                    <option value="produtora">Produtora</option>
+                    <option value="ano">Ano</option>
+                    <option value="likes">Curtidas</option>
+                    <option value="views">Visualizações</option>
+                    <option value="comments">Mais comentados</option>
+                    <option value="titulo">Título (A-Z)</option>
+                </select>
+                <select id="sortOrderSelect">
+                    <option value="desc">↓ Decrescente</option>
+                    <option value="asc">↑ Crescente</option>
+                </select>
+            </div>
+
             <div id="favoritesSection" style="display: none;">
                 <h2 class="carousel-title">Seus Favoritos</h2>
                 <div class="carousel-wrapper">
@@ -769,7 +835,6 @@
         </div>
     </div>
 
-    <!-- PAINEL ADMIN: COMENTÁRIOS -->
     <div class="modal-overlay" id="adminCommentsModal">
         <div class="modal flex-modal" style="max-width: 900px;">
             <h2>💬 Gerenciar Comentários</h2>
@@ -784,7 +849,6 @@
         </div>
     </div>
 
-    <!-- INSERT AD / MY ADS -->
     <div class="modal-overlay" id="insertAdModal">
         <div class="modal">
             <h2>Inserir um Anúncio</h2>
@@ -833,7 +897,6 @@
         </div>
     </div>
 
-    <!-- PLAYER -->
     <div id="playerScreen">
         <div class="player-container">
             <div class="player-wrapper" id="playerWrapper">
@@ -877,14 +940,12 @@
                 <div id="youtubePlayer"></div>
             </div>
 
-            <!-- Banner 320x50 - Sempre abaixo do player -->
             <div class="player-mobile-banner" id="playerMobileTop"></div>
 
             <div id="player-bottom-ad">
                 <iframe id="horizontal-ad-iframe" frameborder="0" scrolling="no"></iframe>
             </div>
 
-            <!-- ===== SEÇÃO DE COMENTÁRIOS ===== -->
             <div id="commentsSection">
                 <div class="comments-header">
                     <h3>💬 Comentários</h3>
@@ -902,12 +963,10 @@
                 <div id="commentsList" style="display: flex; flex-direction: column; gap: 12px;"></div>
             </div>
 
-            <!-- Banner 300x250 - Abaixo da área de comentários -->
             <div class="player-mobile-banner" id="playerMobileBottom"></div>
         </div>
     </div>
 
-    <!-- LIGHTBOX: BLOQUEIO -->
     <div id="blockAlertModal">
         <div class="alert-box">
             <h2>⛔ Acesso Restrito a Comentários</h2>
@@ -920,7 +979,6 @@
         </div>
     </div>
 
-    <!-- LIGHTBOX: BANIMENTO -->
     <div id="banAlertModal">
         <div class="alert-box">
             <h2>🚫 Conta Banida</h2>
@@ -932,7 +990,6 @@
         </div>
     </div>
 
-    <!-- INTERSTITIAL DE ANÚNCIOS -->
     <div id="adInterstitialModal">
         <div class="ad-side-banner" id="adNativeLeft"></div>
         
@@ -957,7 +1014,6 @@
         <div class="ad-side-banner" id="adNativeRight"></div>
     </div>
 
-    <!-- PIX SUBSCRIPTION -->
     <div id="pixLightbox" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 99999; justify-content: center; align-items: center; backdrop-filter: blur(6px); padding: 100px 20px 20px 20px;">
         <div style="background: #152961; border: 2px solid #fdbb2d; border-radius: 14px; padding: 30px; max-width: 480px; width: 100%; position: relative; text-align: center; color: #fff; max-height: 85vh; overflow-y: auto;">
             <button id="pixClose" style="position: absolute; top: 12px; right: 14px; background: transparent; border: none; color: #cbd5e1; font-size: 1.6rem; cursor: pointer;">×</button>
@@ -1010,6 +1066,7 @@
     let userFavorites = {};
     let votesCache = {};
     let viewsCache = {};
+    let commentsCountCache = {}; // NOVO: contador de comentários por vídeo
     let videosLoaded = false;
     let favoritesLoaded = false;
     let myAdsTitlesCache = {};
@@ -1031,6 +1088,10 @@
     let allUsersActiveCount = 0;
     let perfSortField = 'views';
     let perfSortOrder = 'desc';
+
+    // NOVO: ordenação do catálogo
+    let currentSortField = 'order';
+    let currentSortOrder = 'desc';
 
     // Estado de presença / restrições
     let onlineUsersData = {};
@@ -1082,7 +1143,7 @@
         return null;
     }
 
-    // ============ CONTROLE DE VISIBILIDADE DA BARRA DE PESQUISA E BLOQUEIO DE SCROLL ============
+    // ============ CONTROLE DE VISIBILIDADE ============
     function updateSearchVisibility() {
         const searchContainer = document.querySelector('.search-container');
         if (!searchContainer) return;
@@ -1128,7 +1189,7 @@
         window.addEventListener('resize', updateSearchVisibility);
     });
 
-    // ============ PRESENÇA (HEARTBEAT 3 MIN) ============
+    // ============ PRESENÇA ============
     function setupPresence(user) {
         if (!user) return;
         const userStatusRef = rtdb.ref('/onlineUsers/' + user.uid);
@@ -1164,7 +1225,7 @@
         }
     });
 
-    // ============ VERIFICAÇÃO DE BLOQUEIO / BANIMENTO ============
+    // ============ RESTRIÇÕES ============
     function setupUserRestrictions(user) {
         if (unsubRestrictions) { unsubRestrictions(); unsubRestrictions = null; }
 
@@ -1438,6 +1499,42 @@
         });
     });
 
+    // NOVO: helper para localizar vídeo por ID
+    function getVideoByYoutubeId(ytid) {
+        return videos.find(v => v.youtubeId === ytid) || null;
+    }
+
+    // NOVO: abrir player a partir do painel admin de comentários
+    function viewVideoFromAdmin(ytid) {
+        const video = getVideoByYoutubeId(ytid);
+        if (!video) {
+            alert('Vídeo não encontrado no catálogo. Ele pode ter sido removido.');
+            return;
+        }
+        // Fecha o modal de comentários admin
+        document.getElementById('adminCommentsModal').classList.remove('active');
+        if (adminCommentsRef) { adminCommentsRef.off(); adminCommentsRef = null; }
+        if (deletedCommentsRef) { deletedCommentsRef.off(); deletedCommentsRef = null; }
+        // Abre o player com comentários
+        openPlayer(video);
+    }
+    // Expõe globalmente (usado em onclick inline)
+    window.viewVideoFromAdmin = viewVideoFromAdmin;
+
+    // NOVO: bloco HTML de informação do vídeo (título + botão ver)
+    function buildAdminCommentVideoInfo(videoId) {
+        const video = getVideoByYoutubeId(videoId);
+        const title = video ? (video.titulo || '(sem título)') : '(vídeo removido do catálogo)';
+        const exists = !!video;
+        return `
+            <div style="display:flex; align-items:center; gap:10px; margin-bottom:8px; padding:7px 10px; background:rgba(59,130,246,0.10); border-left:3px solid #3b82f6; border-radius:4px;">
+                <span style="font-size:0.72rem; color:#94a3b8; white-space:nowrap;">🎬 Vídeo:</span>
+                <span style="font-size:0.85rem; color:${exists ? '#e2e8f0' : '#ef4444'}; font-weight:600; flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;" title="${escapeHtml(title)}">${escapeHtml(title)}</span>
+                ${exists ? `<button type="button" class="admin-action-btn" style="background:#3b82f6; color:#fff; padding:5px 12px; font-size:0.72rem; white-space:nowrap;" onclick="viewVideoFromAdmin('${videoId}')">👁️ Ver</button>` : ''}
+            </div>
+        `;
+    }
+
     function loadAdminComments() {
         const list = document.getElementById('adminCommentsListContainer');
         list.innerHTML = '<p style="text-align:center; padding:20px;">Carregando...</p>';
@@ -1505,6 +1602,9 @@
             const displayName = u.name || c.name || 'Usuário';
             const displayPhoto = u.photoURL || c.photoURL || 'https://www.gravatar.com/avatar/?d=mp';
 
+            // NOVO: bloco de vídeo do comentário
+            const videoInfoHtml = buildAdminCommentVideoInfo(c.videoId);
+
             let actionsHtml = '';
             if (c.isDeleted) {
                 actionsHtml = `
@@ -1523,6 +1623,7 @@
 
             return `
                 <div class="admin-comment-wrapper" style="border-left: 4px solid ${c.isReported ? '#ef4444' : (c.isPinned ? '#10b981' : '#3b82f6')};">
+                    ${videoInfoHtml}
                     <div style="display:flex; justify-content:space-between; font-size:0.75rem; margin-bottom:8px; flex-wrap:wrap; gap:4px; align-items:center;">
                         <div style="display:flex; align-items:center; gap:8px;">
                             <img src="${escapeHtml(displayPhoto)}" style="width:24px; height:24px; border-radius:50%; object-fit:cover;">
@@ -1818,10 +1919,25 @@
         atualizarTodosBadges();
         if (currentPlayerVideoId) atualizarPlayerUI(currentPlayerVideoId);
         if (document.getElementById('performanceModal')?.classList.contains('active')) renderPerformanceTable();
+        // reordena se estiver ordenando por curtidas
+        if ((currentSortField === 'likes') && videosLoaded && favoritesLoaded) renderCards();
     });
     rtdb.ref('vod_views').on('value', (snap) => {
         viewsCache = snap.val() || {};
         if (document.getElementById('performanceModal')?.classList.contains('active')) renderPerformanceTable();
+        if ((currentSortField === 'views') && videosLoaded && favoritesLoaded) renderCards();
+    });
+
+    // NOVO: contador global de comentários por vídeo (para ordenação "Mais comentados")
+    rtdb.ref('vod_comments').on('value', (snap) => {
+        const data = snap.val() || {};
+        const counts = {};
+        Object.keys(data).forEach(vid => {
+            const cobj = data[vid];
+            if (cobj && typeof cobj === 'object') counts[vid] = Object.keys(cobj).length;
+        });
+        commentsCountCache = counts;
+        if ((currentSortField === 'comments') && videosLoaded && favoritesLoaded) renderCards();
     });
 
     async function votar(videoId, tipo) {
@@ -1850,6 +1966,23 @@
     const emptyState = document.getElementById('emptyState');
     const searchInput = document.getElementById('searchInput');
     const clearMainSearchBtn = document.getElementById('clearMainSearchBtn');
+    const catalogSortBar = document.getElementById('catalogSortBar');
+    const sortFieldSelect = document.getElementById('sortFieldSelect');
+    const sortOrderSelect = document.getElementById('sortOrderSelect');
+
+    // NOVO: listeners de ordenação
+    if (sortFieldSelect) {
+        sortFieldSelect.addEventListener('change', () => {
+            currentSortField = sortFieldSelect.value;
+            if (videosLoaded && favoritesLoaded) renderCards();
+        });
+    }
+    if (sortOrderSelect) {
+        sortOrderSelect.addEventListener('change', () => {
+            currentSortOrder = sortOrderSelect.value;
+            if (videosLoaded && favoritesLoaded) renderCards();
+        });
+    }
 
     searchInput.addEventListener('input', (e) => {
         currentFilter = e.target.value.toLowerCase().trim();
@@ -1860,6 +1993,61 @@
         searchInput.value = ''; currentFilter = ''; clearMainSearchBtn.style.display = 'none'; renderCards(); searchInput.focus();
     });
     function tryRender() { if (videosLoaded && favoritesLoaded) renderCards(); }
+
+    // NOVO: função de ordenação
+    function sortVideos(list) {
+        const field = currentSortField;
+        const order = currentSortOrder;
+        const arr = [...list];
+        arr.sort((a, b) => {
+            let av, bv;
+            let aMissing = false, bMissing = false;
+            switch (field) {
+                case 'produtora':
+                    av = (a.produtora || '').toLowerCase().trim();
+                    bv = (b.produtora || '').toLowerCase().trim();
+                    if (!av) aMissing = true;
+                    if (!bv) bMissing = true;
+                    break;
+                case 'ano':
+                    av = Number(a.ano) || 0;
+                    bv = Number(b.ano) || 0;
+                    if (!av) aMissing = true;
+                    if (!bv) bMissing = true;
+                    break;
+                case 'likes':
+                    av = (votesCache[a.youtubeId] || {}).likes || 0;
+                    bv = (votesCache[b.youtubeId] || {}).likes || 0;
+                    break;
+                case 'views':
+                    av = viewsCache[a.youtubeId] || 0;
+                    bv = viewsCache[b.youtubeId] || 0;
+                    break;
+                case 'comments':
+                    av = commentsCountCache[a.youtubeId] || 0;
+                    bv = commentsCountCache[b.youtubeId] || 0;
+                    break;
+                case 'titulo':
+                    av = (a.titulo || '').toLowerCase();
+                    bv = (b.titulo || '').toLowerCase();
+                    break;
+                case 'order':
+                default:
+                    av = a.order || 0;
+                    bv = b.order || 0;
+            }
+            // Itens sem valor (produtora/ano vazios) sempre no final
+            if (aMissing && !bMissing) return 1;
+            if (!aMissing && bMissing) return -1;
+            if (aMissing && bMissing) return 0;
+
+            let cmp;
+            if (typeof av === 'string') cmp = av.localeCompare(bv);
+            else cmp = av - bv;
+            return order === 'asc' ? cmp : -cmp;
+        });
+        return arr;
+    }
 
     function buildCard(item) {
         const card = document.createElement('div');
@@ -1925,15 +2113,23 @@
                 return title.includes(currentFilter) || produtora.includes(currentFilter) || ano.includes(currentFilter);
             })
             : videos;
+        // NOVO: aplica ordenação escolhida
+        const sorted = sortVideos(filtered);
+
         catalogGrid.innerHTML = '';
         const favSection = document.getElementById('favoritesSection');
         const favTrack = document.getElementById('favoritesTrack');
         if (favTrack) favTrack.innerHTML = '';
         let favCount = 0;
+
+        // Mostra/oculta barra de ordenação
+        if (catalogSortBar) catalogSortBar.style.display = (videos.length > 0) ? 'flex' : 'none';
+
         if (videos.length === 0) {
             emptyState.textContent = 'Nenhum vídeo cadastrado ainda.';
             emptyState.style.display = 'block';
             if (favSection) favSection.style.display = 'none';
+            if (catalogSortBar) catalogSortBar.style.display = 'none';
             return;
         }
         if (filtered.length === 0) {
@@ -1943,7 +2139,8 @@
             return;
         }
         emptyState.style.display = 'none';
-        filtered.forEach(item => {
+
+        sorted.forEach(item => {
             catalogGrid.appendChild(buildCard(item));
             if (userFavorites[item.youtubeId] && favTrack) { favTrack.appendChild(buildCard(item)); favCount++; }
         });
@@ -1953,7 +2150,6 @@
     rtdb.ref('vod_videos').on('value', (snap) => {
         const data = snap.val() || {};
         videos = Object.entries(data).map(([key, v]) => ({ key, ...v }));
-        videos.sort((a, b) => (b.order || 0) - (a.order || 0));
         videosLoaded = true;
         tryRender();
     }, (err) => {
@@ -2092,7 +2288,7 @@
         } catch (e) { alert(e.message); }
     });
 
-    // ============ ANÚNCIOS INTERNOS (ADMIN) ============
+    // ============ ANÚNCIOS INTERNOS ============
     function normalizarBanners(raw) {
         if (!raw) return [];
         let arr = Array.isArray(raw) ? raw : Object.values(raw);
@@ -2500,7 +2696,7 @@
         setTimeout(() => document.getElementById('copyPixBtn').textContent = 'Copiar código', 2000);
     });
 
-    // ============ ANÚNCIO PAGO (INSERT AD) ============
+    // ============ ANÚNCIO PAGO ============
     const insertAdModal = document.getElementById('insertAdModal');
     const adYoutubeHint = document.getElementById('adYoutubeHint');
     const newAdYoutubeUrl = document.getElementById('newAdYoutubeUrl');
@@ -2820,7 +3016,6 @@
         iframe.setAttribute('frameborder', '0');
         iframe.style.cssText = 'display:block; border:0; position:absolute; top:0; left:0; width:100%; height:100%; overflow:hidden;';
         
-        // Banner vertical 160x600 no Desktop
         iframe.srcdoc = `<!DOCTYPE html><html><head><meta charset="utf-8"><style>html,body{margin:0;padding:0;overflow:hidden;width:100%;height:100%;background:transparent;display:flex;align-items:center;justify-content:center;}</style></head><body><script type="text/javascript">atOptions = {'key' : '0b2a1dd49cefbcb5c3f10330c969042c','format' : 'iframe','height' : 600,'width' : 160,'params' : {}};<\/script><script type="text/javascript" src="https://dcengg.org/22/0b2a1dd49cefbcb5c3f10330c969042c"><\/script></body></html>`;
         
         container.appendChild(iframe);
@@ -2858,7 +3053,6 @@
         const isPortrait = window.matchMedia('(max-width: 900px) and (orientation: portrait)').matches;
 
         if (isLandscape) {
-            // FIX: 300x250 na direita, como solicitado
             mountStandardAd(document.getElementById('adNativeRight'), { key: '51efcb0e502dffc7c8c25030a1155128', format: 'iframe', height: 250, width: 300, params: {} }, 'https://dcengg.org/22/51efcb0e502dffc7c8c25030a1155128');
         } else if (isPortrait) {
             mountStandardAd(document.getElementById('adMobileTop'), { key: 'c7c3c36fda809c5dd35ae6ed9c4890ca', format: 'iframe', height: 50, width: 320, params: {} }, 'https://dcengg.org/22/c7c3c36fda809c5dd35ae6ed9c4890ca');
