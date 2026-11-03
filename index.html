@@ -36,7 +36,7 @@
         .user-info.active { display: flex; }
         .user-avatar { width: 40px; height: 40px; border-radius: 50%; border: 2px solid #fdbb2d; object-fit: cover; }
 
-        /* ═══ NOVO: badge de notificação no avatar ═══ */
+        /* ═══ Badge de notificação no avatar ═══ */
         .user-avatar-wrapper { position: relative; display: flex; align-items: center; justify-content: center; }
         .notification-badge {
             position: absolute; top: -5px; right: -5px;
@@ -57,16 +57,20 @@
         .user-actions { display: flex; flex-direction: column; gap: 10px; margin-bottom: 15px; }
         .user-card button { width: 100%; padding: 12px; border-radius: 8px; border: none; font-weight: bold; font-size: 0.9rem; cursor: pointer; transition: 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px; }
 
-        /* ═══ NOVO: botão de notificações no user card ═══ */
+        /* ═══ CORRIGIDO: botão de notificações AZUL (era vermelho) ═══ */
         .user-card #notificationsBtn {
-            background: linear-gradient(135deg, #ef4444, #b91c1c);
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
             color: #fff; position: relative;
-            box-shadow: 0 2px 10px rgba(239,68,68,0.3);
+            box-shadow: 0 2px 10px rgba(59,130,246,0.35);
         }
-        .user-card #notificationsBtn:hover { background: linear-gradient(135deg, #dc2626, #991b1b); }
-        .user-card #notificationsBtn.has-unread { animation: pulseBadge 2s ease-in-out infinite; }
+        .user-card #notificationsBtn:hover { background: linear-gradient(135deg, #2563eb, #1d4ed8); }
+        .user-card #notificationsBtn.has-unread { animation: pulseBadgeBlue 2s ease-in-out infinite; }
+        @keyframes pulseBadgeBlue {
+            0%, 100% { box-shadow: 0 2px 10px rgba(59,130,246,0.4); }
+            50%      { box-shadow: 0 2px 22px rgba(59,130,246,0.85); }
+        }
         .notif-count {
-            background: #fff; color: #ef4444; border-radius: 10px;
+            background: #fff; color: #2563eb; border-radius: 10px;
             padding: 1px 8px; font-size: 0.72rem; font-weight: 900;
             margin-left: auto; min-width: 22px; text-align: center;
         }
@@ -137,6 +141,10 @@
 
         .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.72); display: none; align-items: center; justify-content: center; z-index: 1500; backdrop-filter: blur(6px); padding: 100px 20px 20px 20px; }
         .modal-overlay.active { display: flex; }
+
+        /* ═══ CORRIGIDO: notificações acima do player (z-index 2000) ═══ */
+        #notificationsModal { z-index: 2200; }
+
         .modal { background: #152961; border: 1px solid rgba(255,255,255,0.12); border-radius: 14px; padding: 26px; width: 100%; max-width: 520px; box-shadow: 0 25px 60px rgba(0,0,0,0.8); animation: modalIn 0.2s ease; max-height: 85vh; overflow-y: auto; }
         .modal.flex-modal { display: flex; flex-direction: column; max-height: 85vh; overflow: hidden; }
         .modal.flex-modal .modal-scroll { flex: 1; overflow-y: auto; min-height: 0; padding-right: 6px; }
@@ -321,7 +329,6 @@
         .comment-action-btn.pin-btn:hover { color: #10b981; }
         .comment-action-btn.reply-action:hover { color: #60a5fa; }
 
-        /* ═══ NOVO: estilos de subcomentários (replies) ═══ */
         .replies-container { display: none; margin-top: 12px; margin-left: 20px; padding-left: 18px; border-left: 2px solid rgba(253,187,45,0.25); flex-direction: column; gap: 10px; }
         .replies-container.expanded { display: flex; }
 
@@ -342,7 +349,6 @@
         .reply-action-btn.pin-btn:hover { color: #10b981; }
         .reply-action-btn.delete-btn:hover { color: #ef4444; }
 
-        /* ═══ NOVO: botão expandir/retrair + contador de respostas ═══ */
         .replies-toggle-wrapper { margin-top: 10px; }
         .replies-toggle-btn { background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.15); color: #cbd5e1; padding: 6px 14px; border-radius: 6px; font-size: 0.8rem; cursor: pointer; font-family: inherit; display: inline-flex; align-items: center; gap: 6px; transition: 0.2s; font-weight: 600; }
         .replies-toggle-btn:hover { background: rgba(253,187,45,0.12); border-color: #fdbb2d; color: #fdbb2d; }
@@ -351,7 +357,6 @@
         .replies-toggle-btn.expanded .arrow { transform: rotate(180deg); }
         .replies-toggle-btn .reply-badge { background: #fdbb2d; color: #000; border-radius: 10px; padding: 1px 7px; font-size: 0.7rem; font-weight: 800; }
 
-        /* ═══ NOVO: formulário de resposta inline ═══ */
         .reply-form { display: none; margin-top: 10px; background: rgba(0,0,0,0.25); padding: 10px; border-radius: 8px; gap: 8px; align-items: flex-start; border: 1px solid rgba(255,255,255,0.08); }
         .reply-form.active { display: flex; }
         .reply-form textarea { flex: 1; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.2); border-radius: 6px; padding: 8px 10px; color: #fff; resize: vertical; min-height: 44px; outline: none; font-family: inherit; font-size: 0.85rem; }
@@ -360,7 +365,6 @@
         .reply-form .reply-form-btn:hover { background: #ffcc44; }
         .reply-form .reply-form-btn:disabled { opacity: 0.5; cursor: not-allowed; }
 
-        /* ═══ NOVO: modal de notificações ═══ */
         .notif-item { display: flex; gap: 12px; padding: 12px; border-radius: 10px; margin-bottom: 8px; background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.05); cursor: pointer; transition: 0.2s; position: relative; }
         .notif-item:hover { background: rgba(255,255,255,0.06); border-color: rgba(253,187,45,0.3); transform: translateX(2px); }
         .notif-item.unread { background: rgba(253,187,45,0.09); border-left: 3px solid #fdbb2d; }
@@ -470,6 +474,7 @@
             .notif-text { font-size: 0.82rem; }
         }
 
+        /* ═══ CORRIGIDO: layout do sort bar em portrait — cada grupo em UMA linha, sem quebrar ═══ */
         @media (max-width: 900px) and (orientation: portrait) {
             .ad-side-banner { display: none !important; }
             .ad-mobile-top-banner { display: flex; }
@@ -479,6 +484,37 @@
             #playerMobileTop { display: block; order: 2; margin: 0 auto; }
             #commentsSection { display: flex; order: 3; margin-top: 10px; }
             #playerMobileBottom { display: block; order: 4; margin-top: 10px; }
+
+            /* Sort bar: linha 1 = Mostrar, linha 2 = Ordenar, sem quebra interna */
+            .catalog-sort-bar { gap: 8px; }
+            .filter-group {
+                flex-wrap: nowrap;
+                gap: 5px;
+                justify-content: flex-start;
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+                scrollbar-width: none;
+                width: 100%;
+            }
+            .filter-group::-webkit-scrollbar { display: none; }
+            .filter-group .sort-label { flex-shrink: 0; font-size: 0.74rem; }
+            .filter-checkbox {
+                flex-shrink: 0;
+                font-size: 0.72rem;
+                padding: 5px 8px;
+                gap: 4px;
+            }
+            .filter-checkbox input[type="checkbox"] { width: 13px; height: 13px; }
+
+            .sort-group {
+                flex-wrap: nowrap;
+                gap: 5px;
+                margin-left: 0;
+                justify-content: stretch;
+                width: 100%;
+            }
+            .sort-group .sort-label { flex-shrink: 0; width: auto; font-size: 0.7rem; }
+            .sort-group select { flex: 1; min-width: 0; font-size: 0.75rem; padding: 6px 8px; }
         }
 
         @media (max-width: 900px) and (orientation: landscape) {
@@ -518,7 +554,6 @@
             Entrar
         </button>
         <div class="user-info" id="userInfo">
-            <!-- ═══ NOVO: wrapper do avatar com badge de notificação ═══ -->
             <div class="user-avatar-wrapper" id="userAvatarWrapper">
                 <img class="user-avatar" id="userAvatar" src="" alt="Avatar">
                 <span class="notification-badge" id="avatarNotifBadge"></span>
@@ -529,7 +564,6 @@
                 <div id="subscriptionBadge">✓ Assinante</div>
                 <div class="user-sub-info" id="userSubInfo"></div>
                 <div class="user-actions">
-                    <!-- ═══ NOVO: botão de notificações ═══ -->
                     <button id="notificationsBtn" style="display: none;">
                         🔔 Notificações
                         <span id="notifBtnCount" class="notif-count">0</span>
@@ -601,7 +635,6 @@
     </footer>
 </div>
 
-<!-- ═══ NOVO: MODAL DE NOTIFICAÇÕES ═══ -->
 <div class="modal-overlay" id="notificationsModal">
     <div class="modal flex-modal" style="max-width: 560px;">
         <div class="notif-header-actions" style="margin-bottom: 12px;">
@@ -613,7 +646,6 @@
     </div>
 </div>
 
-<!-- MODAIS DO ADMIN -->
 <div class="modal-overlay" id="videoModal">
     <div class="modal">
         <h2 id="videoModalTitle">Adicionar Vídeo</h2>
@@ -945,7 +977,6 @@
     let currentSortOrder = 'desc';
     let currentContentFilter = 'all';
 
-    // ═══ NOVO: notificações e replies ═══
     let userNotifications = {};
     let notificationsRef = null;
     let unreadNotificationCount = 0;
@@ -1104,7 +1135,7 @@
     });
 
     // ═══════════════════════════════════════════════════════════════════
-    // ═══ NOVO: SISTEMA DE NOTIFICAÇÕES ═══
+    // ═══ SISTEMA DE NOTIFICAÇÕES ═══
     // ═══════════════════════════════════════════════════════════════════
     function loadUserNotifications(uid) {
         if (notificationsRef) { notificationsRef.off(); notificationsRef = null; }
@@ -1256,9 +1287,20 @@
         }
     }
 
+    // ═══ CORRIGIDO: pausa o player ao abrir o modal de notificações ═══
     function openNotificationsModal() {
         userCard.classList.remove('active');
         if (!currentUser) return;
+
+        // Pausa o player se estiver em execução (evita vídeo tocando por trás do modal)
+        try {
+            const _playerScreen = document.getElementById('playerScreen');
+            if (_playerScreen && _playerScreen.classList.contains('active') && player && playerReady) {
+                try { player.pauseVideo(); } catch (e) {}
+                try { showControlsNoTimer(); } catch (e) {}
+            }
+        } catch (e) {}
+
         document.getElementById('notificationsModal').classList.add('active');
         renderNotificationsList();
     }
@@ -1266,7 +1308,6 @@
         document.getElementById('notificationsModal').classList.remove('active');
     }
 
-    // Botões de notificação
     document.getElementById('notificationsBtn')?.addEventListener('click', openNotificationsModal);
     document.getElementById('closeNotificationsBtn')?.addEventListener('click', closeNotificationsModal);
     document.getElementById('markAllNotifsReadBtn')?.addEventListener('click', markAllNotificationsRead);
@@ -1274,8 +1315,6 @@
         if (e.target === document.getElementById('notificationsModal')) closeNotificationsModal();
     });
 
-    // ═══════════════════════════════════════════════════════════════════
-    // ═══ RESTO DO SISTEMA (mantido igual) ═══
     // ═══════════════════════════════════════════════════════════════════
 
     function setupUserRestrictions(user) {
@@ -1318,7 +1357,7 @@
         document.body.classList.remove('no-scroll');
     });
 
-    // ============ COMENTÁRIOS (reescrito com replies) ============
+    // ============ COMENTÁRIOS (com replies) ============
     document.getElementById('commentInput').addEventListener('input', (e) => {
         document.getElementById('commentCharCount').textContent = `${e.target.value.length}/500`;
     });
@@ -1352,7 +1391,6 @@
         });
     }
 
-    // Salva drafts dos formulários de resposta antes de re-renderizar
     function saveReplyDrafts() {
         document.querySelectorAll('.reply-form.active textarea').forEach(ta => {
             const cid = ta.closest('.reply-form')?.getAttribute('data-comment-id');
@@ -1385,7 +1423,6 @@
         list.innerHTML = comments.map(c => renderCommentHTML(c)).join('');
         attachCommentHandlers();
         restoreReplyDrafts();
-        // Reaplica estado de expansão
         expandedComments.forEach(cid => {
             const repliesEl = document.querySelector(`.replies-container[data-comment-id="${cid}"]`);
             if (repliesEl) repliesEl.classList.add('expanded');
@@ -1462,9 +1499,8 @@
         const isReplyAuthor = currentUser && currentUser.uid === reply.uid;
         const isParentCommentAuthor = currentUser && currentUser.uid === parentComment.uid;
         const canDelete = isReplyAuthor || isAdmin();
-        const canPin = isParentCommentAuthor; // ═══ NOVO: só o autor do comentário principal pode fixar subcomentários ═══
+        const canPin = isParentCommentAuthor;
 
-        // Destaca @mentions
         let displayText = escapeHtml(reply.text || '');
         displayText = displayText.replace(/(@[a-zA-Z0-9_.áàâãéêíóôõúçÁÀÂÃÉÊÍÓÔÕÚÇ\-]+)/g, '<span class="mention">$1</span>');
 
@@ -1490,7 +1526,6 @@
     function attachCommentHandlers() {
         const list = document.getElementById('commentsList');
 
-        // Botões de ação dos comentários (like, dislike, reply, report, delete, pin)
         list.querySelectorAll('.comment-action-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 e.preventDefault();
@@ -1511,7 +1546,6 @@
             });
         });
 
-        // Botões de expandir/retrair respostas
         list.querySelectorAll('.replies-toggle-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 e.preventDefault();
@@ -1533,7 +1567,6 @@
             });
         });
 
-        // Botões de ação nas respostas (responder, fixar, excluir)
         list.querySelectorAll('.reply-action-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 e.preventDefault();
@@ -1553,7 +1586,6 @@
             });
         });
 
-        // Botões "Enviar" dos formulários de resposta
         list.querySelectorAll('.reply-form .reply-form-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 e.preventDefault();
@@ -1563,7 +1595,6 @@
             });
         });
 
-        // Contador de caracteres nos textareas de resposta
         list.querySelectorAll('.reply-form textarea').forEach(ta => {
             ta.addEventListener('input', () => {
                 const cid = ta.closest('.reply-form')?.getAttribute('data-comment-id');
@@ -1586,7 +1617,6 @@
         const isActive = form.classList.contains('active');
         const wasSameTarget = form.getAttribute('data-reply-to-uid') === (replyToUid || '');
 
-        // Fecha outros formulários abertos
         document.querySelectorAll('.reply-form.active').forEach(f => {
             if (f !== form) f.classList.remove('active');
         });
@@ -1603,13 +1633,11 @@
         if (replyTo && replyTo.name) {
             ta.value = `@${replyTo.name} ` + (replyDrafts[commentId] || '').replace(/^@[^\s]+\s/, '');
             ta.focus();
-            // Coloca cursor no final
             ta.setSelectionRange(ta.value.length, ta.value.length);
         } else {
             if (!ta.value && replyDrafts[commentId]) ta.value = replyDrafts[commentId];
             ta.focus();
         }
-        // Garante que a seção de respostas está expandida
         expandedComments.add(commentId);
     }
 
@@ -1626,7 +1654,6 @@
         if (!text) return alert('Escreva algo.');
         if (text.length > 500) return alert('Máximo de 500 caracteres.');
 
-        // Bloqueio de comentários
         try {
             const doc = await db.collection('catalog_users').doc(currentUser.uid).get();
             if (doc.exists) {
@@ -1663,7 +1690,6 @@
             form.classList.remove('active');
             expandedComments.add(commentId);
 
-            // ═══ Gera notificação ═══
             if (replyToUid && replyToUid !== currentUser.uid) {
                 const video = videos.find(v => v.youtubeId === currentCommentsVideoId);
                 await createNotification({
@@ -1763,7 +1789,6 @@
                 await userVoteRef.set(tipo);
                 await ref.child(tipo === 'like' ? 'likes' : 'dislikes').transaction(c => (c || 0) + 1);
 
-                // ═══ Gera notificação de curtida ═══
                 if (tipo === 'like') {
                     const commentSnap = await ref.once('value');
                     const comment = commentSnap.val();
@@ -1820,7 +1845,6 @@
         if (!isAdmin()) return;
         try {
             await rtdb.ref(`vod_comments/${videoId}/${commentId}`).update({ isPinned: isPinned });
-            // ═══ Gera notificação de fixação ═══
             if (isPinned) {
                 const snap = await rtdb.ref(`vod_comments/${videoId}/${commentId}`).once('value');
                 const comment = snap.val();
@@ -2173,7 +2197,7 @@
             registrarUsuarioPlaytronic(user);
             setupPresence(user);
             setupUserRestrictions(user);
-            loadUserNotifications(user.uid); // ═══ NOVO ═══
+            loadUserNotifications(user.uid);
             if (user.email === ADMIN_EMAIL) {
                 adminContainer.style.display = 'flex';
                 document.body.classList.add('is-admin');
@@ -2200,7 +2224,7 @@
             userRestrictions = null;
             if (presenceInterval) { clearInterval(presenceInterval); presenceInterval = null; }
             setupUserRestrictions(null);
-            loadUserNotifications(null); // ═══ NOVO ═══
+            loadUserNotifications(null);
             favoritesLoaded = true;
             tryRender();
         }
