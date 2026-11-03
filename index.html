@@ -91,7 +91,7 @@
 
         #catalogScreen { flex: 1; padding-bottom: 40px; }
 
-        /* ===== BARRA DE ORDENAÇÃO DO CATÁLOGO ===== */
+        /* ===== BARRA DE ORDENAÇÃO ===== */
         .catalog-sort-bar {
             display: flex;
             align-items: center;
@@ -483,7 +483,6 @@
                 top: 75px;
             }
 
-            /* Sort bar mobile */
             .catalog-sort-bar {
                 gap: 8px;
                 padding: 10px 12px;
@@ -712,7 +711,7 @@
                 <span class="sort-label">🔀 Ordenar por:</span>
                 <select id="sortFieldSelect">
                     <option value="order">Data de inclusão</option>
-                    <option value="produtora">Produtora</option>
+                    <option value="produtora">Produtora (qtd. de vídeos)</option>
                     <option value="ano">Ano</option>
                     <option value="likes">Curtidas</option>
                     <option value="views">Visualizações</option>
@@ -1066,7 +1065,7 @@
     let userFavorites = {};
     let votesCache = {};
     let viewsCache = {};
-    let commentsCountCache = {}; // NOVO: contador de comentários por vídeo
+    let commentsCountCache = {};
     let videosLoaded = false;
     let favoritesLoaded = false;
     let myAdsTitlesCache = {};
@@ -1089,17 +1088,17 @@
     let perfSortField = 'views';
     let perfSortOrder = 'desc';
 
-    // NOVO: ordenação do catálogo
+    // Ordenação do catálogo
     let currentSortField = 'order';
     let currentSortOrder = 'desc';
 
-    // Estado de presença / restrições
+    // Presença / restrições
     let onlineUsersData = {};
     let presenceInterval = null;
     let userRestrictions = null;
     let unsubRestrictions = null; 
 
-    // Estado de comentários
+    // Comentários
     let currentCommentsVideoId = null;
     let commentsRef = null;
     let adminCommentsRef = null;
@@ -1143,7 +1142,7 @@
         return null;
     }
 
-    // ============ CONTROLE DE VISIBILIDADE ============
+    // ============ VISIBILIDADE / SCROLL ============
     function updateSearchVisibility() {
         const searchContainer = document.querySelector('.search-container');
         if (!searchContainer) return;
@@ -1499,12 +1498,12 @@
         });
     });
 
-    // NOVO: helper para localizar vídeo por ID
+    // Localiza vídeo por YouTube ID
     function getVideoByYoutubeId(ytid) {
         return videos.find(v => v.youtubeId === ytid) || null;
     }
 
-    // NOVO: abrir player a partir do painel admin de comentários
+    // Abre o player a partir do painel admin de comentários
     function viewVideoFromAdmin(ytid) {
         const video = getVideoByYoutubeId(ytid);
         if (!video) {
@@ -1518,10 +1517,9 @@
         // Abre o player com comentários
         openPlayer(video);
     }
-    // Expõe globalmente (usado em onclick inline)
     window.viewVideoFromAdmin = viewVideoFromAdmin;
 
-    // NOVO: bloco HTML de informação do vídeo (título + botão ver)
+    // Bloco HTML de informação do vídeo (título + botão ver)
     function buildAdminCommentVideoInfo(videoId) {
         const video = getVideoByYoutubeId(videoId);
         const title = video ? (video.titulo || '(sem título)') : '(vídeo removido do catálogo)';
@@ -1602,7 +1600,6 @@
             const displayName = u.name || c.name || 'Usuário';
             const displayPhoto = u.photoURL || c.photoURL || 'https://www.gravatar.com/avatar/?d=mp';
 
-            // NOVO: bloco de vídeo do comentário
             const videoInfoHtml = buildAdminCommentVideoInfo(c.videoId);
 
             let actionsHtml = '';
@@ -1919,16 +1916,15 @@
         atualizarTodosBadges();
         if (currentPlayerVideoId) atualizarPlayerUI(currentPlayerVideoId);
         if (document.getElementById('performanceModal')?.classList.contains('active')) renderPerformanceTable();
-        // reordena se estiver ordenando por curtidas
-        if ((currentSortField === 'likes') && videosLoaded && favoritesLoaded) renderCards();
+        if (currentSortField === 'likes' && videosLoaded && favoritesLoaded) renderCards();
     });
     rtdb.ref('vod_views').on('value', (snap) => {
         viewsCache = snap.val() || {};
         if (document.getElementById('performanceModal')?.classList.contains('active')) renderPerformanceTable();
-        if ((currentSortField === 'views') && videosLoaded && favoritesLoaded) renderCards();
+        if (currentSortField === 'views' && videosLoaded && favoritesLoaded) renderCards();
     });
 
-    // NOVO: contador global de comentários por vídeo (para ordenação "Mais comentados")
+    // Contador global de comentários por vídeo
     rtdb.ref('vod_comments').on('value', (snap) => {
         const data = snap.val() || {};
         const counts = {};
@@ -1937,7 +1933,7 @@
             if (cobj && typeof cobj === 'object') counts[vid] = Object.keys(cobj).length;
         });
         commentsCountCache = counts;
-        if ((currentSortField === 'comments') && videosLoaded && favoritesLoaded) renderCards();
+        if (currentSortField === 'comments' && videosLoaded && favoritesLoaded) renderCards();
     });
 
     async function votar(videoId, tipo) {
@@ -1970,7 +1966,6 @@
     const sortFieldSelect = document.getElementById('sortFieldSelect');
     const sortOrderSelect = document.getElementById('sortOrderSelect');
 
-    // NOVO: listeners de ordenação
     if (sortFieldSelect) {
         sortFieldSelect.addEventListener('change', () => {
             currentSortField = sortFieldSelect.value;
@@ -1994,21 +1989,60 @@
     });
     function tryRender() { if (videosLoaded && favoritesLoaded) renderCards(); }
 
-    // NOVO: função de ordenação
+    // ============ ORDENAÇÃO ============
     function sortVideos(list) {
         const field = currentSortField;
         const order = currentSortOrder;
         const arr = [...list];
+
+        // ─────────────────────────────────────────────────────
+        // CASO ESPECIAL: Produtora → ordenar por QUANTIDADE de vídeos
+        // ─────────────────────────────────────────────────────
+        if (field === 'produtora') {
+            // Conta quantos vídeos cada produtora tem no SITE (catálogo completo,
+            // independente do filtro de busca ativo no momento).
+            const produtoraCounts = {};
+            videos.forEach(v => {
+                const key = (v.produtora || '').toLowerCase().trim();
+                if (key) produtoraCounts[key] = (produtoraCounts[key] || 0) + 1;
+            });
+
+            arr.sort((a, b) => {
+                const pa = (a.produtora || '').toLowerCase().trim();
+                const pb = (b.produtora || '').toLowerCase().trim();
+                const aMissing = !pa;
+                const bMissing = !pb;
+
+                // Vídeos sem produtora sempre vão para o final
+                if (aMissing && !bMissing) return 1;
+                if (!aMissing && bMissing) return -1;
+                if (aMissing && bMissing) {
+                    return (a.titulo || '').toLowerCase().localeCompare((b.titulo || '').toLowerCase());
+                }
+
+                const ca = produtoraCounts[pa] || 0;
+                const cb = produtoraCounts[pb] || 0;
+
+                // 1) Primário: quantidade de vídeos da produtora
+                if (ca !== cb) return order === 'asc' ? ca - cb : cb - ca;
+
+                // 2) Secundário: nome da produtora (agrupa produtoras do mesmo tamanho)
+                if (pa !== pb) return pa.localeCompare(pb);
+
+                // 3) Terciário: título (A-Z dentro do grupo)
+                return (a.titulo || '').toLowerCase().localeCompare((b.titulo || '').toLowerCase());
+            });
+
+            return arr;
+        }
+
+        // ─────────────────────────────────────────────────────
+        // DEMAIS CAMPOS
+        // ─────────────────────────────────────────────────────
         arr.sort((a, b) => {
             let av, bv;
             let aMissing = false, bMissing = false;
             switch (field) {
-                case 'produtora':
-                    av = (a.produtora || '').toLowerCase().trim();
-                    bv = (b.produtora || '').toLowerCase().trim();
-                    if (!av) aMissing = true;
-                    if (!bv) bMissing = true;
-                    break;
                 case 'ano':
                     av = Number(a.ano) || 0;
                     bv = Number(b.ano) || 0;
@@ -2036,7 +2070,6 @@
                     av = a.order || 0;
                     bv = b.order || 0;
             }
-            // Itens sem valor (produtora/ano vazios) sempre no final
             if (aMissing && !bMissing) return 1;
             if (!aMissing && bMissing) return -1;
             if (aMissing && bMissing) return 0;
@@ -2113,7 +2146,6 @@
                 return title.includes(currentFilter) || produtora.includes(currentFilter) || ano.includes(currentFilter);
             })
             : videos;
-        // NOVO: aplica ordenação escolhida
         const sorted = sortVideos(filtered);
 
         catalogGrid.innerHTML = '';
@@ -2122,7 +2154,6 @@
         if (favTrack) favTrack.innerHTML = '';
         let favCount = 0;
 
-        // Mostra/oculta barra de ordenação
         if (catalogSortBar) catalogSortBar.style.display = (videos.length > 0) ? 'flex' : 'none';
 
         if (videos.length === 0) {
