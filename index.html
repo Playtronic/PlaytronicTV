@@ -36,7 +36,6 @@
         .user-info.active { display: flex; }
         .user-avatar { width: 40px; height: 40px; border-radius: 50%; border: 2px solid #fdbb2d; object-fit: cover; }
 
-        /* ═══ Badge de notificação no avatar ═══ */
         .user-avatar-wrapper { position: relative; display: flex; align-items: center; justify-content: center; }
         .notification-badge {
             position: absolute; top: -5px; right: -5px;
@@ -57,7 +56,7 @@
         .user-actions { display: flex; flex-direction: column; gap: 10px; margin-bottom: 15px; }
         .user-card button { width: 100%; padding: 12px; border-radius: 8px; border: none; font-weight: bold; font-size: 0.9rem; cursor: pointer; transition: 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px; }
 
-        /* ═══ CORRIGIDO: botão de notificações AZUL (era vermelho) ═══ */
+        /* Botão de notificações AZUL */
         .user-card #notificationsBtn {
             background: linear-gradient(135deg, #3b82f6, #2563eb);
             color: #fff; position: relative;
@@ -142,7 +141,7 @@
         .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.72); display: none; align-items: center; justify-content: center; z-index: 1500; backdrop-filter: blur(6px); padding: 100px 20px 20px 20px; }
         .modal-overlay.active { display: flex; }
 
-        /* ═══ CORRIGIDO: notificações acima do player (z-index 2000) ═══ */
+        /* Notificações acima do player */
         #notificationsModal { z-index: 2200; }
 
         .modal { background: #152961; border: 1px solid rgba(255,255,255,0.12); border-radius: 14px; padding: 26px; width: 100%; max-width: 520px; box-shadow: 0 25px 60px rgba(0,0,0,0.8); animation: modalIn 0.2s ease; max-height: 85vh; overflow-y: auto; }
@@ -474,7 +473,7 @@
             .notif-text { font-size: 0.82rem; }
         }
 
-        /* ═══ CORRIGIDO: layout do sort bar em portrait — cada grupo em UMA linha, sem quebrar ═══ */
+        /* Mobile portrait: Mostrar numa linha, Ordenar em outra, sem quebras */
         @media (max-width: 900px) and (orientation: portrait) {
             .ad-side-banner { display: none !important; }
             .ad-mobile-top-banner { display: flex; }
@@ -485,7 +484,6 @@
             #commentsSection { display: flex; order: 3; margin-top: 10px; }
             #playerMobileBottom { display: block; order: 4; margin-top: 10px; }
 
-            /* Sort bar: linha 1 = Mostrar, linha 2 = Ordenar, sem quebra interna */
             .catalog-sort-bar { gap: 8px; }
             .filter-group {
                 flex-wrap: nowrap;
@@ -937,7 +935,9 @@
     const auth = firebase.auth();
     const rtdb = firebase.database();
     const db = firebase.firestore();
-    const ADMIN_EMAIL = 'playtronicpublisher@mail.com';
+    // ═══ ADMINS (array) ═══
+    const ADMIN_EMAILS = ['playtronicpublisher@mail.com', 'playtronicdeveloper@gmail.com'];
+    const ADMIN_EMAIL = ADMIN_EMAILS[0]; // compat retroativo
     const CF_BASE = 'https://us-central1-playtronic-tv.cloudfunctions.net';
 
     // ============ ESTADO GLOBAL ============
@@ -1020,7 +1020,7 @@
     let currentAdminTab = 'all';
 
     // ============ HELPERS ============
-    function isAdmin() { return currentUser && currentUser.email === ADMIN_EMAIL; }
+    function isAdmin() { return currentUser && ADMIN_EMAILS.includes(currentUser.email); }
     function escapeHtml(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
     function getCardColor(id) {
         const colors = ['#1e293b', '#312e81', '#3b0764', '#064e3b', '#701a75', '#7f1d1d', '#172554', '#1e3a8a', '#4c1d95', '#365314'];
@@ -1134,9 +1134,7 @@
         }
     });
 
-    // ═══════════════════════════════════════════════════════════════════
-    // ═══ SISTEMA DE NOTIFICAÇÕES ═══
-    // ═══════════════════════════════════════════════════════════════════
+    // ═══ NOTIFICAÇÕES ═══
     function loadUserNotifications(uid) {
         if (notificationsRef) { notificationsRef.off(); notificationsRef = null; }
         if (!uid) {
@@ -1287,12 +1285,11 @@
         }
     }
 
-    // ═══ CORRIGIDO: pausa o player ao abrir o modal de notificações ═══
     function openNotificationsModal() {
         userCard.classList.remove('active');
         if (!currentUser) return;
 
-        // Pausa o player se estiver em execução (evita vídeo tocando por trás do modal)
+        // Pausa o player se estiver em execução
         try {
             const _playerScreen = document.getElementById('playerScreen');
             if (_playerScreen && _playerScreen.classList.contains('active') && player && playerReady) {
@@ -1314,8 +1311,6 @@
     document.getElementById('notificationsModal')?.addEventListener('click', (e) => {
         if (e.target === document.getElementById('notificationsModal')) closeNotificationsModal();
     });
-
-    // ═══════════════════════════════════════════════════════════════════
 
     function setupUserRestrictions(user) {
         if (unsubRestrictions) { unsubRestrictions(); unsubRestrictions = null; }
@@ -1357,7 +1352,7 @@
         document.body.classList.remove('no-scroll');
     });
 
-    // ============ COMENTÁRIOS (com replies) ============
+    // ============ COMENTÁRIOS ============
     document.getElementById('commentInput').addEventListener('input', (e) => {
         document.getElementById('commentCharCount').textContent = `${e.target.value.length}/500`;
     });
@@ -2198,7 +2193,7 @@
             setupPresence(user);
             setupUserRestrictions(user);
             loadUserNotifications(user.uid);
-            if (user.email === ADMIN_EMAIL) {
+            if (ADMIN_EMAILS.includes(user.email)) {
                 adminContainer.style.display = 'flex';
                 document.body.classList.add('is-admin');
             } else {
