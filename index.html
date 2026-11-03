@@ -5,63 +5,72 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Playtronic TV</title>
     <link rel="icon" href="https://i.ibb.co/21gS8VzM/1330.png" type="image/png">
-
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
     <script src="https://www.youtube.com/iframe_api"></script>
-
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         html { height: 100%; }
-        
-        body { 
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
-            background: linear-gradient(135deg, #0b0f19 0%, #1a1a2e 50%, #16213e 100%); 
-            background-attachment: fixed; 
-            color: #e2e8f0; 
-            height: 100vh; 
-            overflow: hidden; 
-            display: flex; 
-            flex-direction: column; 
-        }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: linear-gradient(135deg, #0b0f19 0%, #1a1a2e 50%, #16213e 100%); background-attachment: fixed; color: #e2e8f0; height: 100vh; overflow: hidden; display: flex; flex-direction: column; }
         body.no-scroll .main-scroll-wrapper { overflow: hidden; }
         body.ad-modal-open .header { display: none !important; }
 
-        .header { 
-            position: fixed; top: 0; left: 0; width: 100%; height: 80px; 
-            display: flex; align-items: center; justify-content: space-between; 
-            padding: 0 20px; background: rgba(21, 41, 97, 0.85); 
-            backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); 
-            border-bottom: 1px solid rgba(255,255,255,0.08); 
-            z-index: 10000000; box-shadow: 0 4px 20px rgba(0,0,0,0.5); 
-            transition: height 0.3s ease; pointer-events: none; 
-        }
+        .header { position: fixed; top: 0; left: 0; width: 100%; height: 80px; display: flex; align-items: center; justify-content: space-between; padding: 0 20px; background: rgba(21, 41, 97, 0.85); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border-bottom: 1px solid rgba(255,255,255,0.08); z-index: 10000000; box-shadow: 0 4px 20px rgba(0,0,0,0.5); transition: height 0.3s ease; pointer-events: none; }
         .header-brand { display: flex; align-items: center; flex: 0 0 250px; pointer-events: auto; }
         .logo-link { display: flex; align-items: center; text-decoration: none; cursor: pointer; }
         .header-logo { height: 60px; width: auto; object-fit: contain; transition: transform 0.3s, opacity 0.3s; }
         .logo-link:hover .header-logo { transform: scale(1.05); opacity: 0.85; }
-        
         .search-container { flex: 1; max-width: 500px; margin: 0 20px; position: relative; transition: opacity 0.3s; pointer-events: auto; }
         .search-container input { width: 100%; background-color: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: #fff; padding: 10px 40px 10px 42px; border-radius: 25px; font-size: 0.95rem; outline: none; transition: all 0.3s ease; background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="%23a0aec0" viewBox="0 0 16 16"><path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z"/></svg>'); background-repeat: no-repeat; background-position: 15px center; }
         .search-container input:focus { background-color: rgba(255,255,255,0.15); border-color: #fdbb2d; box-shadow: 0 0 15px rgba(253, 187, 45, 0.2); }
         .search-container input::placeholder { color: #cbd5e1; }
         #clearMainSearchBtn { position: absolute; right: 15px; top: 50%; transform: translateY(-50%); background: none; border: none; color: #a0aec0; font-size: 1.2rem; cursor: pointer; display: none; padding: 0; }
         #clearMainSearchBtn:hover { color: #fff; }
-        
+
         .auth-area { display: flex; align-items: center; gap: 12px; justify-content: flex-end; flex: 0 0 auto; pointer-events: auto; }
         .login-btn { background: #4285f4; color: #fff; border: none; padding: 8px 16px; border-radius: 8px; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: background 0.3s; }
         .login-btn:hover { background: #3367d6; }
         .user-info { display: none; align-items: center; gap: 10px; cursor: pointer; position: relative; }
         .user-info.active { display: flex; }
         .user-avatar { width: 40px; height: 40px; border-radius: 50%; border: 2px solid #fdbb2d; object-fit: cover; }
+
+        /* ═══ NOVO: badge de notificação no avatar ═══ */
+        .user-avatar-wrapper { position: relative; display: flex; align-items: center; justify-content: center; }
+        .notification-badge {
+            position: absolute; top: -5px; right: -5px;
+            min-width: 20px; height: 20px; background: #ef4444; color: #fff;
+            border-radius: 10px; display: none; align-items: center; justify-content: center;
+            font-size: 0.68rem; font-weight: 800; border: 2px solid #152961;
+            padding: 0 4px; z-index: 10; animation: pulseBadge 2s ease-in-out infinite;
+        }
+        @keyframes pulseBadge {
+            0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(239,68,68,0.7); }
+            50% { transform: scale(1.08); box-shadow: 0 0 0 6px rgba(239,68,68,0); }
+        }
+
         .user-card { position: absolute; top: 50px; right: 0; background: #152961; border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 20px; min-width: 280px; display: none; flex-direction: column; z-index: 10000001; box-shadow: 0 10px 30px rgba(0,0,0,0.8); }
         .user-card.active { display: flex; }
         .user-name { font-weight: bold; color: #fff; font-size: 1.1rem; margin-bottom: 2px; }
         .user-email { font-size: 0.8rem; color: #cbd5e1; margin-bottom: 15px; word-break: break-all; }
         .user-actions { display: flex; flex-direction: column; gap: 10px; margin-bottom: 15px; }
         .user-card button { width: 100%; padding: 12px; border-radius: 8px; border: none; font-weight: bold; font-size: 0.9rem; cursor: pointer; transition: 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px; }
+
+        /* ═══ NOVO: botão de notificações no user card ═══ */
+        .user-card #notificationsBtn {
+            background: linear-gradient(135deg, #ef4444, #b91c1c);
+            color: #fff; position: relative;
+            box-shadow: 0 2px 10px rgba(239,68,68,0.3);
+        }
+        .user-card #notificationsBtn:hover { background: linear-gradient(135deg, #dc2626, #991b1b); }
+        .user-card #notificationsBtn.has-unread { animation: pulseBadge 2s ease-in-out infinite; }
+        .notif-count {
+            background: #fff; color: #ef4444; border-radius: 10px;
+            padding: 1px 8px; font-size: 0.72rem; font-weight: 900;
+            margin-left: auto; min-width: 22px; text-align: center;
+        }
+
         .user-card #subscribeBtn { background: linear-gradient(135deg, #7c3aed, #6d28d9); color: #fff; }
         .user-card #subscribeBtn:hover { background: linear-gradient(135deg, #6d28d9, #5b21b6); }
         .user-card #myAdsBtn { background: #1e293b; color: #fff; border: 1px solid #334155; }
@@ -75,117 +84,23 @@
         #adminDropdown { display: none; flex-direction: column; gap: 5px; margin-top: 10px; background: rgba(0,0,0,0.3); padding: 10px; border-radius: 8px; }
         #adminDropdown button { background: rgba(255,255,255,0.05); color: #fff; padding: 10px; font-size: 0.85rem; text-align: left; justify-content: flex-start; }
         #adminDropdown button:hover { background: rgba(253,187,45,0.2); color: #fdbb2d; }
-        
-        .main-scroll-wrapper { 
-            position: fixed; 
-            top: 80px; 
-            left: 0; 
-            right: 0; 
-            bottom: 0; 
-            overflow-y: auto; 
-            overflow-x: hidden; 
-            padding: 20px; 
-            display: flex; 
-            flex-direction: column; 
-        }
 
+        .main-scroll-wrapper { position: fixed; top: 80px; left: 0; right: 0; bottom: 0; overflow-y: auto; overflow-x: hidden; padding: 20px; display: flex; flex-direction: column; }
         #catalogScreen { flex: 1; padding-bottom: 40px; }
 
-        /* ===== BARRA DE ORDENAÇÃO E FILTRO ===== */
-        .catalog-sort-bar {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 16px;
-            padding: 12px 16px;
-            background: rgba(30, 48, 92, 0.7);
-            border: 1px solid rgba(255,255,255,0.08);
-            border-radius: 10px;
-            margin: 0 auto 20px auto;
-            flex-wrap: wrap;
-            width: 100%;
-            max-width: 1400px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.25);
-        }
-
-        .filter-group,
-        .sort-group {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            flex-wrap: wrap;
-        }
+        .catalog-sort-bar { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 12px 16px; background: rgba(30, 48, 92, 0.7); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; margin: 0 auto 20px auto; flex-wrap: wrap; width: 100%; max-width: 1400px; box-shadow: 0 4px 15px rgba(0,0,0,0.25); }
+        .filter-group, .sort-group { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
         .filter-group { justify-content: flex-start; }
-        .sort-group   { justify-content: flex-end; margin-left: auto; }
-
-        .catalog-sort-bar .sort-label {
-            color: #fdbb2d;
-            font-weight: 700;
-            font-size: 0.85rem;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-        .catalog-sort-bar select {
-            background: rgba(255,255,255,0.08);
-            color: #fff;
-            border: 1px solid rgba(255,255,255,0.2);
-            border-radius: 8px;
-            padding: 8px 12px;
-            font-size: 0.9rem;
-            cursor: pointer;
-            outline: none;
-            font-family: inherit;
-            transition: 0.2s;
-            min-width: 160px;
-        }
-        .catalog-sort-bar select:focus {
-            border-color: #fdbb2d;
-            background: rgba(255,255,255,0.12);
-        }
-        .catalog-sort-bar select option {
-            background: #152961;
-            color: #fff;
-        }
+        .sort-group { justify-content: flex-end; margin-left: auto; }
+        .catalog-sort-bar .sort-label { color: #fdbb2d; font-weight: 700; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.5px; display: flex; align-items: center; gap: 6px; }
+        .catalog-sort-bar select { background: rgba(255,255,255,0.08); color: #fff; border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; padding: 8px 12px; font-size: 0.9rem; cursor: pointer; outline: none; font-family: inherit; transition: 0.2s; min-width: 160px; }
+        .catalog-sort-bar select:focus { border-color: #fdbb2d; background: rgba(255,255,255,0.12); }
+        .catalog-sort-bar select option { background: #152961; color: #fff; }
         .catalog-sort-bar #sortOrderSelect { min-width: 130px; }
-
-        /* Checkboxes em formato "pill" */
-        .filter-checkbox {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            cursor: pointer;
-            padding: 7px 12px;
-            background: rgba(255,255,255,0.08);
-            border: 1px solid rgba(255,255,255,0.2);
-            border-radius: 8px;
-            font-size: 0.88rem;
-            color: #e2e8f0;
-            transition: 0.2s;
-            user-select: none;
-            font-family: inherit;
-            white-space: nowrap;
-        }
-        .filter-checkbox:hover {
-            background: rgba(255,255,255,0.12);
-            border-color: rgba(253,187,45,0.4);
-        }
-        .filter-checkbox.checked {
-            background: rgba(253,187,45,0.15);
-            border-color: #fdbb2d;
-            color: #fff;
-            font-weight: 600;
-            box-shadow: 0 0 12px rgba(253,187,45,0.15);
-        }
-        .filter-checkbox input[type="checkbox"] {
-            width: 16px;
-            height: 16px;
-            accent-color: #fdbb2d;
-            cursor: pointer;
-            margin: 0;
-        }
+        .filter-checkbox { display: inline-flex; align-items: center; gap: 6px; cursor: pointer; padding: 7px 12px; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; font-size: 0.88rem; color: #e2e8f0; transition: 0.2s; user-select: none; font-family: inherit; white-space: nowrap; }
+        .filter-checkbox:hover { background: rgba(255,255,255,0.12); border-color: rgba(253,187,45,0.4); }
+        .filter-checkbox.checked { background: rgba(253,187,45,0.15); border-color: #fdbb2d; color: #fff; font-weight: 600; box-shadow: 0 0 12px rgba(253,187,45,0.15); }
+        .filter-checkbox input[type="checkbox"] { width: 16px; height: 16px; accent-color: #fdbb2d; cursor: pointer; margin: 0; }
 
         .catalog-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 30px; max-width: 1400px; margin: 0 auto; width: 100%; }
         .card { background: #1e305c; border: 1px solid #2f4780; border-radius: 12px; overflow: hidden; transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease; display: flex; flex-direction: column; position: relative; width: 100%; }
@@ -292,45 +207,18 @@
         .plan-option .plan-name { color: #fff; font-weight: 700; font-size: 0.95rem; margin-bottom: 4px; }
         .plan-option .plan-price { color: #fdbb2d; font-weight: 800; font-size: 1.1rem; }
         .plan-option .plan-badge { position: absolute; top: -8px; right: 8px; background: #22c55e; color: #fff; font-size: 0.65rem; font-weight: 800; padding: 2px 8px; border-radius: 10px; }
-        
-        #playerScreen { 
-            position: fixed; 
-            top: 80px; 
-            left: 0; 
-            right: 0; 
-            bottom: 0; 
-            background: linear-gradient(135deg, rgba(11,15,25,0.97) 0%, rgba(26,26,46,0.97) 50%, rgba(22,33,62,0.97) 100%); 
-            backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); 
-            z-index: 2000; 
-            display: flex; flex-direction: column; align-items: center; justify-content: flex-start; 
-            overflow-y: auto; 
-            padding: 20px; 
-            opacity: 0; visibility: hidden; transition: opacity 0.4s ease, visibility 0.4s; 
-        }
+
+        #playerScreen { position: fixed; top: 80px; left: 0; right: 0; bottom: 0; background: linear-gradient(135deg, rgba(11,15,25,0.97) 0%, rgba(26,26,46,0.97) 50%, rgba(22,33,62,0.97) 100%); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); z-index: 2000; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; overflow-y: auto; padding: 20px; opacity: 0; visibility: hidden; transition: opacity 0.4s ease, visibility 0.4s; }
         #playerScreen.active { opacity: 1; visibility: visible; }
         .player-container { width: 100%; max-width: 1200px; display: flex; flex-direction: column; align-items: center; gap: 15px; }
-
         .player-wrapper { width: 100%; max-height: calc(100vh - 200px); aspect-ratio: 16 / 9; background: #000; border-radius: 12px; overflow: hidden; position: relative; box-shadow: 0 20px 50px rgba(0,0,0,0.8); flex-shrink: 0; touch-action: manipulation; }
         .player-wrapper:fullscreen { width: 100vw; height: 100vh; max-height: 100vh; aspect-ratio: auto; border-radius: 0; }
-        
-        .player-wrapper::before { 
-            content: ''; position: absolute; top: 0; left: 0; right: 0; height: 110px; 
-            background: linear-gradient(to bottom, #000 0%, #000 50%, transparent 100%); 
-            z-index: 5; pointer-events: none; transition: opacity 0.4s ease; 
-        }
-        .player-wrapper::after { 
-            content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 100px; 
-            background: linear-gradient(to top, #000 0%, #000 50%, transparent 100%); 
-            z-index: 5; pointer-events: none; transition: opacity 0.4s ease; 
-        }
-        
+        .player-wrapper::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 110px; background: linear-gradient(to bottom, #000 0%, #000 50%, transparent 100%); z-index: 5; pointer-events: none; transition: opacity 0.4s ease; }
+        .player-wrapper::after { content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 100px; background: linear-gradient(to top, #000 0%, #000 50%, transparent 100%); z-index: 5; pointer-events: none; transition: opacity 0.4s ease; }
         .player-wrapper.hide-shadows::before, .player-wrapper.hide-shadows::after { opacity: 0; }
-
         .player-wrapper iframe { width: 100%; height: 100%; display: block; border: none; position: absolute; top: 0; left: 0; z-index: 1; pointer-events: none; }
-        
         .custom-ui { position: absolute; inset: 0; z-index: 20; pointer-events: none; transition: opacity 0.4s ease, visibility 0.4s ease; }
         .custom-ui.player-ui-hidden { opacity: 0 !important; visibility: hidden !important; }
-
         .close-player-btn { position: absolute; top: 15px; left: 15px; background: rgba(0,0,0,0.6); border: 1px solid rgba(255,255,255,0.2); color: #fff; width: 40px; height: 40px; border-radius: 50%; font-size: 1.2rem; cursor: pointer; display: flex; align-items: center; justify-content: center; pointer-events: auto; z-index: 30; }
         .close-player-btn:hover { background: #e74c3c; transform: scale(1.1); }
         .player-video-title { position: absolute; top: 22px; left: 68px; color: #fff; font-size: 1.15rem; font-weight: 600; text-shadow: 1px 1px 4px rgba(0,0,0,0.9); max-width: calc(100% - 280px); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; pointer-events: none; z-index: 25; padding: 5px 10px; background: rgba(0,0,0,0.3); border-radius: 6px; }
@@ -345,7 +233,6 @@
         .skip-btn:hover { transform: scale(1.12); color: #fdbb2d; }
         .skip-btn svg { display: block; width: 28px; height: 28px; }
         .skip-btn .skip-num { position: absolute; top: 53%; left: 50%; transform: translate(-50%, -50%); font-size: 9px; font-weight: 800; font-family: Arial, sans-serif; line-height: 1; color: currentColor; pointer-events: none; }
-        
         .player-controls { position: absolute; bottom: 0; left: 0; right: 0; padding: 20px 20px 15px; display: flex; align-items: center; gap: 15px; pointer-events: auto; background: linear-gradient(to top, #000 0%, #000 80%, transparent 100%); z-index: 25; }
         .control-btn { background: none; border: none; color: #fff; padding: 5px; cursor: pointer; font-size: 1.2rem; font-weight: bold; display: flex; align-items: center; justify-content: center; }
         .control-btn:hover { color: #fdbb2d; }
@@ -368,55 +255,22 @@
         .spinner { border: 4px solid rgba(253,187,45,0.2); border-top: 4px solid #fdbb2d; border-radius: 50%; width: 50px; height: 50px; animation: spin 1s linear infinite; margin-bottom: 15px; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
-        #adInterstitialModal { 
-            position: fixed; inset: 0; 
-            background: linear-gradient(135deg, rgba(11,15,25,0.97) 0%, rgba(26,26,46,0.97) 50%, rgba(22,33,62,0.97) 100%); 
-            z-index: 99999; 
-            display: none; 
-            align-items: center; 
-            justify-content: center; 
-            backdrop-filter: blur(10px); 
-            padding: 20px;
-            gap: 20px; 
-            overflow: hidden !important; 
-        }
+        #adInterstitialModal { position: fixed; inset: 0; background: linear-gradient(135deg, rgba(11,15,25,0.97) 0%, rgba(26,26,46,0.97) 50%, rgba(22,33,62,0.97) 100%); z-index: 99999; display: none; align-items: center; justify-content: center; backdrop-filter: blur(10px); padding: 20px; gap: 20px; overflow: hidden !important; }
         #adInterstitialModal.active { display: flex; }
-        
-        .ad-center-column { 
-            display: flex; flex-direction: column; align-items: center; gap: 15px; 
-            width: 100%; max-width: 800px; flex-shrink: 1; max-height: 100%; 
-            overflow-y: auto; -ms-overflow-style: none; scrollbar-width: none; 
-        }
+        .ad-center-column { display: flex; flex-direction: column; align-items: center; gap: 15px; width: 100%; max-width: 800px; flex-shrink: 1; max-height: 100%; overflow-y: auto; -ms-overflow-style: none; scrollbar-width: none; }
         .ad-center-column::-webkit-scrollbar { display: none; }
-        
-        .ad-interstitial-wrapper { 
-            background: #152961; border: 2px solid #fdbb2d; border-radius: 12px; 
-            width: 100%; display: flex; flex-direction: column; 
-            box-shadow: 0 0 60px rgba(253,187,45,0.2); overflow: hidden; 
-            flex-shrink: 0; z-index: 2; max-height: 100%;
-        }
+        .ad-interstitial-wrapper { background: #152961; border: 2px solid #fdbb2d; border-radius: 12px; width: 100%; display: flex; flex-direction: column; box-shadow: 0 0 60px rgba(253,187,45,0.2); overflow: hidden; flex-shrink: 0; z-index: 2; max-height: 100%; }
         .ad-interstitial-header { background: rgba(253,187,45,0.1); padding: 15px 25px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.1); color: #fdbb2d; font-weight: bold; font-size: 1rem; flex-shrink: 0; }
-        .ad-center-wrapper { 
-            width: 100%; flex: 1; min-height: 0;
-            background: #0b0f19; display: flex; align-items: center; justify-content: center; 
-            overflow: hidden; position: relative; aspect-ratio: 16 / 9; 
-        }
+        .ad-center-wrapper { width: 100%; flex: 1; min-height: 0; background: #0b0f19; display: flex; align-items: center; justify-content: center; overflow: hidden; position: relative; aspect-ratio: 16 / 9; }
         .ad-center-wrapper img { width: 100%; height: 100%; object-fit: contain; }
         .ad-center-wrapper iframe { width: 100%; height: 100%; border: none; position: absolute; top: 0; left: 0; pointer-events: none; }
-        
-        .ad-interstitial-footer { 
-            padding: 15px 20px; display: flex; justify-content: center; align-items: center; 
-            flex-wrap: wrap; gap: 10px; border-top: 1px solid rgba(255,255,255,0.1); 
-            background: rgba(0,0,0,0.2); flex-shrink: 0;
-        }
+        .ad-interstitial-footer { padding: 15px 20px; display: flex; justify-content: center; align-items: center; flex-wrap: wrap; gap: 10px; border-top: 1px solid rgba(255,255,255,0.1); background: rgba(0,0,0,0.2); flex-shrink: 0; }
         .ad-interstitial-footer button { padding: 10px 20px; border-radius: 8px; font-weight: bold; font-size: 0.95rem; cursor: pointer; border: none; transition: 0.2s; }
         .ad-close-btn { background: #ef4444; color: #fff; opacity: 0.5; cursor: not-allowed; }
         .ad-close-btn.active { opacity: 1; cursor: pointer; background: #22c55e; }
         .ad-close-btn.active:hover { background: #16a34a; }
-
-        .ad-side-banner { width: 160px; height: 600px; max-height: calc(100vh - 40px); flex-shrink: 0; background: transparent; border-radius: 8px; overflow: hidden; position: relative; border: 1px solid rgba(255,255,255,0.2); display: none; z-index: 2;}
-        .ad-side-banner iframe { width: 100%; height: 100%; display: block; border: 0; position: absolute; top:0; left:0; background: transparent; }
-
+        .ad-side-banner { width: 160px; height: 600px; max-height: calc(100vh - 40px); flex-shrink: 0; background: transparent; border-radius: 8px; overflow: hidden; position: relative; border: 1px solid rgba(255,255,255,0.2); display: none; z-index: 2; }
+        .ad-side-banner iframe { width: 100%; height: 100%; display: block; border: 0; position: absolute; top: 0; left: 0; background: transparent; }
         .ad-mobile-top-banner, .ad-mobile-bottom-banner { display: none; width: 100%; max-width: 320px; background: #ffffff; border-radius: 8px; overflow: hidden; flex-shrink: 0; border: 1px solid rgba(255,255,255,0.2); position: relative; z-index: 2; }
         .ad-mobile-top-banner { height: 50px; }
         .ad-mobile-bottom-banner { height: 250px; max-width: 300px; }
@@ -465,6 +319,63 @@
         .comment-action-btn.report:hover { color: #f59e0b; }
         .comment-action-btn.delete:hover { color: #ef4444; }
         .comment-action-btn.pin-btn:hover { color: #10b981; }
+        .comment-action-btn.reply-action:hover { color: #60a5fa; }
+
+        /* ═══ NOVO: estilos de subcomentários (replies) ═══ */
+        .replies-container { display: none; margin-top: 12px; margin-left: 20px; padding-left: 18px; border-left: 2px solid rgba(253,187,45,0.25); flex-direction: column; gap: 10px; }
+        .replies-container.expanded { display: flex; }
+
+        .reply-card { display: flex; gap: 10px; padding: 10px 12px; border-radius: 8px; background: rgba(0,0,0,0.25); border: 1px solid rgba(255,255,255,0.06); position: relative; font-size: 0.85rem; }
+        .reply-card.pinned { border: 2px solid #10b981; box-shadow: 0 0 12px rgba(16,185,129,0.15); }
+        .reply-card.pinned::before { content: '📌 Fixado'; position: absolute; top: -9px; left: 10px; background: #10b981; color: #fff; font-size: 0.6rem; font-weight: bold; padding: 1px 7px; border-radius: 8px; }
+        .reply-avatar { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; flex-shrink: 0; border: 1px solid rgba(255,255,255,0.15); }
+        .reply-content { flex: 1; min-width: 0; }
+        .reply-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; flex-wrap: wrap; gap: 4px; }
+        .reply-author { font-weight: bold; color: #fdbb2d; font-size: 0.85rem; }
+        .reply-date { font-size: 0.68rem; color: #94a3b8; }
+        .reply-text { color: #f8fafc; font-size: 0.88rem; line-height: 1.4; margin-bottom: 6px; white-space: pre-wrap; word-break: break-word; }
+        .reply-text .mention { color: #a78bfa; font-weight: 600; }
+
+        .reply-actions { display: flex; gap: 12px; align-items: center; font-size: 0.75rem; flex-wrap: wrap; }
+        .reply-action-btn { background: none; border: none; color: #94a3b8; cursor: pointer; font-size: 0.75rem; font-family: inherit; padding: 0; display: flex; align-items: center; gap: 4px; transition: color 0.2s; }
+        .reply-action-btn:hover { color: #fdbb2d; }
+        .reply-action-btn.pin-btn:hover { color: #10b981; }
+        .reply-action-btn.delete-btn:hover { color: #ef4444; }
+
+        /* ═══ NOVO: botão expandir/retrair + contador de respostas ═══ */
+        .replies-toggle-wrapper { margin-top: 10px; }
+        .replies-toggle-btn { background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.15); color: #cbd5e1; padding: 6px 14px; border-radius: 6px; font-size: 0.8rem; cursor: pointer; font-family: inherit; display: inline-flex; align-items: center; gap: 6px; transition: 0.2s; font-weight: 600; }
+        .replies-toggle-btn:hover { background: rgba(253,187,45,0.12); border-color: #fdbb2d; color: #fdbb2d; }
+        .replies-toggle-btn.expanded { background: rgba(253,187,45,0.15); border-color: #fdbb2d; color: #fdbb2d; }
+        .replies-toggle-btn .arrow { display: inline-block; transition: transform 0.25s; font-size: 0.7rem; }
+        .replies-toggle-btn.expanded .arrow { transform: rotate(180deg); }
+        .replies-toggle-btn .reply-badge { background: #fdbb2d; color: #000; border-radius: 10px; padding: 1px 7px; font-size: 0.7rem; font-weight: 800; }
+
+        /* ═══ NOVO: formulário de resposta inline ═══ */
+        .reply-form { display: none; margin-top: 10px; background: rgba(0,0,0,0.25); padding: 10px; border-radius: 8px; gap: 8px; align-items: flex-start; border: 1px solid rgba(255,255,255,0.08); }
+        .reply-form.active { display: flex; }
+        .reply-form textarea { flex: 1; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.2); border-radius: 6px; padding: 8px 10px; color: #fff; resize: vertical; min-height: 44px; outline: none; font-family: inherit; font-size: 0.85rem; }
+        .reply-form textarea:focus { border-color: #fdbb2d; background: rgba(255,255,255,0.12); }
+        .reply-form .reply-form-btn { background: #fdbb2d; color: #000; border: none; padding: 8px 16px; border-radius: 6px; font-weight: bold; cursor: pointer; font-family: inherit; font-size: 0.82rem; align-self: stretch; transition: 0.2s; }
+        .reply-form .reply-form-btn:hover { background: #ffcc44; }
+        .reply-form .reply-form-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+        /* ═══ NOVO: modal de notificações ═══ */
+        .notif-item { display: flex; gap: 12px; padding: 12px; border-radius: 10px; margin-bottom: 8px; background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.05); cursor: pointer; transition: 0.2s; position: relative; }
+        .notif-item:hover { background: rgba(255,255,255,0.06); border-color: rgba(253,187,45,0.3); transform: translateX(2px); }
+        .notif-item.unread { background: rgba(253,187,45,0.09); border-left: 3px solid #fdbb2d; }
+        .notif-item.unread::after { content: ''; position: absolute; top: 12px; right: 12px; width: 8px; height: 8px; background: #fdbb2d; border-radius: 50%; box-shadow: 0 0 8px rgba(253,187,45,0.7); }
+        .notif-avatar { width: 42px; height: 42px; border-radius: 50%; object-fit: cover; flex-shrink: 0; border: 2px solid rgba(255,255,255,0.12); }
+        .notif-content { flex: 1; min-width: 0; padding-right: 12px; }
+        .notif-text { color: #e2e8f0; font-size: 0.88rem; line-height: 1.4; margin-bottom: 4px; word-break: break-word; }
+        .notif-text strong { color: #fdbb2d; font-weight: 700; }
+        .notif-meta { color: #94a3b8; font-size: 0.7rem; display: flex; align-items: center; gap: 6px; }
+        .notif-empty { text-align: center; padding: 40px 20px; color: #94a3b8; font-size: 0.95rem; }
+        .notif-header-actions { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; }
+        .notif-mark-all-btn { background: rgba(255,255,255,0.08); color: #fff; border: 1px solid rgba(255,255,255,0.15); padding: 6px 12px; border-radius: 6px; cursor: pointer; font-family: inherit; font-size: 0.8rem; font-weight: 600; transition: 0.2s; }
+        .notif-mark-all-btn:hover { background: rgba(253,187,45,0.15); border-color: #fdbb2d; color: #fdbb2d; }
+        .notif-delete-btn { background: none; border: none; color: #94a3b8; cursor: pointer; padding: 2px; font-size: 0.9rem; transition: color 0.2s; }
+        .notif-delete-btn:hover { color: #ef4444; }
 
         .admin-tabs { display: flex; gap: 8px; margin-bottom: 15px; flex-wrap: wrap; flex-shrink: 0; }
         .admin-tab-btn { flex: 1; min-width: 100px; padding: 10px; border-radius: 8px; border: none; font-weight: bold; cursor: pointer; transition: 0.2s; font-size: 0.82rem; background: rgba(255,255,255,0.12); color: #fff; font-family: inherit; }
@@ -483,101 +394,45 @@
         #blockAlertModal.active { display: flex; }
         #banAlertModal { position: fixed; inset: 0; background: rgba(0,0,0,0.95); backdrop-filter: blur(10px); z-index: 999999; display: none; align-items: center; justify-content: center; padding: 100px 20px 20px 20px; }
         #banAlertModal.active { display: flex; }
-        
         .alert-box { background: #1e293b; border-radius: 16px; padding: 30px; max-width: 500px; width: 100%; text-align: center; box-shadow: 0 20px 50px rgba(0,0,0,0.8); }
         .alert-box h2 { margin-bottom: 15px; font-size: 1.5rem; }
         .alert-box p { color: #cbd5e1; line-height: 1.5; margin-bottom: 15px; font-size: 0.95rem; }
         .alert-box .contact-info { background: rgba(0,0,0,0.3); padding: 12px; border-radius: 8px; font-size: 0.85rem; color: #fdbb2d; margin-top: 15px; line-height: 1.4; }
         .alert-box button { margin-top: 20px; padding: 12px 24px; border-radius: 8px; border: none; font-weight: bold; cursor: pointer; font-size: 1rem; width: 100%; font-family: inherit; }
-        
         #blockAlertModal .alert-box { border: 2px solid #f59e0b; }
         #blockAlertModal h2 { color: #f59e0b; }
         #blockAlertModal button { background: #f59e0b; color: #000; }
-        
         #banAlertModal .alert-box { border: 2px solid #ef4444; }
         #banAlertModal h2 { color: #ef4444; }
 
-        @media (min-width: 901px) {
-            .ad-side-banner { display: block; }
-        }
+        @media (min-width: 901px) { .ad-side-banner { display: block; } }
 
         @media (max-width: 900px) {
-            .header {
-                display: flex;
-                flex-wrap: wrap;
-                justify-content: space-between;
-                align-items: center;
-                height: auto;
-                padding: 10px 15px;
-            }
+            .header { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; height: auto; padding: 10px 15px; }
             .header-brand { order: 1; flex: 0 0 auto; margin: 0; }
             .header-logo { height: 45px; }
             .auth-area { order: 2; flex: 0 0 auto; }
-            .search-container {
-                order: 3;
-                flex: 1 1 100%;
-                margin: 10px 0 0 0;
-                max-width: 100%;
-            }
-            .user-card { position: fixed; top: 130px; left: 10px; right: 10px; width: auto; min-width: auto; }
-            
+            .search-container { order: 3; flex: 1 1 100%; margin: 10px 0 0 0; max-width: 100%; }
+            .user-card { position: fixed; top: 130px; left: 10px; right: 10px; width: auto; min-width: auto; max-height: calc(100vh - 150px); overflow-y: auto; }
             .main-scroll-wrapper { top: 130px; padding: 10px; }
             #playerScreen { top: 130px; padding: 10px; }
-            
-            body.search-hidden .main-scroll-wrapper,
-            body.search-hidden #playerScreen {
-                top: 75px;
-            }
-
-            .catalog-sort-bar {
-                flex-direction: column;
-                align-items: stretch;
-                gap: 10px;
-                padding: 10px 12px;
-                margin-bottom: 14px;
-            }
-            .filter-group {
-                gap: 6px;
-                justify-content: flex-start;
-                flex-wrap: wrap;
-            }
-            .filter-checkbox {
-                font-size: 0.78rem;
-                padding: 6px 10px;
-            }
-            .filter-checkbox input[type="checkbox"] {
-                width: 14px;
-                height: 14px;
-            }
-            .sort-group {
-                gap: 8px;
-                justify-content: stretch;
-                flex-wrap: wrap;
-                margin-left: 0;
-            }
-            .sort-group .sort-label {
-                font-size: 0.72rem;
-                width: 100%;
-            }
-            .sort-group select {
-                flex: 1;
-                min-width: 0;
-                font-size: 0.8rem;
-                padding: 7px 10px;
-            }
-            
+            body.search-hidden .main-scroll-wrapper, body.search-hidden #playerScreen { top: 75px; }
+            .catalog-sort-bar { flex-direction: column; align-items: stretch; gap: 10px; padding: 10px 12px; margin-bottom: 14px; }
+            .filter-group { gap: 6px; justify-content: flex-start; flex-wrap: wrap; }
+            .filter-checkbox { font-size: 0.78rem; padding: 6px 10px; }
+            .filter-checkbox input[type="checkbox"] { width: 14px; height: 14px; }
+            .sort-group { gap: 8px; justify-content: stretch; flex-wrap: wrap; margin-left: 0; }
+            .sort-group .sort-label { font-size: 0.72rem; width: 100%; }
+            .sort-group select { flex: 1; min-width: 0; font-size: 0.8rem; padding: 7px 10px; }
             .catalog-grid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 15px; }
             .card-title { font-size: 1rem; min-height: 2.6em; }
             .card-info { padding: 10px; }
             .watch-btn { font-size: 0.85rem; padding: 8px; }
-            
             .player-container { gap: 10px; }
             .player-wrapper { max-height: calc(100vh - 250px); border-radius: 0; }
-            
-            .player-wrapper::before { height: 90px !important; background: linear-gradient(to bottom, #000 0%, #000 50%, transparent 100%) !important; }
-            .player-wrapper::after { height: 90px !important; background: linear-gradient(to top, #000 0%, #000 50%, transparent 100%) !important; }
-            .player-controls { padding: 8px 12px 10px !important; background: linear-gradient(to top, #000 0%, #000 90%, transparent 100%) !important; }
-
+            .player-wrapper::before { height: 90px !important; }
+            .player-wrapper::after { height: 90px !important; }
+            .player-controls { padding: 8px 12px 10px !important; }
             #player-bottom-ad { display: none !important; }
             .player-vote-container { top: 10px; right: 10px; transform: scale(0.8); transform-origin: top right; }
             .close-player-btn { top: 10px; left: 10px; width: 35px; height: 35px; font-size: 1rem; }
@@ -604,24 +459,21 @@
             #commentsSection { padding: 15px; border-radius: 0; }
             .comment-card { padding: 12px; }
             .comment-avatar { width: 36px; height: 36px; }
-            
+            .replies-container { margin-left: 8px; padding-left: 10px; }
             .modal-overlay, #banAlertModal, #blockAlertModal { padding: 130px 10px 20px 10px; }
-            
-            #adInterstitialModal {
-                padding: 20px 10px 10px 10px;
-                align-items: center; 
-                justify-content: center;
-            }
+            #adInterstitialModal { padding: 20px 10px 10px 10px; align-items: center; justify-content: center; }
             .ad-interstitial-footer { flex-direction: column; align-items: stretch; }
             .ad-interstitial-footer > div { display: flex; flex-direction: column; gap: 10px; }
             .ad-interstitial-footer button { width: 100%; padding: 10px 15px; font-size: 0.9rem; }
+            .notif-item { padding: 10px; }
+            .notif-avatar { width: 36px; height: 36px; }
+            .notif-text { font-size: 0.82rem; }
         }
-        
+
         @media (max-width: 900px) and (orientation: portrait) {
             .ad-side-banner { display: none !important; }
             .ad-mobile-top-banner { display: flex; }
             .ad-mobile-bottom-banner { display: flex; }
-            
             .player-container { display: flex; flex-direction: column; align-items: center; }
             #playerWrapper { order: 1; }
             #playerMobileTop { display: block; order: 2; margin: 0 auto; }
@@ -630,495 +482,413 @@
         }
 
         @media (max-width: 900px) and (orientation: landscape) {
-            #adInterstitialModal {
-                flex-direction: row;
-                justify-content: center;
-                align-items: center;
-                padding: 10px;
-                gap: 10px;
-                overflow: hidden !important;
-            }
-            
-            .ad-center-column {
-                order: 1;
-                flex: 1;
-                max-width: 100%;
-                height: 100%;
-                display: flex;
-                flex-direction: column;
-                justify-content: center;
-                margin: 0;
-            }
-            
-            .ad-interstitial-wrapper {
-                height: 100%;
-                max-height: 100%;
-                width: 100%;
-                display: flex;
-                flex-direction: column;
-                justify-content: space-between;
-            }
-            
-            .ad-center-wrapper {
-                flex: 1;
-                min-height: 0;
-                aspect-ratio: auto; 
-                background: #000;
-            }
-            
-            .ad-interstitial-footer {
-                display: flex;
-                flex-direction: row;
-                flex-wrap: nowrap;
-                align-items: center;
-                justify-content: center;
-                padding: 6px 10px;
-                gap: 8px;
-                flex-shrink: 0;
-            }
-            
-            .ad-interstitial-footer > div {
-                display: flex;
-                flex-direction: row;
-                gap: 8px;
-                width: auto;
-            }
-            
-            .ad-interstitial-footer button {
-                width: auto;
-                padding: 8px 12px;
-                font-size: 0.75rem;
-                white-space: nowrap;
-                margin: 0;
-            }
-            
-            .ad-interstitial-header {
-                padding: 5px 15px;
-                font-size: 0.8rem;
-                flex-shrink: 0;
-            }
-
+            #adInterstitialModal { flex-direction: row; justify-content: center; align-items: center; padding: 10px; gap: 10px; overflow: hidden !important; }
+            .ad-center-column { order: 1; flex: 1; max-width: 100%; height: 100%; display: flex; flex-direction: column; justify-content: center; margin: 0; }
+            .ad-interstitial-wrapper { height: 100%; max-height: 100%; width: 100%; display: flex; flex-direction: column; justify-content: space-between; }
+            .ad-center-wrapper { flex: 1; min-height: 0; aspect-ratio: auto; background: #000; }
+            .ad-interstitial-footer { display: flex; flex-direction: row; flex-wrap: nowrap; align-items: center; justify-content: center; padding: 6px 10px; gap: 8px; flex-shrink: 0; }
+            .ad-interstitial-footer > div { display: flex; flex-direction: row; gap: 8px; width: auto; }
+            .ad-interstitial-footer button { width: auto; padding: 8px 12px; font-size: 0.75rem; white-space: nowrap; margin: 0; }
+            .ad-interstitial-header { padding: 5px 15px; font-size: 0.8rem; flex-shrink: 0; }
             .ad-mobile-top-banner, .ad-mobile-bottom-banner, #adNativeLeft { display: none !important; }
-            #adNativeRight { 
-                display: block !important; 
-                order: 2;
-                width: 300px !important; 
-                height: 250px !important; 
-                flex-shrink: 0; 
-            }
-            
+            #adNativeRight { display: block !important; order: 2; width: 300px !important; height: 250px !important; flex-shrink: 0; }
             .player-container { display: flex; flex-direction: column; align-items: center; width: 100%; }
-            .player-wrapper { 
-                order: 1; 
-                width: 100%; 
-                max-width: 100%; 
-                max-height: calc(100vh - 75px);
-                margin: 0 auto;
-                aspect-ratio: 16/9;
-                border-radius: 0;
-            }
-            
+            .player-wrapper { order: 1; width: 100%; max-width: 100%; max-height: calc(100vh - 75px); margin: 0 auto; aspect-ratio: 16/9; border-radius: 0; }
             #playerMobileTop { display: none !important; }
             #commentsSection { display: flex; order: 3; margin-top: 10px; width: 100%; }
-            #playerMobileBottom { display: none !important; } 
+            #playerMobileBottom { display: none !important; }
         }
     </style>
 </head>
 <body>
 
-    <header class="header">
-        <div class="header-brand">
-            <a href="javascript:void(0);" onclick="window.location.reload();" class="logo-link" title="Atualizar página">
-                <img src="https://i.ibb.co/rRgV3n8d/playtronictv.png" alt="Playtronic TV" class="header-logo">
-            </a>
-        </div>
-        <div class="search-container">
-            <input type="text" id="searchInput" placeholder="Pesquisar por título, produtora ou ano..." autocomplete="off">
-            <button id="clearMainSearchBtn" title="Limpar busca">✖</button>
-        </div>
-        <div class="auth-area">
-            <button class="login-btn" id="loginBtn">
-                <svg width="18" height="18" viewBox="0 0 48 48"><path fill="#FFC107" d="M43.611,20.083H42V20H24v8h11.303c-1.649,4.657-6.08,8-11.303,8c-6.627,0-12-5.373-12-12c0-6.627,5.373-12,12-12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C12.955,4,4,12.955,4,24c0,11.045,8.955,20,20,20c11.045,0,20-8.955,20-20C44,22.659,43.862,21.35,43.611,20.083z"/><path fill="#FF3D00" d="M6.306,14.691l6.571,4.819C14.655,15.108,18.961,12,24,12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C16.318,4,9.656,8.337,6.306,14.691z"/><path fill="#4CAF50" d="M24,44c5.166,0,9.86-1.977,13.409-5.192l-6.19-5.238C29.211,35.091,26.715,36,24,36c-5.202,0-9.619-3.317-11.283-7.946l-6.522,5.025C9.505,39.556,16.227,44,24,44z"/><path fill="#1976D2" d="M43.611,20.083H42V20H24v8h11.303c-0.792,2.237-2.231,4.166-4.087,5.571c0.001-0.001,0.002-0.001,0.003-0.002l6.19,5.238C36.971,39.205,44,34,44,24C44,22.659,43.862,21.35,43.611,20.083z"/></svg>
-                Entrar
-            </button>
-            <div class="user-info" id="userInfo">
+<header class="header">
+    <div class="header-brand">
+        <a href="javascript:void(0);" onclick="window.location.reload();" class="logo-link" title="Atualizar página">
+            <img src="https://i.ibb.co/rRgV3n8d/playtronictv.png" alt="Playtronic TV" class="header-logo">
+        </a>
+    </div>
+    <div class="search-container">
+        <input type="text" id="searchInput" placeholder="Pesquisar por título, produtora ou ano..." autocomplete="off">
+        <button id="clearMainSearchBtn" title="Limpar busca">✖</button>
+    </div>
+    <div class="auth-area">
+        <button class="login-btn" id="loginBtn">
+            <svg width="18" height="18" viewBox="0 0 48 48"><path fill="#FFC107" d="M43.611,20.083H42V20H24v8h11.303c-1.649,4.657-6.08,8-11.303,8c-6.627,0-12-5.373-12-12c0-6.627,5.373-12,12-12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C12.955,4,4,12.955,4,24c0,11.045,8.955,20,20,20c11.045,0,20-8.955,20-20C44,22.659,43.862,21.35,43.611,20.083z"/><path fill="#FF3D00" d="M6.306,14.691l6.571,4.819C14.655,15.108,18.961,12,24,12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C16.318,4,9.656,8.337,6.306,14.691z"/><path fill="#4CAF50" d="M24,44c5.166,0,9.86-1.977,13.409-5.192l-6.19-5.238C29.211,35.091,26.715,36,24,36c-5.202,0-9.619-3.317-11.283-7.946l-6.522,5.025C9.505,39.556,16.227,44,24,44z"/><path fill="#1976D2" d="M43.611,20.083H42V20H24v8h11.303c-0.792,2.237-2.231,4.166-4.087,5.571c0.001-0.001,0.002-0.001,0.003-0.002l6.19,5.238C36.971,39.205,44,34,44,24C44,22.659,43.862,21.35,43.611,20.083z"/></svg>
+            Entrar
+        </button>
+        <div class="user-info" id="userInfo">
+            <!-- ═══ NOVO: wrapper do avatar com badge de notificação ═══ -->
+            <div class="user-avatar-wrapper" id="userAvatarWrapper">
                 <img class="user-avatar" id="userAvatar" src="" alt="Avatar">
-                <div class="user-card" id="userCard">
-                    <div class="user-name" id="userName"></div>
-                    <div class="user-email" id="userEmail"></div>
-                    <div id="subscriptionBadge">✓ Assinante</div>
-                    <div class="user-sub-info" id="userSubInfo"></div>
-                    <div class="user-actions">
-                        <button id="subscribeBtn" style="display:none;">⭐ Assinar</button>
-                        <button id="myAdsBtn" style="display:none;">📺 Meus Anúncios</button>
-                        <div id="adminMenuContainer">
-                            <button id="adminMenuBtn">⚙️ Painel Admin</button>
-                            <div id="adminDropdown">
-                                <button id="addVideoBtn">➕ Inserir Vídeo</button>
-                                <button id="performanceBtn">📈 Desempenho</button>
-                                <button id="adminCommentsBtn">💬 Comentários</button>
-                                <button id="pricingBtn">💰 Preços</button>
-                                <button id="manageAdsBtn">🖼️ Anúncio Interno</button>
-                                <button id="simulateSubBtn" style="color: #a78bfa;">🧪 Simular Assinante</button>
-                            </div>
+                <span class="notification-badge" id="avatarNotifBadge"></span>
+            </div>
+            <div class="user-card" id="userCard">
+                <div class="user-name" id="userName"></div>
+                <div class="user-email" id="userEmail"></div>
+                <div id="subscriptionBadge">✓ Assinante</div>
+                <div class="user-sub-info" id="userSubInfo"></div>
+                <div class="user-actions">
+                    <!-- ═══ NOVO: botão de notificações ═══ -->
+                    <button id="notificationsBtn" style="display: none;">
+                        🔔 Notificações
+                        <span id="notifBtnCount" class="notif-count">0</span>
+                    </button>
+                    <button id="subscribeBtn" style="display:none;">⭐ Assinar</button>
+                    <button id="myAdsBtn" style="display:none;">📺 Meus Anúncios</button>
+                    <div id="adminMenuContainer">
+                        <button id="adminMenuBtn">⚙️ Painel Admin</button>
+                        <div id="adminDropdown">
+                            <button id="addVideoBtn">➕ Inserir Vídeo</button>
+                            <button id="performanceBtn">📈 Desempenho</button>
+                            <button id="adminCommentsBtn">💬 Comentários</button>
+                            <button id="pricingBtn">💰 Preços</button>
+                            <button id="manageAdsBtn">🖼️ Anúncio Interno</button>
+                            <button id="simulateSubBtn" style="color: #a78bfa;">🧪 Simular Assinante</button>
                         </div>
-                        <button class="logout-btn" id="logoutBtn">Sair</button>
                     </div>
+                    <button class="logout-btn" id="logoutBtn">Sair</button>
                 </div>
-            </div>
-        </div>
-    </header>
-
-    <div class="main-scroll-wrapper" id="mainScrollWrapper">
-        <div id="catalogScreen">
-            <div id="loadingMsg" class="loading">Carregando catálogo...</div>
-
-            <!-- ===== BARRA DE FILTRO E ORDENAÇÃO ===== -->
-            <div class="catalog-sort-bar" id="catalogSortBar" style="display:none;">
-                <div class="filter-group">
-                    <span class="sort-label">📺 Mostrar:</span>
-                    <label class="filter-checkbox checked">
-                        <input type="checkbox" name="contentFilter" value="all" checked>
-                        <span>Todos</span>
-                    </label>
-                    <label class="filter-checkbox">
-                        <input type="checkbox" name="contentFilter" value="free">
-                        <span>Gratuitos</span>
-                    </label>
-                    <label class="filter-checkbox">
-                        <input type="checkbox" name="contentFilter" value="paid">
-                        <span>Pagos</span>
-                    </label>
-                </div>
-
-                <div class="sort-group">
-                    <span class="sort-label">🔀 Ordenar por:</span>
-                    <select id="sortFieldSelect">
-                        <option value="order">Data de inclusão</option>
-                        <option value="produtora">Produtora</option>
-                        <option value="ano">Ano</option>
-                        <option value="likes">Curtidas</option>
-                        <option value="views">Visualizações</option>
-                        <option value="comments">Mais comentados</option>
-                        <option value="titulo">Título (A-Z)</option>
-                    </select>
-                    <select id="sortOrderSelect">
-                        <option value="desc">↓ Decrescente</option>
-                        <option value="asc">↑ Crescente</option>
-                    </select>
-                </div>
-            </div>
-
-            <div id="favoritesSection" style="display: none;">
-                <h2 class="carousel-title">Seus Favoritos</h2>
-                <div class="carousel-wrapper">
-                    <button class="carousel-arrow left" id="carouselLeft">❮</button>
-                    <div class="carousel-track" id="favoritesTrack"></div>
-                    <button class="carousel-arrow right" id="carouselRight">❯</button>
-                </div>
-            </div>
-            <div id="catalogGrid" class="catalog-grid"></div>
-            <div id="emptyState" class="empty-state"></div>
-        </div>
-
-        <footer class="site-footer">
-            <p><strong>Playtronic TV+</strong> - TODOS OS DIREITOS RESERVADOS</p>
-            <p>Contato: <a href="mailto:playtronic@mail.com" class="contact-link">playtronic@mail.com</a></p>
-            <a href="https://playtronicgames.com.br" target="_blank" class="footer-logo-link">
-                <img src="https://i.ibb.co/pjVXNp4P/Playtronic.png" alt="Playtronic Games" class="footer-logo">
-            </a>
-        </footer>
-    </div>
-
-    <!-- MODAIS DO ADMIN -->
-    <div class="modal-overlay" id="videoModal">
-        <div class="modal">
-            <h2 id="videoModalTitle">Adicionar Vídeo</h2>
-            <p class="modal-sub" id="videoModalSub"></p>
-            <label>URL do YouTube</label>
-            <input type="text" id="videoUrlInput" placeholder="https://www.youtube.com/watch?v=...">
-            <div class="url-hint" id="urlHint"></div>
-            <label>Título</label>
-            <input type="text" id="videoTitleInput" placeholder="Título do vídeo">
-            <label>Produtora</label>
-            <input type="text" id="videoProdutoraInput" placeholder="Ex.: Walt Disney Productions">
-            <label>Ano</label>
-            <input type="text" id="videoAnoInput" placeholder="Ex.: 1950" maxlength="4">
-            <div class="modal-checkbox-row">
-                <label><input type="radio" name="videoMarker" value=""> Nenhum</label>
-                <label><input type="radio" name="videoMarker" value="pago"> PAGO</label>
-                <label><input type="radio" name="videoMarker" value="ad"> AD</label>
-            </div>
-            <div class="modal-actions">
-                <button class="secondary" id="cancelVideoBtn">Cancelar</button>
-                <button class="primary" id="confirmVideoBtn">Salvar</button>
             </div>
         </div>
     </div>
+</header>
 
-    <div class="modal-overlay" id="manageAdsModal">
-        <div class="modal flex-modal">
-            <h2>Anúncio Interno</h2>
-            <p class="modal-sub">Adicione ou remova as imagens do anúncio central.</p>
-            <div style="display: flex; gap: 10px; align-items: flex-end; flex-shrink: 0; margin-bottom: 10px;">
-                <div style="flex: 1;">
-                    <label>URL da Imagem</label>
-                    <input type="text" id="newAdImageUrl" placeholder="https://exemplo.com/imagem.png">
-                </div>
-                <button class="primary" id="addAdBtn" style="height: 42px; margin-bottom: 6px; padding: 0 16px; border-radius: 8px; border: none; font-weight: bold; cursor: pointer;">Adicionar</button>
+<div class="main-scroll-wrapper" id="mainScrollWrapper">
+    <div id="catalogScreen">
+        <div id="loadingMsg" class="loading">Carregando catálogo...</div>
+        <div class="catalog-sort-bar" id="catalogSortBar" style="display:none;">
+            <div class="filter-group">
+                <span class="sort-label">📺 Mostrar:</span>
+                <label class="filter-checkbox checked"><input type="checkbox" name="contentFilter" value="all" checked><span>Todos</span></label>
+                <label class="filter-checkbox"><input type="checkbox" name="contentFilter" value="free"><span>Gratuitos</span></label>
+                <label class="filter-checkbox"><input type="checkbox" name="contentFilter" value="paid"><span>Pagos</span></label>
             </div>
-            <div id="adsListContainer" class="modal-scroll"></div>
-            <div class="modal-actions"><button class="secondary" id="closeManageAdsBtn">Fechar</button></div>
-        </div>
-    </div>
-
-    <div class="modal-overlay" id="pricingModal">
-        <div class="modal">
-            <h2>Configuração de Preços</h2>
-            <p class="modal-sub">Defina os valores de cada plano e a tarifa de anúncio.</p>
-            <label>30 dias (R$)</label><input type="text" id="priceMonthlyInput" placeholder="Ex.: 6,90">
-            <label>3 meses (R$)</label><input type="text" id="priceQuarterlyInput" placeholder="Ex.: 17,90">
-            <label>6 meses (R$)</label><input type="text" id="priceSemiannualInput" placeholder="Ex.: 29,90">
-            <label>1 ano (R$)</label><input type="text" id="priceAnnualInput" placeholder="Ex.: 49,90">
-            <label>Tarifa de Anúncio por Segundo (R$)</label><input type="text" id="priceAdRateInput" placeholder="Ex.: 0,50">
-            <div class="modal-actions">
-                <button class="secondary" id="cancelPricingBtn">Cancelar</button>
-                <button class="primary" id="savePricingBtn">Salvar</button>
-            </div>
-        </div>
-    </div>
-
-    <div class="modal-overlay" id="performanceModal">
-        <div class="modal flex-modal" style="max-width: 950px;">
-            <h2>📈 Desempenho</h2>
-            <div class="perf-tabs">
-                <button id="tabVideosBtn" class="perf-tab-btn active">Vídeos</button>
-                <button id="tabSubsBtn" class="perf-tab-btn">Assinantes Ativos</button>
-            </div>
-            <div class="modal-scroll" style="display: flex; flex-direction: column;">
-                <div id="viewVideos" style="flex: 1; display: flex; flex-direction: column;">
-                    <div class="perf-search-container"><input type="text" id="perfSearchInput" placeholder="Buscar por título do vídeo..."></div>
-                    <div id="perfTableContainer" style="flex: 1; overflow-y: auto; border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; margin-top: 10px;"></div>
-                </div>
-                <div id="viewSubs" style="display: none; flex: 1; flex-direction: column;">
-                    <div style="display: flex; gap: 10px; align-items: center; flex-shrink: 0; margin-bottom: 10px; flex-wrap: wrap;">
-                        <div style="color: #fdbb2d; font-weight: 700; font-size: 0.88rem; display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
-                            <span style="display:inline-block; width:9px; height:9px; background:#22c55e; border-radius:50%;"></span>
-                            <span id="subsOnlineCount">0</span> online • <span id="subsTotalCount">0</span> totais • <span id="subsActiveCount">0</span> assinantes
-                        </div>
-                        <select id="subsFilterSelect" style="margin-left: auto; width: 210px; background: rgba(255,255,255,0.08); color: #fff; border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; padding: 8px 12px; font-size: 0.85rem; outline: none;">
-                            <option value="all">Todos os usuários</option>
-                            <option value="active">Apenas assinantes</option>
-                            <option value="inactive">Apenas não-assinantes</option>
-                        </select>
-                    </div>
-                    <div id="subsListContainer" style="flex: 1; overflow-y: auto; background: rgba(0,0,0,0.2); border-radius: 8px; padding: 10px; border: 1px solid rgba(255,255,255,0.05);"></div>
-                </div>
-            </div>
-            <div class="modal-actions"><button class="secondary" id="closePerformanceBtn">Fechar</button></div>
-        </div>
-    </div>
-
-    <div class="modal-overlay" id="adminCommentsModal">
-        <div class="modal flex-modal" style="max-width: 900px;">
-            <h2>💬 Gerenciar Comentários</h2>
-            <div class="admin-tabs">
-                <button class="admin-tab-btn active" data-tab="all">Todos</button>
-                <button class="admin-tab-btn" data-tab="reported">Denunciados</button>
-                <button class="admin-tab-btn" data-tab="deleted">Removidos</button>
-                <button class="admin-tab-btn" data-tab="blocked">Bloqueados/Banidos</button>
-            </div>
-            <div class="modal-scroll" id="adminCommentsListContainer" style="flex: 1; overflow-y: auto; padding-right: 5px;"></div>
-            <div class="modal-actions"><button class="secondary" id="closeAdminCommentsBtn">Fechar</button></div>
-        </div>
-    </div>
-
-    <div class="modal-overlay" id="insertAdModal">
-        <div class="modal">
-            <h2>Inserir um Anúncio</h2>
-            <div id="adInsertStep1">
-                <label>URL do vídeo do YouTube</label>
-                <input type="text" id="newAdYoutubeUrl" placeholder="https://www.youtube.com/watch?v=...">
-                <div class="url-hint" id="adYoutubeHint"></div>
-                <div id="adCalcResult" style="display: none; text-align: center; margin: 20px 0; background: rgba(0,0,0,0.2); padding: 15px; border-radius: 8px;">
-                    <p style="color: #cbd5e1; font-size: 0.9rem;">Valor a pagar:</p>
-                    <div style="color: #fdbb2d; font-size: 2rem; font-weight: 800;" id="adCalculatedPrice">R$ 0,00</div>
-                    <p style="font-size: 0.8rem; color: #94a3b8;" id="adDurationInfo">Duração: 0s</p>
-                    <p style="font-size: 0.75rem; color: #64748b;" id="adRateInfo"></p>
-                </div>
-                <div class="modal-actions">
-                    <button class="secondary" id="cancelInsertAdBtn">Cancelar</button>
-                    <button class="primary" id="generateAdPixBtn" style="display: none;">Confirmar e Gerar PIX</button>
-                </div>
-            </div>
-            <div id="adInsertStep2" style="display: none;">
-                <div id="adPixArea" style="text-align: center;">
-                    <div id="adPixQr" style="width: 200px; height: 200px; margin: 0 auto 14px; background: #fff; padding: 8px; border-radius: 8px;"></div>
-                    <textarea id="adPixCode" readonly style="width: 100%; height: 60px; background: rgba(255,255,255,0.08); color: #fff; padding: 10px; border-radius: 6px;"></textarea>
-                    <button id="copyAdPixBtn" style="margin-top: 8px; background: #3498db; color: #fff; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer;">Copiar código</button>
-                    <div id="adPixStatus" style="margin-top: 16px; padding: 12px; border-radius: 8px; display: none;"></div>
-                </div>
-                <div class="modal-actions" style="margin-top: 20px;"><button class="secondary" id="closeAdPixBtn">Fechar</button></div>
-            </div>
-            <div id="hiddenYTPlayer" style="position: absolute; top: -9999px; left: -9999px; width: 1px; height: 1px;"></div>
-        </div>
-    </div>
-
-    <div class="modal-overlay" id="myAdsModal">
-        <div class="modal" style="max-width: 700px;">
-            <h2>Histórico de Anúncios</h2>
-            <p class="modal-sub" id="myAdsSub">Acompanhe o desempenho dos seus anúncios.</p>
-            <div class="my-ads-toolbar">
-                <input type="text" id="searchMyAds" placeholder="Pesquisar por título ou ID...">
-                <select id="sortMyAds">
-                    <option value="createdAt">Data (Recente)</option>
+            <div class="sort-group">
+                <span class="sort-label">🔀 Ordenar por:</span>
+                <select id="sortFieldSelect">
+                    <option value="order">Data de inclusão</option>
+                    <option value="produtora">Produtora</option>
+                    <option value="ano">Ano</option>
+                    <option value="likes">Curtidas</option>
                     <option value="views">Visualizações</option>
-                    <option value="amountPaid">Valor Pago</option>
+                    <option value="comments">Mais comentados</option>
+                    <option value="titulo">Título (A-Z)</option>
+                </select>
+                <select id="sortOrderSelect">
+                    <option value="desc">↓ Decrescente</option>
+                    <option value="asc">↑ Crescente</option>
                 </select>
             </div>
-            <div id="myAdsListContainer" style="max-height: 400px; overflow-y: auto; padding-right: 5px;"></div>
-            <div class="modal-actions"><button class="secondary" id="closeMyAdsBtn">Fechar</button></div>
+        </div>
+        <div id="favoritesSection" style="display: none;">
+            <h2 class="carousel-title">Seus Favoritos</h2>
+            <div class="carousel-wrapper">
+                <button class="carousel-arrow left" id="carouselLeft">❮</button>
+                <div class="carousel-track" id="favoritesTrack"></div>
+                <button class="carousel-arrow right" id="carouselRight">❯</button>
+            </div>
+        </div>
+        <div id="catalogGrid" class="catalog-grid"></div>
+        <div id="emptyState" class="empty-state"></div>
+    </div>
+    <footer class="site-footer">
+        <p><strong>Playtronic TV+</strong> - TODOS OS DIREITOS RESERVADOS</p>
+        <p>Contato: <a href="mailto:playtronic@mail.com" class="contact-link">playtronic@mail.com</a></p>
+        <a href="https://playtronicgames.com.br" target="_blank" class="footer-logo-link">
+            <img src="https://i.ibb.co/pjVXNp4P/Playtronic.png" alt="Playtronic Games" class="footer-logo">
+        </a>
+    </footer>
+</div>
+
+<!-- ═══ NOVO: MODAL DE NOTIFICAÇÕES ═══ -->
+<div class="modal-overlay" id="notificationsModal">
+    <div class="modal flex-modal" style="max-width: 560px;">
+        <div class="notif-header-actions" style="margin-bottom: 12px;">
+            <h2 style="margin-bottom: 0;">🔔 Notificações</h2>
+            <button class="notif-mark-all-btn" id="markAllNotifsReadBtn">✓ Marcar todas como lidas</button>
+        </div>
+        <div class="modal-scroll" id="notificationsListContainer"></div>
+        <div class="modal-actions"><button class="secondary" id="closeNotificationsBtn">Fechar</button></div>
+    </div>
+</div>
+
+<!-- MODAIS DO ADMIN -->
+<div class="modal-overlay" id="videoModal">
+    <div class="modal">
+        <h2 id="videoModalTitle">Adicionar Vídeo</h2>
+        <p class="modal-sub" id="videoModalSub"></p>
+        <label>URL do YouTube</label>
+        <input type="text" id="videoUrlInput" placeholder="https://www.youtube.com/watch?v=...">
+        <div class="url-hint" id="urlHint"></div>
+        <label>Título</label>
+        <input type="text" id="videoTitleInput" placeholder="Título do vídeo">
+        <label>Produtora</label>
+        <input type="text" id="videoProdutoraInput" placeholder="Ex.: Walt Disney Productions">
+        <label>Ano</label>
+        <input type="text" id="videoAnoInput" placeholder="Ex.: 1950" maxlength="4">
+        <div class="modal-checkbox-row">
+            <label><input type="radio" name="videoMarker" value=""> Nenhum</label>
+            <label><input type="radio" name="videoMarker" value="pago"> PAGO</label>
+            <label><input type="radio" name="videoMarker" value="ad"> AD</label>
+        </div>
+        <div class="modal-actions">
+            <button class="secondary" id="cancelVideoBtn">Cancelar</button>
+            <button class="primary" id="confirmVideoBtn">Salvar</button>
         </div>
     </div>
+</div>
 
-    <div id="playerScreen">
-        <div class="player-container">
-            <div class="player-wrapper" id="playerWrapper">
-                <div id="playerLoadingOverlay" class="player-loading-overlay">
-                    <div class="spinner"></div>
-                    <div class="loading-text">Carregando vídeo...</div>
-                </div>
+<div class="modal-overlay" id="manageAdsModal">
+    <div class="modal flex-modal">
+        <h2>Anúncio Interno</h2>
+        <p class="modal-sub">Adicione ou remova as imagens do anúncio central.</p>
+        <div style="display: flex; gap: 10px; align-items: flex-end; flex-shrink: 0; margin-bottom: 10px;">
+            <div style="flex: 1;">
+                <label>URL da Imagem</label>
+                <input type="text" id="newAdImageUrl" placeholder="https://exemplo.com/imagem.png">
+            </div>
+            <button class="primary" id="addAdBtn" style="height: 42px; margin-bottom: 6px; padding: 0 16px; border-radius: 8px; border: none; font-weight: bold; cursor: pointer;">Adicionar</button>
+        </div>
+        <div id="adsListContainer" class="modal-scroll"></div>
+        <div class="modal-actions"><button class="secondary" id="closeManageAdsBtn">Fechar</button></div>
+    </div>
+</div>
 
-                <div class="custom-ui" id="customUI">
-                    <button class="close-player-btn" id="closePlayerBtn" title="Fechar player">✖</button>
-                    <div id="playerVideoTitle" class="player-video-title"></div>
-                    <div class="player-vote-container">
-                        <button class="player-vote-btn like" id="playerLikeBtn" title="Curtir">👍 <span id="playerLikeCount">0</span></button>
-                        <button class="player-vote-btn dislike" id="playerDislikeBtn" title="Descurtir">👎 <span id="playerDislikeCount">0</span></button>
+<div class="modal-overlay" id="pricingModal">
+    <div class="modal">
+        <h2>Configuração de Preços</h2>
+        <p class="modal-sub">Defina os valores de cada plano e a tarifa de anúncio.</p>
+        <label>30 dias (R$)</label><input type="text" id="priceMonthlyInput" placeholder="Ex.: 6,90">
+        <label>3 meses (R$)</label><input type="text" id="priceQuarterlyInput" placeholder="Ex.: 17,90">
+        <label>6 meses (R$)</label><input type="text" id="priceSemiannualInput" placeholder="Ex.: 29,90">
+        <label>1 ano (R$)</label><input type="text" id="priceAnnualInput" placeholder="Ex.: 49,90">
+        <label>Tarifa de Anúncio por Segundo (R$)</label><input type="text" id="priceAdRateInput" placeholder="Ex.: 0,50">
+        <div class="modal-actions">
+            <button class="secondary" id="cancelPricingBtn">Cancelar</button>
+            <button class="primary" id="savePricingBtn">Salvar</button>
+        </div>
+    </div>
+</div>
+
+<div class="modal-overlay" id="performanceModal">
+    <div class="modal flex-modal" style="max-width: 950px;">
+        <h2>📈 Desempenho</h2>
+        <div class="perf-tabs">
+            <button id="tabVideosBtn" class="perf-tab-btn active">Vídeos</button>
+            <button id="tabSubsBtn" class="perf-tab-btn">Assinantes Ativos</button>
+        </div>
+        <div class="modal-scroll" style="display: flex; flex-direction: column;">
+            <div id="viewVideos" style="flex: 1; display: flex; flex-direction: column;">
+                <div class="perf-search-container"><input type="text" id="perfSearchInput" placeholder="Buscar por título do vídeo..."></div>
+                <div id="perfTableContainer" style="flex: 1; overflow-y: auto; border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; margin-top: 10px;"></div>
+            </div>
+            <div id="viewSubs" style="display: none; flex: 1; flex-direction: column;">
+                <div style="display: flex; gap: 10px; align-items: center; flex-shrink: 0; margin-bottom: 10px; flex-wrap: wrap;">
+                    <div style="color: #fdbb2d; font-weight: 700; font-size: 0.88rem; display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
+                        <span style="display:inline-block; width:9px; height:9px; background:#22c55e; border-radius:50%;"></span>
+                        <span id="subsOnlineCount">0</span> online • <span id="subsTotalCount">0</span> totais • <span id="subsActiveCount">0</span> assinantes
                     </div>
-                    <button class="center-play-btn" id="centerPlayPauseBtn" title="Play/Pause">
-                        <svg class="icon-play" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
-                        <svg class="icon-pause" viewBox="0 0 24 24" fill="currentColor" style="display:none;"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
+                    <select id="subsFilterSelect" style="margin-left: auto; width: 210px; background: rgba(255,255,255,0.08); color: #fff; border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; padding: 8px 12px; font-size: 0.85rem; outline: none;">
+                        <option value="all">Todos os usuários</option>
+                        <option value="active">Apenas assinantes</option>
+                        <option value="inactive">Apenas não-assinantes</option>
+                    </select>
+                </div>
+                <div id="subsListContainer" style="flex: 1; overflow-y: auto; background: rgba(0,0,0,0.2); border-radius: 8px; padding: 10px; border: 1px solid rgba(255,255,255,0.05);"></div>
+            </div>
+        </div>
+        <div class="modal-actions"><button class="secondary" id="closePerformanceBtn">Fechar</button></div>
+    </div>
+</div>
+
+<div class="modal-overlay" id="adminCommentsModal">
+    <div class="modal flex-modal" style="max-width: 900px;">
+        <h2>💬 Gerenciar Comentários</h2>
+        <div class="admin-tabs">
+            <button class="admin-tab-btn active" data-tab="all">Todos</button>
+            <button class="admin-tab-btn" data-tab="reported">Denunciados</button>
+            <button class="admin-tab-btn" data-tab="deleted">Removidos</button>
+            <button class="admin-tab-btn" data-tab="blocked">Bloqueados/Banidos</button>
+        </div>
+        <div class="modal-scroll" id="adminCommentsListContainer" style="flex: 1; overflow-y: auto; padding-right: 5px;"></div>
+        <div class="modal-actions"><button class="secondary" id="closeAdminCommentsBtn">Fechar</button></div>
+    </div>
+</div>
+
+<div class="modal-overlay" id="insertAdModal">
+    <div class="modal">
+        <h2>Inserir um Anúncio</h2>
+        <div id="adInsertStep1">
+            <label>URL do vídeo do YouTube</label>
+            <input type="text" id="newAdYoutubeUrl" placeholder="https://www.youtube.com/watch?v=...">
+            <div class="url-hint" id="adYoutubeHint"></div>
+            <div id="adCalcResult" style="display: none; text-align: center; margin: 20px 0; background: rgba(0,0,0,0.2); padding: 15px; border-radius: 8px;">
+                <p style="color: #cbd5e1; font-size: 0.9rem;">Valor a pagar:</p>
+                <div style="color: #fdbb2d; font-size: 2rem; font-weight: 800;" id="adCalculatedPrice">R$ 0,00</div>
+                <p style="font-size: 0.8rem; color: #94a3b8;" id="adDurationInfo">Duração: 0s</p>
+                <p style="font-size: 0.75rem; color: #64748b;" id="adRateInfo"></p>
+            </div>
+            <div class="modal-actions">
+                <button class="secondary" id="cancelInsertAdBtn">Cancelar</button>
+                <button class="primary" id="generateAdPixBtn" style="display: none;">Confirmar e Gerar PIX</button>
+            </div>
+        </div>
+        <div id="adInsertStep2" style="display: none;">
+            <div id="adPixArea" style="text-align: center;">
+                <div id="adPixQr" style="width: 200px; height: 200px; margin: 0 auto 14px; background: #fff; padding: 8px; border-radius: 8px;"></div>
+                <textarea id="adPixCode" readonly style="width: 100%; height: 60px; background: rgba(255,255,255,0.08); color: #fff; padding: 10px; border-radius: 6px;"></textarea>
+                <button id="copyAdPixBtn" style="margin-top: 8px; background: #3498db; color: #fff; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer;">Copiar código</button>
+                <div id="adPixStatus" style="margin-top: 16px; padding: 12px; border-radius: 8px; display: none;"></div>
+            </div>
+            <div class="modal-actions" style="margin-top: 20px;"><button class="secondary" id="closeAdPixBtn">Fechar</button></div>
+        </div>
+        <div id="hiddenYTPlayer" style="position: absolute; top: -9999px; left: -9999px; width: 1px; height: 1px;"></div>
+    </div>
+</div>
+
+<div class="modal-overlay" id="myAdsModal">
+    <div class="modal" style="max-width: 700px;">
+        <h2>Histórico de Anúncios</h2>
+        <p class="modal-sub" id="myAdsSub">Acompanhe o desempenho dos seus anúncios.</p>
+        <div class="my-ads-toolbar">
+            <input type="text" id="searchMyAds" placeholder="Pesquisar por título ou ID...">
+            <select id="sortMyAds">
+                <option value="createdAt">Data (Recente)</option>
+                <option value="views">Visualizações</option>
+                <option value="amountPaid">Valor Pago</option>
+            </select>
+        </div>
+        <div id="myAdsListContainer" style="max-height: 400px; overflow-y: auto; padding-right: 5px;"></div>
+        <div class="modal-actions"><button class="secondary" id="closeMyAdsBtn">Fechar</button></div>
+    </div>
+</div>
+
+<div id="playerScreen">
+    <div class="player-container">
+        <div class="player-wrapper" id="playerWrapper">
+            <div id="playerLoadingOverlay" class="player-loading-overlay">
+                <div class="spinner"></div>
+                <div class="loading-text">Carregando vídeo...</div>
+            </div>
+            <div class="custom-ui" id="customUI">
+                <button class="close-player-btn" id="closePlayerBtn" title="Fechar player">✖</button>
+                <div id="playerVideoTitle" class="player-video-title"></div>
+                <div class="player-vote-container">
+                    <button class="player-vote-btn like" id="playerLikeBtn" title="Curtir">👍 <span id="playerLikeCount">0</span></button>
+                    <button class="player-vote-btn dislike" id="playerDislikeBtn" title="Descurtir">👎 <span id="playerDislikeCount">0</span></button>
+                </div>
+                <button class="center-play-btn" id="centerPlayPauseBtn" title="Play/Pause">
+                    <svg class="icon-play" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+                    <svg class="icon-pause" viewBox="0 0 24 24" fill="currentColor" style="display:none;"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
+                </button>
+                <div class="player-controls">
+                    <button class="skip-btn" id="btnRewind10" title="Voltar 10s">
+                        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 5V1L7 6l5 5V7c3.31 0 6 2.69 6 6s-2.69 6-6 6-6-2.69-6-6H4c0 4.42 3.58 8 8 8s8-3.58 8-8-3.58-8-8-8z"/></svg>
+                        <span class="skip-num">10</span>
                     </button>
-                    <div class="player-controls">
-                        <button class="skip-btn" id="btnRewind10" title="Voltar 10s">
-                            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 5V1L7 6l5 5V7c3.31 0 6 2.69 6 6s-2.69 6-6 6-6-2.69-6-6H4c0 4.42 3.58 8 8 8s8-3.58 8-8-3.58-8-8-8z"/></svg>
-                            <span class="skip-num">10</span>
-                        </button>
-                        <button class="skip-btn" id="btnForward10" title="Avançar 10s">
-                            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 5V1L7 6l5 5V7c3.31 0 6 2.69 6 6s-2.69 6-6 6-6-2.69-6-6H4c0 4.42 3.58 8 8 8s8-3.58 8-8-3.58-8-8-8z" transform="matrix(-1 0 0 1 24 0)"/></svg>
-                            <span class="skip-num">10</span>
-                        </button>
-                        <div class="volume-container">
-                            <button class="control-btn" id="muteBtn" title="Mudo">🔊</button>
-                            <input type="range" class="volume-slider" id="volumeSlider" min="0" max="100" value="100">
-                        </div>
-                        <div class="progress-track" id="progressTrack">
-                            <div class="progress-fill" id="progressFill"></div>
-                            <div class="progress-thumb" id="progressThumb"></div>
-                        </div>
-                        <span class="time-label" id="timeLabel">0:00 / 0:00</span>
-                        <button class="control-btn" id="fullscreenBtn" title="Tela Cheia">⛶</button>
+                    <button class="skip-btn" id="btnForward10" title="Avançar 10s">
+                        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 5V1L7 6l5 5V7c3.31 0 6 2.69 6 6s-2.69 6-6 6-6-2.69-6-6H4c0 4.42 3.58 8 8 8s8-3.58 8-8-3.58-8-8-8z" transform="matrix(-1 0 0 1 24 0)"/></svg>
+                        <span class="skip-num">10</span>
+                    </button>
+                    <div class="volume-container">
+                        <button class="control-btn" id="muteBtn" title="Mudo">🔊</button>
+                        <input type="range" class="volume-slider" id="volumeSlider" min="0" max="100" value="100">
                     </div>
-                </div>
-                <div id="youtubePlayer"></div>
-            </div>
-
-            <div class="player-mobile-banner" id="playerMobileTop"></div>
-
-            <div id="player-bottom-ad">
-                <iframe id="horizontal-ad-iframe" frameborder="0" scrolling="no"></iframe>
-            </div>
-
-            <div id="commentsSection">
-                <div class="comments-header">
-                    <h3>💬 Comentários</h3>
-                </div>
-                <div class="new-comment-form" id="newCommentForm">
-                    <img id="commentUserAvatar" src="" class="comment-avatar" alt="">
-                    <div style="flex: 1; display: flex; flex-direction: column; gap: 8px;">
-                        <textarea id="commentInput" placeholder="Escreva um comentário (máx 500 caracteres)..." maxlength="500"></textarea>
-                        <div style="display: flex; justify-content: space-between; align-items: center; gap: 10px;">
-                            <span id="commentCharCount" style="font-size: 0.75rem; color: #94a3b8;">0/500</span>
-                            <button id="postCommentBtn" style="background: #fdbb2d; color: #000; border: none; padding: 8px 18px; border-radius: 6px; font-weight: bold; cursor: pointer; font-family: inherit;">Enviar</button>
-                        </div>
+                    <div class="progress-track" id="progressTrack">
+                        <div class="progress-fill" id="progressFill"></div>
+                        <div class="progress-thumb" id="progressThumb"></div>
                     </div>
+                    <span class="time-label" id="timeLabel">0:00 / 0:00</span>
+                    <button class="control-btn" id="fullscreenBtn" title="Tela Cheia">⛶</button>
                 </div>
-                <div id="commentsList" style="display: flex; flex-direction: column; gap: 12px;"></div>
             </div>
-
-            <div class="player-mobile-banner" id="playerMobileBottom"></div>
+            <div id="youtubePlayer"></div>
         </div>
-    </div>
-
-    <div id="blockAlertModal">
-        <div class="alert-box">
-            <h2>⛔ Acesso Restrito a Comentários</h2>
-            <p id="blockAlertMsg"></p>
-            <p id="blockAlertReason" style="display: none; font-style: italic; color: #f8fafc;"></p>
-            <div class="contact-info">
-                Se você acredita que isso foi um erro, envie um e-mail para <strong>playtronic@mail.com</strong> usando o e-mail da sua conta Google como remetente.
+        <div class="player-mobile-banner" id="playerMobileTop"></div>
+        <div id="player-bottom-ad">
+            <iframe id="horizontal-ad-iframe" frameborder="0" scrolling="no"></iframe>
+        </div>
+        <div id="commentsSection">
+            <div class="comments-header">
+                <h3>💬 Comentários</h3>
             </div>
-            <button id="closeBlockAlertBtn">Entendido</button>
-        </div>
-    </div>
-
-    <div id="banAlertModal">
-        <div class="alert-box">
-            <h2>🚫 Conta Banida</h2>
-            <p>Você foi permanentemente banido do Playtronic TV+ por violações legais ou dos Termos de Serviço.</p>
-            <p id="banAlertReason" style="display: none; font-style: italic; color: #f8fafc;"></p>
-            <div class="contact-info">
-                Se você acredita que isso foi um erro, envie um e-mail para <strong>playtronic@mail.com</strong> usando o e-mail da sua conta Google como remetente.
-            </div>
-        </div>
-    </div>
-
-    <div id="adInterstitialModal">
-        <div class="ad-side-banner" id="adNativeLeft"></div>
-        
-        <div class="ad-center-column">
-            <div class="ad-mobile-top-banner" id="adMobileTop"></div>
-
-            <div class="ad-interstitial-wrapper">
-                <div class="ad-interstitial-header"><span>Publicidade</span><span id="adTimerText">Aguarde 5s...</span></div>
-                <div class="ad-center-wrapper" id="adCenterWrapper"></div>
-                <div class="ad-interstitial-footer">
-                    <button id="openInsertAdBtn" style="background: #000; color: #fff; border: 1px solid #333;">Inserir um anúncio</button>
-                    <div style="display: flex; gap: 10px;">
-                        <button id="adSubscribeBtn" style="background: #7c3aed; color: #fff; border: 1px solid #6d28d9;">⭐ Remover Anúncios</button>
-                        <button id="closeInterstitialBtn" class="ad-close-btn" disabled>Fechar e Assistir</button>
+            <div class="new-comment-form" id="newCommentForm">
+                <img id="commentUserAvatar" src="" class="comment-avatar" alt="">
+                <div style="flex: 1; display: flex; flex-direction: column; gap: 8px;">
+                    <textarea id="commentInput" placeholder="Escreva um comentário (máx 500 caracteres)..." maxlength="500"></textarea>
+                    <div style="display: flex; justify-content: space-between; align-items: center; gap: 10px;">
+                        <span id="commentCharCount" style="font-size: 0.75rem; color: #94a3b8;">0/500</span>
+                        <button id="postCommentBtn" style="background: #fdbb2d; color: #000; border: none; padding: 8px 18px; border-radius: 6px; font-weight: bold; cursor: pointer; font-family: inherit;">Enviar</button>
                     </div>
                 </div>
             </div>
-
-            <div class="ad-mobile-bottom-banner" id="adMobileBottom"></div>
+            <div id="commentsList" style="display: flex; flex-direction: column; gap: 12px;"></div>
         </div>
-        
-        <div class="ad-side-banner" id="adNativeRight"></div>
+        <div class="player-mobile-banner" id="playerMobileBottom"></div>
     </div>
+</div>
 
-    <div id="pixLightbox" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 99999; justify-content: center; align-items: center; backdrop-filter: blur(6px); padding: 100px 20px 20px 20px;">
-        <div style="background: #152961; border: 2px solid #fdbb2d; border-radius: 14px; padding: 30px; max-width: 480px; width: 100%; position: relative; text-align: center; color: #fff; max-height: 85vh; overflow-y: auto;">
-            <button id="pixClose" style="position: absolute; top: 12px; right: 14px; background: transparent; border: none; color: #cbd5e1; font-size: 1.6rem; cursor: pointer;">×</button>
-            <img src="https://i.ibb.co/rRgV3n8d/playtronictv.png" style="height: 60px; margin-bottom: 15px;">
-            <p style="color: #cbd5e1; font-size: 0.95rem; margin-bottom: 20px;">Assine para ter acesso a conteúdos exclusivos e sem anúncios.</p>
-            <div id="pixPlanSelector">
-                <div class="plan-option" data-plan="monthly"><div class="plan-name">30 dias</div><div class="plan-price">R$ <span class="plan-price-value">6,90</span></div></div>
-                <div class="plan-option" data-plan="quarterly"><div class="plan-name">3 meses</div><div class="plan-price">R$ <span class="plan-price-value">17,90</span></div></div>
-                <div class="plan-option" data-plan="semiannual"><div class="plan-name">6 meses</div><div class="plan-price">R$ <span class="plan-price-value">29,90</span></div></div>
-                <div class="plan-option" data-plan="annual"><div class="plan-name">1 ano</div><div class="plan-price">R$ <span class="plan-price-value">49,90</span></div></div>
-            </div>
-            <div style="color: #fdbb2d; font-size: 2rem; font-weight: 800; margin-bottom: 20px;">R$ <span id="pixPriceValue">...</span><small style="font-size: 0.9rem; color: #94a3b8;">/ <span id="pixPlanPeriod">30 dias</span></small></div>
-            <button id="generatePixBtn" style="background: #2ecc71; color: #fff; border: none; padding: 14px; width: 100%; border-radius: 8px; font-weight: bold; font-size: 1rem; cursor: pointer;">Gerar PIX</button>
-            <div id="pixArea" style="display: none; margin-top: 20px;">
-                <div id="pixQr" style="width: 200px; height: 200px; margin: 0 auto 14px; background: #fff; padding: 8px; border-radius: 8px;"></div>
-                <textarea id="pixCode" readonly style="width: 100%; height: 60px; background: rgba(255,255,255,0.08); color: #fff; padding: 10px; border-radius: 6px; resize: none;"></textarea>
-                <button id="copyPixBtn" style="margin-top: 8px; background: #3498db; color: #fff; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer;">Copiar código</button>
-                <div id="pixStatus" style="margin-top: 16px; padding: 12px; border-radius: 8px; display: none;"></div>
+<div id="blockAlertModal">
+    <div class="alert-box">
+        <h2>⛔ Acesso Restrito a Comentários</h2>
+        <p id="blockAlertMsg"></p>
+        <p id="blockAlertReason" style="display: none; font-style: italic; color: #f8fafc;"></p>
+        <div class="contact-info">Se você acredita que isso foi um erro, envie um e-mail para <strong>playtronic@mail.com</strong> usando o e-mail da sua conta Google como remetente.</div>
+        <button id="closeBlockAlertBtn">Entendido</button>
+    </div>
+</div>
+
+<div id="banAlertModal">
+    <div class="alert-box">
+        <h2>🚫 Conta Banida</h2>
+        <p>Você foi permanentemente banido do Playtronic TV+ por violações legais ou dos Termos de Serviço.</p>
+        <p id="banAlertReason" style="display: none; font-style: italic; color: #f8fafc;"></p>
+        <div class="contact-info">Se você acredita que isso foi um erro, envie um e-mail para <strong>playtronic@mail.com</strong> usando o e-mail da sua conta Google como remetente.</div>
+    </div>
+</div>
+
+<div id="adInterstitialModal">
+    <div class="ad-side-banner" id="adNativeLeft"></div>
+    <div class="ad-center-column">
+        <div class="ad-mobile-top-banner" id="adMobileTop"></div>
+        <div class="ad-interstitial-wrapper">
+            <div class="ad-interstitial-header"><span>Publicidade</span><span id="adTimerText">Aguarde 5s...</span></div>
+            <div class="ad-center-wrapper" id="adCenterWrapper"></div>
+            <div class="ad-interstitial-footer">
+                <button id="openInsertAdBtn" style="background: #000; color: #fff; border: 1px solid #333;">Inserir um anúncio</button>
+                <div style="display: flex; gap: 10px;">
+                    <button id="adSubscribeBtn" style="background: #7c3aed; color: #fff; border: 1px solid #6d28d9;">⭐ Remover Anúncios</button>
+                    <button id="closeInterstitialBtn" class="ad-close-btn" disabled>Fechar e Assistir</button>
+                </div>
             </div>
         </div>
+        <div class="ad-mobile-bottom-banner" id="adMobileBottom"></div>
     </div>
+    <div class="ad-side-banner" id="adNativeRight"></div>
+</div>
+
+<div id="pixLightbox" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 99999; justify-content: center; align-items: center; backdrop-filter: blur(6px); padding: 100px 20px 20px 20px;">
+    <div style="background: #152961; border: 2px solid #fdbb2d; border-radius: 14px; padding: 30px; max-width: 480px; width: 100%; position: relative; text-align: center; color: #fff; max-height: 85vh; overflow-y: auto;">
+        <button id="pixClose" style="position: absolute; top: 12px; right: 14px; background: transparent; border: none; color: #cbd5e1; font-size: 1.6rem; cursor: pointer;">×</button>
+        <img src="https://i.ibb.co/rRgV3n8d/playtronictv.png" style="height: 60px; margin-bottom: 15px;">
+        <p style="color: #cbd5e1; font-size: 0.95rem; margin-bottom: 20px;">Assine para ter acesso a conteúdos exclusivos e sem anúncios.</p>
+        <div id="pixPlanSelector">
+            <div class="plan-option" data-plan="monthly"><div class="plan-name">30 dias</div><div class="plan-price">R$ <span class="plan-price-value">6,90</span></div></div>
+            <div class="plan-option" data-plan="quarterly"><div class="plan-name">3 meses</div><div class="plan-price">R$ <span class="plan-price-value">17,90</span></div></div>
+            <div class="plan-option" data-plan="semiannual"><div class="plan-name">6 meses</div><div class="plan-price">R$ <span class="plan-price-value">29,90</span></div></div>
+            <div class="plan-option" data-plan="annual"><div class="plan-name">1 ano</div><div class="plan-price">R$ <span class="plan-price-value">49,90</span></div></div>
+        </div>
+        <div style="color: #fdbb2d; font-size: 2rem; font-weight: 800; margin-bottom: 20px;">R$ <span id="pixPriceValue">...</span><small style="font-size: 0.9rem; color: #94a3b8;">/ <span id="pixPlanPeriod">30 dias</span></small></div>
+        <button id="generatePixBtn" style="background: #2ecc71; color: #fff; border: none; padding: 14px; width: 100%; border-radius: 8px; font-weight: bold; font-size: 1rem; cursor: pointer;">Gerar PIX</button>
+        <div id="pixArea" style="display: none; margin-top: 20px;">
+            <div id="pixQr" style="width: 200px; height: 200px; margin: 0 auto 14px; background: #fff; padding: 8px; border-radius: 8px;"></div>
+            <textarea id="pixCode" readonly style="width: 100%; height: 60px; background: rgba(255,255,255,0.08); color: #fff; padding: 10px; border-radius: 6px; resize: none;"></textarea>
+            <button id="copyPixBtn" style="margin-top: 8px; background: #3498db; color: #fff; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer;">Copiar código</button>
+            <div id="pixStatus" style="margin-top: 16px; padding: 12px; border-radius: 8px; display: none;"></div>
+        </div>
+    </div>
+</div>
 
 <script>
     // ============ FIREBASE INIT ============
@@ -1135,7 +905,6 @@
     const auth = firebase.auth();
     const rtdb = firebase.database();
     const db = firebase.firestore();
-
     const ADMIN_EMAIL = 'playtronicpublisher@mail.com';
     const CF_BASE = 'https://us-central1-playtronic-tv.cloudfunctions.net';
 
@@ -1172,57 +941,46 @@
     let allUsersActiveCount = 0;
     let perfSortField = 'views';
     let perfSortOrder = 'desc';
-
-    // Filtro e ordenação do catálogo
     let currentSortField = 'order';
     let currentSortOrder = 'desc';
-    let currentContentFilter = 'all'; // 'all' | 'free' | 'paid'
+    let currentContentFilter = 'all';
 
-    // ============ PREFERÊNCIAS PERSISTENTES (localStorage) ============
-    // Lembra a última classificação/filtro definidos pelo usuário, para ele não
-    // ter que reclassificar toda vez que recarregar a página.
+    // ═══ NOVO: notificações e replies ═══
+    let userNotifications = {};
+    let notificationsRef = null;
+    let unreadNotificationCount = 0;
+    let currentCommentsData = {};
+    let expandedComments = new Set();
+    let replyDrafts = {};
+
+    // ============ PREFERÊNCIAS PERSISTENTES ============
     const CATALOG_PREFS_KEY = 'playtronic_catalog_prefs_v1';
-
     function loadCatalogPreferences() {
         try {
             const raw = localStorage.getItem(CATALOG_PREFS_KEY);
             if (!raw) return;
             const prefs = JSON.parse(raw) || {};
-
-            const validFields  = ['order', 'produtora', 'ano', 'likes', 'views', 'comments', 'titulo'];
-            const validOrders  = ['asc', 'desc'];
+            const validFields = ['order', 'produtora', 'ano', 'likes', 'views', 'comments', 'titulo'];
+            const validOrders = ['asc', 'desc'];
             const validFilters = ['all', 'free', 'paid'];
-
-            if (validFields.includes(prefs.sortField))       currentSortField = prefs.sortField;
-            if (validOrders.includes(prefs.sortOrder))       currentSortOrder = prefs.sortOrder;
-            if (validFilters.includes(prefs.contentFilter))  currentContentFilter = prefs.contentFilter;
-        } catch (e) {
-            console.warn('Erro ao carregar preferências do catálogo:', e);
-        }
+            if (validFields.includes(prefs.sortField)) currentSortField = prefs.sortField;
+            if (validOrders.includes(prefs.sortOrder)) currentSortOrder = prefs.sortOrder;
+            if (validFilters.includes(prefs.contentFilter)) currentContentFilter = prefs.contentFilter;
+        } catch (e) { console.warn('Erro ao carregar preferências:', e); }
     }
-
     function saveCatalogPreferences() {
         try {
             localStorage.setItem(CATALOG_PREFS_KEY, JSON.stringify({
-                sortField: currentSortField,
-                sortOrder: currentSortOrder,
-                contentFilter: currentContentFilter
+                sortField: currentSortField, sortOrder: currentSortOrder, contentFilter: currentContentFilter
             }));
-        } catch (e) {
-            console.warn('Erro ao salvar preferências do catálogo:', e);
-        }
+        } catch (e) { console.warn('Erro ao salvar preferências:', e); }
     }
-
-    // Aplica as preferências salvas ANTES de qualquer render
     loadCatalogPreferences();
 
-    // Presença / restrições
     let onlineUsersData = {};
     let presenceInterval = null;
     let userRestrictions = null;
-    let unsubRestrictions = null; 
-
-    // Comentários
+    let unsubRestrictions = null;
     let currentCommentsVideoId = null;
     let commentsRef = null;
     let adminCommentsRef = null;
@@ -1242,6 +1000,19 @@
     function formatDate(ts) {
         if (!ts) return 'N/D';
         return new Date(ts).toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+    }
+    function formatRelativeDate(ts) {
+        if (!ts) return '';
+        const diff = Date.now() - ts;
+        const sec = Math.floor(diff / 1000);
+        if (sec < 60) return 'agora';
+        const min = Math.floor(sec / 60);
+        if (min < 60) return `${min}min atrás`;
+        const hr = Math.floor(min / 60);
+        if (hr < 24) return `${hr}h atrás`;
+        const d = Math.floor(hr / 24);
+        if (d < 7) return `${d}d atrás`;
+        return new Date(ts).toLocaleDateString('pt-BR');
     }
     function formatTime(seconds) {
         if (isNaN(seconds)) return '0:00';
@@ -1270,41 +1041,27 @@
     function updateSearchVisibility() {
         const searchContainer = document.querySelector('.search-container');
         if (!searchContainer) return;
-        
-        const isModalOpen = 
-            document.querySelector('.modal-overlay.active') || 
-            document.getElementById('playerScreen').classList.contains('active') ||
-            document.getElementById('adInterstitialModal').classList.contains('active') ||
-            document.getElementById('banAlertModal').classList.contains('active') ||
-            document.getElementById('blockAlertModal').classList.contains('active') ||
-            document.getElementById('pixLightbox').style.display === 'flex';
-            
+        const isModalOpen = document.querySelector('.modal-overlay.active') || document.getElementById('playerScreen').classList.contains('active') || document.getElementById('adInterstitialModal').classList.contains('active') || document.getElementById('banAlertModal').classList.contains('active') || document.getElementById('blockAlertModal').classList.contains('active') || document.getElementById('pixLightbox').style.display === 'flex';
         if (isModalOpen) {
             searchContainer.style.display = 'none';
             document.body.classList.add('no-scroll', 'search-hidden');
         } else {
-            searchContainer.style.display = ''; 
+            searchContainer.style.display = '';
             document.body.classList.remove('no-scroll', 'search-hidden');
         }
     }
-
     const domObserver = new MutationObserver((mutations) => {
         let shouldUpdate = false;
         mutations.forEach(mutation => {
-            if (mutation.type === 'attributes' && (mutation.attributeName === 'class' || mutation.attributeName === 'style')) {
-                shouldUpdate = true;
-            }
+            if (mutation.type === 'attributes' && (mutation.attributeName === 'class' || mutation.attributeName === 'style')) shouldUpdate = true;
         });
         if (shouldUpdate) updateSearchVisibility();
     });
-    
     document.addEventListener('DOMContentLoaded', () => {
         const targets = [
-            document.getElementById('playerScreen'),
-            document.getElementById('adInterstitialModal'),
-            document.getElementById('pixLightbox'),
-            document.getElementById('banAlertModal'),
-            document.getElementById('blockAlertModal'),
+            document.getElementById('playerScreen'), document.getElementById('adInterstitialModal'),
+            document.getElementById('pixLightbox'), document.getElementById('banAlertModal'),
+            document.getElementById('blockAlertModal'), document.getElementById('notificationsModal'),
             ...document.querySelectorAll('.modal-overlay')
         ];
         targets.forEach(t => { if(t) domObserver.observe(t, { attributes: true, attributeFilter: ['class', 'style'] }); });
@@ -1321,9 +1078,7 @@
             userStatusRef.onDisconnect().remove().then(() => {
                 userStatusRef.set({ email: user.email || '', name: user.displayName || '', photoURL: user.photoURL || '', lastSeen: firebase.database.ServerValue.TIMESTAMP });
                 if (presenceInterval) clearInterval(presenceInterval);
-                presenceInterval = setInterval(() => {
-                    if (auth.currentUser) userStatusRef.update({ lastSeen: firebase.database.ServerValue.TIMESTAMP });
-                }, 180000);
+                presenceInterval = setInterval(() => { if (auth.currentUser) userStatusRef.update({ lastSeen: firebase.database.ServerValue.TIMESTAMP }); }, 180000);
             });
         });
     }
@@ -1348,25 +1103,190 @@
         }
     });
 
-    // ============ RESTRIÇÕES ============
-    function setupUserRestrictions(user) {
-        if (unsubRestrictions) { unsubRestrictions(); unsubRestrictions = null; }
-
-        const banModal = document.getElementById('banAlertModal');
-        const blockModal = document.getElementById('blockAlertModal');
-
-        if (!user) {
-            banModal.classList.remove('active');
-            blockModal.classList.remove('active');
-            document.body.classList.remove('no-scroll');
+    // ═══════════════════════════════════════════════════════════════════
+    // ═══ NOVO: SISTEMA DE NOTIFICAÇÕES ═══
+    // ═══════════════════════════════════════════════════════════════════
+    function loadUserNotifications(uid) {
+        if (notificationsRef) { notificationsRef.off(); notificationsRef = null; }
+        if (!uid) {
+            userNotifications = {};
+            unreadNotificationCount = 0;
+            updateNotificationBadge();
             return;
         }
+        notificationsRef = rtdb.ref('vod_notifications/' + uid).orderByChild('createdAt').limitToLast(100);
+        notificationsRef.on('value', (snap) => {
+            userNotifications = snap.val() || {};
+            unreadNotificationCount = Object.values(userNotifications).filter(n => n && !n.read).length;
+            updateNotificationBadge();
+            if (document.getElementById('notificationsModal').classList.contains('active')) renderNotificationsList();
+        });
+    }
 
+    function updateNotificationBadge() {
+        const avatarBadge = document.getElementById('avatarNotifBadge');
+        const notifBtn = document.getElementById('notificationsBtn');
+        const notifBtnCount = document.getElementById('notifBtnCount');
+        if (unreadNotificationCount > 0) {
+            if (avatarBadge) {
+                avatarBadge.textContent = unreadNotificationCount > 99 ? '99+' : unreadNotificationCount;
+                avatarBadge.style.display = 'flex';
+            }
+            if (notifBtn) {
+                notifBtn.style.display = 'flex';
+                notifBtn.classList.add('has-unread');
+            }
+            if (notifBtnCount) {
+                notifBtnCount.textContent = unreadNotificationCount > 99 ? '99+' : unreadNotificationCount;
+                notifBtnCount.style.display = 'inline-flex';
+            }
+        } else {
+            if (avatarBadge) avatarBadge.style.display = 'none';
+            if (notifBtnCount) notifBtnCount.style.display = 'none';
+            if (notifBtn) {
+                notifBtn.style.display = currentUser ? 'flex' : 'none';
+                notifBtn.classList.remove('has-unread');
+            }
+        }
+    }
+
+    async function createNotification(data) {
+        if (!data.toUid || !data.fromUid) return;
+        if (data.toUid === data.fromUid) return;
+        const notification = {
+            type: data.type,
+            toUid: data.toUid,
+            fromUid: data.fromUid,
+            fromName: (data.fromName || 'Usuário').substring(0, 100),
+            fromPhoto: data.fromPhoto || '',
+            videoId: data.videoId || '',
+            videoTitle: (data.videoTitle || '').substring(0, 200),
+            commentId: data.commentId || '',
+            commentText: (data.commentText || '').substring(0, 200),
+            replyText: (data.replyText || '').substring(0, 200),
+            createdAt: Date.now(),
+            read: false
+        };
+        try { await rtdb.ref('vod_notifications/' + data.toUid).push(notification); }
+        catch (e) { console.warn('Erro ao criar notificação:', e); }
+    }
+
+    async function markNotificationRead(notifId) {
+        if (!currentUser) return;
+        try { await rtdb.ref(`vod_notifications/${currentUser.uid}/${notifId}/read`).set(true); }
+        catch (e) { console.warn('Erro ao marcar como lida:', e); }
+    }
+    async function markAllNotificationsRead() {
+        if (!currentUser) return;
+        const unreadIds = Object.entries(userNotifications).filter(([id, n]) => n && !n.read).map(([id]) => id);
+        if (unreadIds.length === 0) return;
+        const updates = {};
+        unreadIds.forEach(id => { updates[`${id}/read`] = true; });
+        try { await rtdb.ref('vod_notifications/' + currentUser.uid).update(updates); }
+        catch (e) { alert('Erro ao marcar notificações: ' + e.message); }
+    }
+    async function deleteNotification(notifId) {
+        if (!currentUser) return;
+        try { await rtdb.ref(`vod_notifications/${currentUser.uid}/${notifId}`).remove(); }
+        catch (e) { alert('Erro ao excluir: ' + e.message); }
+    }
+
+    function formatNotificationText(notif) {
+        const fromName = escapeHtml(notif.fromName || 'Usuário');
+        const videoTitle = escapeHtml(notif.videoTitle || 'vídeo');
+        switch (notif.type) {
+            case 'like': return `Seu comentário no vídeo <strong>${videoTitle}</strong> recebeu uma curtida.`;
+            case 'pin': return `A Playtronic fixou seu comentário no vídeo <strong>${videoTitle}</strong>.`;
+            case 'reply': return `<strong>${fromName}</strong> respondeu seu comentário no vídeo <strong>${videoTitle}</strong>.`;
+            default: return 'Nova notificação';
+        }
+    }
+
+    function renderNotificationsList() {
+        const container = document.getElementById('notificationsListContainer');
+        if (!container) return;
+        const entries = Object.entries(userNotifications).filter(([id, n]) => n && n.type);
+        entries.sort((a, b) => (b[1].createdAt || 0) - (a[1].createdAt || 0));
+        if (entries.length === 0) {
+            container.innerHTML = '<div class="notif-empty">🔕 Nenhuma notificação por aqui.</div>';
+            return;
+        }
+        container.innerHTML = entries.map(([id, n]) => {
+            const isUnread = !n.read;
+            const avatar = n.fromPhoto || (n.type === 'pin' ? 'https://i.ibb.co/rRgV3n8d/playtronictv.png' : 'https://www.gravatar.com/avatar/?d=mp');
+            return `
+                <div class="notif-item ${isUnread ? 'unread' : ''}" data-notif-id="${escapeHtml(id)}">
+                    <img class="notif-avatar" src="${escapeHtml(avatar)}" alt="" onerror="this.src='https://www.gravatar.com/avatar/?d=mp'">
+                    <div class="notif-content">
+                        <div class="notif-text">${formatNotificationText(n)}</div>
+                        <div class="notif-meta">🕓 ${formatRelativeDate(n.createdAt)}</div>
+                    </div>
+                    <button class="notif-delete-btn" data-notif-del="${escapeHtml(id)}" title="Excluir notificação">✖</button>
+                </div>
+            `;
+        }).join('');
+
+        container.querySelectorAll('.notif-item').forEach(el => {
+            el.addEventListener('click', (ev) => {
+                if (ev.target.closest('.notif-delete-btn')) return;
+                const nid = el.getAttribute('data-notif-id');
+                if (nid) handleNotificationClick(nid);
+            });
+        });
+        container.querySelectorAll('.notif-delete-btn').forEach(btn => {
+            btn.addEventListener('click', async (ev) => {
+                ev.stopPropagation();
+                const nid = btn.getAttribute('data-notif-del');
+                if (nid) await deleteNotification(nid);
+            });
+        });
+    }
+
+    async function handleNotificationClick(notifId) {
+        const notif = userNotifications[notifId];
+        if (!notif) return;
+        await markNotificationRead(notifId);
+        if (notif.videoId) {
+            const video = videos.find(v => v.youtubeId === notif.videoId);
+            if (video) {
+                closeNotificationsModal();
+                userCard.classList.remove('active');
+                openPlayer(video);
+            }
+        }
+    }
+
+    function openNotificationsModal() {
+        userCard.classList.remove('active');
+        if (!currentUser) return;
+        document.getElementById('notificationsModal').classList.add('active');
+        renderNotificationsList();
+    }
+    function closeNotificationsModal() {
+        document.getElementById('notificationsModal').classList.remove('active');
+    }
+
+    // Botões de notificação
+    document.getElementById('notificationsBtn')?.addEventListener('click', openNotificationsModal);
+    document.getElementById('closeNotificationsBtn')?.addEventListener('click', closeNotificationsModal);
+    document.getElementById('markAllNotifsReadBtn')?.addEventListener('click', markAllNotificationsRead);
+    document.getElementById('notificationsModal')?.addEventListener('click', (e) => {
+        if (e.target === document.getElementById('notificationsModal')) closeNotificationsModal();
+    });
+
+    // ═══════════════════════════════════════════════════════════════════
+    // ═══ RESTO DO SISTEMA (mantido igual) ═══
+    // ═══════════════════════════════════════════════════════════════════
+
+    function setupUserRestrictions(user) {
+        if (unsubRestrictions) { unsubRestrictions(); unsubRestrictions = null; }
+        const banModal = document.getElementById('banAlertModal');
+        const blockModal = document.getElementById('blockAlertModal');
+        if (!user) { banModal.classList.remove('active'); blockModal.classList.remove('active'); document.body.classList.remove('no-scroll'); return; }
         unsubRestrictions = db.collection('catalog_users').doc(user.uid).onSnapshot((doc) => {
             if (!doc.exists) return;
             const data = doc.data() || {};
             userRestrictions = data;
-
             if (data.isBanned) {
                 document.getElementById('banAlertReason').style.display = data.banReason ? 'block' : 'none';
                 document.getElementById('banAlertReason').textContent = data.banReason ? 'Motivo: ' + data.banReason : '';
@@ -1375,11 +1295,9 @@
             } else if (data.commentBlockUntil && data.commentBlockUntil > Date.now()) {
                 const daysLeft = Math.ceil((data.commentBlockUntil - Date.now()) / (1000 * 60 * 60 * 24));
                 const isPerm = data.commentBlockUntil > Date.now() + (3650 * 24 * 60 * 60 * 1000);
-                
                 document.getElementById('blockAlertMsg').innerHTML = isPerm
                     ? 'Você está <strong>permanentemente bloqueado</strong> para fazer comentários.'
                     : `Você está bloqueado para fazer comentários por <strong>${daysLeft} dia(s)</strong>.`;
-                    
                 document.getElementById('blockAlertReason').style.display = data.blockReason ? 'block' : 'none';
                 document.getElementById('blockAlertReason').textContent = data.blockReason ? 'Motivo: ' + data.blockReason : '';
                 blockModal.classList.add('active');
@@ -1393,17 +1311,14 @@
                     db.collection('catalog_users').doc(user.uid).set({ commentBlockUntil: null, blockReason: null }, { merge: true });
                 }
             }
-        }, (error) => {
-            console.error("Erro no listener de restrições:", error);
-        });
+        }, (error) => { console.error("Erro no listener de restrições:", error); });
     }
-    
     document.getElementById('closeBlockAlertBtn').addEventListener('click', () => {
         document.getElementById('blockAlertModal').classList.remove('active');
         document.body.classList.remove('no-scroll');
     });
 
-    // ============ COMENTÁRIOS ============
+    // ============ COMENTÁRIOS (reescrito com replies) ============
     document.getElementById('commentInput').addEventListener('input', (e) => {
         document.getElementById('commentCharCount').textContent = `${e.target.value.length}/500`;
     });
@@ -1412,14 +1327,12 @@
         currentCommentsVideoId = videoId;
         const section = document.getElementById('commentsSection');
         section.style.display = 'flex';
-
         const form = document.getElementById('newCommentForm');
         if (!currentUser) {
             form.style.display = 'none';
         } else {
             document.getElementById('commentUserAvatar').src = currentUser.photoURL || 'https://www.gravatar.com/avatar/?d=mp';
-            form.style.display = 'flex'; 
-            
+            form.style.display = 'flex';
             try {
                 const doc = await db.collection('catalog_users').doc(currentUser.uid).get();
                 if (doc.exists) {
@@ -1429,84 +1342,382 @@
                 }
             } catch(e) {}
         }
-
         const list = document.getElementById('commentsList');
         list.innerHTML = '<p style="text-align:center; color:#94a3b8; padding: 20px;">Carregando comentários...</p>';
         if (commentsRef) commentsRef.off();
-
         commentsRef = rtdb.ref('vod_comments/' + videoId).orderByChild('timestamp').limitToLast(100);
-
         commentsRef.on('value', (snap) => {
-            const data = snap.val() || {};
-            const comments = Object.entries(data).map(([id, c]) => ({ id, ...c }));
+            currentCommentsData = snap.val() || {};
+            renderCommentsList();
+        });
+    }
 
-            comments.sort((a, b) => {
+    // Salva drafts dos formulários de resposta antes de re-renderizar
+    function saveReplyDrafts() {
+        document.querySelectorAll('.reply-form.active textarea').forEach(ta => {
+            const cid = ta.closest('.reply-form')?.getAttribute('data-comment-id');
+            if (cid && ta.value.trim()) replyDrafts[cid] = ta.value;
+        });
+    }
+    function restoreReplyDrafts() {
+        document.querySelectorAll('.reply-form textarea').forEach(ta => {
+            const cid = ta.closest('.reply-form')?.getAttribute('data-comment-id');
+            if (cid && replyDrafts[cid]) ta.value = replyDrafts[cid];
+        });
+    }
+
+    function renderCommentsList() {
+        saveReplyDrafts();
+        const list = document.getElementById('commentsList');
+        const comments = Object.entries(currentCommentsData)
+            .map(([id, c]) => {
+                const { replies, ...rest } = c;
+                return { id, ...rest, replies: replies || {} };
+            })
+            .sort((a, b) => {
                 if (!!a.isPinned !== !!b.isPinned) return a.isPinned ? -1 : 1;
                 return (b.timestamp || 0) - (a.timestamp || 0);
             });
-
-            if (comments.length === 0) {
-                list.innerHTML = '<p style="text-align:center; color:#94a3b8; padding: 20px;">Nenhum comentário ainda. Seja o primeiro!</p>';
-                return;
+        if (comments.length === 0) {
+            list.innerHTML = '<p style="text-align:center; color:#94a3b8; padding: 20px;">Nenhum comentário ainda. Seja o primeiro!</p>';
+            return;
+        }
+        list.innerHTML = comments.map(c => renderCommentHTML(c)).join('');
+        attachCommentHandlers();
+        restoreReplyDrafts();
+        // Reaplica estado de expansão
+        expandedComments.forEach(cid => {
+            const repliesEl = document.querySelector(`.replies-container[data-comment-id="${cid}"]`);
+            if (repliesEl) repliesEl.classList.add('expanded');
+            const toggleBtn = document.querySelector(`.replies-toggle-btn[data-comment-id="${cid}"]`);
+            if (toggleBtn) {
+                toggleBtn.classList.add('expanded');
+                const arrow = toggleBtn.querySelector('.arrow');
+                if (arrow) arrow.textContent = '▲';
             }
+        });
+    }
 
-            list.innerHTML = comments.map(c => {
-                const isOwner = currentUser && currentUser.uid === c.uid;
-                const canDelete = isOwner || isAdmin();
-                const userVote = (c.userVotes || {})[currentUser ? currentUser.uid : ''] || null;
-                const cardColor = getCardColor(c.id);
+    function renderCommentHTML(c) {
+        const isOwner = currentUser && currentUser.uid === c.uid;
+        const canDelete = isOwner || isAdmin();
+        const userVote = (c.userVotes || {})[currentUser ? currentUser.uid : ''] || null;
+        const cardColor = getCardColor(c.id);
+        const replyCount = Object.keys(c.replies || {}).length;
+        const isExpanded = expandedComments.has(c.id);
 
-                return `
-                    <div class="comment-card ${c.isPinned ? 'pinned' : ''}" style="background: ${cardColor};">
-                        <img src="${escapeHtml(c.photoURL || 'https://www.gravatar.com/avatar/?d=mp')}" class="comment-avatar" alt="">
-                        <div class="comment-content">
-                            <div class="comment-header">
-                                <div class="comment-author">${escapeHtml(c.name || 'Usuário')}</div>
-                                <div class="comment-date">${formatDate(c.timestamp)}</div>
-                            </div>
-                            <div class="comment-text">${escapeHtml(c.text)}</div>
-                            <div class="comment-actions">
-                                <button class="comment-action-btn ${userVote === 'like' ? 'active like' : ''}" data-action="like" data-cid="${c.id}">👍 <span>${c.likes || 0}</span></button>
-                                <button class="comment-action-btn ${userVote === 'dislike' ? 'active dislike' : ''}" data-action="dislike" data-cid="${c.id}">👎 <span>${c.dislikes || 0}</span></button>
-                                ${!isOwner && currentUser ? `<button class="comment-action-btn report" data-action="report" data-cid="${c.id}">🚩 Denunciar</button>` : ''}
-                                ${canDelete ? `<button class="comment-action-btn delete" data-action="delete" data-cid="${c.id}">🗑️ Excluir</button>` : ''}
-                                ${isAdmin() ? `<button class="comment-action-btn pin-btn" data-action="pin" data-pin="${!c.isPinned}" data-cid="${c.id}">📌 ${c.isPinned ? 'Desafixar' : 'Fixar'}</button>` : ''}
-                            </div>
-                        </div>
+        return `
+            <div class="comment-card ${c.isPinned ? 'pinned' : ''}" style="background: ${cardColor};" data-comment-id="${c.id}">
+                <img src="${escapeHtml(c.photoURL || 'https://www.gravatar.com/avatar/?d=mp')}" class="comment-avatar" alt="">
+                <div class="comment-content">
+                    <div class="comment-header">
+                        <div class="comment-author">${escapeHtml(c.name || 'Usuário')}</div>
+                        <div class="comment-date">${formatDate(c.timestamp)}</div>
                     </div>
-                `;
-            }).join('');
+                    <div class="comment-text">${escapeHtml(c.text)}</div>
+                    <div class="comment-actions">
+                        <button class="comment-action-btn ${userVote === 'like' ? 'active like' : ''}" data-action="like" data-cid="${c.id}">👍 <span>${c.likes || 0}</span></button>
+                        <button class="comment-action-btn ${userVote === 'dislike' ? 'active dislike' : ''}" data-action="dislike" data-cid="${c.id}">👎 <span>${c.dislikes || 0}</span></button>
+                        ${currentUser ? `<button class="comment-action-btn reply-action" data-action="reply" data-cid="${c.id}">💬 Responder</button>` : ''}
+                        ${!isOwner && currentUser ? `<button class="comment-action-btn report" data-action="report" data-cid="${c.id}">🚩 Denunciar</button>` : ''}
+                        ${canDelete ? `<button class="comment-action-btn delete" data-action="delete" data-cid="${c.id}">🗑️ Excluir</button>` : ''}
+                        ${isAdmin() ? `<button class="comment-action-btn pin-btn" data-action="pin" data-pin="${!c.isPinned}" data-cid="${c.id}">📌 ${c.isPinned ? 'Desafixar' : 'Fixar'}</button>` : ''}
+                    </div>
 
-            list.querySelectorAll('.comment-action-btn').forEach(btn => {
-                btn.addEventListener('click', (e) => {
-                    e.preventDefault();
-                    const action = btn.getAttribute('data-action');
-                    const cid = btn.getAttribute('data-cid');
-                    if (!cid) return;
+                    ${replyCount > 0 ? `
+                        <div class="replies-toggle-wrapper">
+                            <button class="replies-toggle-btn ${isExpanded ? 'expanded' : ''}" data-toggle-cid="${c.id}" data-comment-id="${c.id}">
+                                <span class="reply-badge">${replyCount}</span>
+                                <span class="toggle-label">${replyCount === 1 ? 'resposta' : 'respostas'}</span>
+                                <span class="arrow">${isExpanded ? '▲' : '▼'}</span>
+                            </button>
+                        </div>
+                    ` : ''}
 
-                    if (action === 'like') votarComentario(videoId, cid, 'like');
-                    else if (action === 'dislike') votarComentario(videoId, cid, 'dislike');
-                    else if (action === 'report') reportComment(videoId, cid);
-                    else if (action === 'delete') deleteComment(videoId, cid);
-                    else if (action === 'pin') {
-                        const isPinned = btn.getAttribute('data-pin') === 'true';
-                        togglePinComment(videoId, cid, isPinned);
-                    }
-                });
+                    <div class="replies-container ${isExpanded ? 'expanded' : ''}" data-comment-id="${c.id}">
+                        ${renderRepliesHTML(c)}
+                    </div>
+
+                    <div class="reply-form" data-comment-id="${c.id}" data-reply-to-uid="" data-reply-to-name="">
+                        <textarea placeholder="Escreva uma resposta..." maxlength="500"></textarea>
+                        <button class="reply-form-btn">Enviar</button>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+
+    function renderRepliesHTML(parentComment) {
+        const replies = parentComment.replies || {};
+        const entries = Object.entries(replies).filter(([id, r]) => r && (r.text || r.uid));
+        if (entries.length === 0) return '';
+        entries.sort((a, b) => {
+            if (!!a[1].isPinned !== !!b[1].isPinned) return a[1].isPinned ? -1 : 1;
+            return (a[1].timestamp || 0) - (b[1].timestamp || 0);
+        });
+        return entries.map(([rid, r]) => renderReplyHTML(r, rid, parentComment)).join('');
+    }
+
+    function renderReplyHTML(reply, replyId, parentComment) {
+        const isReplyAuthor = currentUser && currentUser.uid === reply.uid;
+        const isParentCommentAuthor = currentUser && currentUser.uid === parentComment.uid;
+        const canDelete = isReplyAuthor || isAdmin();
+        const canPin = isParentCommentAuthor; // ═══ NOVO: só o autor do comentário principal pode fixar subcomentários ═══
+
+        // Destaca @mentions
+        let displayText = escapeHtml(reply.text || '');
+        displayText = displayText.replace(/(@[a-zA-Z0-9_.áàâãéêíóôõúçÁÀÂÃÉÊÍÓÔÕÚÇ\-]+)/g, '<span class="mention">$1</span>');
+
+        return `
+            <div class="reply-card ${reply.isPinned ? 'pinned' : ''}" data-reply-id="${replyId}">
+                <img src="${escapeHtml(reply.photoURL || 'https://www.gravatar.com/avatar/?d=mp')}" class="reply-avatar" alt="">
+                <div class="reply-content">
+                    <div class="reply-header">
+                        <div class="reply-author">${escapeHtml(reply.name || 'Usuário')}</div>
+                        <div class="reply-date">${formatDate(reply.timestamp)}</div>
+                    </div>
+                    <div class="reply-text">${displayText}</div>
+                    <div class="reply-actions">
+                        ${currentUser ? `<button class="reply-action-btn" data-action="reply-to-reply" data-cid="${parentComment.id}" data-rid="${replyId}" data-reply-uid="${escapeHtml(reply.uid || '')}" data-reply-name="${escapeHtml(reply.name || 'Usuário')}">💬 Responder</button>` : ''}
+                        ${canPin ? `<button class="reply-action-btn pin-btn" data-action="pin-reply" data-cid="${parentComment.id}" data-rid="${replyId}" data-pin="${!reply.isPinned}">📌 ${reply.isPinned ? 'Desafixar' : 'Fixar'}</button>` : ''}
+                        ${canDelete ? `<button class="reply-action-btn delete-btn" data-action="delete-reply" data-cid="${parentComment.id}" data-rid="${replyId}">🗑️ Excluir</button>` : ''}
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+
+    function attachCommentHandlers() {
+        const list = document.getElementById('commentsList');
+
+        // Botões de ação dos comentários (like, dislike, reply, report, delete, pin)
+        list.querySelectorAll('.comment-action-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.preventDefault();
+                const action = btn.getAttribute('data-action');
+                const cid = btn.getAttribute('data-cid');
+                if (!cid) return;
+                if (action === 'like') votarComentario(currentCommentsVideoId, cid, 'like');
+                else if (action === 'dislike') votarComentario(currentCommentsVideoId, cid, 'dislike');
+                else if (action === 'report') reportComment(currentCommentsVideoId, cid);
+                else if (action === 'delete') deleteComment(currentCommentsVideoId, cid);
+                else if (action === 'pin') {
+                    const isPinned = btn.getAttribute('data-pin') === 'true';
+                    togglePinComment(currentCommentsVideoId, cid, isPinned);
+                }
+                else if (action === 'reply') {
+                    toggleReplyForm(cid, null, null);
+                }
             });
         });
+
+        // Botões de expandir/retrair respostas
+        list.querySelectorAll('.replies-toggle-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.preventDefault();
+                const cid = btn.getAttribute('data-toggle-cid');
+                if (!cid) return;
+                const container = list.querySelector(`.replies-container[data-comment-id="${cid}"]`);
+                const isExpanded = container?.classList.contains('expanded');
+                if (isExpanded) {
+                    container.classList.remove('expanded');
+                    btn.classList.remove('expanded');
+                    btn.querySelector('.arrow').textContent = '▼';
+                    expandedComments.delete(cid);
+                } else {
+                    container?.classList.add('expanded');
+                    btn.classList.add('expanded');
+                    btn.querySelector('.arrow').textContent = '▲';
+                    expandedComments.add(cid);
+                }
+            });
+        });
+
+        // Botões de ação nas respostas (responder, fixar, excluir)
+        list.querySelectorAll('.reply-action-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.preventDefault();
+                const action = btn.getAttribute('data-action');
+                const cid = btn.getAttribute('data-cid');
+                const rid = btn.getAttribute('data-rid');
+                if (action === 'reply-to-reply') {
+                    const rUid = btn.getAttribute('data-reply-uid');
+                    const rName = btn.getAttribute('data-reply-name');
+                    toggleReplyForm(cid, rid, { uid: rUid, name: rName });
+                } else if (action === 'pin-reply') {
+                    const isPinned = btn.getAttribute('data-pin') === 'true';
+                    togglePinReply(cid, rid, isPinned);
+                } else if (action === 'delete-reply') {
+                    deleteReply(cid, rid);
+                }
+            });
+        });
+
+        // Botões "Enviar" dos formulários de resposta
+        list.querySelectorAll('.reply-form .reply-form-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.preventDefault();
+                const form = btn.closest('.reply-form');
+                const cid = form?.getAttribute('data-comment-id');
+                if (cid) submitReply(cid);
+            });
+        });
+
+        // Contador de caracteres nos textareas de resposta
+        list.querySelectorAll('.reply-form textarea').forEach(ta => {
+            ta.addEventListener('input', () => {
+                const cid = ta.closest('.reply-form')?.getAttribute('data-comment-id');
+                if (cid && ta.value.trim()) replyDrafts[cid] = ta.value;
+            });
+            ta.addEventListener('keydown', (ev) => {
+                if (ev.key === 'Enter' && (ev.ctrlKey || ev.metaKey)) {
+                    ev.preventDefault();
+                    const cid = ta.closest('.reply-form')?.getAttribute('data-comment-id');
+                    if (cid) submitReply(cid);
+                }
+            });
+        });
+    }
+
+    function toggleReplyForm(commentId, replyToUid, replyTo) {
+        if (!currentUser) return alert('Faça login para responder.');
+        const form = document.querySelector(`.reply-form[data-comment-id="${commentId}"]`);
+        if (!form) return;
+        const isActive = form.classList.contains('active');
+        const wasSameTarget = form.getAttribute('data-reply-to-uid') === (replyToUid || '');
+
+        // Fecha outros formulários abertos
+        document.querySelectorAll('.reply-form.active').forEach(f => {
+            if (f !== form) f.classList.remove('active');
+        });
+
+        if (isActive && wasSameTarget) {
+            form.classList.remove('active');
+            return;
+        }
+
+        form.classList.add('active');
+        form.setAttribute('data-reply-to-uid', replyToUid || '');
+        form.setAttribute('data-reply-to-name', replyTo?.name || '');
+        const ta = form.querySelector('textarea');
+        if (replyTo && replyTo.name) {
+            ta.value = `@${replyTo.name} ` + (replyDrafts[commentId] || '').replace(/^@[^\s]+\s/, '');
+            ta.focus();
+            // Coloca cursor no final
+            ta.setSelectionRange(ta.value.length, ta.value.length);
+        } else {
+            if (!ta.value && replyDrafts[commentId]) ta.value = replyDrafts[commentId];
+            ta.focus();
+        }
+        // Garante que a seção de respostas está expandida
+        expandedComments.add(commentId);
+    }
+
+    async function submitReply(commentId) {
+        if (!currentUser) return alert('Faça login.');
+        if (!currentCommentsVideoId) return;
+        const parentComment = currentCommentsData[commentId];
+        if (!parentComment) return;
+        const form = document.querySelector(`.reply-form[data-comment-id="${commentId}"]`);
+        if (!form) return;
+        const ta = form.querySelector('textarea');
+        const btn = form.querySelector('.reply-form-btn');
+        const text = ta.value.trim();
+        if (!text) return alert('Escreva algo.');
+        if (text.length > 500) return alert('Máximo de 500 caracteres.');
+
+        // Bloqueio de comentários
+        try {
+            const doc = await db.collection('catalog_users').doc(currentUser.uid).get();
+            if (doc.exists) {
+                const data = doc.data() || {};
+                if (data.isBanned) return alert('Sua conta está banida.');
+                if (data.commentBlockUntil && data.commentBlockUntil > Date.now()) {
+                    const daysLeft = Math.ceil((data.commentBlockUntil - Date.now()) / (1000 * 60 * 60 * 24));
+                    return alert(`Você está bloqueado para comentar por mais ${daysLeft} dia(s).`);
+                }
+            }
+        } catch(e) {}
+
+        const replyToUid = form.getAttribute('data-reply-to-uid') || parentComment.uid;
+        const replyToName = form.getAttribute('data-reply-to-name') || parentComment.name || 'Usuário';
+
+        btn.disabled = true;
+        btn.textContent = 'Enviando...';
+
+        const replyData = {
+            uid: currentUser.uid,
+            name: currentUser.displayName || 'Usuário',
+            photoURL: currentUser.photoURL || '',
+            text: text,
+            timestamp: firebase.database.ServerValue.TIMESTAMP,
+            isPinned: false,
+            replyToUid: replyToUid !== parentComment.uid ? replyToUid : null,
+            replyToName: replyToUid !== parentComment.uid ? replyToName : null
+        };
+
+        try {
+            await rtdb.ref(`vod_comments/${currentCommentsVideoId}/${commentId}/replies`).push(replyData);
+            ta.value = '';
+            delete replyDrafts[commentId];
+            form.classList.remove('active');
+            expandedComments.add(commentId);
+
+            // ═══ Gera notificação ═══
+            if (replyToUid && replyToUid !== currentUser.uid) {
+                const video = videos.find(v => v.youtubeId === currentCommentsVideoId);
+                await createNotification({
+                    type: 'reply',
+                    toUid: replyToUid,
+                    fromUid: currentUser.uid,
+                    fromName: currentUser.displayName || 'Usuário',
+                    fromPhoto: currentUser.photoURL || '',
+                    videoId: currentCommentsVideoId,
+                    videoTitle: video ? video.titulo : '',
+                    commentId: commentId,
+                    commentText: parentComment.text || '',
+                    replyText: text
+                });
+            }
+        } catch (e) {
+            alert('Erro ao responder: ' + e.message);
+        } finally {
+            btn.disabled = false;
+            btn.textContent = 'Enviar';
+        }
+    }
+
+    async function togglePinReply(commentId, replyId, isPinned) {
+        if (!currentUser || !currentCommentsVideoId) return;
+        const parentComment = currentCommentsData[commentId];
+        if (!parentComment || parentComment.uid !== currentUser.uid) {
+            return alert('Apenas o autor do comentário principal pode fixar respostas.');
+        }
+        try {
+            await rtdb.ref(`vod_comments/${currentCommentsVideoId}/${commentId}/replies/${replyId}`).update({ isPinned: isPinned });
+        } catch (e) { alert('Erro ao fixar resposta: ' + e.message); }
+    }
+
+    async function deleteReply(commentId, replyId) {
+        if (!currentUser) return;
+        if (!confirm('Excluir esta resposta?')) return;
+        try {
+            await rtdb.ref(`vod_comments/${currentCommentsVideoId}/${commentId}/replies/${replyId}`).remove();
+        } catch (e) { alert('Erro ao excluir: ' + e.message); }
     }
 
     function closeComments() {
         document.getElementById('commentsSection').style.display = 'none';
         if (commentsRef) { commentsRef.off(); commentsRef = null; }
         currentCommentsVideoId = null;
+        currentCommentsData = {};
+        expandedComments.clear();
+        replyDrafts = {};
     }
 
     async function postComment() {
         if (!currentUser) return alert('Faça login para comentar.');
         if (!currentCommentsVideoId) return;
-
         try {
             const doc = await db.collection('catalog_users').doc(currentUser.uid).get();
             if (doc.exists) {
@@ -1518,7 +1729,6 @@
                 }
             }
         } catch (e) { console.warn('Erro ao checar bloqueio:', e); }
-
         const input = document.getElementById('commentInput');
         const text = input.value.trim();
         if (!text) return alert('Escreva algo.');
@@ -1527,13 +1737,9 @@
         btn.disabled = true; btn.textContent = 'Enviando...';
         try {
             await rtdb.ref('vod_comments/' + currentCommentsVideoId).push({
-                uid: currentUser.uid,
-                name: currentUser.displayName || 'Usuário',
-                photoURL: currentUser.photoURL || '',
-                text: text,
-                timestamp: firebase.database.ServerValue.TIMESTAMP,
-                likes: 0, dislikes: 0,
-                isPinned: false
+                uid: currentUser.uid, name: currentUser.displayName || 'Usuário',
+                photoURL: currentUser.photoURL || '', text: text,
+                timestamp: firebase.database.ServerValue.TIMESTAMP, likes: 0, dislikes: 0, isPinned: false
             });
             input.value = '';
             document.getElementById('commentCharCount').textContent = '0/500';
@@ -1556,9 +1762,30 @@
                 if (votoAtual) await ref.child(votoAtual === 'like' ? 'likes' : 'dislikes').transaction(c => Math.max(0, (c || 0) - 1));
                 await userVoteRef.set(tipo);
                 await ref.child(tipo === 'like' ? 'likes' : 'dislikes').transaction(c => (c || 0) + 1);
+
+                // ═══ Gera notificação de curtida ═══
+                if (tipo === 'like') {
+                    const commentSnap = await ref.once('value');
+                    const comment = commentSnap.val();
+                    if (comment && comment.uid && comment.uid !== currentUser.uid) {
+                        const video = videos.find(v => v.youtubeId === videoId);
+                        await createNotification({
+                            type: 'like',
+                            toUid: comment.uid,
+                            fromUid: currentUser.uid,
+                            fromName: currentUser.displayName || 'Usuário',
+                            fromPhoto: currentUser.photoURL || '',
+                            videoId: videoId,
+                            videoTitle: video ? video.titulo : '',
+                            commentId: commentId,
+                            commentText: comment.text || ''
+                        });
+                    }
+                }
             }
         } catch (e) { console.warn('Erro ao votar:', e); }
     }
+
     async function reportComment(videoId, commentId) {
         if (!confirm('Denunciar este comentário como impróprio?')) return;
         try { await rtdb.ref(`vod_comments/${videoId}/${commentId}`).update({ isReported: true }); alert('Comentário denunciado. Obrigado!'); }
@@ -1571,34 +1798,47 @@
             const snap = await rtdb.ref(`vod_comments/${videoId}/${commentId}`).once('value');
             const data = snap.val();
             if (!data) return;
-
-            const isOwner     = currentUser.uid === data.uid;
+            const isOwner = currentUser.uid === data.uid;
             const isAdminUser = isAdmin();
             const sendToTrash = isAdminUser && !isOwner;
-
             const msg = sendToTrash
                 ? 'Remover este comentário? Ele poderá ser restaurado depois pelo painel admin.'
                 : 'Excluir este comentário permanentemente? Esta ação não pode ser desfeita.';
             if (!confirm(msg)) return;
-
             if (sendToTrash) {
                 await rtdb.ref('deleted_comments').child(commentId).set({
-                    ...data,
-                    videoId,
+                    ...data, videoId,
                     deletedAt: firebase.database.ServerValue.TIMESTAMP,
                     deletedBy: currentUser.uid
                 });
             }
             await rtdb.ref(`vod_comments/${videoId}/${commentId}`).remove();
-        } catch (e) {
-            alert('Erro ao excluir: ' + e.message);
-        }
+        } catch (e) { alert('Erro ao excluir: ' + e.message); }
     }
 
     async function togglePinComment(videoId, commentId, isPinned) {
         if (!isAdmin()) return;
         try {
             await rtdb.ref(`vod_comments/${videoId}/${commentId}`).update({ isPinned: isPinned });
+            // ═══ Gera notificação de fixação ═══
+            if (isPinned) {
+                const snap = await rtdb.ref(`vod_comments/${videoId}/${commentId}`).once('value');
+                const comment = snap.val();
+                if (comment && comment.uid && comment.uid !== currentUser.uid) {
+                    const video = videos.find(v => v.youtubeId === videoId);
+                    await createNotification({
+                        type: 'pin',
+                        toUid: comment.uid,
+                        fromUid: currentUser.uid,
+                        fromName: 'Playtronic',
+                        fromPhoto: 'https://i.ibb.co/rRgV3n8d/playtronictv.png',
+                        videoId: videoId,
+                        videoTitle: video ? video.titulo : '',
+                        commentId: commentId,
+                        commentText: comment.text || ''
+                    });
+                }
+            }
         } catch (e) { alert('Erro ao fixar: ' + e.message); }
     }
 
@@ -1622,16 +1862,10 @@
         });
     });
 
-    function getVideoByYoutubeId(ytid) {
-        return videos.find(v => v.youtubeId === ytid) || null;
-    }
-
+    function getVideoByYoutubeId(ytid) { return videos.find(v => v.youtubeId === ytid) || null; }
     function viewVideoFromAdmin(ytid) {
         const video = getVideoByYoutubeId(ytid);
-        if (!video) {
-            alert('Vídeo não encontrado no catálogo. Ele pode ter sido removido.');
-            return;
-        }
+        if (!video) { alert('Vídeo não encontrado no catálogo.'); return; }
         document.getElementById('adminCommentsModal').classList.remove('active');
         if (adminCommentsRef) { adminCommentsRef.off(); adminCommentsRef = null; }
         if (deletedCommentsRef) { deletedCommentsRef.off(); deletedCommentsRef = null; }
@@ -1674,7 +1908,6 @@
     async function renderAdminCommentsList() {
         const list = document.getElementById('adminCommentsListContainer');
         if (currentAdminTab === 'blocked') { loadBlockedUsersList(list); return; }
-
         let commentsToDisplay = [];
         if (currentAdminTab === 'all' || currentAdminTab === 'reported') {
             Object.entries(adminCommentsData.active).forEach(([vid, comments]) => {
@@ -1695,12 +1928,10 @@
             });
             commentsToDisplay.sort((a, b) => (b.deletedAt || 0) - (a.deletedAt || 0));
         }
-
         if (commentsToDisplay.length === 0) {
             list.innerHTML = '<p style="text-align:center; color:#94a3b8; padding:20px;">Nenhum comentário encontrado.</p>';
             return;
         }
-
         const uids = [...new Set(commentsToDisplay.map(c => c.uid))];
         const usersCache = {};
         try {
@@ -1710,23 +1941,16 @@
                 const snap = await db.collection('catalog_users').where('uid', 'in', chunk).get();
                 snap.forEach(doc => { usersCache[doc.id] = doc.data(); });
             }
-        } catch (e) { console.warn('Erro ao buscar dados dos usuários:', e); }
-
+        } catch (e) { console.warn('Erro ao buscar usuários:', e); }
         list.innerHTML = commentsToDisplay.map(c => {
             const cardColor = getCardColor(c.id);
             const u = usersCache[c.uid] || {};
-
             const displayName = u.name || c.name || 'Usuário';
             const displayPhoto = u.photoURL || c.photoURL || 'https://www.gravatar.com/avatar/?d=mp';
-
             const videoInfoHtml = buildAdminCommentVideoInfo(c.videoId);
-
             let actionsHtml = '';
             if (c.isDeleted) {
-                actionsHtml = `
-                    <button class="admin-action-btn btn-restore" onclick="restoreCommentAdmin('${c.id}')">♻️ Restaurar</button>
-                    <button class="admin-action-btn btn-delete" onclick="permanentDeleteCommentAdmin('${c.id}')">❌ Apagar Perm.</button>
-                `;
+                actionsHtml = `<button class="admin-action-btn btn-restore" onclick="restoreCommentAdmin('${c.id}')">♻️ Restaurar</button><button class="admin-action-btn btn-delete" onclick="permanentDeleteCommentAdmin('${c.id}')">❌ Apagar Perm.</button>`;
             } else {
                 actionsHtml = `
                     <button class="admin-action-btn btn-toggle-report" onclick="toggleReportStatus('${c.videoId}', '${c.id}', ${!c.isReported})">${c.isReported ? '✅ Remover Denúncia' : '🚩 Marcar Impróprio'}</button>
@@ -1736,7 +1960,6 @@
                     <button class="admin-action-btn btn-ban" onclick="banUserAdmin('${c.uid}')">🚫 Banir</button>
                 `;
             }
-
             return `
                 <div class="admin-comment-wrapper" style="border-left: 4px solid ${c.isReported ? '#ef4444' : (c.isPinned ? '#10b981' : '#3b82f6')};">
                     ${videoInfoHtml}
@@ -1762,9 +1985,7 @@
             const list = [];
             snap.forEach(doc => {
                 const d = doc.data() || {};
-                if (d.isBanned || (d.commentBlockUntil && d.commentBlockUntil > Date.now())) {
-                    list.push({ uid: doc.id, ...d });
-                }
+                if (d.isBanned || (d.commentBlockUntil && d.commentBlockUntil > Date.now())) list.push({ uid: doc.id, ...d });
             });
             if (list.length === 0) {
                 container.innerHTML = '<p style="text-align:center; color:#94a3b8; padding:20px;">Nenhum usuário bloqueado ou banido.</p>';
@@ -1779,10 +2000,8 @@
                     const days = Math.ceil((u.commentBlockUntil - Date.now()) / (1000 * 60 * 60 * 24));
                     statusText = `⏳ Bloqueado (${days} dia${days !== 1 ? 's' : ''} restante${days !== 1 ? 's' : ''})`;
                 }
-
                 const displayName = u.name || u.email || 'Usuário Sem Nome';
                 const displayPhoto = u.photoURL || 'https://www.gravatar.com/avatar/?d=mp';
-
                 return `
                     <div class="admin-comment-wrapper">
                         <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
@@ -1815,49 +2034,36 @@
             const snap = await rtdb.ref(`vod_comments/${videoId}/${commentId}`).once('value');
             const data = snap.val();
             if (data) {
-                await rtdb.ref('deleted_comments').child(commentId).set({
-                    ...data, videoId,
-                    deletedAt: firebase.database.ServerValue.TIMESTAMP,
-                    deletedBy: currentUser.uid
-                });
+                await rtdb.ref('deleted_comments').child(commentId).set({ ...data, videoId, deletedAt: firebase.database.ServerValue.TIMESTAMP, deletedBy: currentUser.uid });
             }
             await rtdb.ref(`vod_comments/${videoId}/${commentId}`).remove();
         } catch (e) { alert(e.message); }
     }
-
     async function restoreCommentAdmin(commentId) {
         if (!confirm('Restaurar este comentário?')) return;
         let backupData = null;
         try {
             const snap = await rtdb.ref('deleted_comments').child(commentId).once('value');
             const data = snap.val();
-            
             if (data) {
                 const { deletedAt, deletedBy, videoId, ...commentData } = data;
-                if (!videoId) { 
-                    alert('Não foi possível restaurar: videoId ausente.'); 
-                    return; 
-                }
+                if (!videoId) { alert('Não foi possível restaurar: videoId ausente.'); return; }
                 backupData = data;
-
                 await rtdb.ref('deleted_comments').child(commentId).remove();
                 await rtdb.ref(`vod_comments/${videoId}/${commentId}`).set(commentData);
                 renderAdminCommentsList();
             }
-        } catch (e) { 
-            alert('Erro ao restaurar: ' + e.message); 
+        } catch (e) {
+            alert('Erro ao restaurar: ' + e.message);
             if (backupData) {
                 try {
                     const { deletedAt, deletedBy, videoId, ...commentData } = backupData;
                     const snapAtivo = await rtdb.ref(`vod_comments/${videoId}/${commentId}`).once('value');
-                    if (!snapAtivo.exists()) {
-                        await rtdb.ref('deleted_comments').child(commentId).set(backupData);
-                    }
-                } catch(err) { console.error('Falha no rollback', err); }
+                    if (!snapAtivo.exists()) await rtdb.ref('deleted_comments').child(commentId).set(backupData);
+                } catch(err) {}
             }
         }
     }
-
     async function permanentDeleteCommentAdmin(commentId) {
         if (!confirm('Apagar permanentemente? Esta ação não pode ser desfeita.')) return;
         try { await rtdb.ref('deleted_comments').child(commentId).remove(); }
@@ -1925,7 +2131,6 @@
             await auth.signInWithPopup(provider);
         } catch (error) { alert('Erro ao fazer login: ' + error.message); }
     });
-
     logoutBtn.addEventListener('click', () => {
         if (currentUser) {
             rtdb.ref('/onlineUsers/' + currentUser.uid).remove();
@@ -1933,13 +2138,12 @@
         }
         auth.signOut().then(() => window.location.reload());
     });
-
     userAvatar.addEventListener('click', (e) => {
         e.stopPropagation();
         userCard.classList.toggle('active');
     });
     document.addEventListener('click', (e) => {
-        if (!userCard.contains(e.target) && e.target !== userAvatar) userCard.classList.remove('active');
+        if (!userCard.contains(e.target) && e.target !== userAvatar && !e.target.closest('#userAvatarWrapper')) userCard.classList.remove('active');
     });
     adminMenuBtn.addEventListener('click', (e) => {
         e.stopPropagation();
@@ -1950,21 +2154,16 @@
     function registrarUsuarioPlaytronic(user) {
         if (!user) return;
         db.collection('catalog_users').doc(user.uid).set({
-            uid: user.uid,
-            email: user.email || '',
-            name: user.displayName || '',
-            photoURL: user.photoURL || '',
-            lastLoginMs: Date.now(),
+            uid: user.uid, email: user.email || '', name: user.displayName || '',
+            photoURL: user.photoURL || '', lastLoginMs: Date.now(),
             lastLogin: firebase.firestore.FieldValue.serverTimestamp()
         }, { merge: true }).catch(e => console.warn('catalog_users write:', e));
     }
-
     auth.onAuthStateChanged((user) => {
         currentUser = user;
         if (favoritesRef) { favoritesRef.off(); favoritesRef = null; }
         userFavorites = {};
         favoritesLoaded = false;
-
         if (user) {
             loginBtn.style.display = 'none';
             userInfo.classList.add('active');
@@ -1974,6 +2173,7 @@
             registrarUsuarioPlaytronic(user);
             setupPresence(user);
             setupUserRestrictions(user);
+            loadUserNotifications(user.uid); // ═══ NOVO ═══
             if (user.email === ADMIN_EMAIL) {
                 adminContainer.style.display = 'flex';
                 document.body.classList.add('is-admin');
@@ -2000,12 +2200,14 @@
             userRestrictions = null;
             if (presenceInterval) { clearInterval(presenceInterval); presenceInterval = null; }
             setupUserRestrictions(null);
+            loadUserNotifications(null); // ═══ NOVO ═══
             favoritesLoaded = true;
             tryRender();
         }
         if (currentPlayerVideoId) atualizarPlayerUI(currentPlayerVideoId);
         checkCatalogSubscription();
         checkMyAdsVisibility();
+        updateNotificationBadge();
     });
 
     // ============ VOTOS / VIEWS ============
@@ -2042,7 +2244,6 @@
         if (document.getElementById('performanceModal')?.classList.contains('active')) renderPerformanceTable();
         if (currentSortField === 'views' && videosLoaded && favoritesLoaded) renderCards();
     });
-
     rtdb.ref('vod_comments').on('value', (snap) => {
         const data = snap.val() || {};
         const counts = {};
@@ -2053,7 +2254,6 @@
         commentsCountCache = counts;
         if (currentSortField === 'comments' && videosLoaded && favoritesLoaded) renderCards();
     });
-
     async function votar(videoId, tipo) {
         if (!currentUser) return alert('Faça login para votar.');
         const ref = rtdb.ref('vod_votes/' + videoId);
@@ -2083,29 +2283,12 @@
     const catalogSortBar = document.getElementById('catalogSortBar');
     const sortFieldSelect = document.getElementById('sortFieldSelect');
     const sortOrderSelect = document.getElementById('sortOrderSelect');
-
-    // Sincroniza os selects com as preferências carregadas (antes de qualquer render)
     if (sortFieldSelect) sortFieldSelect.value = currentSortField;
     if (sortOrderSelect) sortOrderSelect.value = currentSortOrder;
+    if (sortFieldSelect) sortFieldSelect.addEventListener('change', () => { currentSortField = sortFieldSelect.value; saveCatalogPreferences(); if (videosLoaded && favoritesLoaded) renderCards(); });
+    if (sortOrderSelect) sortOrderSelect.addEventListener('change', () => { currentSortOrder = sortOrderSelect.value; saveCatalogPreferences(); if (videosLoaded && favoritesLoaded) renderCards(); });
 
-    if (sortFieldSelect) {
-        sortFieldSelect.addEventListener('change', () => {
-            currentSortField = sortFieldSelect.value;
-            saveCatalogPreferences();
-            if (videosLoaded && favoritesLoaded) renderCards();
-        });
-    }
-    if (sortOrderSelect) {
-        sortOrderSelect.addEventListener('change', () => {
-            currentSortOrder = sortOrderSelect.value;
-            saveCatalogPreferences();
-            if (videosLoaded && favoritesLoaded) renderCards();
-        });
-    }
-
-    // ===== FILTRO DE CONTEÚDO (checkboxes com seleção exclusiva) =====
     const contentFilterCheckboxes = document.querySelectorAll('input[name="contentFilter"]');
-
     function updateContentFilterUI() {
         contentFilterCheckboxes.forEach(cb => {
             const isChecked = cb.value === currentContentFilter;
@@ -2113,23 +2296,15 @@
             cb.closest('.filter-checkbox')?.classList.toggle('checked', isChecked);
         });
     }
-
     contentFilterCheckboxes.forEach(cb => {
         cb.addEventListener('click', (e) => {
-            // Não permite desmarcar a opção ativa (mantém uma sempre selecionada)
-            if (currentContentFilter === cb.value) {
-                e.preventDefault();
-                cb.checked = true;
-                return;
-            }
+            if (currentContentFilter === cb.value) { e.preventDefault(); cb.checked = true; return; }
             currentContentFilter = cb.value;
             updateContentFilterUI();
             saveCatalogPreferences();
             if (videosLoaded && favoritesLoaded) renderCards();
         });
     });
-
-    // Sincroniza o estado visual com a preferência carregada
     updateContentFilterUI();
 
     searchInput.addEventListener('input', (e) => {
@@ -2142,90 +2317,47 @@
     });
     function tryRender() { if (videosLoaded && favoritesLoaded) renderCards(); }
 
-    // ============ ORDENAÇÃO ============
     function sortVideos(list) {
-        const field = currentSortField;
-        const order = currentSortOrder;
+        const field = currentSortField, order = currentSortOrder;
         const arr = [...list];
-
-        // CASO ESPECIAL: Produtora → ordenar por QUANTIDADE de vídeos
         if (field === 'produtora') {
             const produtoraCounts = {};
             videos.forEach(v => {
                 const key = (v.produtora || '').toLowerCase().trim();
                 if (key) produtoraCounts[key] = (produtoraCounts[key] || 0) + 1;
             });
-
             arr.sort((a, b) => {
                 const pa = (a.produtora || '').toLowerCase().trim();
                 const pb = (b.produtora || '').toLowerCase().trim();
-                const aMissing = !pa;
-                const bMissing = !pb;
-
+                const aMissing = !pa, bMissing = !pb;
                 if (aMissing && !bMissing) return 1;
                 if (!aMissing && bMissing) return -1;
-                if (aMissing && bMissing) {
-                    return (a.titulo || '').toLowerCase().localeCompare((b.titulo || '').toLowerCase());
-                }
-
-                const ca = produtoraCounts[pa] || 0;
-                const cb = produtoraCounts[pb] || 0;
-
+                if (aMissing && bMissing) return (a.titulo || '').toLowerCase().localeCompare((b.titulo || '').toLowerCase());
+                const ca = produtoraCounts[pa] || 0, cb = produtoraCounts[pb] || 0;
                 if (ca !== cb) return order === 'asc' ? ca - cb : cb - ca;
                 if (pa !== pb) return pa.localeCompare(pb);
-
-                // Mesma produtora: dentro da classificação, ordenar pelo ano
-                const ya = Number(a.ano) || 0;
-                const yb = Number(b.ano) || 0;
-                if (!ya && yb) return 1;   // sem ano vai para o fim do grupo
-                if (ya && !yb) return -1;  // sem ano vai para o fim do grupo
+                const ya = Number(a.ano) || 0, yb = Number(b.ano) || 0;
+                if (!ya && yb) return 1;
+                if (ya && !yb) return -1;
                 if (ya !== yb) return order === 'asc' ? ya - yb : yb - ya;
-
                 return (a.titulo || '').toLowerCase().localeCompare((b.titulo || '').toLowerCase());
             });
-
             return arr;
         }
-
-        // DEMAIS CAMPOS
         arr.sort((a, b) => {
-            let av, bv;
-            let aMissing = false, bMissing = false;
+            let av, bv, aMissing = false, bMissing = false;
             switch (field) {
-                case 'ano':
-                    av = Number(a.ano) || 0;
-                    bv = Number(b.ano) || 0;
-                    if (!av) aMissing = true;
-                    if (!bv) bMissing = true;
-                    break;
-                case 'likes':
-                    av = (votesCache[a.youtubeId] || {}).likes || 0;
-                    bv = (votesCache[b.youtubeId] || {}).likes || 0;
-                    break;
-                case 'views':
-                    av = viewsCache[a.youtubeId] || 0;
-                    bv = viewsCache[b.youtubeId] || 0;
-                    break;
-                case 'comments':
-                    av = commentsCountCache[a.youtubeId] || 0;
-                    bv = commentsCountCache[b.youtubeId] || 0;
-                    break;
-                case 'titulo':
-                    av = (a.titulo || '').toLowerCase();
-                    bv = (b.titulo || '').toLowerCase();
-                    break;
-                case 'order':
-                default:
-                    av = a.order || 0;
-                    bv = b.order || 0;
+                case 'ano': av = Number(a.ano) || 0; bv = Number(b.ano) || 0; if (!av) aMissing = true; if (!bv) bMissing = true; break;
+                case 'likes': av = (votesCache[a.youtubeId] || {}).likes || 0; bv = (votesCache[b.youtubeId] || {}).likes || 0; break;
+                case 'views': av = viewsCache[a.youtubeId] || 0; bv = viewsCache[b.youtubeId] || 0; break;
+                case 'comments': av = commentsCountCache[a.youtubeId] || 0; bv = commentsCountCache[b.youtubeId] || 0; break;
+                case 'titulo': av = (a.titulo || '').toLowerCase(); bv = (b.titulo || '').toLowerCase(); break;
+                default: av = a.order || 0; bv = b.order || 0;
             }
             if (aMissing && !bMissing) return 1;
             if (!aMissing && bMissing) return -1;
             if (aMissing && bMissing) return 0;
-
-            let cmp;
-            if (typeof av === 'string') cmp = av.localeCompare(bv);
-            else cmp = av - bv;
+            let cmp = typeof av === 'string' ? av.localeCompare(bv) : av - bv;
             return order === 'asc' ? cmp : -cmp;
         });
         return arr;
@@ -2242,8 +2374,6 @@
         const isFav = !!userFavorites[item.youtubeId];
         const nota = calcularNotaFromCache(item.youtubeId);
         const tags = [];
-        if (item.lang === 'BRA') tags.push('<span class="tag tag-bra">BRA</span>');
-        if (item.lang === 'ENG') tags.push('<span class="tag tag-eng">ENG</span>');
         if (item.pago) tags.push('<span class="tag tag-pago">PAGO</span>');
         if (item.ad) tags.push('<span class="tag tag-ad">AD</span>');
         const tagsHtml = tags.length ? `<div class="card-tags">${tags.join('')}</div>` : '<div class="card-tags"></div>';
@@ -2252,7 +2382,6 @@
         const produtoraHtml = produtora ? `<span class="card-meta-line">${escapeHtml(produtora)}</span>` : '';
         const anoHtml = ano !== null ? `<span class="card-meta-line">Ano: ${escapeHtml(String(ano))}</span>` : '';
         const metaHtml = (produtoraHtml || anoHtml) ? `<div class="card-meta">${produtoraHtml}${anoHtml}</div>` : '';
-
         card.innerHTML = `
             <div class="card-poster">
                 <img src="${posterUrl}" alt="Capa de ${titulo}" loading="lazy">
@@ -2287,16 +2416,9 @@
 
     function renderCards() {
         if (loadingMsg.style.display !== 'none') loadingMsg.style.display = 'none';
-
-        // ─── FILTRO DE CONTEÚDO (Todos / Gratuitos / Pagos) ───
         let filtered = videos;
-        if (currentContentFilter === 'free') {
-            filtered = filtered.filter(v => !v.pago);
-        } else if (currentContentFilter === 'paid') {
-            filtered = filtered.filter(v => v.pago);
-        }
-
-        // ─── FILTRO DE BUSCA (título/produtora/ano) ───
+        if (currentContentFilter === 'free') filtered = filtered.filter(v => !v.pago);
+        else if (currentContentFilter === 'paid') filtered = filtered.filter(v => v.pago);
         if (currentFilter) {
             filtered = filtered.filter(v => {
                 const title = (v.titulo || '').toLowerCase();
@@ -2305,18 +2427,13 @@
                 return title.includes(currentFilter) || produtora.includes(currentFilter) || ano.includes(currentFilter);
             });
         }
-
-        // ─── ORDENAÇÃO ───
         const sorted = sortVideos(filtered);
-
         catalogGrid.innerHTML = '';
         const favSection = document.getElementById('favoritesSection');
         const favTrack = document.getElementById('favoritesTrack');
         if (favTrack) favTrack.innerHTML = '';
         let favCount = 0;
-
         if (catalogSortBar) catalogSortBar.style.display = (videos.length > 0) ? 'flex' : 'none';
-
         if (videos.length === 0) {
             emptyState.textContent = 'Nenhum vídeo cadastrado ainda.';
             emptyState.style.display = 'block';
@@ -2335,11 +2452,8 @@
             return;
         }
         emptyState.style.display = 'none';
-
         sorted.forEach(item => {
             catalogGrid.appendChild(buildCard(item));
-            // Favoritos sempre mostram todos os favoritados (independente do filtro atual),
-            // para o usuário não "perder" itens que ele marcou.
             if (userFavorites[item.youtubeId] && favTrack) { favTrack.appendChild(buildCard(item)); favCount++; }
         });
         if (favSection) favSection.style.display = favCount > 0 ? 'block' : 'none';
@@ -2378,14 +2492,12 @@
     const videoProdutoraInput = document.getElementById('videoProdutoraInput');
     const videoAnoInput = document.getElementById('videoAnoInput');
     const urlHint = document.getElementById('urlHint');
-
     videoUrlInput.addEventListener('input', () => {
         const id = extractYouTubeId(videoUrlInput.value);
         if (!videoUrlInput.value.trim()) { urlHint.textContent = ''; urlHint.className = 'url-hint'; }
         else if (id) { urlHint.textContent = `ID detectado: ${id}`; urlHint.className = 'url-hint ok'; }
         else { urlHint.textContent = 'URL inválida.'; urlHint.className = 'url-hint warn'; }
     });
-
     function openVideoModal(mode, video = null) {
         videoModalMode = mode;
         editingVideoKey = video ? video.key : null;
@@ -2413,7 +2525,6 @@
     function closeVideoModal() { videoModal.classList.remove('active'); videoModalMode = 'add'; editingVideoKey = null; }
     document.getElementById('cancelVideoBtn').addEventListener('click', closeVideoModal);
     videoModal.addEventListener('click', (e) => { if (e.target === videoModal) closeVideoModal(); });
-
     document.getElementById('confirmVideoBtn').addEventListener('click', async () => {
         const urlRaw = videoUrlInput.value.trim();
         const titulo = videoTitleInput.value.trim();
@@ -2492,24 +2603,16 @@
         let arr = Array.isArray(raw) ? raw : Object.values(raw);
         return arr.map(b => {
             if (typeof b === 'string') return { src: b, link: 'https://playtronicgames.com.br', views: 0 };
-            if (b && typeof b === 'object') {
-                let url = b.src || b.url || b.image;
-                return { ...b, src: url, views: Number(b.views || 0) };
-            }
+            if (b && typeof b === 'object') { let url = b.src || b.url || b.image; return { ...b, src: url, views: Number(b.views || 0) }; }
             return null;
         }).filter(b => b && b.src);
     }
     const manageAdsModal = document.getElementById('manageAdsModal');
     const adsListContainer = document.getElementById('adsListContainer');
     const newAdImageUrl = document.getElementById('newAdImageUrl');
-    document.getElementById('manageAdsBtn').addEventListener('click', () => {
-        adminDropdown.style.display = 'none';
-        manageAdsModal.classList.add('active');
-        renderAdsList();
-    });
+    document.getElementById('manageAdsBtn').addEventListener('click', () => { adminDropdown.style.display = 'none'; manageAdsModal.classList.add('active'); renderAdsList(); });
     document.getElementById('closeManageAdsBtn').addEventListener('click', () => manageAdsModal.classList.remove('active'));
     manageAdsModal.addEventListener('click', (e) => { if (e.target === manageAdsModal) manageAdsModal.classList.remove('active'); });
-
     async function renderAdsList() {
         try {
             const doc = await db.collection('platform_config').doc('custom_ads').get();
@@ -2571,7 +2674,6 @@
         } catch (e) { console.warn(e); }
     }
 
-    // ============ SIMULAR ASSINANTE ============
     document.getElementById('simulateSubBtn').addEventListener('click', () => {
         adminDropdown.style.display = 'none';
         isSimulatingSub = !isSimulatingSub;
@@ -2592,7 +2694,6 @@
     const subsTotalCount = document.getElementById('subsTotalCount');
     const subsActiveCount = document.getElementById('subsActiveCount');
     const subsOnlineCount = document.getElementById('subsOnlineCount');
-
     document.getElementById('performanceBtn').addEventListener('click', () => {
         adminDropdown.style.display = 'none';
         performanceModal.classList.add('active');
@@ -2615,7 +2716,6 @@
     });
     if (perfSearchInput) perfSearchInput.addEventListener('input', renderPerformanceTable);
     if (subsFilterSelect) subsFilterSelect.addEventListener('change', renderSubsList);
-
     async function loadActiveSubscribers() {
         try {
             const token = await currentUser.getIdToken();
@@ -2680,7 +2780,6 @@
             `;
         }).join('');
     }
-
     function getPerfSortValue(item, field) {
         if (field === 'titulo') return item.titulo || '';
         if (field === 'publishedAt') return item.publishedAt || 0;
@@ -2697,9 +2796,7 @@
         let filtered = searchTerm ? videos.filter(v => (v.titulo || '').toLowerCase().includes(searchTerm)) : videos;
         if (filtered.length === 0) { perfTableContainer.innerHTML = `<div class="perf-empty">Nenhum vídeo encontrado.</div>`; return; }
         const data = filtered.map(v => ({
-            youtubeId: v.youtubeId,
-            titulo: v.titulo || '(Sem título)',
-            publishedAt: v.order || 0,
+            youtubeId: v.youtubeId, titulo: v.titulo || '(Sem título)', publishedAt: v.order || 0,
             views: viewsCache[v.youtubeId] || 0,
             likes: (votesCache[v.youtubeId] || {}).likes || 0,
             dislikes: (votesCache[v.youtubeId] || {}).dislikes || 0,
@@ -2782,10 +2879,8 @@
     async function openPixLightbox() {
         userCard.classList.remove('active');
         if (!currentUser) {
-            try {
-                const provider = new firebase.auth.GoogleAuthProvider();
-                await auth.signInWithPopup(provider);
-            } catch (error) { if (error.code !== 'auth/popup-closed-by-user') alert('Erro: ' + error.message); return; }
+            try { const provider = new firebase.auth.GoogleAuthProvider(); await auth.signInWithPopup(provider); }
+            catch (error) { if (error.code !== 'auth/popup-closed-by-user') alert('Erro: ' + error.message); return; }
         }
         document.getElementById('pixLightbox').style.display = 'flex';
         document.getElementById('pixArea').style.display = 'none';
@@ -2840,8 +2935,7 @@
         try {
             const token = await currentUser.getIdToken();
             const r = await fetch(CF_BASE + '/createCatalogPixPayment', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + token },
+                method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + token },
                 body: JSON.stringify({ planId: currentPlanId })
             });
             const data = await r.json();
@@ -2913,7 +3007,6 @@
     let adVideoDuration = 0;
     let adVideoId = '';
     let adRateValue = 1.00;
-
     document.getElementById('openInsertAdBtn').addEventListener('click', async () => {
         adModal.classList.remove('active');
         document.body.classList.remove('ad-modal-open');
@@ -3033,18 +3126,12 @@
     const myAdsListContainer = document.getElementById('myAdsListContainer');
     const searchMyAds = document.getElementById('searchMyAds');
     const sortMyAds = document.getElementById('sortMyAds');
-
     async function checkMyAdsVisibility() {
         if (!currentUser) { myAdsBtn.style.display = 'none'; return; }
         try {
             let hasAds = false;
-            if (isAdmin()) {
-                const snap = await db.collection('paid_ads').limit(1).get();
-                hasAds = snap.size > 0;
-            } else {
-                const snap = await db.collection('paid_ads').where('userId', '==', currentUser.uid).limit(1).get();
-                hasAds = snap.size > 0;
-            }
+            if (isAdmin()) { const snap = await db.collection('paid_ads').limit(1).get(); hasAds = snap.size > 0; }
+            else { const snap = await db.collection('paid_ads').where('userId', '==', currentUser.uid).limit(1).get(); hasAds = snap.size > 0; }
             myAdsBtn.style.display = hasAds ? 'flex' : 'none';
         } catch (e) { myAdsBtn.style.display = 'none'; }
     }
@@ -3056,13 +3143,8 @@
         searchMyAds.value = ''; sortMyAds.value = 'createdAt';
         try {
             let myAdsData = [];
-            if (isAdmin()) {
-                const snap = await db.collection('paid_ads').get();
-                snap.forEach(doc => myAdsData.push({ id: doc.id, ...doc.data() }));
-            } else {
-                const snap = await db.collection('paid_ads').where('userId', '==', currentUser.uid).get();
-                snap.forEach(doc => myAdsData.push({ id: doc.id, ...doc.data() }));
-            }
+            if (isAdmin()) { const snap = await db.collection('paid_ads').get(); snap.forEach(doc => myAdsData.push({ id: doc.id, ...doc.data() })); }
+            else { const snap = await db.collection('paid_ads').where('userId', '==', currentUser.uid).get(); snap.forEach(doc => myAdsData.push({ id: doc.id, ...doc.data() })); }
             const unique = [], seen = new Set();
             myAdsData.forEach(ad => { if (!seen.has(ad.paymentId)) { seen.add(ad.paymentId); unique.push(ad); } });
             myAdsData = unique;
@@ -3145,11 +3227,8 @@
     const horizontalAdIframe = document.getElementById('horizontal-ad-iframe');
     const playerVideoTitle = document.getElementById('playerVideoTitle');
     const playerLoadingOverlay = document.getElementById('playerLoadingOverlay');
-
     let player = null, playerReady = false, progressInterval = null, controlsTimeout = null, isPlaying = false, isEnded = false, isMuted = false, currentVolume = 100, isSeeking = false;
-
     window.onYouTubeIframeAPIReady = function() {};
-
     function setPlayPauseVisual(playing) {
         const playIcon = centerPlayPauseBtn.querySelector('.icon-play');
         const pauseIcon = centerPlayPauseBtn.querySelector('.icon-pause');
@@ -3157,27 +3236,22 @@
         if (playing) { playIcon.style.display = 'none'; pauseIcon.style.display = 'block'; centerPlayPauseBtn.classList.add('playing-state'); }
         else { playIcon.style.display = 'block'; pauseIcon.style.display = 'none'; centerPlayPauseBtn.classList.remove('playing-state'); }
     }
-
     const adModal = document.getElementById('adInterstitialModal');
     const closeAdBtn = document.getElementById('closeInterstitialBtn');
     const adTimerText = document.getElementById('adTimerText');
     const adCenterWrapper = document.getElementById('adCenterWrapper');
     let pendingVideo = null;
     let adTimerInterval = null;
-
     function mountStandardAd(container, opts, scriptSrc) {
         if (!container) return;
-        container.innerHTML = ''; 
+        container.innerHTML = '';
         const iframe = document.createElement('iframe');
         iframe.setAttribute('scrolling', 'no');
         iframe.setAttribute('frameborder', '0');
         iframe.style.cssText = 'display:block; border:0; position:absolute; top:0; left:0; width:100%; height:100%; overflow:hidden;';
-        
         iframe.srcdoc = `<!DOCTYPE html><html><head><meta charset="utf-8"><style>html,body{margin:0;padding:0;overflow:hidden;width:100%;height:100%;background:transparent;display:flex;align-items:center;justify-content:center;}</style></head><body><script type="text/javascript">atOptions=${JSON.stringify(opts)};<\/script><script type="text/javascript" src="${scriptSrc}"><\/script></body></html>`;
-        
         container.appendChild(iframe);
     }
-
     function closeAdAndPlay() {
         if (!pendingVideo || !adModal.classList.contains('active')) return;
         adModal.classList.remove('active');
@@ -3187,69 +3261,55 @@
         const v = pendingVideo; pendingVideo = null;
         openPlayer(v);
     }
-
     function injectLeftNativeAd() {
         const container = document.getElementById('adNativeLeft');
         if (!container) return;
         container.innerHTML = '';
-
         const adDiv = document.createElement('div');
         adDiv.id = 'container-efe34bd92ca74a51f85465ca14314dc7';
         container.appendChild(adDiv);
-
         const script = document.createElement('script');
         script.async = true;
         script.setAttribute('data-cfasync', 'false');
         script.src = 'https://dcengg.org/21/efe34bd92ca74a51f85465ca14314dc7';
         container.appendChild(script);
     }
-
     function injectRightStandardAd() {
         const container = document.getElementById('adNativeRight');
         if (!container) return;
         container.innerHTML = '';
-
         const iframe = document.createElement('iframe');
         iframe.setAttribute('scrolling', 'no');
         iframe.setAttribute('frameborder', '0');
         iframe.style.cssText = 'display:block; border:0; position:absolute; top:0; left:0; width:100%; height:100%; overflow:hidden;';
-        
         iframe.srcdoc = `<!DOCTYPE html><html><head><meta charset="utf-8"><style>html,body{margin:0;padding:0;overflow:hidden;width:100%;height:100%;background:transparent;display:flex;align-items:center;justify-content:center;}</style></head><body><script type="text/javascript">atOptions = {'key' : '0b2a1dd49cefbcb5c3f10330c969042c','format' : 'iframe','height' : 600,'width' : 160,'params' : {}};<\/script><script type="text/javascript" src="https://dcengg.org/22/0b2a1dd49cefbcb5c3f10330c969042c"><\/script></body></html>`;
-        
         container.appendChild(iframe);
     }
-
     async function showAdInterstitial(video) {
         if (catalogSubscription.active) { openPlayer(video); return; }
         closeAdBtn.disabled = true; closeAdBtn.classList.remove('active');
         if (adTimerInterval) clearInterval(adTimerInterval);
         if (isAdmin()) adminContainer.style.display = 'none';
-
         let activePaidAds = [];
         try {
             const snap = await db.collection('paid_ads').where('expiresAt', '>', Date.now()).get();
             snap.forEach(doc => activePaidAds.push({ id: doc.id, ...doc.data() }));
         } catch (e) {}
-
         if (activePaidAds.length === 0 && adBanners.length === 0 && !video.ad) {
             if (isAdmin()) adminContainer.style.display = 'flex';
             openPlayer(video);
             return;
         }
-        
         pendingVideo = video;
         adModal.classList.add('active');
         document.body.classList.add('ad-modal-open');
         adCenterWrapper.innerHTML = '';
-
         document.getElementById('adNativeLeft').innerHTML = '';
         document.getElementById('adNativeRight').innerHTML = '';
         document.getElementById('adMobileTop').innerHTML = '';
         document.getElementById('adMobileBottom').innerHTML = '';
-
         const isLandscape = window.matchMedia('(max-width: 900px) and (orientation: landscape)').matches;
         const isPortrait = window.matchMedia('(max-width: 900px) and (orientation: portrait)').matches;
-
         if (isLandscape) {
             mountStandardAd(document.getElementById('adNativeRight'), { key: '51efcb0e502dffc7c8c25030a1155128', format: 'iframe', height: 250, width: 300, params: {} }, 'https://dcengg.org/22/51efcb0e502dffc7c8c25030a1155128');
         } else if (isPortrait) {
@@ -3259,9 +3319,7 @@
             injectLeftNativeAd();
             injectRightStandardAd();
         }
-
         if (adYtPlayer) { try { adYtPlayer.stopVideo(); adYtPlayer.destroy(); } catch(e){} adYtPlayer = null; }
-
         if (activePaidAds.length > 0) {
             activePaidAds.sort((a, b) => (a.lastShownAt || 0) - (b.lastShownAt || 0));
             const chosenAd = activePaidAds[0];
@@ -3290,7 +3348,6 @@
             }).catch(() => {});
             currentAdBannerIndex = (currentAdBannerIndex + 1) % adBanners.length;
         }
-
         let timeLeft = activePaidAds.length > 0 ? 15 : 6;
         adTimerText.textContent = `Aguarde ${timeLeft}s...`;
         clearInterval(adTimerInterval);
@@ -3315,7 +3372,6 @@
         pendingVideo = null;
         openPixLightbox();
     });
-
     async function openPlayer(video) {
         if (!currentUser) {
             try { await auth.signInWithPopup(new firebase.auth.GoogleAuthProvider()); }
@@ -3327,18 +3383,15 @@
         playerVideoTitle.textContent = video.titulo || 'Vídeo';
         viewAlreadyCounted = false;
         playerLoadingOverlay.classList.remove('hidden');
-
         const isMobileViewport = window.matchMedia('(max-width: 900px)').matches;
         const isLandscape = window.matchMedia('(max-width: 900px) and (orientation: landscape)').matches;
         const playerMobileTop = document.getElementById('playerMobileTop');
         const playerMobileBottom = document.getElementById('playerMobileBottom');
-        
         if (!catalogSubscription.active) {
             if (isMobileViewport) {
-                playerMobileTop.style.display = ''; 
+                playerMobileTop.style.display = '';
                 playerMobileBottom.style.display = isLandscape ? 'none' : '';
                 playerBottomAd.style.display = 'none';
-                
                 mountStandardAd(playerMobileTop, { key: 'c7c3c36fda809c5dd35ae6ed9c4890ca', format: 'iframe', height: 50, width: 320, params: {} }, 'https://dcengg.org/22/c7c3c36fda809c5dd35ae6ed9c4890ca');
                 if (!isLandscape) {
                     mountStandardAd(playerMobileBottom, { key: '51efcb0e502dffc7c8c25030a1155128', format: 'iframe', height: 250, width: 300, params: {} }, 'https://dcengg.org/22/51efcb0e502dffc7c8c25030a1155128');
@@ -3357,14 +3410,12 @@
             playerMobileBottom.style.display = 'none';
             playerBottomAd.style.display = 'none';
         }
-
         if (player) { player.destroy(); player = null; }
         playerReady = false; isPlaying = false; isEnded = false; isSeeking = false;
         setPlayPauseVisual(false);
         currentPlayerVideoId = video.youtubeId;
         atualizarPlayerUI(video.youtubeId);
         showControls();
-
         const container = document.getElementById('youtubePlayer');
         container.innerHTML = '<div id="ytPlayerDiv" style="width:100%; height:100%;"></div>';
         player = new YT.Player('ytPlayerDiv', {
@@ -3372,20 +3423,16 @@
             playerVars: { autoplay: 1, controls: 0, modestbranding: 1, rel: 0, iv_load_policy: 3, playsinline: 1, cc_load_policy: 0, fs: 0, origin: window.location.origin },
             events: { 'onReady': onPlayerReady, 'onStateChange': onPlayerStateChange }
         });
-
         openComments(video.youtubeId);
     }
-
     window.addEventListener('resize', () => {
         if (document.getElementById('adInterstitialModal').classList.contains('active')) {
             const isLandscape = window.matchMedia('(max-width: 900px) and (orientation: landscape)').matches;
             const isPortrait = window.matchMedia('(max-width: 900px) and (orientation: portrait)').matches;
-
             document.getElementById('adNativeLeft').innerHTML = '';
             document.getElementById('adNativeRight').innerHTML = '';
             document.getElementById('adMobileTop').innerHTML = '';
             document.getElementById('adMobileBottom').innerHTML = '';
-
             if (isLandscape) {
                 mountStandardAd(document.getElementById('adNativeRight'), { key: '51efcb0e502dffc7c8c25030a1155128', format: 'iframe', height: 250, width: 300, params: {} }, 'https://dcengg.org/22/51efcb0e502dffc7c8c25030a1155128');
             } else if (isPortrait) {
@@ -3396,13 +3443,11 @@
                 injectRightStandardAd();
             }
         }
-        
         if (document.getElementById('playerScreen').classList.contains('active')) {
             const isMobileViewport = window.matchMedia('(max-width: 900px)').matches;
             const isLandscape = window.matchMedia('(max-width: 900px) and (orientation: landscape)').matches;
             const playerMobileTop = document.getElementById('playerMobileTop');
             const playerMobileBottom = document.getElementById('playerMobileBottom');
-            
             if (isMobileViewport && !catalogSubscription.active) {
                 if (isLandscape) {
                     playerMobileBottom.style.display = 'none';
@@ -3415,7 +3460,6 @@
             }
         }
     });
-
     function onPlayerReady(event) {
         playerReady = true;
         event.target.playVideo();
@@ -3443,28 +3487,10 @@
             try { event.target.unloadModule('captions'); event.target.unloadModule('cc'); } catch(e) {}
         }
     }
-    
-    function showControls() { 
-        customUI.classList.remove('player-ui-hidden'); 
-        playerWrapper.classList.remove('hide-shadows'); 
-        resetControlsTimer(); 
-    }
-    function showControlsNoTimer() { 
-        customUI.classList.remove('player-ui-hidden'); 
-        playerWrapper.classList.remove('hide-shadows'); 
-        clearTimeout(controlsTimeout); 
-    }
-    function hideControls() { 
-        if (isEnded || isSeeking) return; 
-        customUI.classList.add('player-ui-hidden'); 
-        playerWrapper.classList.add('hide-shadows'); 
-    }
-    function resetControlsTimer() { 
-        clearTimeout(controlsTimeout); 
-        if (isEnded || isSeeking) return; 
-        controlsTimeout = setTimeout(hideControls, 5500); 
-    }
-
+    function showControls() { customUI.classList.remove('player-ui-hidden'); playerWrapper.classList.remove('hide-shadows'); resetControlsTimer(); }
+    function showControlsNoTimer() { customUI.classList.remove('player-ui-hidden'); playerWrapper.classList.remove('hide-shadows'); clearTimeout(controlsTimeout); }
+    function hideControls() { if (isEnded || isSeeking) return; customUI.classList.add('player-ui-hidden'); playerWrapper.classList.add('hide-shadows'); }
+    function resetControlsTimer() { clearTimeout(controlsTimeout); if (isEnded || isSeeking) return; controlsTimeout = setTimeout(hideControls, 5500); }
     if (window.matchMedia('(pointer: fine)').matches) {
         playerWrapper.addEventListener('mousemove', showControls);
         playerWrapper.addEventListener('mouseleave', () => resetControlsTimer());
@@ -3474,7 +3500,6 @@
         if (!playerReady || !player) return;
         if (customUI.classList.contains('player-ui-hidden')) showControls(); else resetControlsTimer();
     });
-
     centerPlayPauseBtn.addEventListener('click', () => {
         if (!playerReady || !player) return;
         if (isPlaying) player.pauseVideo(); else player.playVideo();
@@ -3482,7 +3507,6 @@
     });
     btnRewind10.addEventListener('click', () => { if (playerReady && player) { player.seekTo(Math.max(0, player.getCurrentTime() - 10), true); resetControlsTimer(); } });
     btnForward10.addEventListener('click', () => { if (playerReady && player) { player.seekTo(Math.min(player.getDuration(), player.getCurrentTime() + 10), true); resetControlsTimer(); } });
-
     progressTrack.addEventListener('mousedown', (e) => {
         isSeeking = true; showControlsNoTimer();
         const rect = progressTrack.getBoundingClientRect();
@@ -3508,7 +3532,6 @@
         document.addEventListener('mousemove', onMove);
         document.addEventListener('mouseup', onUp);
     });
-
     function updateVolumeUI(val) {
         volumeSlider.value = val;
         if (val == 0) { muteBtn.textContent = '🔇'; isMuted = true; }
@@ -3529,7 +3552,6 @@
         updateVolumeUI(val);
         resetControlsTimer();
     });
-
     function closePlayer() {
         if (document.fullscreenElement) document.exitFullscreen().catch(() => {});
         if (progressInterval) { clearInterval(progressInterval); progressInterval = null; }
@@ -3548,7 +3570,6 @@
         closeComments();
     }
     document.getElementById('closePlayerBtn').addEventListener('click', closePlayer);
-
     fullscreenBtn.addEventListener('click', () => {
         if (!document.fullscreenElement) {
             if (playerWrapper.requestFullscreen) playerWrapper.requestFullscreen();
@@ -3556,7 +3577,6 @@
             if (document.exitFullscreen) document.exitFullscreen();
         }
     });
-
     document.addEventListener('keydown', (e) => {
         if (!playerScreen.classList.contains('active') || e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
         if (e.key === ' ' || e.key === 'k' || e.key === 'K') { e.preventDefault(); if (playerReady && player) { if (isPlaying) player.pauseVideo(); else player.playVideo(); resetControlsTimer(); } }
@@ -3565,7 +3585,6 @@
         else if (e.key === 'f' || e.key === 'F') { e.preventDefault(); fullscreenBtn.click(); }
         else if (e.key === 'Escape') { if (document.fullscreenElement) document.exitFullscreen(); else closePlayer(); }
     });
-
     function startProgressTracker() {
         if (progressInterval) clearInterval(progressInterval);
         progressInterval = setInterval(() => {
