@@ -1178,6 +1178,44 @@
     let currentSortOrder = 'desc';
     let currentContentFilter = 'all'; // 'all' | 'free' | 'paid'
 
+    // ============ PREFERÊNCIAS PERSISTENTES (localStorage) ============
+    // Lembra a última classificação/filtro definidos pelo usuário, para ele não
+    // ter que reclassificar toda vez que recarregar a página.
+    const CATALOG_PREFS_KEY = 'playtronic_catalog_prefs_v1';
+
+    function loadCatalogPreferences() {
+        try {
+            const raw = localStorage.getItem(CATALOG_PREFS_KEY);
+            if (!raw) return;
+            const prefs = JSON.parse(raw) || {};
+
+            const validFields  = ['order', 'produtora', 'ano', 'likes', 'views', 'comments', 'titulo'];
+            const validOrders  = ['asc', 'desc'];
+            const validFilters = ['all', 'free', 'paid'];
+
+            if (validFields.includes(prefs.sortField))       currentSortField = prefs.sortField;
+            if (validOrders.includes(prefs.sortOrder))       currentSortOrder = prefs.sortOrder;
+            if (validFilters.includes(prefs.contentFilter))  currentContentFilter = prefs.contentFilter;
+        } catch (e) {
+            console.warn('Erro ao carregar preferências do catálogo:', e);
+        }
+    }
+
+    function saveCatalogPreferences() {
+        try {
+            localStorage.setItem(CATALOG_PREFS_KEY, JSON.stringify({
+                sortField: currentSortField,
+                sortOrder: currentSortOrder,
+                contentFilter: currentContentFilter
+            }));
+        } catch (e) {
+            console.warn('Erro ao salvar preferências do catálogo:', e);
+        }
+    }
+
+    // Aplica as preferências salvas ANTES de qualquer render
+    loadCatalogPreferences();
+
     // Presença / restrições
     let onlineUsersData = {};
     let presenceInterval = null;
@@ -2046,15 +2084,21 @@
     const sortFieldSelect = document.getElementById('sortFieldSelect');
     const sortOrderSelect = document.getElementById('sortOrderSelect');
 
+    // Sincroniza os selects com as preferências carregadas (antes de qualquer render)
+    if (sortFieldSelect) sortFieldSelect.value = currentSortField;
+    if (sortOrderSelect) sortOrderSelect.value = currentSortOrder;
+
     if (sortFieldSelect) {
         sortFieldSelect.addEventListener('change', () => {
             currentSortField = sortFieldSelect.value;
+            saveCatalogPreferences();
             if (videosLoaded && favoritesLoaded) renderCards();
         });
     }
     if (sortOrderSelect) {
         sortOrderSelect.addEventListener('change', () => {
             currentSortOrder = sortOrderSelect.value;
+            saveCatalogPreferences();
             if (videosLoaded && favoritesLoaded) renderCards();
         });
     }
@@ -2080,11 +2124,12 @@
             }
             currentContentFilter = cb.value;
             updateContentFilterUI();
+            saveCatalogPreferences();
             if (videosLoaded && favoritesLoaded) renderCards();
         });
     });
 
-    // Sincroniza o estado visual inicial
+    // Sincroniza o estado visual com a preferência carregada
     updateContentFilterUI();
 
     searchInput.addEventListener('input', (e) => {
@@ -3537,7 +3582,7 @@
             } catch (e) {}
         }, 500);
     }
-    
+
     // ============ INICIALIZAÇÃO ============
     loadCustomAds();
 </script>
