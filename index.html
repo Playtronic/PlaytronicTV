@@ -95,7 +95,8 @@
         .catalog-sort-bar {
             display: flex;
             align-items: center;
-            gap: 12px;
+            justify-content: space-between;
+            gap: 16px;
             padding: 12px 16px;
             background: rgba(30, 48, 92, 0.7);
             border: 1px solid rgba(255,255,255,0.08);
@@ -106,6 +107,17 @@
             max-width: 1400px;
             box-shadow: 0 4px 15px rgba(0,0,0,0.25);
         }
+
+        .filter-group,
+        .sort-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .filter-group { justify-content: flex-start; }
+        .sort-group   { justify-content: flex-end; margin-left: auto; }
+
         .catalog-sort-bar .sort-label {
             color: #fdbb2d;
             font-weight: 700;
@@ -137,15 +149,42 @@
             background: #152961;
             color: #fff;
         }
-        .catalog-sort-bar #sortOrderSelect {
-            min-width: 130px;
+        .catalog-sort-bar #sortOrderSelect { min-width: 130px; }
+
+        /* Checkboxes em formato "pill" */
+        .filter-checkbox {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+            padding: 7px 12px;
+            background: rgba(255,255,255,0.08);
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 8px;
+            font-size: 0.88rem;
+            color: #e2e8f0;
+            transition: 0.2s;
+            user-select: none;
+            font-family: inherit;
+            white-space: nowrap;
         }
-        /* Separador visual entre filtro e ordenação */
-        .catalog-sort-bar .bar-divider {
-            width: 1px;
-            height: 24px;
-            background: rgba(255,255,255,0.15);
-            margin: 0 4px;
+        .filter-checkbox:hover {
+            background: rgba(255,255,255,0.12);
+            border-color: rgba(253,187,45,0.4);
+        }
+        .filter-checkbox.checked {
+            background: rgba(253,187,45,0.15);
+            border-color: #fdbb2d;
+            color: #fff;
+            font-weight: 600;
+            box-shadow: 0 0 12px rgba(253,187,45,0.15);
+        }
+        .filter-checkbox input[type="checkbox"] {
+            width: 16px;
+            height: 16px;
+            accent-color: #fdbb2d;
+            cursor: pointer;
+            margin: 0;
         }
 
         .catalog-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 30px; max-width: 1400px; margin: 0 auto; width: 100%; }
@@ -491,22 +530,40 @@
             }
 
             .catalog-sort-bar {
-                gap: 8px;
+                flex-direction: column;
+                align-items: stretch;
+                gap: 10px;
                 padding: 10px 12px;
                 margin-bottom: 14px;
             }
-            .catalog-sort-bar .sort-label {
+            .filter-group {
+                gap: 6px;
+                justify-content: flex-start;
+                flex-wrap: wrap;
+            }
+            .filter-checkbox {
+                font-size: 0.78rem;
+                padding: 6px 10px;
+            }
+            .filter-checkbox input[type="checkbox"] {
+                width: 14px;
+                height: 14px;
+            }
+            .sort-group {
+                gap: 8px;
+                justify-content: stretch;
+                flex-wrap: wrap;
+                margin-left: 0;
+            }
+            .sort-group .sort-label {
                 font-size: 0.72rem;
                 width: 100%;
             }
-            .catalog-sort-bar select {
+            .sort-group select {
                 flex: 1;
                 min-width: 0;
                 font-size: 0.8rem;
                 padding: 7px 10px;
-            }
-            .catalog-sort-bar .bar-divider {
-                display: none;
             }
             
             .catalog-grid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 15px; }
@@ -718,29 +775,38 @@
 
             <!-- ===== BARRA DE FILTRO E ORDENAÇÃO ===== -->
             <div class="catalog-sort-bar" id="catalogSortBar" style="display:none;">
-                <span class="sort-label">📺 Mostrar:</span>
-                <select id="contentFilterSelect">
-                    <option value="all">Todos os conteúdos</option>
-                    <option value="free">Apenas gratuitos</option>
-                    <option value="paid">Apenas pagos</option>
-                </select>
+                <div class="filter-group">
+                    <span class="sort-label">📺 Mostrar:</span>
+                    <label class="filter-checkbox checked">
+                        <input type="checkbox" name="contentFilter" value="all" checked>
+                        <span>Todos</span>
+                    </label>
+                    <label class="filter-checkbox">
+                        <input type="checkbox" name="contentFilter" value="free">
+                        <span>Gratuitos</span>
+                    </label>
+                    <label class="filter-checkbox">
+                        <input type="checkbox" name="contentFilter" value="paid">
+                        <span>Pagos</span>
+                    </label>
+                </div>
 
-                <div class="bar-divider"></div>
-
-                <span class="sort-label">🔀 Ordenar por:</span>
-                <select id="sortFieldSelect">
-                    <option value="order">Data de inclusão</option>
-                    <option value="produtora">Produtora</option>
-                    <option value="ano">Ano</option>
-                    <option value="likes">Curtidas</option>
-                    <option value="views">Visualizações</option>
-                    <option value="comments">Mais comentados</option>
-                    <option value="titulo">Título (A-Z)</option>
-                </select>
-                <select id="sortOrderSelect">
-                    <option value="desc">↓ Decrescente</option>
-                    <option value="asc">↑ Crescente</option>
-                </select>
+                <div class="sort-group">
+                    <span class="sort-label">🔀 Ordenar por:</span>
+                    <select id="sortFieldSelect">
+                        <option value="order">Data de inclusão</option>
+                        <option value="produtora">Produtora</option>
+                        <option value="ano">Ano</option>
+                        <option value="likes">Curtidas</option>
+                        <option value="views">Visualizações</option>
+                        <option value="comments">Mais comentados</option>
+                        <option value="titulo">Título (A-Z)</option>
+                    </select>
+                    <select id="sortOrderSelect">
+                        <option value="desc">↓ Decrescente</option>
+                        <option value="asc">↑ Crescente</option>
+                    </select>
+                </div>
             </div>
 
             <div id="favoritesSection" style="display: none;">
@@ -1979,7 +2045,6 @@
     const catalogSortBar = document.getElementById('catalogSortBar');
     const sortFieldSelect = document.getElementById('sortFieldSelect');
     const sortOrderSelect = document.getElementById('sortOrderSelect');
-    const contentFilterSelect = document.getElementById('contentFilterSelect');
 
     if (sortFieldSelect) {
         sortFieldSelect.addEventListener('change', () => {
@@ -1993,12 +2058,34 @@
             if (videosLoaded && favoritesLoaded) renderCards();
         });
     }
-    if (contentFilterSelect) {
-        contentFilterSelect.addEventListener('change', () => {
-            currentContentFilter = contentFilterSelect.value;
-            if (videosLoaded && favoritesLoaded) renderCards();
+
+    // ===== FILTRO DE CONTEÚDO (checkboxes com seleção exclusiva) =====
+    const contentFilterCheckboxes = document.querySelectorAll('input[name="contentFilter"]');
+
+    function updateContentFilterUI() {
+        contentFilterCheckboxes.forEach(cb => {
+            const isChecked = cb.value === currentContentFilter;
+            cb.checked = isChecked;
+            cb.closest('.filter-checkbox')?.classList.toggle('checked', isChecked);
         });
     }
+
+    contentFilterCheckboxes.forEach(cb => {
+        cb.addEventListener('click', (e) => {
+            // Não permite desmarcar a opção ativa (mantém uma sempre selecionada)
+            if (currentContentFilter === cb.value) {
+                e.preventDefault();
+                cb.checked = true;
+                return;
+            }
+            currentContentFilter = cb.value;
+            updateContentFilterUI();
+            if (videosLoaded && favoritesLoaded) renderCards();
+        });
+    });
+
+    // Sincroniza o estado visual inicial
+    updateContentFilterUI();
 
     searchInput.addEventListener('input', (e) => {
         currentFilter = e.target.value.toLowerCase().trim();
@@ -2041,6 +2128,14 @@
 
                 if (ca !== cb) return order === 'asc' ? ca - cb : cb - ca;
                 if (pa !== pb) return pa.localeCompare(pb);
+
+                // Mesma produtora: dentro da classificação, ordenar pelo ano
+                const ya = Number(a.ano) || 0;
+                const yb = Number(b.ano) || 0;
+                if (!ya && yb) return 1;   // sem ano vai para o fim do grupo
+                if (ya && !yb) return -1;  // sem ano vai para o fim do grupo
+                if (ya !== yb) return order === 'asc' ? ya - yb : yb - ya;
+
                 return (a.titulo || '').toLowerCase().localeCompare((b.titulo || '').toLowerCase());
             });
 
