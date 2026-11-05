@@ -1057,6 +1057,60 @@
         #tvScreen .tv-close-btn {
             pointer-events: auto !important;
         }
+        
+        /* ========================================================= */
+        /* ✅ FORÇAR LAYOUT CORRETO - SUBSTITUI REGRAS ANTIGAS        */
+        /* ========================================================= */
+        
+        /* Topbar: Título na esquerda, X na direita */
+        #tvScreen .tv-topbar {
+            display: flex !important;
+            justify-content: space-between !important;
+            align-items: center !important;
+            width: 100% !important;
+            padding: 20px !important;
+            background: linear-gradient(to bottom, rgba(0,0,0,0.8), transparent) !important;
+            pointer-events: auto !important;
+        }
+        #tvScreen .tv-brand { display: flex !important; align-items: center !important; gap: 10px !important; }
+        #tvScreen .tv-brand-badge { background: #ef4444 !important; color: white !important; padding: 4px 10px !important; border-radius: 4px !important; font-weight: bold !important; font-size: 0.8rem !important; display: block !important; }
+        #tvScreen .tv-brand-title { color: white !important; font-weight: bold !important; font-size: 1rem !important; display: block !important; }
+
+        /* Bottombar: AGORA na esquerda, Controles na direita */
+        #tvScreen .tv-bottombar {
+            display: flex !important;
+            justify-content: space-between !important;
+            align-items: flex-end !important;
+            width: 100% !important;
+            padding: 20px !important;
+            background: linear-gradient(to top, rgba(0,0,0,0.8), transparent) !important;
+            pointer-events: auto !important;
+        }
+        #tvScreen .tv-now-playing { display: flex !important; align-items: center !important; gap: 10px !important; flex: 1 !important; }
+        #tvScreen .tv-now-label { color: #ef4444 !important; font-weight: bold !important; font-size: 0.8rem !important; }
+        #tvScreen .tv-now-title { color: white !important; font-weight: bold !important; font-size: 1.1rem !important; }
+        
+        #tvScreen .tv-controls { display: flex !important; align-items: center !important; gap: 15px !important; margin-left: auto !important; }
+        
+        /* Limpeza visual dos botões (sem bordas, sem fundos) */
+        #tvScreen .tv-close-btn, #tvScreen .tv-fs-btn, #tvScreen .tv-vol-btn {
+            background: transparent !important; border: none !important; box-shadow: none !important;
+            padding: 0 !important; cursor: pointer !important; color: white !important; font-size: 1.5rem !important;
+            display: flex !important; align-items: center !important; justify-content: center !important;
+            transition: transform 0.2s !important; pointer-events: auto !important;
+        }
+        #tvScreen .tv-close-btn:hover, #tvScreen .tv-fs-btn:hover, #tvScreen .tv-vol-btn:hover { transform: scale(1.2) !important; }
+        
+        /* Esconder controles antes do play */
+        #tvScreen:not(.tv-playing) .tv-topbar,
+        #tvScreen:not(.tv-playing) .tv-bottombar {
+            opacity: 0 !important; pointer-events: none !important;
+        }
+        /* Auto-Hide */
+        #tvScreen.ui-hidden .tv-topbar,
+        #tvScreen.ui-hidden .tv-bottombar {
+            opacity: 0 !important; pointer-events: none !important;
+        }
         </style>
 </head>
 <body>
@@ -1171,7 +1225,7 @@
             <div class="tv-brand-badge">AO VIVO</div>
             <span class="tv-brand-title" id="tvCurrentTitle">TV Playtronic</span>
         </div>
-        <div class="tv-controls" style="justify-content: flex-end;">
+        <div class="tv-controls">
             <button class="tv-close-btn" id="tvCloseBtn" title="Fechar TV">✖</button>
         </div>
     </div>
@@ -1202,7 +1256,7 @@
             </button>
         </div>
     </div>
-</div>
+    </div>
 
 <div class="modal-overlay" id="notificationsModal">
     <div class="modal flex-modal" style="max-width: 560px;">
