@@ -1011,6 +1011,52 @@
             opacity: 0 !important;
             pointer-events: none !important;
         }
+        
+        /* ✅ CSS: Remover contornos e fundos dos botões da TV */
+        #tvScreen .tv-close-btn, 
+        #tvScreen .tv-fs-btn {
+            background: transparent !important;
+            border: none !important;
+            box-shadow: none !important;
+            padding: 8px !important;
+            width: auto !important;
+            height: auto !important;
+            border-radius: 0 !important;
+            transition: transform 0.2s !important;
+        }
+        #tvScreen .tv-close-btn:hover, 
+        #tvScreen .tv-fs-btn:hover {
+            background: transparent !important;
+            transform: scale(1.15) !important;
+            color: #fdbb2d !important;
+        }
+        #tvScreen .tv-volume-container {
+            background: transparent !important;
+            border: none !important;
+            padding: 0 !important;
+            box-shadow: none !important;
+        }
+        /* Garantir que a interface só apareça no play */
+        #tvScreen:not(.tv-playing) .tv-topbar,
+        #tvScreen:not(.tv-playing) .tv-bottombar {
+            opacity: 0 !important;
+            pointer-events: none !important;
+        }
+        #tvScreen.ui-hidden .tv-topbar,
+        #tvScreen.ui-hidden .tv-bottombar {
+            opacity: 0 !important;
+            pointer-events: none !important;
+        }
+        /* Consertar cliques */
+        #tvScreen .tv-topbar, 
+        #tvScreen .tv-bottombar, 
+        #tvScreen .tv-controls,
+        #tvScreen .tv-vol-btn,
+        #tvScreen .tv-vol-slider,
+        #tvScreen .tv-fs-btn,
+        #tvScreen .tv-close-btn {
+            pointer-events: auto !important;
+        }
         </style>
 </head>
 <body>
@@ -1121,7 +1167,11 @@
 
 <div id="tvScreen">
     <div class="tv-topbar" id="tvTopbar">
-        <div class="tv-controls" style="justify-content: flex-end; width: 100%;">
+        <div class="tv-brand">
+            <div class="tv-brand-badge">AO VIVO</div>
+            <span class="tv-brand-title" id="tvCurrentTitle">TV Playtronic</span>
+        </div>
+        <div class="tv-controls" style="justify-content: flex-end;">
             <button class="tv-close-btn" id="tvCloseBtn" title="Fechar TV">✖</button>
         </div>
     </div>
@@ -1146,10 +1196,9 @@
                 <input type="range" class="tv-vol-slider" id="tvVolumeSlider" min="0" max="100" value="100">
             </div>
             <button class="tv-fs-btn" id="tvFullscreenBtn" title="Tela Cheia">
-                <svg viewBox="0 0 24 24" width="18" height="18" fill="white">
+                <svg viewBox="0 0 24 24" width="24" height="24" fill="white">
                     <path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/>
                 </svg>
-                <span>TELA CHEIA</span>
             </button>
         </div>
     </div>
