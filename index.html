@@ -1605,7 +1605,7 @@
     });
 
     function isTVReady() {
-        return videos.length > 0 && videos.every(v => Number(v.duracaoSegundos) > 0);
+        return videos.length > 0 && videos.some(v => Number(v.duracaoSegundos) > 0);
     }
 
     // ============ PRESENÇA ============
@@ -3057,13 +3057,14 @@
                     }
                 }
 
-                // Fallback para os que não retornaram (raro)
+                // Trata falhas e para o loop infinito
                 const falhasNoLote = chunk.filter(v => !durations[v.youtubeId]);
-                if (falhasNoLote.length > 0 && falhasNoLote.length <= 10) {
-                    // Só tenta fallback se forem poucos (IFrame é lento)
+                if (falhasNoLote.length > 0) {
                     for (const v of falhasNoLote) {
+                        // Tenta fallback via player IFrame
                         const dur = await obterDuracaoYouTubeIframe(v.youtubeId);
-                        if (dur > 0) updates['vod_videos/' + v.key + '/duracaoSegundos'] = dur;
+                        // Se falhar no IFrame também, marca como 0 para parar de tentar e a TV ignorar
+                        updates['vod_videos/' + v.key + '/duracaoSegundos'] = dur > 0 ? dur : 0;
                     }
                 }
 
