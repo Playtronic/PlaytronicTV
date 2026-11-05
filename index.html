@@ -56,7 +56,6 @@
         .user-actions { display: flex; flex-direction: column; gap: 10px; margin-bottom: 15px; }
         .user-card button { width: 100%; padding: 12px; border-radius: 8px; border: none; font-weight: bold; font-size: 0.9rem; cursor: pointer; transition: 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px; }
 
-        /* Botão de notificações AZUL */
         .user-card #notificationsBtn {
             background: linear-gradient(135deg, #3b82f6, #2563eb);
             color: #fff; position: relative;
@@ -131,6 +130,9 @@
         .tag-eng { background: #2563eb; color: #fff; }
         .tag-pago { background: #3b82f6; color: #fff; }
         .tag-ad { background: #dc2626; color: #fff; }
+        .tag-curta { background: #f59e0b; color: #000; }
+        .tag-media { background: #8b5cf6; color: #fff; }
+        .tag-longa { background: #ec4899; color: #fff; }
         .card-meta { font-size: 0.8rem; font-style: italic; color: #94a3b8; line-height: 1.35; margin-bottom: 8px; }
         .card-meta-line { display: block; }
         .watch-btn { background: #fdbb2d; color: #000; border: none; padding: 10px; border-radius: 6px; font-weight: bold; font-size: 0.95rem; cursor: pointer; transition: background 0.2s, transform 0.1s; width: 100%; margin-top: auto; }
@@ -141,7 +143,6 @@
         .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.72); display: none; align-items: center; justify-content: center; z-index: 1500; backdrop-filter: blur(6px); padding: 100px 20px 20px 20px; }
         .modal-overlay.active { display: flex; }
 
-        /* Notificações acima do player */
         #notificationsModal { z-index: 2200; }
 
         .modal { background: #152961; border: 1px solid rgba(255,255,255,0.12); border-radius: 14px; padding: 26px; width: 100%; max-width: 520px; box-shadow: 0 25px 60px rgba(0,0,0,0.8); animation: modalIn 0.2s ease; max-height: 85vh; overflow-y: auto; }
@@ -297,7 +298,8 @@
         .carousel-track { display: flex; gap: 20px; overflow-x: auto; scroll-behavior: smooth; scrollbar-width: none; padding: 10px; width: 100%; }
         .carousel-track::-webkit-scrollbar { display: none; }
         .carousel-track .card { flex: 0 0 250px; width: 250px; }
-        .carousel-arrow { position: absolute; top: 50%; transform: translateY(-50%); background: rgba(0, 0, 0, 0.7); color: #fff; border: 1px solid rgba(255,255,255,0.2); width: 40px; height: 40px; border-radius: 50%; font-size: 1.2rem; cursor: pointer; z-index: 10; display: flex; align-items: center; justify-content: center; }
+        .carousel-arrow { position: absolute; top: 50%; transform: translateY(-50%); background: rgba(0, 0, 0, 0.7); color: #fff; border: 1px solid rgba(255,255,255,0.2); width: 40px; height: 40px; border-radius: 50%; font-size: 1.2rem; cursor: pointer; z-index: 10; display: flex; align-items: center; justify-content: center; transition: background 0.2s, transform 0.2s; }
+        .carousel-arrow:hover { background: #fdbb2d; color: #000; transform: translateY(-50%) scale(1.1); }
         .carousel-arrow.left { left: -15px; }
         .carousel-arrow.right { right: -15px; }
 
@@ -473,7 +475,6 @@
             .notif-text { font-size: 0.82rem; }
         }
 
-        /* Mobile portrait: Mostrar numa linha, Ordenar em outra, sem quebras */
         @media (max-width: 900px) and (orientation: portrait) {
             .ad-side-banner { display: none !important; }
             .ad-mobile-top-banner { display: flex; }
@@ -616,9 +617,9 @@
         <div id="favoritesSection" style="display: none;">
             <h2 class="carousel-title">Seus Favoritos</h2>
             <div class="carousel-wrapper">
-                <button class="carousel-arrow left" id="carouselLeft">❮</button>
+                <button class="carousel-arrow left" id="carouselLeft" title="Rolar para a esquerda">❮</button>
                 <div class="carousel-track" id="favoritesTrack"></div>
-                <button class="carousel-arrow right" id="carouselRight">❯</button>
+                <button class="carousel-arrow right" id="carouselRight" title="Rolar para a direita">❯</button>
             </div>
         </div>
         <div id="catalogGrid" class="catalog-grid"></div>
@@ -657,6 +658,12 @@
         <input type="text" id="videoProdutoraInput" placeholder="Ex.: Walt Disney Productions">
         <label>Ano</label>
         <input type="text" id="videoAnoInput" placeholder="Ex.: 1950" maxlength="4">
+        <label>Classificação (Padrão ANCINE)</label>
+        <select id="videoClassificacaoInput">
+            <option value="curta" selected>Curta-metragem (até 15 min)</option>
+            <option value="media">Média-metragem (15 a 70 min)</option>
+            <option value="longa">Longa-metragem (acima de 70 min)</option>
+        </select>
         <div class="modal-checkbox-row">
             <label><input type="radio" name="videoMarker" value=""> Nenhum</label>
             <label><input type="radio" name="videoMarker" value="pago"> PAGO</label>
@@ -935,10 +942,21 @@
     const auth = firebase.auth();
     const rtdb = firebase.database();
     const db = firebase.firestore();
-    // ═══ ADMINS (array) ═══
     const ADMIN_EMAILS = ['playtronicpublisher@mail.com', 'playtronicdeveloper@gmail.com'];
-    const ADMIN_EMAIL = ADMIN_EMAILS[0]; // compat retroativo
+    const ADMIN_EMAIL = ADMIN_EMAILS[0];
     const CF_BASE = 'https://us-central1-playtronic-tv.cloudfunctions.net';
+
+    // ═══════════════════════════════════════════════════════════════
+    // MAPA DE CLASSIFICAÇÃO ANCINE (com fallback 'curta')
+    // ═══════════════════════════════════════════════════════════════
+    const CLASSIFICACAO_INFO = {
+        curta: { label: 'CURTA', cls: 'tag-curta', titulo: 'Curta-metragem (até 15 min)' },
+        media: { label: 'MÉDIA', cls: 'tag-media', titulo: 'Média-metragem (15 a 70 min)' },
+        longa: { label: 'LONGA', cls: 'tag-longa', titulo: 'Longa-metragem (acima de 70 min)' }
+    };
+    function normalizarClassificacao(v) {
+        return (v && CLASSIFICACAO_INFO[v]) ? v : 'curta';
+    }
 
     // ============ ESTADO GLOBAL ============
     let currentUser = null;
@@ -1288,8 +1306,6 @@
     function openNotificationsModal() {
         userCard.classList.remove('active');
         if (!currentUser) return;
-
-        // Pausa o player se estiver em execução
         try {
             const _playerScreen = document.getElementById('playerScreen');
             if (_playerScreen && _playerScreen.classList.contains('active') && player && playerReady) {
@@ -1297,7 +1313,6 @@
                 try { showControlsNoTimer(); } catch (e) {}
             }
         } catch (e) {}
-
         document.getElementById('notificationsModal').classList.add('active');
         renderNotificationsList();
     }
@@ -2395,6 +2410,10 @@
         const tags = [];
         if (item.pago) tags.push('<span class="tag tag-pago">PAGO</span>');
         if (item.ad) tags.push('<span class="tag tag-ad">AD</span>');
+        // ═══ Tag de classificação ANCINE (fallback: curta) ═══
+        const classificacao = normalizarClassificacao(item.classificacao);
+        const classInfo = CLASSIFICACAO_INFO[classificacao];
+        tags.push(`<span class="tag ${classInfo.cls}" title="${classInfo.titulo}">${classInfo.label}</span>`);
         const tagsHtml = tags.length ? `<div class="card-tags">${tags.join('')}</div>` : '<div class="card-tags"></div>';
         const produtora = (item.produtora || '').trim();
         const ano = (item.ano != null && item.ano !== '') ? item.ano : null;
@@ -2478,6 +2497,22 @@
         if (favSection) favSection.style.display = favCount > 0 ? 'block' : 'none';
     }
 
+    // ═══════════════════════════════════════════════════════════════
+    // NAVEGAÇÃO DO CARROSSEL DE FAVORITOS (setas)
+    // ═══════════════════════════════════════════════════════════════
+    function scrollFavoritesCarousel(direction) {
+        const track = document.getElementById('favoritesTrack');
+        if (!track) return;
+        const card = track.querySelector('.card');
+        if (!card) return;
+        const gap = 20;
+        const cardWidth = card.offsetWidth;
+        const scrollAmount = (cardWidth + gap) * 2;
+        track.scrollBy({ left: direction * scrollAmount, behavior: 'smooth' });
+    }
+    document.getElementById('carouselLeft')?.addEventListener('click', () => scrollFavoritesCarousel(-1));
+    document.getElementById('carouselRight')?.addEventListener('click', () => scrollFavoritesCarousel(1));
+
     rtdb.ref('vod_videos').on('value', (snap) => {
         const data = snap.val() || {};
         videos = Object.entries(data).map(([key, v]) => ({ key, ...v }));
@@ -2510,6 +2545,7 @@
     const videoTitleInput = document.getElementById('videoTitleInput');
     const videoProdutoraInput = document.getElementById('videoProdutoraInput');
     const videoAnoInput = document.getElementById('videoAnoInput');
+    const videoClassificacaoInput = document.getElementById('videoClassificacaoInput');
     const urlHint = document.getElementById('urlHint');
     videoUrlInput.addEventListener('input', () => {
         const id = extractYouTubeId(videoUrlInput.value);
@@ -2524,6 +2560,7 @@
             videoModalTitle.textContent = 'Adicionar Vídeo';
             videoModalSub.textContent = 'O vídeo ficará visível para todos os usuários.';
             videoUrlInput.value = ''; videoTitleInput.value = ''; videoProdutoraInput.value = ''; videoAnoInput.value = '';
+            videoClassificacaoInput.value = 'curta'; // ═══ DEFAULT: CURTA ═══
             document.querySelector('input[name="videoMarker"][value=""]').checked = true;
             urlHint.textContent = ''; urlHint.className = 'url-hint';
         } else {
@@ -2533,6 +2570,7 @@
             videoTitleInput.value = video.titulo || '';
             videoProdutoraInput.value = video.produtora || '';
             videoAnoInput.value = video.ano != null ? String(video.ano) : '';
+            videoClassificacaoInput.value = normalizarClassificacao(video.classificacao);
             const currentMarker = video.pago ? 'pago' : (video.ad ? 'ad' : '');
             const markerEl = document.querySelector(`input[name="videoMarker"][value="${currentMarker}"]`);
             if (markerEl) markerEl.checked = true;
@@ -2549,6 +2587,7 @@
         const titulo = videoTitleInput.value.trim();
         const produtora = videoProdutoraInput.value.trim();
         const anoRaw = videoAnoInput.value.trim();
+        const classificacao = normalizarClassificacao(videoClassificacaoInput.value);
         const markerEl = document.querySelector('input[name="videoMarker"]:checked');
         const marker = markerEl ? markerEl.value : '';
         const pago = marker === 'pago', ad = marker === 'ad';
@@ -2560,7 +2599,7 @@
         if (!youtubeId) return alert('URL inválida.');
         if (videos.find(v => v.youtubeId === youtubeId && v.key !== editingVideoKey)) return alert('Este vídeo já está cadastrado.');
         try {
-            const payload = { youtubeId, titulo, produtora: produtora || null, ano, pago: !!pago, ad: !!ad };
+            const payload = { youtubeId, titulo, produtora: produtora || null, ano, pago: !!pago, ad: !!ad, classificacao };
             if (videoModalMode === 'add') { payload.order = Date.now(); await rtdb.ref('vod_videos').push().set(payload); }
             else await rtdb.ref('vod_videos/' + editingVideoKey).update(payload);
             closeVideoModal();
