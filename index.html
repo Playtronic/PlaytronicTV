@@ -243,6 +243,32 @@
         .skip-btn .skip-num { position: absolute; top: 53%; left: 50%; transform: translate(-50%, -50%); font-size: 9px; font-weight: 800; font-family: Arial, sans-serif; line-height: 1; color: currentColor; pointer-events: none; }
         .player-controls { position: absolute; bottom: 0; left: 0; right: 0; padding: 20px 20px 15px; display: flex; align-items: center; gap: 15px; pointer-events: auto; background: linear-gradient(to top, #000 0%, #000 80%, transparent 100%); z-index: 25; }
         .control-btn { background: none; border: none; color: #fff; padding: 5px; cursor: pointer; font-size: 1.2rem; font-weight: bold; display: flex; align-items: center; justify-content: center; }
+
+        /* ✅ CORREÇÃO #2: Botão fullscreen visível */
+        .player-controls #fullscreenBtn {
+            display: flex !important;
+            visibility: visible !important;
+            opacity: 1 !important;
+            background: rgba(255, 255, 255, 0.12);
+            border-radius: 6px;
+            padding: 6px 9px;
+            margin-left: 8px;
+            min-width: 34px;
+            min-height: 34px;
+            transition: background 0.2s, transform 0.15s;
+        }
+        .player-controls #fullscreenBtn:hover {
+            background: rgba(253, 187, 45, 0.35);
+            transform: scale(1.08);
+        }
+        .player-controls #fullscreenBtn svg {
+            width: 22px !important;
+            height: 22px !important;
+            fill: #fff !important;
+            color: #fff !important;
+            display: block !important;
+        }
+
         .control-btn:hover { color: #fdbb2d; }
         .progress-track { flex: 1; height: 6px; background: rgba(255,255,255,0.2); border-radius: 3px; cursor: pointer; position: relative; margin: 0 10px; }
         .progress-fill { height: 100%; background: #fdbb2d; border-radius: 3px; width: 0%; }
@@ -1187,8 +1213,11 @@
                         <div class="progress-thumb" id="progressThumb"></div>
                     </div>
                     <span class="time-label" id="timeLabel">0:00 / 0:00</span>
+                    <!-- ✅ CORREÇÃO #2: SVG do botão fullscreen com fill explícito -->
                     <button class="control-btn" id="fullscreenBtn" title="Tela Cheia">
-                        <svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20"><path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/></svg>
+                        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z" fill="#fff"/>
+                        </svg>
                     </button>
                 </div>
             </div>
@@ -1316,6 +1345,22 @@
     const CF_BASE = 'https://us-central1-playtronic-tv.cloudfunctions.net';
 
     // ═══════════════════════════════════════════════════════════════
+    // ✅ CORREÇÃO #1: HELPER GLOBAL PARA DESABILITAR LEGENDAS
+    // Usar setOption em vez de unloadModule (que quebra o módulo)
+    // ═══════════════════════════════════════════════════════════════
+    function disableCaptions(p) {
+        if (!p) return;
+        try { p.setOption('captions', 'track', {}); } catch (e) {}
+        try { p.setOption('cc', 'track', {}); } catch (e) {}
+    }
+    function disableCaptionsSoon(p) {
+        if (!p) return;
+        disableCaptions(p);
+        setTimeout(() => disableCaptions(p), 800);
+        setTimeout(() => disableCaptions(p), 2000);
+    }
+
+    // ═══════════════════════════════════════════════════════════════
     // MAPA DE CLASSIFICAÇÃO ANCINE
     // ═══════════════════════════════════════════════════════════════
     const CLASSIFICACAO_INFO = {
@@ -1385,6 +1430,7 @@
     let tvActive = false;
     let tvSkipOffset = 0;
     let tvPendingUpdate = false;
+    let _tvRebuildDebounce = null; // ✅ CORREÇÃO #3
 
     // ============ PREFERÊNCIAS PERSISTENTES ============
     const CATALOG_PREFS_KEY = 'playtronic_catalog_prefs_v1';
@@ -1607,8 +1653,10 @@
         openTV();
     });
 
+    // ✅ CORREÇÃO #3: exige TODAS as durações para evitar playlists divergentes
     function isTVReady() {
-        return videos.length > 0 && videos.some(v => Number(v.duracaoSegundos) > 0);
+        if (videos.length === 0) return false;
+        return videos.every(v => Number(v.duracaoSegundos) > 0);
     }
 
     // ============ PRESENÇA ============
@@ -3109,12 +3157,17 @@
         finally { videos = originalVideos; }
     });
 
+    // ✅ CORREÇÃO #3: agenda rebuild da playlist da TV ao chegar/atualizar vídeos
     rtdb.ref('vod_videos').on('value', (snap) => {
         const data = snap.val() || {};
         videos = Object.entries(data).map(([key, v]) => ({ key, ...v }));
         videosLoaded = true;
         tryRender();
-        if (tvActive) tvPendingUpdate = true;
+
+        if (tvActive) {
+            tvPendingUpdate = true;
+            scheduleTVRebuild();
+        }
 
         clearTimeout(_backfillDebounce);
         _backfillDebounce = setTimeout(() => {
@@ -3695,6 +3748,48 @@
         return { index: 0, offset: 0, video: playlist[0] };
     }
 
+    // ✅ CORREÇÃO #3: rebuild automático da playlist para ressincronizar abas
+    function rebuildTVPlaylist() {
+        if (!tvActive) return;
+        const newPlaylist = buildTVPlaylist();
+        if (newPlaylist.length === 0) {
+            console.warn('[TV] Playlist ficou vazia — fechando TV');
+            closeTV();
+            return;
+        }
+        const newTotal = newPlaylist.reduce((s, v) => s + v.duracaoSegundos, 0);
+        if (newTotal <= 0) return;
+
+        const changed =
+            newPlaylist.length !== tvPlaylist.length ||
+            newTotal !== tvTotalDuration ||
+            newPlaylist.some((v, i) => !tvPlaylist[i] || v.youtubeId !== tvPlaylist[i].youtubeId);
+
+        if (!changed) return;
+
+        console.log('[TV] Playlist atualizada → ressincronizando posição');
+        tvPlaylist = newPlaylist;
+        tvTotalDuration = newTotal;
+
+        const pos = computeTVPosition(tvPlaylist, tvTotalDuration);
+        if (!pos) return;
+
+        if (pos.video.youtubeId !== tvCurrentYtId) {
+            if (tvPlayer) { try { tvPlayer.destroy(); } catch(e) {} tvPlayer = null; }
+            tvCurrentYtId = null;
+            document.getElementById('tvLoading').style.display = 'flex';
+            setTimeout(loadTVPlayer, 500);
+        } else if (tvPlayer && tvPlayerReady) {
+            try { tvPlayer.seekTo(pos.offset, true); } catch(e) {}
+        }
+    }
+
+    function scheduleTVRebuild() {
+        if (!tvActive) return;
+        clearTimeout(_tvRebuildDebounce);
+        _tvRebuildDebounce = setTimeout(rebuildTVPlaylist, 1200);
+    }
+
     function openTV() {
         if (!currentUser) {
             auth.signInWithPopup(new firebase.auth.GoogleAuthProvider()).catch(() => {});
@@ -3757,7 +3852,7 @@
             if (!tvActive || !tvPlayerReady || !tvPlayer) return;
             const pos = computeTVPosition(tvPlaylist, tvTotalDuration);
             if (!pos) return;
-            
+
             if (pos.video.youtubeId === tvCurrentYtId) {
                 try {
                     const actual = tvPlayer.getCurrentTime();
@@ -3770,9 +3865,11 @@
         }, 15000);
     }
 
+    // ✅ CORREÇÃO #1: legendas desabilitadas
     function handleTVStateChange(event) {
         if (event.data === 1) {
             document.getElementById('tvLoading').style.display = 'none';
+            disableCaptionsSoon(event.target);
         } else if (event.data === 0) {
             if (tvPlayer) { tvPlayer.destroy(); tvPlayer = null; }
             setTimeout(loadTVPlayer, 1000);
@@ -3809,8 +3906,8 @@
                         }
                         ev.target.playVideo();
                         ev.target.setVolume(100);
-                        try { ev.target.unloadModule('captions'); ev.target.unloadModule('cc'); } catch (e) {}
-                        try { ev.target.setOption('captions', 'track', {}); } catch (e) {}
+                        // ✅ CORREÇÃO #1: legendas via setOption (não quebra o módulo)
+                        disableCaptionsSoon(ev.target);
                     },
                     onStateChange: handleTVStateChange,
                     onError: (ev) => {
@@ -3968,12 +4065,12 @@
         playerVideoTitle.textContent = video.titulo || 'Vídeo';
         viewAlreadyCounted = false;
         playerLoadingOverlay.classList.remove('hidden');
-        
+
         const isMobileViewport = window.matchMedia('(max-width: 900px)').matches;
         const isLandscape = window.matchMedia('(max-width: 900px) and (orientation: landscape)').matches;
         const playerMobileTop = document.getElementById('playerMobileTop');
         const playerMobileBottom = document.getElementById('playerMobileBottom');
-        
+
         if (!catalogSubscription.active) {
             if (isMobileViewport) {
                 playerMobileTop.style.display = '';
@@ -3996,17 +4093,17 @@
             playerMobileBottom.style.display = 'none';
             playerBottomAd.style.display = 'none';
         }
-        
+
         if (player) { player.destroy(); player = null; }
         playerReady = false; isPlaying = false; isEnded = false; isSeeking = false;
         setPlayPauseVisual(false);
         currentPlayerVideoId = video.youtubeId;
         atualizarPlayerUI(video.youtubeId);
         showControls();
-        
+
         const container = document.getElementById('youtubePlayer');
         container.innerHTML = '<div id="ytPlayerDiv" style="width:100%; height:100%;"></div>';
-        
+
         player = new YT.Player('ytPlayerDiv', {
             height: '100%', width: '100%', videoId: video.youtubeId,
             playerVars: { autoplay: 1, controls: 0, modestbranding: 1, rel: 0, iv_load_policy: 3, playsinline: 1, cc_load_policy: 0, fs: 0, origin: window.location.origin },
@@ -4015,21 +4112,22 @@
         openComments(video.youtubeId);
     }
 
+    // ✅ CORREÇÃO #1: legendas desabilitadas via setOption
     function onPlayerReady(event) {
         playerReady = true;
         event.target.playVideo();
         startProgressTracker();
         event.target.setVolume(currentVolume);
         updateVolumeUI(currentVolume);
-        try { event.target.unloadModule('captions'); event.target.unloadModule('cc'); } catch(e) {}
-        try { event.target.setOption('captions', 'track', {}); } catch (e) {}
+        disableCaptionsSoon(event.target);
     }
 
+    // ✅ CORREÇÃO #1: legendas desabilitadas via setOption
     function onPlayerStateChange(event) {
         if (event.data === 1) {
             isPlaying = true; isEnded = false;
             setPlayPauseVisual(true);
-            try { event.target.unloadModule('captions'); event.target.unloadModule('cc'); } catch(e) {}
+            disableCaptionsSoon(event.target);
             if (!viewAlreadyCounted && currentPlayerVideoId) {
                 viewAlreadyCounted = true;
                 rtdb.ref('vod_views/' + currentPlayerVideoId).transaction(v => (v || 0) + 1).catch(() => {});
@@ -4041,7 +4139,7 @@
         } else if (event.data === 0) {
             isPlaying = false; isEnded = true; setPlayPauseVisual(false); showControls(); playerLoadingOverlay.classList.add('hidden');
         } else if (event.data === 3) {
-            try { event.target.unloadModule('captions'); event.target.unloadModule('cc'); } catch(e) {}
+            disableCaptionsSoon(event.target);
         }
     }
 
@@ -4137,7 +4235,7 @@
         closeComments();
         updateSearchVisibility();
     }
-    
+
     document.getElementById('closePlayerBtn').addEventListener('click', closePlayer);
 
     fullscreenBtn.addEventListener('click', () => {
