@@ -963,6 +963,34 @@
         #tvScreen .tv-topbar {
             display: none !important;
         }
+        /* ✅ CORREÇÃO: Permite cliques nos botões (pointer-events) */
+        #tvScreen .tv-topbar, 
+        #tvScreen .tv-bottombar, 
+        #tvScreen .tv-controls,
+        #tvScreen .tv-vol-btn,
+        #tvScreen .tv-vol-slider,
+        #tvScreen .tv-fs-btn,
+        #tvScreen .tv-close-btn {
+            pointer-events: auto !important;
+        }
+
+        /* ✅ CORREÇÃO: Oculta as barras antes do usuário clicar em Entrar */
+        #tvScreen:not(.tv-playing) .tv-topbar,
+        #tvScreen:not(.tv-playing) .tv-bottombar {
+            opacity: 0 !important;
+            pointer-events: none !important;
+        }
+
+        /* ✅ CORREÇÃO: Auto-hide após inatividade */
+        #tvScreen.ui-hidden .tv-topbar,
+        #tvScreen.ui-hidden .tv-bottombar {
+            opacity: 0 !important;
+            pointer-events: none !important;
+        }
+        #tvScreen .tv-topbar,
+        #tvScreen .tv-bottombar {
+            transition: opacity 0.4s ease !important;
+        }
     </style>
 </head>
 <body>
@@ -1072,13 +1100,12 @@
 </button>
 
 <div id="tvScreen">
-    <div class="tv-topbar">
-        <div class="tv-brand">
-            <div class="tv-brand-badge">AO VIVO</div>
-            <span class="tv-brand-title" id="tvCurrentTitle">TV Playtronic</span>
+    <div class="tv-topbar" id="tvTopbar">
+            <div class="tv-controls" style="justify-content: flex-end; width: 100%;">
+                <button class="tv-close-btn" id="tvCloseBtn" title="Fechar TV">✖</button>
+            </div>
         </div>
-        </div>
-    <div class="tv-content">
+        <div class="tv-content">
         <div id="tvPlayerContainer"></div>
         <div class="tv-loading" id="tvLoading">
             <div class="tv-spinner"></div>
@@ -1088,11 +1115,11 @@
             <button class="tv-unmute-btn" id="tvUnmuteBtn">▶ Entrar na transmissão</button>
         </div>
     </div>
-    <div class="tv-bottombar">
-        <div class="tv-now-playing" id="tvNowPlaying">
-            <span class="tv-now-label">AGORA</span>
-            <span class="tv-now-title" id="tvNowTitle"></span>
-        </div>
+    <div class="tv-bottombar" id="tvBottombar">
+            <div class="tv-now-playing" id="tvNowPlaying">
+                <span class="tv-now-label">AGORA</span>
+                <span class="tv-now-title" id="tvNowTitle"></span>
+            </div>
             <div class="tv-controls">
                 <div class="tv-volume-container">
                     <button class="tv-vol-btn" id="tvMuteBtn" title="Mudo">🔊</button>
@@ -1104,12 +1131,10 @@
                     </svg>
                     <span>TELA CHEIA</span>
                 </button>
-                <button class="tv-close-btn" id="tvCloseBtn" title="Fechar TV">✖</button>
             </div>
         </div>
     </div>
 </div>
-
 <div class="modal-overlay" id="notificationsModal">
     <div class="modal flex-modal" style="max-width: 560px;">
         <div class="notif-header-actions" style="margin-bottom: 12px;">
@@ -3944,6 +3969,7 @@
 
     // ✅ FIX CRÍTICO: usa playerState para evitar loop de recarga
     function startTVPlayback() {
+        document.getElementById('tvScreen').classList.add('tv-playing');
         if (typeof showTVControls === 'function') showTVControls();
         document.getElementById('tvUnmuteOverlay').classList.add('hidden');
         if (typeof showTVControls === 'function') showTVControls();
