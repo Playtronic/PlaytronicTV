@@ -244,7 +244,6 @@
         .player-controls { position: absolute; bottom: 0; left: 0; right: 0; padding: 20px 20px 15px; display: flex; align-items: center; gap: 15px; pointer-events: auto; background: linear-gradient(to top, #000 0%, #000 80%, transparent 100%); z-index: 25; }
         .control-btn { background: none; border: none; color: #fff; padding: 5px; cursor: pointer; font-size: 1.2rem; font-weight: bold; display: flex; align-items: center; justify-content: center; }
 
-        /* ✅ Botão fullscreen visível no Player VOD */
         .player-controls #fullscreenBtn {
             display: flex !important;
             visibility: visible !important;
@@ -436,7 +435,6 @@
         #banAlertModal .alert-box { border: 2px solid #ef4444; }
         #banAlertModal h2 { color: #ef4444; }
 
-        /* ============ LIGHTBOX ANCINE ============ */
         #ancineLightbox {
             position: fixed; inset: 0;
             background: rgba(0,0,0,0.78);
@@ -520,7 +518,6 @@
         .tag.ancine-tag { cursor: pointer; transition: transform 0.15s, box-shadow 0.15s; }
         .tag.ancine-tag:hover { transform: scale(1.08); box-shadow: 0 0 10px rgba(255,255,255,0.35); }
 
-        /* ═══════════ FAB — TV AO VIVO ═══════════ */
         #tvFab {
             position: fixed;
             bottom: 26px;
@@ -574,7 +571,6 @@
             to { opacity: 1; transform: translateY(0); }
         }
 
-        /* ═══════════ TELA DA TV ═══════════ */
         #tvScreen {
             position: fixed;
             inset: 0;
@@ -597,30 +593,41 @@
         }
         #tvScreen .tv-topbar > * { pointer-events: auto; }
         
-        /* ✅ Correção: Botões de controle da TV */
         #tvScreen .tv-controls {
             display: flex;
             gap: 10px;
             align-items: center;
         }
 
+        /* ✅ Botão TELA CHEIA com texto visível */
         #tvScreen .tv-close-btn, #tvScreen .tv-fs-btn {
-            background: rgba(0,0,0,0.6);
-            border: 1px solid rgba(255,255,255,0.2);
+            background: rgba(0,0,0,0.65);
+            border: 1px solid rgba(255,255,255,0.25);
             color: #fff;
-            width: 42px;
             height: 42px;
-            border-radius: 50%;
-            font-size: 1.2rem;
+            border-radius: 8px;
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
             transition: 0.2s;
+            font-family: inherit;
+            gap: 7px;
+            padding: 0 16px;
+            font-size: 0.82rem;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            white-space: nowrap;
         }
-        #tvScreen .tv-close-btn:hover { background: #ef4444; transform: scale(1.05); }
-        #tvScreen .tv-fs-btn:hover { background: #3b82f6; transform: scale(1.05); }
-        
+        #tvScreen .tv-close-btn {
+            width: 42px;
+            padding: 0;
+            border-radius: 50%;
+            font-size: 1.2rem;
+        }
+        #tvScreen .tv-fs-btn:hover { background: #3b82f6; transform: scale(1.05); border-color: #60a5fa; }
+        #tvScreen .tv-close-btn:hover { background: #ef4444; transform: scale(1.05); border-color: #f87171; }
+
         #tvScreen .tv-brand { display: flex; align-items: center; gap: 12px; }
         #tvScreen .tv-brand-badge {
             background: #ef4444;
@@ -745,9 +752,11 @@
             #tvFab { bottom: 16px; right: 16px; padding: 12px 18px; font-size: 0.82rem; gap: 8px; }
             #tvFab .tv-fab-dot { width: 8px; height: 8px; }
             #tvScreen .tv-topbar { padding: 10px 12px; }
-            #tvScreen .tv-brand-title { font-size: 0.8rem; max-width: 55vw; }
+            #tvScreen .tv-brand-title { font-size: 0.8rem; max-width: 40vw; }
             #tvScreen .tv-brand-badge { padding: 5px 10px; font-size: 0.68rem; }
-            #tvScreen .tv-close-btn, #tvScreen .tv-fs-btn { width: 36px; height: 36px; font-size: 1rem; }
+            #tvScreen .tv-fs-btn { height: 36px; padding: 0 10px; font-size: 0.7rem; gap: 4px; }
+            #tvScreen .tv-fs-btn svg { width: 14px; height: 14px; }
+            #tvScreen .tv-close-btn { width: 36px; height: 36px; font-size: 1rem; }
             #tvScreen .tv-bottombar { padding: 14px 16px; }
             #tvScreen .tv-now-title { font-size: 0.88rem; }
             #tvScreen .tv-unmute-btn { padding: 14px 32px; font-size: 0.95rem; }
@@ -990,12 +999,12 @@
             <div class="tv-brand-badge">AO VIVO</div>
             <span class="tv-brand-title" id="tvCurrentTitle">TV Playtronic</span>
         </div>
-        <!-- ✅ Botão de Tela Cheia e Fechar TV -->
         <div class="tv-controls">
             <button class="tv-fs-btn" id="tvFullscreenBtn" title="Tela Cheia">
-                <svg viewBox="0 0 24 24" width="24" height="24" fill="white">
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="white">
                     <path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/>
                 </svg>
+                <span>TELA CHEIA</span>
             </button>
             <button class="tv-close-btn" id="tvCloseBtn" title="Fechar TV">✖</button>
         </div>
@@ -1007,7 +1016,6 @@
             <div class="tv-loading-text">Sintonizando transmissão...</div>
         </div>
         <div class="tv-unmute-overlay" id="tvUnmuteOverlay">
-            <!-- ✅ Texto removido -->
             <button class="tv-unmute-btn" id="tvUnmuteBtn">▶ Entrar na transmissão</button>
         </div>
     </div>
@@ -1424,10 +1432,12 @@
     let tvTotalDuration = 0;
     let tvCurrentYtId = null;
     let tvServerOffset = 0;
-    let tvTimeSynced = false; // ✅ Correção: Só abre TV quando o servidor de tempo estiver sincronizado
+    let tvTimeSynced = false;
     let tvDriftInterval = null;
     let tvActive = false;
     let _tvRebuildDebounce = null;
+    let _tvLastReloadTime = 0;     // ✅ proteção anti-loop
+    let _tvReloadCount = 0;        // ✅ contador de recargas seguidas
 
     // ============ PREFERÊNCIAS PERSISTENTES ============
     const CATALOG_PREFS_KEY = 'playtronic_catalog_prefs_v1';
@@ -1637,10 +1647,9 @@
         openTV();
     });
 
+    // ✅ FIX: `.some()` em vez de `.every()` - permite TV funcionar mesmo com vídeos de duração 0
     function isTVReady() {
         if (videos.length === 0) return false;
-        // Correção: Altera de .every() para .some() para permitir a TV funcionar 
-        // mesmo se um ou outro vídeo estiver com duração 0 por falha na API.
         return videos.some(v => Number(v.duracaoSegundos) > 0);
     }
 
@@ -3063,19 +3072,19 @@
     document.getElementById('carouselRight')?.addEventListener('click', () => scrollFavoritesCarousel(1));
 
     // ═══════════════════════════════════════════════════════════════
-    // BACKFILL AUTOMÁTICO — só admin
+    // BACKFILL AUTOMÁTICO
     // ═══════════════════════════════════════════════════════════════
     let _backfillRunning = false;
     let _backfillDebounce = null;
 
-    async function autoBackfillDurations() {
+    async function autoBackfillDurations(force = false) {
         if (!currentUser || !isAdmin()) return;
         if (_backfillRunning) return;
-        const missing = videos.filter(v => !Number(v.duracaoSegundos) && v.duracaoSegundos !== 0);
+        const missing = force ? videos.slice() : videos.filter(v => !Number(v.duracaoSegundos) && v.duracaoSegundos !== 0);
         if (missing.length === 0) return;
 
         _backfillRunning = true;
-        console.log(`[Backfill] Iniciando cálculo de ${missing.length} durações via Cloud Function...`);
+        console.log(`[Backfill] Iniciando cálculo de ${missing.length} durações (force=${force})`);
 
         try {
             const BATCH = 50;
@@ -3093,11 +3102,16 @@
                     }
                 }
 
+                // ✅ FIX: NÃO sobrescreve com 0. Se falhar, mantém o valor anterior.
                 const falhasNoLote = chunk.filter(v => !durations[v.youtubeId]);
                 if (falhasNoLote.length > 0) {
                     for (const v of falhasNoLote) {
                         const dur = await obterDuracaoYouTubeIframe(v.youtubeId);
-                        updates['vod_videos/' + v.key + '/duracaoSegundos'] = dur > 0 ? dur : 0;
+                        if (dur > 0) {
+                            updates['vod_videos/' + v.key + '/duracaoSegundos'] = dur;
+                        } else {
+                            console.warn(`[Backfill] ❌ Falha em "${v.titulo}" (${v.youtubeId}) - mantendo valor anterior`);
+                        }
                     }
                 }
 
@@ -3124,12 +3138,8 @@
     document.getElementById('backfillDurationBtn').addEventListener('click', async () => {
         adminDropdown.style.display = 'none';
         if (!isAdmin()) return;
-        if (!confirm('Recalcular a duração de TODOS os vídeos?\n\nÚtil se algum vídeo foi alterado no YouTube. Sobrescreve os valores existentes.')) return;
-        const todos = videos.map(v => ({ ...v, duracaoSegundos: null }));
-        const originalVideos = videos;
-        videos = todos;
-        try { await autoBackfillDurations(); }
-        finally { videos = originalVideos; }
+        if (!confirm('Recalcular a duração de TODOS os vídeos?\n\n⚠️ Se algum vídeo falhar (bloqueado, privado ou erro do YouTube), a duração anterior será MANTIDA (não será sobrescrita por 0).')) return;
+        await autoBackfillDurations(true);
     });
 
     rtdb.ref('vod_videos').on('value', (snap) => {
@@ -3698,15 +3708,14 @@
         tvTimeSynced = true;
     });
 
-    // ✅ Função determinística para evitar que abas diferentes tenham listas diferentes
+    // ✅ FIX: ignora vídeos com menos de 15 segundos (causa pulos)
     function buildTVPlaylist() {
         return videos
-            .filter(v => Number(v.duracaoSegundos) > 0)
+            .filter(v => Number(v.duracaoSegundos) > 15)
             .sort((a, b) => {
                 const orderA = a.order || 0;
                 const orderB = b.order || 0;
                 if (orderA !== orderB) return orderA - orderB;
-                // Desempate usando youtubeId para garantir que todos os usuários tenham a mesma ordem
                 return (a.youtubeId || '').localeCompare(b.youtubeId || '');
             })
             .map(v => ({
@@ -3756,6 +3765,7 @@
         if (pos.video.youtubeId !== tvCurrentYtId) {
             if (tvPlayer) { try { tvPlayer.destroy(); } catch(e) {} tvPlayer = null; }
             tvCurrentYtId = null;
+            tvPlayerReady = false;
             document.getElementById('tvLoading').style.display = 'flex';
             setTimeout(loadTVPlayer, 500);
         } else if (tvPlayer && tvPlayerReady) {
@@ -3794,6 +3804,8 @@
         tvTotalDuration = tvPlaylist.reduce((s, v) => s + v.duracaoSegundos, 0);
         tvActive = true;
         tvPlayerReady = false;
+        _tvReloadCount = 0;
+        _tvLastReloadTime = 0;
 
         document.getElementById('tvScreen').classList.add('active');
         document.body.classList.add('no-scroll');
@@ -3820,111 +3832,152 @@
         if (tvPlayer) { try { tvPlayer.destroy(); } catch (e) {} tvPlayer = null; }
         tvPlayerReady = false;
         tvCurrentYtId = null;
+        _tvReloadCount = 0;
+        _tvLastReloadTime = 0;
         if (document.fullscreenElement) document.exitFullscreen().catch(()=>{});
         document.getElementById('tvScreen').classList.remove('active');
         document.body.classList.remove('no-scroll');
         updateSearchVisibility();
     }
 
+    // ✅ FIX CRÍTICO: usa playerState para evitar loop de recarga
     function startTVPlayback() {
         document.getElementById('tvUnmuteOverlay').classList.add('hidden');
         loadTVPlayer();
 
         if (tvDriftInterval) clearInterval(tvDriftInterval);
-        
-        // ✅ Sincronização agressiva (verifica a cada 5s)
+
         tvDriftInterval = setInterval(() => {
             if (!tvActive || !tvPlayerReady || !tvPlayer) return;
-            const pos = computeTVPosition(tvPlaylist, tvTotalDuration);
-            if (!pos) return;
 
-            // Se a posição atual aponta para outro vídeo, recarrega
-            if (pos.video.youtubeId !== tvCurrentYtId) {
-                console.log('[TV] Vídeo dessincronizado. Recarregando...');
-                if (tvPlayer) { try { tvPlayer.destroy(); } catch(e) {} tvPlayer = null; }
-                tvCurrentYtId = null;
-                loadTVPlayer();
-            } else {
-                try {
-                    const actual = tvPlayer.getCurrentTime();
-                    const diff = Math.abs(actual - pos.offset);
-                    // Tolerância de 4 segundos
-                    if (diff > 4) {
-                        console.log(`[TV] Tempo dessincronizado (${diff.toFixed(1)}s). Corrigindo seek...`);
-                        tvPlayer.seekTo(pos.offset, true);
+            try {
+                const playerState = tvPlayer.getPlayerState();
+
+                // ✅ Vídeo terminou → carrega o próximo
+                if (playerState === 0) {
+                    const now = Date.now();
+                    // Anti-loop: se recarregou mais de 5x em 3s, ativa cooldown
+                    if (now - _tvLastReloadTime < 3000) {
+                        _tvReloadCount++;
+                        if (_tvReloadCount > 5) {
+                            console.warn('[TV] Muitas recargas em sequência. Cooldown de 10s...');
+                            _tvReloadCount = 0;
+                            _tvLastReloadTime = now + 10000;
+                            document.getElementById('tvLoading').style.display = 'flex';
+                            return;
+                        }
+                    } else {
+                        _tvReloadCount = 0;
                     }
-                } catch (e) {}
+                    _tvLastReloadTime = now;
+
+                    setTimeout(() => {
+                        if (!tvActive) return;
+                        if (tvPlayer) { try { tvPlayer.destroy(); } catch(e) {} tvPlayer = null; }
+                        tvCurrentYtId = null;
+                        tvPlayerReady = false;
+                        loadTVPlayer();
+                    }, 500);
+                    return;
+                }
+
+                // ✅ Está tocando → só corrige o tempo se estiver MUITO dessincronizado
+                if (playerState === 1) {
+                    const pos = computeTVPosition(tvPlaylist, tvTotalDuration);
+                    if (!pos) return;
+
+                    if (pos.video.youtubeId === tvCurrentYtId) {
+                        const actual = tvPlayer.getCurrentTime();
+                        const diff = Math.abs(actual - pos.offset);
+                        // Aumentado de 4s para 15s: só corrige se estiver muito fora
+                        if (diff > 15) {
+                            console.log(`[TV] Tempo muito dessincronizado (${diff.toFixed(1)}s). Corrigindo seek...`);
+                            tvPlayer.seekTo(pos.offset, true);
+                        }
+                    }
+                    // Se o vídeo esperado é diferente mas o player está tocando normalmente,
+                    // deixa o vídeo terminar naturalmente (NÃO recarrega!)
+                }
+            } catch (e) {
+                // Silencioso - extensões do navegador podem causar erros esporádicos
             }
         }, 5000);
     }
 
-    function handleTVStateChange(event) {
-        if (event.data === 1) {
-            document.getElementById('tvLoading').style.display = 'none';
-            disableCaptionsSoon(event.target);
-        } else if (event.data === 0) {
-            if (tvPlayer) { tvPlayer.destroy(); tvPlayer = null; }
-            setTimeout(loadTVPlayer, 1000);
-        }
-    }
-
+    // ✅ FIX: loadTVPlayer com proteção anti-loop
     function loadTVPlayer() {
         const pos = computeTVPosition(tvPlaylist, tvTotalDuration);
         if (!pos) return;
         tvCurrentYtId = pos.video.youtubeId;
+        tvPlayerReady = false;
 
         document.getElementById('tvCurrentTitle').textContent = pos.video.titulo || 'TV Playtronic';
         document.getElementById('tvNowTitle').textContent = pos.video.titulo || 'Transmissão ao vivo';
         document.getElementById('tvNowPlaying').style.display = 'flex';
 
-        if (!tvPlayer) {
-            const container = document.getElementById('tvPlayerContainer');
-            container.innerHTML = '<div id="tvPlayerDiv" style="width:100%; height:100%;"></div>';
-            tvPlayer = new YT.Player('tvPlayerDiv', {
-                videoId: pos.video.youtubeId,
-                playerVars: {
-                    autoplay: 1, controls: 0, disablekb: 1, modestbranding: 1,
-                    rel: 0, iv_load_policy: 3, playsinline: 1, fs: 0,
-                    cc_load_policy: 0, origin: window.location.origin
+        const container = document.getElementById('tvPlayerContainer');
+        container.innerHTML = '<div id="tvPlayerDiv" style="width:100%; height:100%;"></div>';
+
+        if (tvPlayer) { try { tvPlayer.destroy(); } catch(e) {} tvPlayer = null; }
+
+        tvPlayer = new YT.Player('tvPlayerDiv', {
+            videoId: pos.video.youtubeId,
+            playerVars: {
+                autoplay: 1, controls: 0, disablekb: 1, modestbranding: 1,
+                rel: 0, iv_load_policy: 3, playsinline: 1, fs: 0,
+                cc_load_policy: 0, origin: window.location.origin
+            },
+            events: {
+                onReady: (ev) => {
+                    tvPlayerReady = true;
+                    document.getElementById('tvLoading').style.display = 'none';
+
+                    const freshPos = computeTVPosition(tvPlaylist, tvTotalDuration);
+                    if (freshPos && freshPos.video.youtubeId === tvCurrentYtId) {
+                        const safeOffset = Math.max(0, Math.min(freshPos.offset, pos.video.duracaoSegundos - 1));
+                        ev.target.seekTo(safeOffset, true);
+                    }
+                    ev.target.playVideo();
+                    ev.target.setVolume(100);
+                    disableCaptionsSoon(ev.target);
                 },
-                events: {
-                    onReady: (ev) => {
-                        tvPlayerReady = true;
+                onStateChange: (event) => {
+                    if (event.data === 1) {
                         document.getElementById('tvLoading').style.display = 'none';
-                        const freshPos = computeTVPosition(tvPlaylist, tvTotalDuration);
-                        if (freshPos && freshPos.video.youtubeId === tvCurrentYtId) {
-                            const safeOffset = Math.max(0, Math.min(freshPos.offset, pos.video.duracaoSegundos - 1));
-                            ev.target.seekTo(safeOffset, true);
-                        }
-                        ev.target.playVideo();
-                        ev.target.setVolume(100);
-                        disableCaptionsSoon(ev.target);
-                    },
-                    onStateChange: handleTVStateChange,
-                    onError: (ev) => {
-                        if (ev.data === 100 || ev.data === 101 || ev.data === 150) {
-                            console.warn('TV Player Error (Vídeo indisponível, pulando):', ev.data);
-                            if (tvPlayer) { tvPlayer.destroy(); tvPlayer = null; }
-                            document.getElementById('tvLoading').style.display = 'flex';
-                            setTimeout(loadTVPlayer, 1000);
-                        } else {
-                            console.warn('TV Player Error ignorado (CORS/Autoplay):', ev.data);
-                        }
+                        disableCaptionsSoon(event.target);
+                    } else if (event.data === 0) {
+                        // Fim do vídeo → notifica o loop
+                        // (deixa o startTVPlayback cuidar da transição)
+                    }
+                },
+                onError: (ev) => {
+                    console.warn('TV Player Error:', ev.data);
+                    if (ev.data === 100 || ev.data === 101 || ev.data === 150) {
+                        // Vídeo indisponível → pula para o próximo
+                        if (tvPlayer) { try { tvPlayer.destroy(); } catch(e) {} tvPlayer = null; }
+                        tvPlayerReady = false;
+                        document.getElementById('tvLoading').style.display = 'flex';
+                        setTimeout(loadTVPlayer, 1500);
                     }
                 }
-            });
-        }
+            }
+        });
     }
 
     document.getElementById('tvCloseBtn')?.addEventListener('click', closeTV);
-    
-    // ✅ Listener do botão Fullscreen da TV
+
+    // ✅ FIX: botão Fullscreen robusto com fallback
     document.getElementById('tvFullscreenBtn')?.addEventListener('click', () => {
         const tvScreen = document.getElementById('tvScreen');
-        if (!document.fullscreenElement) {
-            if (tvScreen.requestFullscreen) tvScreen.requestFullscreen().catch(e => console.warn(e));
+        const isFull = document.fullscreenElement || document.webkitFullscreenElement || document.msFullscreenElement;
+        if (!isFull) {
+            const req = tvScreen.requestFullscreen || tvScreen.webkitRequestFullscreen || tvScreen.msRequestFullscreen;
+            if (req) {
+                Promise.resolve(req.call(tvScreen)).catch(e => console.warn('Fullscreen error:', e));
+            }
         } else {
-            if (document.exitFullscreen) document.exitFullscreen().catch(e => console.warn(e));
+            const exit = document.exitFullscreen || document.webkitExitFullscreen || document.msExitFullscreen;
+            if (exit) Promise.resolve(exit.call(document)).catch(e => console.warn('Exit fullscreen error:', e));
         }
     });
 
