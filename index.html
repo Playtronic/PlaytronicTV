@@ -133,9 +133,6 @@
         .tag-curta { background: #f59e0b; color: #000; }
         .tag-media { background: #8b5cf6; color: #fff; }
         .tag-longa { background: #ec4899; color: #fff; }
-        .tag-classificacao { cursor: pointer; transition: transform 0.15s, filter 0.15s, box-shadow 0.15s; user-select: none; }
-        .tag-classificacao:hover { transform: scale(1.12); filter: brightness(1.18); box-shadow: 0 2px 10px rgba(0,0,0,0.45); }
-        .tag-classificacao:active { transform: scale(0.97); }
         .card-meta { font-size: 0.8rem; font-style: italic; color: #94a3b8; line-height: 1.35; margin-bottom: 8px; }
         .card-meta-line { display: block; }
         .watch-btn { background: #fdbb2d; color: #000; border: none; padding: 10px; border-radius: 6px; font-weight: bold; font-size: 0.95rem; cursor: pointer; transition: background 0.2s, transform 0.1s; width: 100%; margin-top: auto; }
@@ -305,9 +302,6 @@
         .carousel-arrow:hover { background: #fdbb2d; color: #000; transform: translateY(-50%) scale(1.1); }
         .carousel-arrow.left { left: -15px; }
         .carousel-arrow.right { right: -15px; }
-
-        #classificacaoModal .modal { position: relative; }
-        #classificacaoDuration { display: inline-block; padding: 6px 18px; border-radius: 20px; border: 1px solid; font-weight: 700; font-size: 0.9rem; transition: 0.2s; }
 
         #commentsSection { display: none; width: 100%; max-width: 1200px; margin: 5px auto 0; background: #152961; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); padding: 20px; color: #fff; flex-direction: column; gap: 15px; flex-shrink: 0; }
         .comments-header { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
@@ -807,40 +801,6 @@
     </div>
 </div>
 
-<!-- ═══════════════════════════════════════════════════════════════ -->
-<!-- NOVO: Lightbox explicativa da classificação ANCINE -->
-<!-- ═══════════════════════════════════════════════════════════════ -->
-<div class="modal-overlay" id="classificacaoModal">
-    <div class="modal" style="max-width: 540px; position: relative;">
-        <button id="closeClassificacaoBtn" aria-label="Fechar" style="position: absolute; top: 12px; right: 14px; background: transparent; border: none; color: #cbd5e1; font-size: 1.6rem; cursor: pointer; line-height: 1; padding: 4px 8px;">×</button>
-
-        <div style="text-align: center; margin: 5px 0 20px;">
-            <div id="classificacaoIcon" style="font-size: 3.2rem; margin-bottom: 8px; line-height: 1;"></div>
-            <h2 id="classificacaoTitle" style="margin-bottom: 10px; font-size: 1.4rem;"></h2>
-            <div id="classificacaoDuration"></div>
-        </div>
-
-        <div style="margin-bottom: 18px;">
-            <div style="color: #fdbb2d; font-weight: 700; font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 8px;">📖 Definição</div>
-            <div id="classificacaoDefinition" style="color: #e2e8f0; line-height: 1.6; font-size: 0.95rem; background: rgba(0,0,0,0.2); padding: 14px; border-radius: 8px; border-left: 3px solid #fdbb2d;"></div>
-        </div>
-
-        <div style="margin-bottom: 18px;">
-            <div style="color: #fdbb2d; font-weight: 700; font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 8px;">🎯 Exemplos</div>
-            <div id="classificacaoExamples" style="color: #cbd5e1; font-size: 0.9rem; line-height: 1.5;"></div>
-        </div>
-
-        <div style="background: linear-gradient(135deg, rgba(253,187,45,0.14), rgba(253,187,45,0.06)); border: 1px solid rgba(253,187,45,0.35); border-radius: 10px; padding: 15px; font-size: 0.85rem; color: #e2e8f0; line-height: 1.55;">
-            <div style="color: #fdbb2d; font-weight: 700; margin-bottom: 8px; font-size: 0.92rem;">🇧🇷 Padrão oficial ANCINE</div>
-            Esta classificação segue o modelo oficial adotado no <strong>Brasil</strong> pela <strong>ANCINE — Agência Nacional do Cinema</strong>, autarquia federal vinculada ao Ministério da Cultura. A ANCINE utiliza o <strong>tempo total de projeção</strong> da obra (incluindo os créditos finais) como critério objetivo para categorizar curtas, médias e longas-metragens em todo o território nacional.
-        </div>
-
-        <div class="modal-actions" style="margin-top: 22px;">
-            <button class="primary" id="classificacaoOkBtn">Entendi</button>
-        </div>
-    </div>
-</div>
-
 <div id="playerScreen">
     <div class="player-container">
         <div class="player-wrapper" id="playerWrapper">
@@ -987,62 +947,16 @@
     const CF_BASE = 'https://us-central1-playtronic-tv.cloudfunctions.net';
 
     // ═══════════════════════════════════════════════════════════════
-    // CLASSIFICAÇÃO ANCINE — definições completas (com fallback 'curta')
+    // MAPA DE CLASSIFICAÇÃO ANCINE (com fallback 'curta')
     // ═══════════════════════════════════════════════════════════════
     const CLASSIFICACAO_INFO = {
-        curta: {
-            label: 'CURTA', cls: 'tag-curta', titulo: 'Curta-metragem (até 15 min)',
-            icon: '🎬', title: 'Curta-metragem', duration: 'Até 15 minutos', color: '#f59e0b',
-            definition: 'Obra audiovisual de curta duração, com tempo de projeção total igual ou inferior a 15 (quinze) minutos — incluindo todos os créditos iniciais e finais. É o formato ideal para experimentação, animação, documentários compactos e narrativas de impacto rápido.',
-            examples: 'Filmes de animação curtos, curtas-metragens exibidos em festivais, videoclipes estendidos, curtas documentais e pilotos de séries.'
-        },
-        media: {
-            label: 'MÉDIA', cls: 'tag-media', titulo: 'Média-metragem (15 a 70 min)',
-            icon: '🎥', title: 'Média-metragem', duration: 'Entre 15 e 70 minutos', color: '#8b5cf6',
-            definition: 'Obra audiovisual com tempo de projeção total superior a 15 (quinze) minutos e igual ou inferior a 70 (setenta) minutos — incluindo os créditos finais. Formato intermediário que permite maior desenvolvimento narrativo sem a extensão de um longa.',
-            examples: 'Telefilmes, episódios especiais estendidos, documentários de média duração, peças institucionais narrativas e obras seriadas de episódio único.'
-        },
-        longa: {
-            label: 'LONGA', cls: 'tag-longa', titulo: 'Longa-metragem (acima de 70 min)',
-            icon: '🎞️', title: 'Longa-metragem', duration: 'Acima de 70 minutos', color: '#ec4899',
-            definition: 'Obra audiovisual com tempo de projeção total superior a 70 (setenta) minutos — incluindo os créditos finais. Formato tradicional do cinema, permite narrativas complexas, múltiplos arcos e desenvolvimento profundo de personagens.',
-            examples: 'Filmes de ficção para cinema, documentários de longa duração, animações longas, obras épicas e produções para streaming em formato cinematográfico.'
-        }
+        curta: { label: 'CURTA', cls: 'tag-curta', titulo: 'Curta-metragem (até 15 min)' },
+        media: { label: 'MÉDIA', cls: 'tag-media', titulo: 'Média-metragem (15 a 70 min)' },
+        longa: { label: 'LONGA', cls: 'tag-longa', titulo: 'Longa-metragem (acima de 70 min)' }
     };
     function normalizarClassificacao(v) {
         return (v && CLASSIFICACAO_INFO[v]) ? v : 'curta';
     }
-    function openClassificacaoInfo(tipo) {
-        const key = (tipo && CLASSIFICACAO_INFO[tipo]) ? tipo : 'curta';
-        const info = CLASSIFICACAO_INFO[key];
-        const iconEl = document.getElementById('classificacaoIcon');
-        const titleEl = document.getElementById('classificacaoTitle');
-        const durationEl = document.getElementById('classificacaoDuration');
-        const defEl = document.getElementById('classificacaoDefinition');
-        const exEl = document.getElementById('classificacaoExamples');
-        if (iconEl) iconEl.textContent = info.icon;
-        if (titleEl) { titleEl.textContent = info.title; titleEl.style.color = info.color; }
-        if (durationEl) {
-            durationEl.textContent = '⏱ ' + info.duration;
-            durationEl.style.color = info.color;
-            durationEl.style.background = info.color + '22';
-            durationEl.style.borderColor = info.color + '66';
-        }
-        if (defEl) defEl.textContent = info.definition;
-        if (exEl) exEl.textContent = info.examples;
-        document.getElementById('classificacaoModal')?.classList.add('active');
-    }
-    function closeClassificacaoInfo() {
-        document.getElementById('classificacaoModal')?.classList.remove('active');
-    }
-    document.getElementById('closeClassificacaoBtn')?.addEventListener('click', closeClassificacaoInfo);
-    document.getElementById('classificacaoOkBtn')?.addEventListener('click', closeClassificacaoInfo);
-    document.getElementById('classificacaoModal')?.addEventListener('click', (e) => {
-        if (e.target === document.getElementById('classificacaoModal')) closeClassificacaoInfo();
-    });
-    document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape' && document.getElementById('classificacaoModal')?.classList.contains('active')) closeClassificacaoInfo();
-    });
 
     // ============ ESTADO GLOBAL ============
     let currentUser = null;
@@ -1080,6 +994,7 @@
     let currentSortField = 'order';
     let currentSortOrder = 'desc';
     let currentContentFilter = 'all';
+
     let userNotifications = {};
     let notificationsRef = null;
     let unreadNotificationCount = 0;
@@ -1196,7 +1111,6 @@
             document.getElementById('playerScreen'), document.getElementById('adInterstitialModal'),
             document.getElementById('pixLightbox'), document.getElementById('banAlertModal'),
             document.getElementById('blockAlertModal'), document.getElementById('notificationsModal'),
-            document.getElementById('classificacaoModal'),
             ...document.querySelectorAll('.modal-overlay')
         ];
         targets.forEach(t => { if(t) domObserver.observe(t, { attributes: true, attributeFilter: ['class', 'style'] }); });
@@ -2496,10 +2410,10 @@
         const tags = [];
         if (item.pago) tags.push('<span class="tag tag-pago">PAGO</span>');
         if (item.ad) tags.push('<span class="tag tag-ad">AD</span>');
-        // ═══ Tag de classificação ANCINE (clicável) — fallback: curta ═══
+        // ═══ Tag de classificação ANCINE (fallback: curta) ═══
         const classificacao = normalizarClassificacao(item.classificacao);
         const classInfo = CLASSIFICACAO_INFO[classificacao];
-        tags.push(`<span class="tag ${classInfo.cls} tag-classificacao" data-classificacao="${classificacao}" title="${classInfo.titulo} — clique para saber mais">${classInfo.label}</span>`);
+        tags.push(`<span class="tag ${classInfo.cls}" title="${classInfo.titulo}">${classInfo.label}</span>`);
         const tagsHtml = tags.length ? `<div class="card-tags">${tags.join('')}</div>` : '<div class="card-tags"></div>';
         const produtora = (item.produtora || '').trim();
         const ano = (item.ano != null && item.ano !== '') ? item.ano : null;
@@ -2526,15 +2440,6 @@
         card.querySelector('.favorite-btn').addEventListener('click', (e) => { e.stopPropagation(); toggleFavorite(item.youtubeId); });
         card.querySelector('.edit').addEventListener('click', (e) => { e.stopPropagation(); openVideoModal('edit', item); });
         card.querySelector('.delete').addEventListener('click', (e) => { e.stopPropagation(); deleteVideo(item); });
-        // ═══ Listener de clique na tag de classificação ═══
-        const classTag = card.querySelector('.tag-classificacao');
-        if (classTag) {
-            classTag.addEventListener('click', (e) => {
-                e.stopPropagation();
-                e.preventDefault();
-                openClassificacaoInfo(classTag.getAttribute('data-classificacao'));
-            });
-        }
         const watchBtn = card.querySelector('.watch-btn');
         const isPago = !!item.pago;
         if (isPago && !catalogSubscription.active) { watchBtn.textContent = '🔒 Assinar para assistir'; watchBtn.classList.add('locked'); }
@@ -2655,7 +2560,7 @@
             videoModalTitle.textContent = 'Adicionar Vídeo';
             videoModalSub.textContent = 'O vídeo ficará visível para todos os usuários.';
             videoUrlInput.value = ''; videoTitleInput.value = ''; videoProdutoraInput.value = ''; videoAnoInput.value = '';
-            videoClassificacaoInput.value = 'curta';
+            videoClassificacaoInput.value = 'curta'; // ═══ DEFAULT: CURTA ═══
             document.querySelector('input[name="videoMarker"][value=""]').checked = true;
             urlHint.textContent = ''; urlHint.className = 'url-hint';
         } else {
