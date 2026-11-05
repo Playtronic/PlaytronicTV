@@ -1639,7 +1639,9 @@
 
     function isTVReady() {
         if (videos.length === 0) return false;
-        return videos.every(v => Number(v.duracaoSegundos) > 0);
+        // Correção: Altera de .every() para .some() para permitir a TV funcionar 
+        // mesmo se um ou outro vídeo estiver com duração 0 por falha na API.
+        return videos.some(v => Number(v.duracaoSegundos) > 0);
     }
 
     // ============ PRESENÇA ============
