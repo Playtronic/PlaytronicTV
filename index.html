@@ -1388,7 +1388,6 @@
     let tvDriftInterval = null;
     let tvActive = false;
     let tvSkipOffset = 0;
-    let tvSkipOffset = 0;
     let tvPendingUpdate = false;
 
     // ============ PREFERÊNCIAS PERSISTENTES ============
@@ -3755,8 +3754,7 @@
             const pos = computeTVPosition(tvPlaylist, tvTotalDuration);
             if (!pos) return;
             
-            // NÃO recarrega o player aqui, deixa o evento onStateChange cuidar do fim do vídeo.
-            // Só corrige se estiver MUITO fora (mais de 30s) para não ficar pulando.
+            // NÃO recarrega o player. Só corrige a barra se estiver MUITO atrasado (30s).
             if (pos.video.youtubeId === tvCurrentYtId) {
                 try {
                     const actual = tvPlayer.getCurrentTime();
@@ -3767,6 +3765,7 @@
                 } catch (e) {}
             }
         }, 15000);
+    }
     }
     }
 
@@ -3813,6 +3812,9 @@
                             if (tvPlayer) { tvPlayer.destroy(); tvPlayer = null; }
                             setTimeout(loadTVPlayer, 1000);
                         } else {
+                            console.warn('TV Player Error ignorado (CORS/Autoplay):', ev.data);
+                        }
+                    } else {
                             console.warn('TV Player Error ignorado (CORS/Autoplay):', ev.data);
                         }
                     }
