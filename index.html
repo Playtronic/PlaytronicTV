@@ -963,8 +963,7 @@
             <div class="tv-brand-badge">AO VIVO</div>
             <span class="tv-brand-title" id="tvCurrentTitle">TV Playtronic</span>
         </div>
-        
-        </div>
+        <button class="tv-close-btn" id="tvCloseBtn" title="Fechar TV">✖</button>
     </div>
     <div class="tv-content">
         <div id="tvPlayerContainer"></div>
@@ -3059,13 +3058,10 @@
                     }
                 }
 
-                // Trata falhas e para o loop infinito
                 const falhasNoLote = chunk.filter(v => !durations[v.youtubeId]);
                 if (falhasNoLote.length > 0) {
                     for (const v of falhasNoLote) {
-                        // Tenta fallback via player IFrame
                         const dur = await obterDuracaoYouTubeIframe(v.youtubeId);
-                        // Se falhar no IFrame também, marca como 0 para parar de tentar e a TV ignorar
                         updates['vod_videos/' + v.key + '/duracaoSegundos'] = dur > 0 ? dur : 0;
                     }
                 }
@@ -3080,7 +3076,6 @@
                     }
                 }
                 fail += chunk.length - Object.keys(updates).length;
-
                 console.log(`[Backfill] ${Math.min(i + BATCH, missing.length)}/${missing.length}`);
             }
             console.log(`[Backfill] Concluído: ${done} ok, ${fail} falhas.`);
@@ -3091,12 +3086,10 @@
         }
     }
 
-    // Recalcula quando admin clicar no botão
     document.getElementById('backfillDurationBtn').addEventListener('click', async () => {
         adminDropdown.style.display = 'none';
         if (!isAdmin()) return;
         if (!confirm('Recalcular a duração de TODOS os vídeos?\n\nÚtil se algum vídeo foi alterado no YouTube. Sobrescreve os valores existentes.')) return;
-        // Força: limpa todos os duracoesSegundos da cópia local
         const todos = videos.map(v => ({ ...v, duracaoSegundos: null }));
         const originalVideos = videos;
         videos = todos;
@@ -3749,7 +3742,6 @@
             const pos = computeTVPosition(tvPlaylist, tvTotalDuration);
             if (!pos) return;
             
-            // NÃO recarrega o player. Só corrige a barra se estiver MUITO atrasado (30s).
             if (pos.video.youtubeId === tvCurrentYtId) {
                 try {
                     const actual = tvPlayer.getCurrentTime();
@@ -3761,13 +3753,19 @@
             }
         }, 15000);
     }
-    }
+
+    function handleTVStateChange(event) {
+        if (event.data === 1) {
+            document.getElementById('tvLoading').style.display = 'none';
+        } else if (event.data === 0) {
+            if (tvPlayer) { tvPlayer.destroy(); tvPlayer = null; }
+            setTimeout(loadTVPlayer, 1000);
+        }
     }
 
     function loadTVPlayer() {
         const pos = computeTVPosition(tvPlaylist, tvTotalDuration);
         if (!pos) return;
-        const prevId = tvCurrentYtId;
         tvCurrentYtId = pos.video.youtubeId;
 
         document.getElementById('tvCurrentTitle').textContent = pos.video.titulo || 'TV Playtronic';
@@ -3799,7 +3797,6 @@
                     },
                     onStateChange: handleTVStateChange,
                     onError: (ev) => {
-                        // Só pula se for erro real do YouTube (100=removido, 101/150=bloqueado)
                         if (ev.data === 100 || ev.data === 101 || ev.data === 150) {
                             console.warn('TV Player Error (Vídeo indisponível, pulando):', ev.data);
                             tvSkipOffset += (pos.video.duracaoSegundos || 60);
@@ -3809,20 +3806,143 @@
                         } else {
                             console.warn('TV Player Error ignorado (CORS/Autoplay):', ev.data);
                         }
-                    } else {
-                            console.warn('TV Player Error ignorado (CORS/Autoplay):', ev.data);
-                        }
                     }
-    closeAdBtn.addEventListener('click', () => { if (!closeAdBtn.disabled) closeAdAndPlay(); });
-    document.getElementById('adSubscribeBtn').addEventListener('click', () => {
+                }
+            });
+        }
+    }
+
+    document.getElementById('tvCloseBtn')?.addEventListener('click', closeTV);
+    document.getElementById('tvUnmuteBtn')?.addEventListener('click', startTVPlayback);
+
+    // ═══════════════════════════════════════════════════════════════
+    // ANÚNCIOS E PLAYER DE VÍDEO
+    // ═══════════════════════════════════════════════════════════════
+    let pendingVideo = null;
+    let adTimerInterval = null;
+
+    function showAdInterstitial(video) {
+        pendingVideo = video;
+        const adModal = document.getElementById('adInterstitialModal');
+        const closeAdBtn = document.getElementById('closeInterstitialBtn');
+        const adTimerText = document.getElementById('adTimerText');
+        const centerWrapper = document.getElementById('adCenterWrapper');
+
+        adModal.classList.add('active');
+        document.body.classList.add('ad-modal-open');
+
+        // Sorteia um banner interno
+        const ad = adBanners[Math.floor(Math.random() * adBanners.length)] || adBanners[0];
+        if (ad) {
+            centerWrapper.innerHTML = `<img src="${ad.src}" style="width:100%; height:100%; object-fit:contain; cursor:pointer;" onclick="window.open('${ad.link}', '_blank')">`;
+            // Contabiliza view
+            if (ad.src) {
+                fetch(CF_BASE + '/incrementInternalAdViews', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ adSrc: ad.src })
+                }).catch(()=>{});
+            }
+        } else {
+            centerWrapper.innerHTML = '';
+        }
+
+        closeAdBtn.disabled = true;
+        closeAdBtn.classList.remove('active');
+        let timeLeft = 5;
+
+        clearInterval(adTimerInterval);
+        adTimerInterval = setInterval(() => {
+            timeLeft--;
+            adTimerText.textContent = `Aguarde ${timeLeft}s...`;
+            if (timeLeft <= 0) {
+                clearInterval(adTimerInterval);
+                adTimerText.textContent = 'Pronto!';
+                closeAdBtn.disabled = false;
+                closeAdBtn.classList.add('active');
+                closeAdBtn.textContent = 'Fechar e Assistir';
+            }
+        }, 1000);
+    }
+
+    function closeAdAndPlay() {
+        const adModal = document.getElementById('adInterstitialModal');
         adModal.classList.remove('active');
         document.body.classList.remove('ad-modal-open');
-        if (isAdmin()) adminContainer.style.display = 'flex';
-        if (adYtPlayer) { try { adYtPlayer.stopVideo(); adYtPlayer.destroy(); } catch(e){} adYtPlayer = null; }
+        clearInterval(adTimerInterval);
+        if (pendingVideo) {
+            openPlayer(pendingVideo);
+            pendingVideo = null;
+        }
+    }
+
+    document.getElementById('closeInterstitialBtn').addEventListener('click', () => {
+        if (!document.getElementById('closeInterstitialBtn').disabled) closeAdAndPlay();
+    });
+
+    document.getElementById('adSubscribeBtn').addEventListener('click', () => {
+        const adModal = document.getElementById('adInterstitialModal');
+        adModal.classList.remove('active');
+        document.body.classList.remove('ad-modal-open');
         clearInterval(adTimerInterval);
         pendingVideo = null;
         openPixLightbox();
     });
+
+    document.getElementById('openInsertAdBtn').addEventListener('click', () => {
+        alert('Para inserir um anúncio, acesse o painel admin.');
+    });
+
+    // ============ PLAYER VOD ============
+    let player = null;
+    let playerReady = false;
+    let isPlaying = false;
+    let isEnded = false;
+    let isSeeking = false;
+    let controlsTimeout = null;
+    let progressInterval = null;
+    let currentVolume = 100;
+    let isMuted = false;
+
+    const playerScreen = document.getElementById('playerScreen');
+    const playerWrapper = document.getElementById('playerWrapper');
+    const playerVideoTitle = document.getElementById('playerVideoTitle');
+    const playerLoadingOverlay = document.getElementById('playerLoadingOverlay');
+    const customUI = document.getElementById('customUI');
+    const progressFill = document.getElementById('progressFill');
+    const progressThumb = document.getElementById('progressThumb');
+    const timeLabel = document.getElementById('timeLabel');
+    const progressTrack = document.getElementById('progressTrack');
+    const centerPlayPauseBtn = document.getElementById('centerPlayPauseBtn');
+    const btnRewind10 = document.getElementById('btnRewind10');
+    const btnForward10 = document.getElementById('btnForward10');
+    const muteBtn = document.getElementById('muteBtn');
+    const volumeSlider = document.getElementById('volumeSlider');
+    const fullscreenBtn = document.getElementById('fullscreenBtn');
+    const playerBottomAd = document.getElementById('player-bottom-ad');
+    const horizontalAdIframe = document.getElementById('horizontal-ad-iframe');
+
+    function setPlayPauseVisual(isPlayingNow) {
+        const playIcon = centerPlayPauseBtn.querySelector('.icon-play');
+        const pauseIcon = centerPlayPauseBtn.querySelector('.icon-pause');
+        if (isPlayingNow) {
+            playIcon.style.display = 'none';
+            pauseIcon.style.display = 'block';
+            setTimeout(() => {
+                if (isPlaying) centerPlayPauseBtn.style.opacity = '0';
+                else centerPlayPauseBtn.style.opacity = '1';
+            }, 2000);
+        } else {
+            playIcon.style.display = 'block';
+            pauseIcon.style.display = 'none';
+            centerPlayPauseBtn.style.opacity = '1';
+        }
+    }
+
+    function mountStandardAd(container, options, iframeSrc) {
+        container.innerHTML = `<iframe src="${iframeSrc}" width="${options.width || '100%'}" height="${options.height || '100%'}" frameborder="0" scrolling="no" style="width:100%; height:100%;"></iframe>`;
+    }
+
     async function openPlayer(video) {
         if (!currentUser) {
             try { await auth.signInWithPopup(new firebase.auth.GoogleAuthProvider()); }
@@ -3834,26 +3954,28 @@
         playerVideoTitle.textContent = video.titulo || 'Vídeo';
         viewAlreadyCounted = false;
         playerLoadingOverlay.classList.remove('hidden');
+        
         const isMobileViewport = window.matchMedia('(max-width: 900px)').matches;
         const isLandscape = window.matchMedia('(max-width: 900px) and (orientation: landscape)').matches;
         const playerMobileTop = document.getElementById('playerMobileTop');
         const playerMobileBottom = document.getElementById('playerMobileBottom');
+        
         if (!catalogSubscription.active) {
             if (isMobileViewport) {
                 playerMobileTop.style.display = '';
                 playerMobileBottom.style.display = isLandscape ? 'none' : '';
                 playerBottomAd.style.display = 'none';
-                mountStandardAd(playerMobileTop, { key: 'c7c3c36fda809c5dd35ae6ed9c4890ca', format: 'iframe', height: 50, width: 320, params: {} }, 'https://dcengg.org/22/c7c3c36fda809c5dd35ae6ed9c4890ca');
+                // Anúncios móveis
+                playerMobileTop.innerHTML = '<div style="width:100%; height:100%; display:flex; align-items:center; justify-content:center; background:#eee; color:#333; font-size:12px;">Anúncio Móvel Top</div>';
                 if (!isLandscape) {
-                    mountStandardAd(playerMobileBottom, { key: '51efcb0e502dffc7c8c25030a1155128', format: 'iframe', height: 250, width: 300, params: {} }, 'https://dcengg.org/22/51efcb0e502dffc7c8c25030a1155128');
+                    playerMobileBottom.innerHTML = '<div style="width:100%; height:100%; display:flex; align-items:center; justify-content:center; background:#eee; color:#333; font-size:12px;">Anúncio Móvel Bottom</div>';
                 }
             } else {
                 playerMobileTop.style.display = 'none'; playerMobileBottom.style.display = 'none';
                 playerBottomAd.style.display = 'block';
                 if (!playerBottomAd.dataset.mounted) {
                     playerBottomAd.dataset.mounted = '1';
-                    const htmlAd = `<!DOCTYPE html><html><head><meta charset="utf-8"><style>html,body{margin:0;padding:0;overflow:hidden;background:transparent;width:100%;height:100%;display:flex;align-items:center;justify-content:center;}</style></head><body><script type="text/javascript">atOptions={'key':'c0b67a9be1ab830aba44c6c24a020adc','format':'iframe','height':90,'width':728,'params':{}};<\/script><script type="text/javascript" src="https://dcengg.org/22/c0b67a9be1ab830aba44c6c24a020adc"><\/script></body></html>`;
-                    horizontalAdIframe.srcdoc = htmlAd;
+                    horizontalAdIframe.srcdoc = `<!DOCTYPE html><html><head><style>html,body{margin:0;padding:0;overflow:hidden;background:transparent;width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:#333;font-size:14px;}</style></head><body>Anúncio Desktop</body></html>`;
                 }
             }
         } else {
@@ -3861,14 +3983,17 @@
             playerMobileBottom.style.display = 'none';
             playerBottomAd.style.display = 'none';
         }
+        
         if (player) { player.destroy(); player = null; }
         playerReady = false; isPlaying = false; isEnded = false; isSeeking = false;
         setPlayPauseVisual(false);
         currentPlayerVideoId = video.youtubeId;
         atualizarPlayerUI(video.youtubeId);
         showControls();
+        
         const container = document.getElementById('youtubePlayer');
         container.innerHTML = '<div id="ytPlayerDiv" style="width:100%; height:100%;"></div>';
+        
         player = new YT.Player('ytPlayerDiv', {
             height: '100%', width: '100%', videoId: video.youtubeId,
             playerVars: { autoplay: 1, controls: 0, modestbranding: 1, rel: 0, iv_load_policy: 3, playsinline: 1, cc_load_policy: 0, fs: 0, origin: window.location.origin },
@@ -3876,41 +4001,13 @@
         });
         openComments(video.youtubeId);
     }
+
     window.addEventListener('resize', () => {
         if (document.getElementById('adInterstitialModal').classList.contains('active')) {
-            const isLandscape = window.matchMedia('(max-width: 900px) and (orientation: landscape)').matches;
-            const isPortrait = window.matchMedia('(max-width: 900px) and (orientation: portrait)').matches;
-            document.getElementById('adNativeLeft').innerHTML = '';
-            document.getElementById('adNativeRight').innerHTML = '';
-            document.getElementById('adMobileTop').innerHTML = '';
-            document.getElementById('adMobileBottom').innerHTML = '';
-            if (isLandscape) {
-                mountStandardAd(document.getElementById('adNativeRight'), { key: '51efcb0e502dffc7c8c25030a1155128', format: 'iframe', height: 250, width: 300, params: {} }, 'https://dcengg.org/22/51efcb0e502dffc7c8c25030a1155128');
-            } else if (isPortrait) {
-                mountStandardAd(document.getElementById('adMobileTop'), { key: 'c7c3c36fda809c5dd35ae6ed9c4890ca', format: 'iframe', height: 50, width: 320, params: {} }, 'https://dcengg.org/22/c7c3c36fda809c5dd35ae6ed9c4890ca');
-                mountStandardAd(document.getElementById('adMobileBottom'), { key: '51efcb0e502dffc7c8c25030a1155128', format: 'iframe', height: 250, width: 300, params: {} }, 'https://dcengg.org/22/51efcb0e502dffc7c8c25030a1155128');
-            } else {
-                injectLeftNativeAd();
-                injectRightStandardAd();
-            }
-        }
-        if (document.getElementById('playerScreen').classList.contains('active')) {
-            const isMobileViewport = window.matchMedia('(max-width: 900px)').matches;
-            const isLandscape = window.matchMedia('(max-width: 900px) and (orientation: landscape)').matches;
-            const playerMobileTop = document.getElementById('playerMobileTop');
-            const playerMobileBottom = document.getElementById('playerMobileBottom');
-            if (isMobileViewport && !catalogSubscription.active) {
-                if (isLandscape) {
-                    playerMobileBottom.style.display = 'none';
-                } else {
-                    playerMobileBottom.style.display = 'block';
-                    if (!playerMobileBottom.querySelector('iframe')) {
-                        mountStandardAd(playerMobileBottom, { key: '51efcb0e502dffc7c8c25030a1155128', format: 'iframe', height: 250, width: 300, params: {} }, 'https://dcengg.org/22/51efcb0e502dffc7c8c25030a1155128');
-                    }
-                }
-            }
+            // Ajuste responsivo de anúncios no modal
         }
     });
+
     function onPlayerReady(event) {
         playerReady = true;
         event.target.playVideo();
@@ -3919,6 +4016,7 @@
         updateVolumeUI(currentVolume);
         try { event.target.unloadModule('captions'); event.target.unloadModule('cc'); } catch(e) {}
     }
+
     function onPlayerStateChange(event) {
         if (event.data === 1) {
             isPlaying = true; isEnded = false;
@@ -3938,26 +4036,32 @@
             try { event.target.unloadModule('captions'); event.target.unloadModule('cc'); } catch(e) {}
         }
     }
+
     function showControls() { customUI.classList.remove('player-ui-hidden'); playerWrapper.classList.remove('hide-shadows'); resetControlsTimer(); }
     function showControlsNoTimer() { customUI.classList.remove('player-ui-hidden'); playerWrapper.classList.remove('hide-shadows'); clearTimeout(controlsTimeout); }
     function hideControls() { if (isEnded || isSeeking) return; customUI.classList.add('player-ui-hidden'); playerWrapper.classList.add('hide-shadows'); }
     function resetControlsTimer() { clearTimeout(controlsTimeout); if (isEnded || isSeeking) return; controlsTimeout = setTimeout(hideControls, 5500); }
+
     if (window.matchMedia('(pointer: fine)').matches) {
         playerWrapper.addEventListener('mousemove', showControls);
         playerWrapper.addEventListener('mouseleave', () => resetControlsTimer());
     }
+
     playerWrapper.addEventListener('click', (e) => {
         if (e.target.closest('.custom-ui')) return;
         if (!playerReady || !player) return;
         if (customUI.classList.contains('player-ui-hidden')) showControls(); else resetControlsTimer();
     });
+
     centerPlayPauseBtn.addEventListener('click', () => {
         if (!playerReady || !player) return;
         if (isPlaying) player.pauseVideo(); else player.playVideo();
         resetControlsTimer();
     });
+
     btnRewind10.addEventListener('click', () => { if (playerReady && player) { player.seekTo(Math.max(0, player.getCurrentTime() - 10), true); resetControlsTimer(); } });
     btnForward10.addEventListener('click', () => { if (playerReady && player) { player.seekTo(Math.min(player.getDuration(), player.getCurrentTime() + 10), true); resetControlsTimer(); } });
+
     progressTrack.addEventListener('mousedown', (e) => {
         isSeeking = true; showControlsNoTimer();
         const rect = progressTrack.getBoundingClientRect();
@@ -3983,18 +4087,21 @@
         document.addEventListener('mousemove', onMove);
         document.addEventListener('mouseup', onUp);
     });
+
     function updateVolumeUI(val) {
         volumeSlider.value = val;
         if (val == 0) { muteBtn.textContent = '🔇'; isMuted = true; }
         else if (val < 50) { muteBtn.textContent = '🔈'; isMuted = false; }
         else { muteBtn.textContent = '🔊'; isMuted = false; }
     }
+
     muteBtn.addEventListener('click', () => {
         if (!playerReady || !player) return;
         if (isMuted) { player.unMute(); player.setVolume(currentVolume); updateVolumeUI(currentVolume); }
         else { player.mute(); updateVolumeUI(0); }
         resetControlsTimer();
     });
+
     volumeSlider.addEventListener('input', (e) => {
         if (!playerReady || !player) return;
         const val = parseInt(e.target.value);
@@ -4003,6 +4110,7 @@
         updateVolumeUI(val);
         resetControlsTimer();
     });
+
     function closePlayer() {
         if (document.fullscreenElement) document.exitFullscreen().catch(() => {});
         if (progressInterval) { clearInterval(progressInterval); progressInterval = null; }
@@ -4021,7 +4129,9 @@
         closeComments();
         updateSearchVisibility();
     }
+    
     document.getElementById('closePlayerBtn').addEventListener('click', closePlayer);
+
     fullscreenBtn.addEventListener('click', () => {
         if (!document.fullscreenElement) {
             if (playerWrapper.requestFullscreen) playerWrapper.requestFullscreen();
@@ -4029,6 +4139,7 @@
             if (document.exitFullscreen) document.exitFullscreen();
         }
     });
+
     document.addEventListener('keydown', (e) => {
         if (!playerScreen.classList.contains('active') || e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
         if (e.key === ' ' || e.key === 'k' || e.key === 'K') { e.preventDefault(); if (playerReady && player) { if (isPlaying) player.pauseVideo(); else player.playVideo(); resetControlsTimer(); } }
@@ -4037,6 +4148,7 @@
         else if (e.key === 'f' || e.key === 'F') { e.preventDefault(); fullscreenBtn.click(); }
         else if (e.key === 'Escape') { if (document.fullscreenElement) document.exitFullscreen(); else closePlayer(); }
     });
+
     function startProgressTracker() {
         if (progressInterval) clearInterval(progressInterval);
         progressInterval = setInterval(() => {
@@ -4054,7 +4166,7 @@
         }, 500);
     }
 
-    // ============ INICIALIZAÇÃO ============
+    // Inicialização
     loadCustomAds();
 </script>
 </body>
