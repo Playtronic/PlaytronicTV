@@ -494,6 +494,238 @@
         .tag.ancine-tag { cursor: pointer; transition: transform 0.15s, box-shadow 0.15s; }
         .tag.ancine-tag:hover { transform: scale(1.08); box-shadow: 0 0 10px rgba(255,255,255,0.35); }
 
+        /* ═══════════ FAB — TV AO VIVO ═══════════ */
+        #tvFab {
+            position: fixed;
+            bottom: 26px;
+            right: 26px;
+            z-index: 9997;
+            display: none;
+            align-items: center;
+            gap: 10px;
+            background: linear-gradient(135deg, #ef4444, #b91c1c);
+            color: #fff;
+            padding: 14px 22px;
+            border-radius: 50px;
+            border: none;
+            font-weight: 800;
+            font-size: 0.92rem;
+            cursor: pointer;
+            box-shadow: 0 8px 25px rgba(239,68,68,0.45), 0 4px 12px rgba(0,0,0,0.4);
+            transition: transform 0.2s, box-shadow 0.2s, background 0.3s;
+            font-family: inherit;
+            letter-spacing: 0.6px;
+            animation: tvFabEnter 0.45s ease;
+        }
+        #tvFab:hover {
+            transform: translateY(-3px) scale(1.03);
+            box-shadow: 0 12px 35px rgba(239,68,68,0.65), 0 6px 16px rgba(0,0,0,0.5);
+        }
+        #tvFab.locked {
+            background: linear-gradient(135deg, #7c3aed, #5b21b6);
+            box-shadow: 0 8px 25px rgba(124,58,237,0.45), 0 4px 12px rgba(0,0,0,0.4);
+        }
+        #tvFab.locked:hover {
+            box-shadow: 0 12px 35px rgba(124,58,237,0.65), 0 6px 16px rgba(0,0,0,0.5);
+        }
+        #tvFab .tv-fab-dot {
+            width: 9px;
+            height: 9px;
+            border-radius: 50%;
+            background: #fff;
+            animation: tvLivePulse 1.5s infinite;
+            flex-shrink: 0;
+        }
+        #tvFab.locked .tv-fab-dot { display: none; }
+        #tvFab .tv-fab-lock { display: none; font-size: 0.85rem; }
+        #tvFab.locked .tv-fab-lock { display: inline; }
+        @keyframes tvLivePulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.35; transform: scale(0.7); }
+        }
+        @keyframes tvFabEnter {
+            from { opacity: 0; transform: translateY(24px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ═══════════ TELA DA TV ═══════════ */
+        #tvScreen {
+            position: fixed;
+            inset: 0;
+            background: #000;
+            z-index: 9999999;
+            display: none;
+            flex-direction: column;
+        }
+        #tvScreen.active { display: flex; }
+        #tvScreen .tv-topbar {
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            padding: 15px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: linear-gradient(to bottom, rgba(0,0,0,0.85), transparent);
+            z-index: 10;
+            pointer-events: none;
+        }
+        #tvScreen .tv-topbar > * { pointer-events: auto; }
+        #tvScreen .tv-close-btn {
+            background: rgba(0,0,0,0.6);
+            border: 1px solid rgba(255,255,255,0.2);
+            color: #fff;
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            font-size: 1.2rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: 0.2s;
+        }
+        #tvScreen .tv-close-btn:hover { background: #ef4444; transform: scale(1.05); }
+        #tvScreen .tv-brand { display: flex; align-items: center; gap: 12px; }
+        #tvScreen .tv-brand-badge {
+            background: #ef4444;
+            color: #fff;
+            padding: 6px 14px;
+            border-radius: 14px;
+            font-size: 0.75rem;
+            font-weight: 900;
+            letter-spacing: 1.2px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        #tvScreen .tv-brand-title {
+            color: #fff;
+            font-weight: 700;
+            font-size: 0.95rem;
+            text-shadow: 1px 1px 6px rgba(0,0,0,0.9);
+            max-width: 40vw;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        #tvScreen .tv-content { position: relative; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; }
+        #tvPlayerContainer { width: 100%; height: 100%; position: relative; background: #000; display: flex; align-items: center; justify-content: center; }
+        #tvPlayerContainer iframe {
+            width: 100% !important;
+            height: 100% !important;
+            pointer-events: none !important;
+            border: none;
+        }
+        #tvScreen .tv-bottombar {
+            position: absolute;
+            bottom: 0; left: 0; right: 0;
+            padding: 22px 24px;
+            background: linear-gradient(to top, rgba(0,0,0,0.92), transparent);
+            z-index: 10;
+            pointer-events: none;
+        }
+        #tvScreen .tv-now-playing { display: none; align-items: center; gap: 12px; color: #fff; }
+        #tvScreen .tv-now-label {
+            font-size: 0.7rem;
+            letter-spacing: 1.2px;
+            font-weight: 900;
+            color: #ef4444;
+            white-space: nowrap;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        #tvScreen .tv-now-label::before {
+            content: '';
+            width: 8px; height: 8px;
+            background: #ef4444;
+            border-radius: 50%;
+            animation: tvLivePulse 1.5s infinite;
+        }
+        #tvScreen .tv-now-title {
+            font-size: 1.05rem;
+            font-weight: 600;
+            text-shadow: 1px 1px 6px rgba(0,0,0,0.9);
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        #tvScreen .tv-loading {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: #000;
+            z-index: 5;
+            color: #fff;
+        }
+        #tvScreen .tv-loading .tv-spinner {
+            border: 4px solid rgba(239,68,68,0.25);
+            border-top: 4px solid #ef4444;
+            border-radius: 50%;
+            width: 64px;
+            height: 64px;
+            animation: spin 1s linear infinite;
+            margin-bottom: 18px;
+        }
+        #tvScreen .tv-loading-text { font-size: 0.95rem; color: #cbd5e1; }
+        #tvScreen .tv-unmute-overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(0,0,0,0.92);
+            z-index: 8;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            gap: 22px;
+            cursor: pointer;
+            transition: opacity 0.3s;
+        }
+        #tvScreen .tv-unmute-overlay.hidden { opacity: 0; pointer-events: none; }
+        #tvScreen .tv-unmute-btn {
+            background: #ef4444;
+            color: #fff;
+            padding: 16px 42px;
+            border-radius: 50px;
+            font-size: 1.05rem;
+            font-weight: 800;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            box-shadow: 0 10px 40px rgba(239,68,68,0.55);
+            transition: 0.2s;
+            font-family: inherit;
+            letter-spacing: 0.5px;
+        }
+        #tvScreen .tv-unmute-btn:hover { transform: scale(1.05); background: #dc2626; }
+        #tvScreen .tv-unmute-hint {
+            font-size: 0.85rem;
+            color: #94a3b8;
+            text-align: center;
+            max-width: 460px;
+            padding: 0 24px;
+            line-height: 1.6;
+        }
+
+        @media (max-width: 900px) {
+            #tvFab { bottom: 16px; right: 16px; padding: 12px 18px; font-size: 0.82rem; gap: 8px; }
+            #tvFab .tv-fab-dot { width: 8px; height: 8px; }
+            #tvScreen .tv-topbar { padding: 10px 12px; }
+            #tvScreen .tv-brand-title { font-size: 0.8rem; max-width: 55vw; }
+            #tvScreen .tv-brand-badge { padding: 5px 10px; font-size: 0.68rem; }
+            #tvScreen .tv-close-btn { width: 36px; height: 36px; font-size: 1rem; }
+            #tvScreen .tv-bottombar { padding: 14px 16px; }
+            #tvScreen .tv-now-title { font-size: 0.88rem; }
+            #tvScreen .tv-unmute-btn { padding: 14px 32px; font-size: 0.95rem; }
+            #tvScreen .tv-unmute-hint { font-size: 0.8rem; }
+        }
+
         @media (min-width: 901px) { .ad-side-banner { display: block; } }
 
         @media (max-width: 900px) {
@@ -657,6 +889,7 @@
                         <button id="adminMenuBtn">⚙️ Painel Admin</button>
                         <div id="adminDropdown">
                             <button id="addVideoBtn">➕ Inserir Vídeo</button>
+                            <button id="backfillDurationBtn">⏱️ Recalcular Durações</button>
                             <button id="performanceBtn">📈 Desempenho</button>
                             <button id="adminCommentsBtn">💬 Comentários</button>
                             <button id="pricingBtn">💰 Preços</button>
@@ -716,6 +949,39 @@
             <img src="https://i.ibb.co/pjVXNp4P/Playtronic.png" alt="Playtronic Games" class="footer-logo">
         </a>
     </footer>
+</div>
+
+<button id="tvFab" aria-label="Assistir TV ao Vivo">
+    <span class="tv-fab-dot"></span>
+    <span class="tv-fab-lock">🔒</span>
+    <span id="tvFabLabel">TV AO VIVO</span>
+</button>
+
+<div id="tvScreen">
+    <div class="tv-topbar">
+        <div class="tv-brand">
+            <div class="tv-brand-badge">AO VIVO</div>
+            <span class="tv-brand-title" id="tvCurrentTitle">TV Playtronic</span>
+        </div>
+        <button class="tv-close-btn" id="tvCloseBtn" title="Fechar TV">✖</button>
+    </div>
+    <div class="tv-content">
+        <div id="tvPlayerContainer"></div>
+        <div class="tv-loading" id="tvLoading">
+            <div class="tv-spinner"></div>
+            <div class="tv-loading-text">Sintonizando transmissão...</div>
+        </div>
+        <div class="tv-unmute-overlay" id="tvUnmuteOverlay">
+            <button class="tv-unmute-btn" id="tvUnmuteBtn">▶ Entrar na transmissão</button>
+            <div class="tv-unmute-hint">A transmissão está sincronizada com todos os espectadores. Ao entrar, você será posicionado onde a programação está acontecendo agora.</div>
+        </div>
+    </div>
+    <div class="tv-bottombar">
+        <div class="tv-now-playing" id="tvNowPlaying">
+            <span class="tv-now-label">AGORA</span>
+            <span class="tv-now-title" id="tvNowTitle"></span>
+        </div>
+    </div>
 </div>
 
 <div class="modal-overlay" id="notificationsModal">
@@ -1019,7 +1285,7 @@
         </div>
         <h2>Classificação Normativa ANCINE</h2>
         <p>No Brasil, a duração de uma obra audiovisual segue critérios legais determinados pela legislação nacional.</p>
-<p>Abaixo, confira a classificação normativa da Agência Nacional do Cinema (ANCINE), baseada na Medida Provisória nº 2.228-1/2001, que define os formatos de acordo com o tempo de execução:</p>
+        <p>Abaixo, confira a classificação normativa da Agência Nacional do Cinema (ANCINE), baseada na Medida Provisória nº 2.228-1/2001, que define os formatos de acordo com o tempo de execução:</p>
         <ul>
             <li><strong>Curta-Metragem:</strong> Obra audiovisual com duração igual ou inferior a 15 minutos.</li>
             <li><strong>Média-Metragem:</strong> Obra audiovisual com duração superior a 15 minutos e igual ou inferior a 70 minutos.</li>
@@ -1048,7 +1314,7 @@
     const CF_BASE = 'https://us-central1-playtronic-tv.cloudfunctions.net';
 
     // ═══════════════════════════════════════════════════════════════
-    // MAPA DE CLASSIFICAÇÃO ANCINE (com fallback 'curta')
+    // MAPA DE CLASSIFICAÇÃO ANCINE
     // ═══════════════════════════════════════════════════════════════
     const CLASSIFICACAO_INFO = {
         curta: { label: 'CURTA', cls: 'tag-curta', titulo: 'Curta-metragem (até 15 min)' },
@@ -1102,6 +1368,20 @@
     let currentCommentsData = {};
     let expandedComments = new Set();
     let replyDrafts = {};
+
+    // ═══════════════════════════════════════════════════════════════
+    // TV — ESTADO
+    // ═══════════════════════════════════════════════════════════════
+    const TV_EPOCH_MS = 1704067200000; // 2024-01-01T00:00:00 UTC
+    let tvPlayer = null;
+    let tvPlayerReady = false;
+    let tvPlaylist = [];
+    let tvTotalDuration = 0;
+    let tvCurrentYtId = null;
+    let tvServerOffset = 0;
+    let tvDriftInterval = null;
+    let tvActive = false;
+    let tvPendingUpdate = false;
 
     // ============ PREFERÊNCIAS PERSISTENTES ============
     const CATALOG_PREFS_KEY = 'playtronic_catalog_prefs_v1';
@@ -1187,12 +1467,70 @@
         return null;
     }
 
+    // ═══════════════════════════════════════════════════════════════
+    // OBTENÇÃO DE DURAÇÃO — via Cloud Function (admin-only)
+    // ═══════════════════════════════════════════════════════════════
+    async function getDurationsFromCF(ids) {
+        if (!currentUser || !isAdmin()) return {};
+        try {
+            const token = await currentUser.getIdToken();
+            const r = await fetch(CF_BASE + '/getVideoDurations', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+                body: JSON.stringify({ ids })
+            });
+            if (!r.ok) {
+                console.warn('CF getVideoDurations HTTP', r.status);
+                return {};
+            }
+            const data = await r.json();
+            return data.durations || {};
+        } catch (e) {
+            console.warn('CF getVideoDurations error:', e);
+            return {};
+        }
+    }
+
+    // Fallback final: IFrame Player API (só usado se o CF falhar)
+    function obterDuracaoYouTubeIframe(youtubeId) {
+        return new Promise((resolve) => {
+            const divId = 'dur-tmp-' + Math.random().toString(36).slice(2);
+            const div = document.createElement('div');
+            div.id = divId;
+            div.style.cssText = 'position:absolute; top:-9999px; left:-9999px; width:1px; height:1px;';
+            document.body.appendChild(div);
+            let done = false;
+            const finish = (val) => {
+                if (done) return; done = true;
+                clearTimeout(timeout);
+                try { p.destroy(); } catch (e) {}
+                try { div.remove(); } catch (e) {}
+                resolve(val);
+            };
+            const timeout = setTimeout(() => finish(0), 15000);
+            const p = new YT.Player(divId, {
+                height: '1', width: '1', videoId: youtubeId,
+                playerVars: { autoplay: 0, controls: 0 },
+                events: {
+                    onReady: (ev) => { const d = ev.target.getDuration(); finish(d > 0 ? Math.floor(d) : 0); },
+                    onError: () => finish(0)
+                }
+            });
+        });
+    }
+
+    async function obterDuracao(videoId) {
+        const map = await getDurationsFromCF([videoId]);
+        if (map[videoId] > 0) return map[videoId];
+        return await obterDuracaoYouTubeIframe(videoId);
+    }
+
     // ============ VISIBILIDADE / SCROLL ============
     function updateSearchVisibility() {
         const searchContainer = document.querySelector('.search-container');
         if (!searchContainer) return;
         const ancineLb = document.getElementById('ancineLightbox');
-        const isModalOpen = document.querySelector('.modal-overlay.active') || document.getElementById('playerScreen').classList.contains('active') || document.getElementById('adInterstitialModal').classList.contains('active') || document.getElementById('banAlertModal').classList.contains('active') || document.getElementById('blockAlertModal').classList.contains('active') || document.getElementById('pixLightbox').style.display === 'flex' || (ancineLb && ancineLb.classList.contains('active'));
+        const isModalOpen = document.querySelector('.modal-overlay.active') || document.getElementById('playerScreen').classList.contains('active') || document.getElementById('tvScreen').classList.contains('active') || document.getElementById('adInterstitialModal').classList.contains('active') || document.getElementById('banAlertModal').classList.contains('active') || document.getElementById('blockAlertModal').classList.contains('active') || document.getElementById('pixLightbox').style.display === 'flex' || (ancineLb && ancineLb.classList.contains('active'));
         if (isModalOpen) {
             searchContainer.style.display = 'none';
             document.body.classList.add('no-scroll', 'search-hidden');
@@ -1200,6 +1538,7 @@
             searchContainer.style.display = '';
             document.body.classList.remove('no-scroll', 'search-hidden');
         }
+        updateFABVisibility();
     }
     const domObserver = new MutationObserver((mutations) => {
         let shouldUpdate = false;
@@ -1213,13 +1552,61 @@
             document.getElementById('playerScreen'), document.getElementById('adInterstitialModal'),
             document.getElementById('pixLightbox'), document.getElementById('banAlertModal'),
             document.getElementById('blockAlertModal'), document.getElementById('notificationsModal'),
-            document.getElementById('ancineLightbox'),
+            document.getElementById('ancineLightbox'), document.getElementById('tvScreen'),
             ...document.querySelectorAll('.modal-overlay')
         ];
         targets.forEach(t => { if(t) domObserver.observe(t, { attributes: true, attributeFilter: ['class', 'style'] }); });
         updateSearchVisibility();
         window.addEventListener('resize', updateSearchVisibility);
     });
+
+    // ═══════════════════════════════════════════════════════════════
+    // FAB — TV AO VIVO
+    // ═══════════════════════════════════════════════════════════════
+    function updateFABVisibility() {
+        const fab = document.getElementById('tvFab');
+        if (!fab) return;
+        const isModalOpen = document.querySelector('.modal-overlay.active')
+            || document.getElementById('playerScreen').classList.contains('active')
+            || document.getElementById('tvScreen').classList.contains('active')
+            || document.getElementById('adInterstitialModal').classList.contains('active')
+            || document.getElementById('banAlertModal').classList.contains('active')
+            || document.getElementById('blockAlertModal').classList.contains('active')
+            || document.getElementById('pixLightbox').style.display === 'flex'
+            || (document.getElementById('ancineLightbox') && document.getElementById('ancineLightbox').classList.contains('active'));
+
+        if (isModalOpen || !currentUser) {
+            fab.style.display = 'none';
+            return;
+        }
+
+        fab.style.display = 'flex';
+        const isSub = catalogSubscription.active;
+        fab.classList.toggle('locked', !isSub);
+        const label = document.getElementById('tvFabLabel');
+        if (label) label.textContent = isSub ? 'TV AO VIVO' : 'TV AO VIVO';
+    }
+
+    document.getElementById('tvFab')?.addEventListener('click', () => {
+        if (!currentUser) return;
+        if (!catalogSubscription.active) {
+            openPixLightbox();
+            return;
+        }
+        if (!isTVReady()) {
+            if (isAdmin()) {
+                alert('A programação está sendo preparada automaticamente (cálculo de durações em background). Aguarde alguns instantes e tente novamente.');
+            } else {
+                alert('A programação está sendo preparada. Volte em alguns instantes.');
+            }
+            return;
+        }
+        openTV();
+    });
+
+    function isTVReady() {
+        return videos.length > 0 && videos.every(v => Number(v.duracaoSegundos) > 0);
+    }
 
     // ============ PRESENÇA ============
     function setupPresence(user) {
@@ -2287,6 +2674,25 @@
         adminDropdown.style.display = adminDropdown.style.display === 'flex' ? 'none' : 'flex';
     });
 
+    // ═══ ANCINE lightbox ═══
+    function openAncineLightbox() {
+        document.getElementById('ancineLightbox').classList.add('active');
+        updateSearchVisibility();
+    }
+    function closeAncineLightbox() {
+        document.getElementById('ancineLightbox').classList.remove('active');
+        updateSearchVisibility();
+    }
+    document.getElementById('ancineCloseBtn')?.addEventListener('click', closeAncineLightbox);
+    document.getElementById('ancineLightbox')?.addEventListener('click', (e) => {
+        if (e.target === document.getElementById('ancineLightbox')) closeAncineLightbox();
+    });
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && document.getElementById('ancineLightbox')?.classList.contains('active')) {
+            closeAncineLightbox();
+        }
+    });
+
     // ============ AUTENTICAÇÃO ============
     function registrarUsuarioPlaytronic(user) {
         if (!user) return;
@@ -2345,6 +2751,7 @@
         checkCatalogSubscription();
         checkMyAdsVisibility();
         updateNotificationBadge();
+        updateFABVisibility();
     });
 
     // ============ VOTOS / VIEWS ============
@@ -2513,7 +2920,6 @@
         const tags = [];
         if (item.pago) tags.push('<span class="tag tag-pago">PAGO</span>');
         if (item.ad) tags.push('<span class="tag tag-ad">AD</span>');
-        // ═══ Tag de classificação ANCINE (fallback: curta) ═══
         const classificacao = normalizarClassificacao(item.classificacao);
         const classInfo = CLASSIFICACAO_INFO[classificacao];
         tags.push(`<span class="tag ${classInfo.cls} ancine-tag" title="${classInfo.titulo} — clique para saber mais">${classInfo.label}</span>`);
@@ -2543,7 +2949,6 @@
         card.querySelector('.favorite-btn').addEventListener('click', (e) => { e.stopPropagation(); toggleFavorite(item.youtubeId); });
         card.querySelector('.edit').addEventListener('click', (e) => { e.stopPropagation(); openVideoModal('edit', item); });
         card.querySelector('.delete').addEventListener('click', (e) => { e.stopPropagation(); deleteVideo(item); });
-        // ═══ Clique na etiqueta de classificação ANCINE ═══
         const ancineTag = card.querySelector('.ancine-tag');
         if (ancineTag) {
             ancineTag.addEventListener('click', (e) => {
@@ -2608,9 +3013,6 @@
         if (favSection) favSection.style.display = favCount > 0 ? 'block' : 'none';
     }
 
-    // ═══════════════════════════════════════════════════════════════
-    // NAVEGAÇÃO DO CARROSSEL DE FAVORITOS (setas)
-    // ═══════════════════════════════════════════════════════════════
     function scrollFavoritesCarousel(direction) {
         const track = document.getElementById('favoritesTrack');
         if (!track) return;
@@ -2624,11 +3026,94 @@
     document.getElementById('carouselLeft')?.addEventListener('click', () => scrollFavoritesCarousel(-1));
     document.getElementById('carouselRight')?.addEventListener('click', () => scrollFavoritesCarousel(1));
 
+    // ═══════════════════════════════════════════════════════════════
+    // BACKFILL AUTOMÁTICO — só admin
+    // ═══════════════════════════════════════════════════════════════
+    let _backfillRunning = false;
+    let _backfillDebounce = null;
+
+    async function autoBackfillDurations() {
+        if (!currentUser || !isAdmin()) return;
+        if (_backfillRunning) return;
+        const missing = videos.filter(v => !Number(v.duracaoSegundos));
+        if (missing.length === 0) return;
+
+        _backfillRunning = true;
+        console.log(`[Backfill] Iniciando cálculo de ${missing.length} durações via Cloud Function...`);
+
+        try {
+            const BATCH = 50;
+            let done = 0, fail = 0;
+
+            for (let i = 0; i < missing.length; i += BATCH) {
+                const chunk = missing.slice(i, i + BATCH);
+                const ids = chunk.map(v => v.youtubeId);
+                const durations = await getDurationsFromCF(ids);
+
+                const updates = {};
+                for (const v of chunk) {
+                    if (durations[v.youtubeId] > 0) {
+                        updates['vod_videos/' + v.key + '/duracaoSegundos'] = durations[v.youtubeId];
+                    }
+                }
+
+                // Fallback para os que não retornaram (raro)
+                const falhasNoLote = chunk.filter(v => !durations[v.youtubeId]);
+                if (falhasNoLote.length > 0 && falhasNoLote.length <= 10) {
+                    // Só tenta fallback se forem poucos (IFrame é lento)
+                    for (const v of falhasNoLote) {
+                        const dur = await obterDuracaoYouTubeIframe(v.youtubeId);
+                        if (dur > 0) updates['vod_videos/' + v.key + '/duracaoSegundos'] = dur;
+                    }
+                }
+
+                if (Object.keys(updates).length > 0) {
+                    try {
+                        await rtdb.ref().update(updates);
+                        done += Object.keys(updates).length;
+                    } catch (e) {
+                        fail += Object.keys(updates).length;
+                        console.warn('[Backfill] Erro ao gravar lote:', e);
+                    }
+                }
+                fail += chunk.length - Object.keys(updates).length;
+
+                console.log(`[Backfill] ${Math.min(i + BATCH, missing.length)}/${missing.length}`);
+            }
+            console.log(`[Backfill] Concluído: ${done} ok, ${fail} falhas.`);
+        } catch (e) {
+            console.warn('[Backfill] Erro:', e);
+        } finally {
+            _backfillRunning = false;
+        }
+    }
+
+    // Recalcula quando admin clicar no botão
+    document.getElementById('backfillDurationBtn').addEventListener('click', async () => {
+        adminDropdown.style.display = 'none';
+        if (!isAdmin()) return;
+        if (!confirm('Recalcular a duração de TODOS os vídeos?\n\nÚtil se algum vídeo foi alterado no YouTube. Sobrescreve os valores existentes.')) return;
+        // Força: limpa todos os duracoesSegundos da cópia local
+        const todos = videos.map(v => ({ ...v, duracaoSegundos: null }));
+        const originalVideos = videos;
+        videos = todos;
+        try { await autoBackfillDurations(); }
+        finally { videos = originalVideos; }
+    });
+
     rtdb.ref('vod_videos').on('value', (snap) => {
         const data = snap.val() || {};
         videos = Object.entries(data).map(([key, v]) => ({ key, ...v }));
         videosLoaded = true;
         tryRender();
+        if (tvActive) tvPendingUpdate = true;
+
+        clearTimeout(_backfillDebounce);
+        _backfillDebounce = setTimeout(() => {
+            if (currentUser && isAdmin() && videos.some(v => !Number(v.duracaoSegundos))) {
+                autoBackfillDurations();
+            }
+        }, 3000);
     }, (err) => {
         loadingMsg.style.display = 'none';
         catalogGrid.innerHTML = `<div class="empty-state" style="display:block;">Erro ao carregar catálogo: ${escapeHtml(err.message)}</div>`;
@@ -2671,7 +3156,7 @@
             videoModalTitle.textContent = 'Adicionar Vídeo';
             videoModalSub.textContent = 'O vídeo ficará visível para todos os usuários.';
             videoUrlInput.value = ''; videoTitleInput.value = ''; videoProdutoraInput.value = ''; videoAnoInput.value = '';
-            videoClassificacaoInput.value = 'curta'; // ═══ DEFAULT: CURTA ═══
+            videoClassificacaoInput.value = 'curta';
             document.querySelector('input[name="videoMarker"][value=""]').checked = true;
             urlHint.textContent = ''; urlHint.className = 'url-hint';
         } else {
@@ -2709,12 +3194,25 @@
         const youtubeId = extractYouTubeId(urlRaw);
         if (!youtubeId) return alert('URL inválida.');
         if (videos.find(v => v.youtubeId === youtubeId && v.key !== editingVideoKey)) return alert('Este vídeo já está cadastrado.');
+
+        const btn = document.getElementById('confirmVideoBtn');
+        btn.disabled = true; btn.textContent = 'Calculando duração...';
+
+        let duracaoSegundos = 0;
+        try { duracaoSegundos = await obterDuracao(youtubeId); } catch (e) {}
+
+        if (!duracaoSegundos || duracaoSegundos <= 0) {
+            btn.disabled = false; btn.textContent = 'Salvar';
+            return alert('Não foi possível obter a duração do vídeo. Verifique se ele está público e permite incorporação.');
+        }
+
         try {
-            const payload = { youtubeId, titulo, produtora: produtora || null, ano, pago: !!pago, ad: !!ad, classificacao };
+            const payload = { youtubeId, titulo, produtora: produtora || null, ano, pago: !!pago, ad: !!ad, classificacao, duracaoSegundos };
             if (videoModalMode === 'add') { payload.order = Date.now(); await rtdb.ref('vod_videos').push().set(payload); }
             else await rtdb.ref('vod_videos/' + editingVideoKey).update(payload);
             closeVideoModal();
         } catch (err) { alert('Erro ao salvar: ' + err.message); }
+        finally { btn.disabled = false; btn.textContent = 'Salvar'; }
     });
     async function deleteVideo(video) {
         if (!isAdmin()) return;
@@ -3044,6 +3542,7 @@
         } else {
             subscribeBtn.style.display = 'flex'; subscriptionBadge.style.display = 'none'; userSubInfo.style.display = 'none';
         }
+        updateFABVisibility();
     }
     async function openPixLightbox() {
         userCard.classList.remove('active');
@@ -3157,24 +3656,190 @@
         setTimeout(() => document.getElementById('copyPixBtn').textContent = 'Copiar código', 2000);
     });
 
-    // ============ LIGHTBOX ANCINE ============
-    function openAncineLightbox() {
-        document.getElementById('ancineLightbox').classList.add('active');
-        updateSearchVisibility();
-    }
-    function closeAncineLightbox() {
-        document.getElementById('ancineLightbox').classList.remove('active');
-        updateSearchVisibility();
-    }
-    document.getElementById('ancineCloseBtn')?.addEventListener('click', closeAncineLightbox);
-    document.getElementById('ancineLightbox')?.addEventListener('click', (e) => {
-        if (e.target === document.getElementById('ancineLightbox')) closeAncineLightbox();
+    // ═══════════════════════════════════════════════════════════════
+    // TV AO VIVO — core
+    // ═══════════════════════════════════════════════════════════════
+    rtdb.ref('.info/serverTimeOffset').on('value', snap => {
+        tvServerOffset = snap.val() || 0;
     });
-    document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape' && document.getElementById('ancineLightbox')?.classList.contains('active')) {
-            closeAncineLightbox();
+
+    function buildTVPlaylist() {
+        return videos
+            .filter(v => Number(v.duracaoSegundos) > 0)
+            .sort((a, b) => (a.order || 0) - (b.order || 0))
+            .map(v => ({
+                youtubeId: v.youtubeId,
+                titulo: v.titulo || '',
+                duracaoSegundos: Number(v.duracaoSegundos)
+            }));
+    }
+
+    function computeTVPosition(playlist, total) {
+        if (!playlist.length || total <= 0) return null;
+        const serverNow = Date.now() + tvServerOffset;
+        const pos = ((serverNow - TV_EPOCH_MS) % total + total) % total;
+        let acc = 0;
+        for (let i = 0; i < playlist.length; i++) {
+            const d = playlist[i].duracaoSegundos;
+            if (pos < acc + d) return { index: i, offset: pos - acc, video: playlist[i] };
+            acc += d;
+        }
+        return { index: 0, offset: 0, video: playlist[0] };
+    }
+
+    function openTV() {
+        if (!currentUser) {
+            auth.signInWithPopup(new firebase.auth.GoogleAuthProvider()).catch(() => {});
+            return;
+        }
+        if (!catalogSubscription.active) {
+            openPixLightbox();
+            return;
+        }
+        tvPlaylist = buildTVPlaylist();
+        if (tvPlaylist.length === 0) {
+            alert('Ainda não há vídeos prontos para a programação.');
+            return;
+        }
+        tvTotalDuration = tvPlaylist.reduce((s, v) => s + v.duracaoSegundos, 0);
+        tvActive = true;
+        tvPendingUpdate = false;
+        tvPlayerReady = false;
+
+        document.getElementById('tvScreen').classList.add('active');
+        document.body.classList.add('no-scroll');
+        document.getElementById('tvLoading').style.display = 'flex';
+        document.getElementById('tvNowPlaying').style.display = 'none';
+        document.getElementById('tvUnmuteOverlay').classList.remove('hidden');
+        document.getElementById('tvPlayerContainer').innerHTML = '';
+
+        document.addEventListener('keydown', blockTVKeys, true);
+    }
+
+    function blockTVKeys(e) {
+        if (!tvActive) return;
+        if ([' ', 'k', 'K', 'j', 'J', 'l', 'L', 'ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'].includes(e.key)) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+    }
+
+    function closeTV() {
+        tvActive = false;
+        document.removeEventListener('keydown', blockTVKeys, true);
+        if (tvDriftInterval) { clearInterval(tvDriftInterval); tvDriftInterval = null; }
+        if (tvPlayer) { try { tvPlayer.destroy(); } catch (e) {} tvPlayer = null; }
+        tvPlayerReady = false;
+        tvCurrentYtId = null;
+        document.getElementById('tvScreen').classList.remove('active');
+        document.body.classList.remove('no-scroll');
+        updateSearchVisibility();
+    }
+
+    function startTVPlayback() {
+        document.getElementById('tvUnmuteOverlay').classList.add('hidden');
+        loadTVPlayer();
+
+        if (tvDriftInterval) clearInterval(tvDriftInterval);
+        tvDriftInterval = setInterval(() => {
+            if (!tvActive || !tvPlayerReady || !tvPlayer) return;
+            const pos = computeTVPosition(tvPlaylist, tvTotalDuration);
+            if (!pos) return;
+            if (pos.video.youtubeId !== tvCurrentYtId) { loadTVPlayer(); return; }
+            try {
+                const actual = tvPlayer.getCurrentTime();
+                if (Math.abs(actual - pos.offset) > 3) tvPlayer.seekTo(pos.offset, true);
+            } catch (e) {}
+        }, 15000);
+    }
+
+    function loadTVPlayer() {
+        const pos = computeTVPosition(tvPlaylist, tvTotalDuration);
+        if (!pos) return;
+        const prevId = tvCurrentYtId;
+        tvCurrentYtId = pos.video.youtubeId;
+
+        document.getElementById('tvCurrentTitle').textContent = pos.video.titulo || 'TV Playtronic';
+        document.getElementById('tvNowTitle').textContent = pos.video.titulo || 'Transmissão ao vivo';
+        document.getElementById('tvNowPlaying').style.display = 'flex';
+
+        if (!tvPlayer) {
+            const container = document.getElementById('tvPlayerContainer');
+            container.innerHTML = '<div id="tvPlayerDiv" style="width:100%; height:100%;"></div>';
+            tvPlayer = new YT.Player('tvPlayerDiv', {
+                videoId: pos.video.youtubeId,
+                playerVars: {
+                    autoplay: 1, controls: 0, disablekb: 1, modestbranding: 1,
+                    rel: 0, iv_load_policy: 3, playsinline: 1, fs: 0,
+                    cc_load_policy: 0, origin: window.location.origin
+                },
+                events: {
+                    onReady: (ev) => {
+                        tvPlayerReady = true;
+                        document.getElementById('tvLoading').style.display = 'none';
+                        const freshPos = computeTVPosition(tvPlaylist, tvTotalDuration);
+                        if (freshPos && freshPos.video.youtubeId === tvCurrentYtId) {
+                            ev.target.seekTo(freshPos.offset, true);
+                        }
+                        ev.target.playVideo();
+                        ev.target.setVolume(100);
+                        try { ev.target.unloadModule('captions'); ev.target.unloadModule('cc'); } catch (e) {}
+                    },
+                    onStateChange: handleTVStateChange,
+                    onError: () => { setTimeout(() => onTVVideoEnded(), 1500); }
+                }
+            });
+            return;
+        }
+
+        if (!tvPlayerReady) { setTimeout(loadTVPlayer, 300); return; }
+
+        try {
+            if (prevId !== pos.video.youtubeId) {
+                tvPlayer.loadVideoById({ videoId: pos.video.youtubeId, startSeconds: pos.offset });
+                tvPlayer.setVolume(100);
+            } else {
+                tvPlayer.seekTo(pos.offset, true);
+            }
+        } catch (e) { console.warn('TV load:', e); }
+    }
+
+    function handleTVStateChange(ev) {
+        if (ev.data === 0) {
+            onTVVideoEnded();
+        } else if (ev.data === 2) {
+            if (tvActive) setTimeout(() => { try { ev.target.playVideo(); } catch (e) {} }, 100);
+        } else if (ev.data === 1) {
+            try { ev.target.unloadModule('captions'); ev.target.unloadModule('cc'); } catch (e) {}
+        }
+    }
+
+    function onTVVideoEnded() {
+        if (!tvActive) return;
+        if (tvPendingUpdate) {
+            tvPlaylist = buildTVPlaylist();
+            tvTotalDuration = tvPlaylist.reduce((s, v) => s + v.duracaoSegundos, 0);
+            tvPendingUpdate = false;
+        }
+        loadTVPlayer();
+    }
+
+    document.addEventListener('visibilitychange', () => {
+        if (!document.hidden && tvActive && tvPlayerReady && tvPlayer) {
+            const pos = computeTVPosition(tvPlaylist, tvTotalDuration);
+            if (!pos) return;
+            if (pos.video.youtubeId !== tvCurrentYtId) { loadTVPlayer(); return; }
+            try {
+                const actual = tvPlayer.getCurrentTime();
+                if (Math.abs(actual - pos.offset) > 2) tvPlayer.seekTo(pos.offset, true);
+                tvPlayer.playVideo();
+            } catch (e) {}
         }
     });
+
+    document.getElementById('tvCloseBtn')?.addEventListener('click', closeTV);
+    document.getElementById('tvUnmuteBtn')?.addEventListener('click', startTVPlayback);
+    document.getElementById('tvUnmuteOverlay')?.addEventListener('click', startTVPlayback);
 
     // ============ ANÚNCIO PAGO ============
     const insertAdModal = document.getElementById('insertAdModal');
@@ -3756,6 +4421,7 @@
         playerLoadingOverlay.classList.remove('hidden');
         if (isAdmin()) adminContainer.style.display = 'flex';
         closeComments();
+        updateSearchVisibility();
     }
     document.getElementById('closePlayerBtn').addEventListener('click', closePlayer);
     fullscreenBtn.addEventListener('click', () => {
