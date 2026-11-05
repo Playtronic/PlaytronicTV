@@ -906,6 +906,41 @@
         
         /* ✅ PATCH FINAL: corrige o botão fullscreen sumindo ao sair do modo nativo */
         #tvScreen .tv-fs-btn { display: flex !important; visibility: visible !important; opacity: 1 !important; }
+        /* ✅ PATCH UX: Ocultação Automática (Auto-Hide) */
+        #tvScreen.ui-hidden .tv-topbar,
+        #tvScreen.ui-hidden .tv-bottombar {
+            opacity: 0 !important;
+            pointer-events: none !important;
+        }
+        #tvScreen .tv-topbar,
+        #tvScreen .tv-bottombar {
+            transition: opacity 0.4s ease !important;
+        }
+
+        /* ✅ PATCH UX: Controle de Volume */
+        .tv-volume-container {
+            display: flex; align-items: center; gap: 8px;
+            background: rgba(0,0,0,0.65); padding: 0 12px; height: 42px;
+            border-radius: 8px; border: 1px solid rgba(255,255,255,0.25);
+            transition: 0.2s;
+        }
+        .tv-volume-container:hover { background: rgba(0,0,0,0.8); border-color: rgba(255,255,255,0.4); }
+        .tv-vol-btn {
+            background: none; border: none; color: white; font-size: 1.1rem;
+            cursor: pointer; padding: 0; display: flex; align-items: center; justify-content: center;
+        }
+        .tv-vol-slider {
+            -webkit-appearance: none; width: 70px; height: 4px;
+            background: rgba(255,255,255,0.3); border-radius: 2px; outline: none; cursor: pointer;
+        }
+        .tv-vol-slider::-webkit-slider-thumb {
+            -webkit-appearance: none; width: 12px; height: 12px;
+            border-radius: 50%; background: #fdbb2d; cursor: pointer;
+        }
+        @media (max-width: 900px) {
+            .tv-vol-slider { width: 50px; }
+            .tv-volume-container { height: 36px; padding: 0 8px; }
+        }
     </style>
 </head>
 <body>
@@ -1021,6 +1056,10 @@
             <span class="tv-brand-title" id="tvCurrentTitle">TV Playtronic</span>
         </div>
         <div class="tv-controls">
+            <div class="tv-volume-container">
+                <button class="tv-vol-btn" id="tvMuteBtn" title="Mudo">🔊</button>
+                <input type="range" class="tv-vol-slider" id="tvVolumeSlider" min="0" max="100" value="100">
+            </div>
             <button class="tv-fs-btn" id="tvFullscreenBtn" title="Tela Cheia">
                 <svg viewBox="0 0 24 24" width="18" height="18" fill="white">
                     <path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/>
@@ -3882,7 +3921,9 @@
 
     // ✅ FIX CRÍTICO: usa playerState para evitar loop de recarga
     function startTVPlayback() {
+        if (typeof showTVControls === 'function') showTVControls();
         document.getElementById('tvUnmuteOverlay').classList.add('hidden');
+        if (typeof showTVControls === 'function') showTVControls();
         loadTVPlayer();
 
         if (tvDriftInterval) clearInterval(tvDriftInterval);
@@ -3978,7 +4019,7 @@
                         ev.target.seekTo(safeOffset, true);
                     }
                     ev.target.playVideo();
-                    ev.target.setVolume(100);
+                    ev.target.setVolume(tvCurrentVolume); updateTVVolumeUI(tvCurrentVolume);
                     disableCaptionsSoon(ev.target);
                 },
                 onStateChange: (event) => {
@@ -4005,6 +4046,60 @@
     }
 
     document.getElementById('tvCloseBtn')?.addEventListener('click', closeTV);
+
+    // ✅ PATCH UX: Variáveis e funções para Volume e Auto-Hide
+    let tvCurrentVolume = 100;
+    let tvIsMuted = false;
+    let tvHideUITimer = null;
+
+    function updateTVVolumeUI(val) {
+        const slider = document.getElementById('tvVolumeSlider');
+        const btn = document.getElementById('tvMuteBtn');
+        if (!slider || !btn) return;
+        slider.value = val;
+        if (val == 0) { btn.textContent = '🔇'; tvIsMuted = true; }
+        else if (val < 50) { btn.textContent = '🔈'; tvIsMuted = false; }
+        else { btn.textContent = '🔊'; tvIsMuted = false; }
+    }
+
+    function showTVControls() {
+        const screen = document.getElementById('tvScreen');
+        if (!screen || !screen.classList.contains('active')) return;
+        
+        // Remove a classe que oculta
+        screen.classList.remove('ui-hidden');
+        
+        // Reinicia o timer
+        clearTimeout(tvHideUITimer);
+        tvHideUITimer = setTimeout(() => {
+            // Só oculta se o usuário NÃO estiver interagindo com o slider de volume
+            const slider = document.getElementById('tvVolumeSlider');
+            if (document.activeElement !== slider) {
+                screen.classList.add('ui-hidden');
+            }
+        }, 3000); // 3 segundos de inatividade
+    }
+
+    // Eventos de Volume
+    document.getElementById('tvMuteBtn')?.addEventListener('click', () => {
+        if (!tvPlayerReady || !tvPlayer) return;
+        if (tvIsMuted) { tvPlayer.unMute(); tvPlayer.setVolume(tvCurrentVolume); updateTVVolumeUI(tvCurrentVolume); }
+        else { tvPlayer.mute(); updateTVVolumeUI(0); }
+        showTVControls();
+    });
+
+    document.getElementById('tvVolumeSlider')?.addEventListener('input', (e) => {
+        if (!tvPlayerReady || !tvPlayer) return;
+        const val = parseInt(e.target.value);
+        if (val > 0) tvCurrentVolume = val;
+        if (val == 0) tvPlayer.mute(); else { tvPlayer.unMute(); tvPlayer.setVolume(val); }
+        updateTVVolumeUI(val);
+        showTVControls();
+    });
+
+    // Eventos de Atividade (Mouse / Toque)
+    document.getElementById('tvScreen')?.addEventListener('mousemove', showTVControls);
+    document.getElementById('tvScreen')?.addEventListener('touchstart', showTVControls, { passive: true });
 
     // ✅ PATCH: função global toggleTVFullscreen (usada pelo botão e pela tecla F)
     function toggleTVFullscreen() {
