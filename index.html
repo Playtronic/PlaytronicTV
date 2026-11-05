@@ -885,6 +885,18 @@
             #commentsSection { display: flex; order: 3; margin-top: 10px; width: 100%; }
             #playerMobileBottom { display: none !important; }
         }
+        /* ✅ PATCH: modo imersivo da TV (fallback para navegadores sem Fullscreen API) */
+        #tvScreen.tv-immersive .tv-topbar,
+        #tvScreen.tv-immersive .tv-bottombar {
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+        #tvScreen.tv-immersive:hover .tv-topbar,
+        #tvScreen.tv-immersive:hover .tv-bottombar {
+            opacity: 1;
+            pointer-events: auto;
+        }
     </style>
 </head>
 <body>
@@ -3711,7 +3723,7 @@
     // ✅ FIX: ignora vídeos com menos de 15 segundos (causa pulos)
     function buildTVPlaylist() {
         return videos
-            .filter(v => Number(v.duracaoSegundos) > 15)
+            .filter(v => Number(v.duracaoSegundos) > 15 && /^[a-zA-Z0-9_-]{11}$/.test(v.youtubeId || ''))
             .sort((a, b) => {
                 const orderA = a.order || 0;
                 const orderB = b.order || 0;
@@ -3727,8 +3739,10 @@
 
     function computeTVPosition(playlist, total) {
         if (!playlist.length || total <= 0) return null;
-        const serverNow = Date.now() + tvServerOffset;
-        const pos = ((serverNow - TV_EPOCH_MS) % total + total) % total;
+        // ✅ PATCH: converte ms → segundos antes de calcular a posição (sincronia entre usuários)
+        const serverNowMs = Date.now() + tvServerOffset;
+        const elapsedSec = Math.floor((serverNowMs - TV_EPOCH_MS) / 1000);
+        const pos = ((elapsedSec % total) + total) % total;
         let acc = 0;
         for (let i = 0; i < playlist.length; i++) {
             const d = playlist[i].duracaoSegundos;
@@ -3796,6 +3810,16 @@
             alert('Carregando o catálogo. Aguarde alguns instantes e tente novamente.');
             return;
         }
+        // ✅ PATCH: guarda — se NENHUM vídeo tem duração, a playlist ficaria vazia
+        const _allMissingDur = videos.length > 0 && videos.filter(v => v.youtubeId).every(v => !(Number(v.duracaoSegundos) > 15));
+        if (_allMissingDur) {
+            if (isAdmin()) {
+                console.warn('[TV] Nenhum vídeo tem duração. Iniciando backfill em background...');
+                try { autoBackfillDurations(true); } catch (e) {}
+            }
+            alert('A programação está sendo preparada. Aguarde alguns instantes e tente novamente.');
+            return;
+        }
         tvPlaylist = buildTVPlaylist();
         if (tvPlaylist.length === 0) {
             alert('Ainda não há vídeos prontos para a programação.');
@@ -3809,6 +3833,12 @@
 
         document.getElementById('tvScreen').classList.add('active');
         document.body.classList.add('no-scroll');
+        // ✅ PATCH: tenta entrar em fullscreen automaticamente
+        try {
+            const _tvScr = document.getElementById('tvScreen');
+            const _req = _tvScr.requestFullscreen || _tvScr.webkitRequestFullscreen || _tvScr.msRequestFullscreen;
+            if (_req) Promise.resolve(_req.call(_tvScr)).catch(() => {});
+        } catch (e) {}
         document.getElementById('tvLoading').style.display = 'flex';
         document.getElementById('tvNowPlaying').style.display = 'none';
         document.getElementById('tvUnmuteOverlay').classList.remove('hidden');
@@ -3822,6 +3852,12 @@
         if ([' ', 'k', 'K', 'j', 'J', 'l', 'L', 'ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'].includes(e.key)) {
             e.preventDefault();
             e.stopPropagation();
+        }
+        // ✅ PATCH: tecla F alterna fullscreen
+        if (e.key === 'f' || e.key === 'F') {
+            e.preventDefault();
+            e.stopPropagation();
+            if (typeof window.toggleTVFullscreen === 'function') window.toggleTVFullscreen();
         }
     }
 
@@ -3966,20 +4002,28 @@
 
     document.getElementById('tvCloseBtn')?.addEventListener('click', closeTV);
 
-    // ✅ FIX: botão Fullscreen robusto com fallback
-    document.getElementById('tvFullscreenBtn')?.addEventListener('click', () => {
+    // ✅ PATCH: função global toggleTVFullscreen (usada pelo botão e pela tecla F)
+    function toggleTVFullscreen() {
         const tvScreen = document.getElementById('tvScreen');
-        const isFull = document.fullscreenElement || document.webkitFullscreenElement || document.msFullscreenElement;
-        if (!isFull) {
-            const req = tvScreen.requestFullscreen || tvScreen.webkitRequestFullscreen || tvScreen.msRequestFullscreen;
-            if (req) {
-                Promise.resolve(req.call(tvScreen)).catch(e => console.warn('Fullscreen error:', e));
-            }
-        } else {
-            const exit = document.exitFullscreen || document.webkitExitFullscreen || document.msExitFullscreen;
-            if (exit) Promise.resolve(exit.call(document)).catch(e => console.warn('Exit fullscreen error:', e));
+        if (!tvScreen) return;
+        const isFull = document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement || document.msFullscreenElement;
+        if (isFull) {
+            const exit = document.exitFullscreen || document.webkitExitFullscreen || document.mozCancelFullScreen || document.msExitFullscreen;
+            if (exit) Promise.resolve(exit.call(document)).catch(() => {});
+            return;
         }
-    });
+        const req = tvScreen.requestFullscreen || tvScreen.webkitRequestFullscreen || tvScreen.mozRequestFullScreen || tvScreen.msRequestFullscreen;
+        if (req) {
+            Promise.resolve(req.call(tvScreen)).catch(() => {
+                // fallback iOS/Safari: modo imersivo (esconde topbar/bottombar)
+                tvScreen.classList.toggle('tv-immersive');
+            });
+        } else {
+            tvScreen.classList.toggle('tv-immersive');
+        }
+    }
+    window.toggleTVFullscreen = toggleTVFullscreen;
+    document.getElementById('tvFullscreenBtn')?.addEventListener('click', toggleTVFullscreen);
 
     document.getElementById('tvUnmuteBtn')?.addEventListener('click', startTVPlayback);
 
