@@ -897,6 +897,15 @@
             opacity: 1;
             pointer-events: auto;
         }
+        /* ✅ PATCH FINAL: remove título duplicado do topo e alinha botões à direita */
+        #tvScreen .tv-brand { display: none !important; }
+        #tvScreen .tv-topbar { justify-content: flex-end !important; opacity: 1 !important; pointer-events: auto !important; visibility: visible !important; }
+        
+        /* ✅ PATCH FINAL: garante que a TV fique acima do header do site */
+        #tvScreen { z-index: 10000001 !important; }
+        
+        /* ✅ PATCH FINAL: corrige o botão fullscreen sumindo ao sair do modo nativo */
+        #tvScreen .tv-fs-btn { display: flex !important; visibility: visible !important; opacity: 1 !important; }
     </style>
 </head>
 <body>
@@ -3833,12 +3842,7 @@
 
         document.getElementById('tvScreen').classList.add('active');
         document.body.classList.add('no-scroll');
-        // ✅ PATCH: tenta entrar em fullscreen automaticamente
-        try {
-            const _tvScr = document.getElementById('tvScreen');
-            const _req = _tvScr.requestFullscreen || _tvScr.webkitRequestFullscreen || _tvScr.msRequestFullscreen;
-            if (_req) Promise.resolve(_req.call(_tvScr)).catch(() => {});
-        } catch (e) {}
+        // (Auto-fullscreen removido para melhor UX. A TV abre em tela normal.)
         document.getElementById('tvLoading').style.display = 'flex';
         document.getElementById('tvNowPlaying').style.display = 'none';
         document.getElementById('tvUnmuteOverlay').classList.remove('hidden');
@@ -4010,20 +4014,30 @@
         if (isFull) {
             const exit = document.exitFullscreen || document.webkitExitFullscreen || document.mozCancelFullScreen || document.msExitFullscreen;
             if (exit) Promise.resolve(exit.call(document)).catch(() => {});
-            return;
-        }
-        const req = tvScreen.requestFullscreen || tvScreen.webkitRequestFullscreen || tvScreen.mozRequestFullScreen || tvScreen.msRequestFullscreen;
-        if (req) {
-            Promise.resolve(req.call(tvScreen)).catch(() => {
-                // fallback iOS/Safari: modo imersivo (esconde topbar/bottombar)
-                tvScreen.classList.toggle('tv-immersive');
-            });
         } else {
-            tvScreen.classList.toggle('tv-immersive');
+            const req = tvScreen.requestFullscreen || tvScreen.webkitRequestFullscreen || tvScreen.mozRequestFullScreen || tvScreen.msRequestFullscreen;
+            if (req) {
+                Promise.resolve(req.call(tvScreen)).catch(() => {
+                    tvScreen.classList.toggle('tv-immersive');
+                });
+            } else {
+                tvScreen.classList.toggle('tv-immersive');
+            }
         }
     }
     window.toggleTVFullscreen = toggleTVFullscreen;
     document.getElementById('tvFullscreenBtn')?.addEventListener('click', toggleTVFullscreen);
+
+    // ✅ PATCH FINAL: Sincroniza estado ao sair da tela cheia via ESC
+    function _syncTVFullscreenUI() {
+        const isFull = document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement || document.msFullscreenElement;
+        const tvScreen = document.getElementById('tvScreen');
+        if (tvScreen && !isFull) {
+            tvScreen.classList.remove('tv-immersive');
+        }
+    }
+    document.addEventListener('fullscreenchange', _syncTVFullscreenUI);
+    document.addEventListener('webkitfullscreenchange', _syncTVFullscreenUI);
 
     document.getElementById('tvUnmuteBtn')?.addEventListener('click', startTVPlayback);
 
