@@ -410,6 +410,90 @@
         #banAlertModal .alert-box { border: 2px solid #ef4444; }
         #banAlertModal h2 { color: #ef4444; }
 
+        /* ============ LIGHTBOX ANCINE ============ */
+        #ancineLightbox {
+            position: fixed; inset: 0;
+            background: rgba(0,0,0,0.78);
+            z-index: 99999;
+            display: none;
+            align-items: center; justify-content: center;
+            backdrop-filter: blur(6px);
+            -webkit-backdrop-filter: blur(6px);
+            padding: 20px;
+        }
+        #ancineLightbox.active { display: flex; }
+        .ancine-box {
+            background: #ffffff;
+            color: #1a1a2e;
+            border-radius: 14px;
+            padding: 30px 28px 26px;
+            max-width: 620px;
+            width: 100%;
+            max-height: 88vh;
+            overflow-y: auto;
+            position: relative;
+            box-shadow: 0 25px 60px rgba(0,0,0,0.7);
+            animation: modalIn 0.2s ease;
+        }
+        .ancine-box .ancine-close {
+            position: absolute;
+            top: 10px; right: 12px;
+            background: transparent;
+            border: none;
+            color: #64748b;
+            font-size: 1.9rem;
+            line-height: 1;
+            cursor: pointer;
+            padding: 2px 10px;
+            border-radius: 6px;
+            transition: 0.2s;
+        }
+        .ancine-box .ancine-close:hover { color: #0b0f19; background: #f1f5f9; }
+        .ancine-box .ancine-logo-wrap {
+            text-align: center;
+            margin-bottom: 18px;
+            padding-bottom: 14px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        .ancine-box .ancine-logo-wrap img {
+            height: 70px;
+            max-width: 100%;
+            object-fit: contain;
+        }
+        .ancine-box h2 {
+            color: #0b0f19;
+            text-align: center;
+            font-size: 1.25rem;
+            margin-bottom: 16px;
+            font-weight: 700;
+            letter-spacing: 0.2px;
+        }
+        .ancine-box p {
+            color: #334155;
+            line-height: 1.65;
+            font-size: 0.94rem;
+            margin-bottom: 14px;
+        }
+        .ancine-box p strong { color: #0b0f19; }
+        .ancine-box ul {
+            list-style: none;
+            padding: 0;
+            margin: 18px 0 0;
+        }
+        .ancine-box li {
+            padding: 12px 14px;
+            border-radius: 8px;
+            background: #f1f5f9;
+            margin-bottom: 10px;
+            font-size: 0.9rem;
+            line-height: 1.5;
+            color: #1e293b;
+            border-left: 4px solid #fdbb2d;
+        }
+        .ancine-box li strong { color: #0b0f19; }
+        .tag.ancine-tag { cursor: pointer; transition: transform 0.15s, box-shadow 0.15s; }
+        .tag.ancine-tag:hover { transform: scale(1.08); box-shadow: 0 0 10px rgba(255,255,255,0.35); }
+
         @media (min-width: 901px) { .ad-side-banner { display: block; } }
 
         @media (max-width: 900px) {
@@ -927,6 +1011,23 @@
     </div>
 </div>
 
+<div id="ancineLightbox">
+    <div class="ancine-box">
+        <button class="ancine-close" id="ancineCloseBtn" title="Fechar">×</button>
+        <div class="ancine-logo-wrap">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/6/66/Ag%C3%AAncia_Nacional_do_Cinema.png" alt="ANCINE - Agência Nacional do Cinema">
+        </div>
+        <h2>Classificação Normativa ANCINE</h2>
+        <p>No Brasil, a duração de uma obra audiovisual segue critérios legais determinados pela legislação nacional.</p>
+        <p>Abaixo, confira a classificação normativa da <strong>Agência Nacional do Cinema (ANCINE)</strong>, baseada na <strong>Medida Provisória nº 2.228-1/2001</strong>, que define os formatos de acordo com o tempo de execução:</p>
+        <ul>
+            <li><strong>Curta-Metragem:</strong> Obra audiovisual com duração igual ou inferior a 15 minutos.</li>
+            <li><strong>Média-Metragem:</strong> Obra audiovisual com duração superior a 15 minutos e igual ou inferior a 70 minutos.</li>
+            <li><strong>Longa-Metragem:</strong> Obra audiovisual com duração superior a 70 minutos.</li>
+        </ul>
+    </div>
+</div>
+
 <script>
     // ============ FIREBASE INIT ============
     const firebaseConfig = {
@@ -1090,7 +1191,8 @@
     function updateSearchVisibility() {
         const searchContainer = document.querySelector('.search-container');
         if (!searchContainer) return;
-        const isModalOpen = document.querySelector('.modal-overlay.active') || document.getElementById('playerScreen').classList.contains('active') || document.getElementById('adInterstitialModal').classList.contains('active') || document.getElementById('banAlertModal').classList.contains('active') || document.getElementById('blockAlertModal').classList.contains('active') || document.getElementById('pixLightbox').style.display === 'flex';
+        const ancineLb = document.getElementById('ancineLightbox');
+        const isModalOpen = document.querySelector('.modal-overlay.active') || document.getElementById('playerScreen').classList.contains('active') || document.getElementById('adInterstitialModal').classList.contains('active') || document.getElementById('banAlertModal').classList.contains('active') || document.getElementById('blockAlertModal').classList.contains('active') || document.getElementById('pixLightbox').style.display === 'flex' || (ancineLb && ancineLb.classList.contains('active'));
         if (isModalOpen) {
             searchContainer.style.display = 'none';
             document.body.classList.add('no-scroll', 'search-hidden');
@@ -1111,6 +1213,7 @@
             document.getElementById('playerScreen'), document.getElementById('adInterstitialModal'),
             document.getElementById('pixLightbox'), document.getElementById('banAlertModal'),
             document.getElementById('blockAlertModal'), document.getElementById('notificationsModal'),
+            document.getElementById('ancineLightbox'),
             ...document.querySelectorAll('.modal-overlay')
         ];
         targets.forEach(t => { if(t) domObserver.observe(t, { attributes: true, attributeFilter: ['class', 'style'] }); });
@@ -2413,7 +2516,7 @@
         // ═══ Tag de classificação ANCINE (fallback: curta) ═══
         const classificacao = normalizarClassificacao(item.classificacao);
         const classInfo = CLASSIFICACAO_INFO[classificacao];
-        tags.push(`<span class="tag ${classInfo.cls}" title="${classInfo.titulo}">${classInfo.label}</span>`);
+        tags.push(`<span class="tag ${classInfo.cls} ancine-tag" title="${classInfo.titulo} — clique para saber mais">${classInfo.label}</span>`);
         const tagsHtml = tags.length ? `<div class="card-tags">${tags.join('')}</div>` : '<div class="card-tags"></div>';
         const produtora = (item.produtora || '').trim();
         const ano = (item.ano != null && item.ano !== '') ? item.ano : null;
@@ -2440,6 +2543,14 @@
         card.querySelector('.favorite-btn').addEventListener('click', (e) => { e.stopPropagation(); toggleFavorite(item.youtubeId); });
         card.querySelector('.edit').addEventListener('click', (e) => { e.stopPropagation(); openVideoModal('edit', item); });
         card.querySelector('.delete').addEventListener('click', (e) => { e.stopPropagation(); deleteVideo(item); });
+        // ═══ Clique na etiqueta de classificação ANCINE ═══
+        const ancineTag = card.querySelector('.ancine-tag');
+        if (ancineTag) {
+            ancineTag.addEventListener('click', (e) => {
+                e.stopPropagation();
+                openAncineLightbox();
+            });
+        }
         const watchBtn = card.querySelector('.watch-btn');
         const isPago = !!item.pago;
         if (isPago && !catalogSubscription.active) { watchBtn.textContent = '🔒 Assinar para assistir'; watchBtn.classList.add('locked'); }
@@ -3044,6 +3155,25 @@
         ta.select(); ta.setSelectionRange(0, 99999); document.execCommand('copy');
         document.getElementById('copyPixBtn').textContent = 'Copiado!';
         setTimeout(() => document.getElementById('copyPixBtn').textContent = 'Copiar código', 2000);
+    });
+
+    // ============ LIGHTBOX ANCINE ============
+    function openAncineLightbox() {
+        document.getElementById('ancineLightbox').classList.add('active');
+        updateSearchVisibility();
+    }
+    function closeAncineLightbox() {
+        document.getElementById('ancineLightbox').classList.remove('active');
+        updateSearchVisibility();
+    }
+    document.getElementById('ancineCloseBtn')?.addEventListener('click', closeAncineLightbox);
+    document.getElementById('ancineLightbox')?.addEventListener('click', (e) => {
+        if (e.target === document.getElementById('ancineLightbox')) closeAncineLightbox();
+    });
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && document.getElementById('ancineLightbox')?.classList.contains('active')) {
+            closeAncineLightbox();
+        }
     });
 
     // ============ ANÚNCIO PAGO ============
