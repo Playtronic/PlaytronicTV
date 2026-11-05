@@ -991,7 +991,27 @@
         #tvScreen .tv-bottombar {
             transition: opacity 0.4s ease !important;
         }
-    </style>
+    
+        #tvScreen .tv-topbar, 
+        #tvScreen .tv-bottombar, 
+        #tvScreen .tv-controls,
+        #tvScreen .tv-vol-btn,
+        #tvScreen .tv-vol-slider,
+        #tvScreen .tv-fs-btn,
+        #tvScreen .tv-close-btn {
+            pointer-events: auto !important;
+        }
+        #tvScreen:not(.tv-playing) .tv-topbar,
+        #tvScreen:not(.tv-playing) .tv-bottombar {
+            opacity: 0 !important;
+            pointer-events: none !important;
+        }
+        #tvScreen.ui-hidden .tv-topbar,
+        #tvScreen.ui-hidden .tv-bottombar {
+            opacity: 0 !important;
+            pointer-events: none !important;
+        }
+        </style>
 </head>
 <body>
 
@@ -4041,9 +4061,11 @@
         tvCurrentYtId = pos.video.youtubeId;
         tvPlayerReady = false;
 
-        document.getElementById('tvCurrentTitle').textContent = pos.video.titulo || 'TV Playtronic';
-        document.getElementById('tvNowTitle').textContent = pos.video.titulo || 'Transmissão ao vivo';
-        document.getElementById('tvNowPlaying').style.display = 'flex';
+        const curTitle = document.getElementById('tvCurrentTitle');
+        if (curTitle) curTitle.textContent = pos.video.titulo || 'TV Playtronic';
+        const nowTitle = document.getElementById('tvNowTitle');
+        if (nowTitle) nowTitle.textContent = pos.video.titulo || 'Transmissão ao vivo';
+        // Controlado via CSS (.tv-playing)
 
         const container = document.getElementById('tvPlayerContainer');
         container.innerHTML = '<div id="tvPlayerDiv" style="width:100%; height:100%;"></div>';
