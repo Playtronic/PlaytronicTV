@@ -941,6 +941,28 @@
             .tv-vol-slider { width: 50px; }
             .tv-volume-container { height: 36px; padding: 0 8px; }
         }
+        /* ✅ PATCH LAYOUT: Barra inferior flexível */
+        #tvScreen .tv-bottombar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 15px;
+            padding: 15px 24px;
+        }
+        #tvScreen .tv-now-playing {
+            flex: 1;
+            min-width: 0;
+        }
+        #tvScreen .tv-controls {
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        /* Esconde a barra superior antiga (que ficou vazia) */
+        #tvScreen .tv-topbar {
+            display: none !important;
+        }
     </style>
 </head>
 <body>
@@ -1055,20 +1077,7 @@
             <div class="tv-brand-badge">AO VIVO</div>
             <span class="tv-brand-title" id="tvCurrentTitle">TV Playtronic</span>
         </div>
-        <div class="tv-controls">
-            <div class="tv-volume-container">
-                <button class="tv-vol-btn" id="tvMuteBtn" title="Mudo">🔊</button>
-                <input type="range" class="tv-vol-slider" id="tvVolumeSlider" min="0" max="100" value="100">
-            </div>
-            <button class="tv-fs-btn" id="tvFullscreenBtn" title="Tela Cheia">
-                <svg viewBox="0 0 24 24" width="18" height="18" fill="white">
-                    <path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/>
-                </svg>
-                <span>TELA CHEIA</span>
-            </button>
-            <button class="tv-close-btn" id="tvCloseBtn" title="Fechar TV">✖</button>
         </div>
-    </div>
     <div class="tv-content">
         <div id="tvPlayerContainer"></div>
         <div class="tv-loading" id="tvLoading">
@@ -1083,6 +1092,20 @@
         <div class="tv-now-playing" id="tvNowPlaying">
             <span class="tv-now-label">AGORA</span>
             <span class="tv-now-title" id="tvNowTitle"></span>
+        </div>
+            <div class="tv-controls">
+                <div class="tv-volume-container">
+                    <button class="tv-vol-btn" id="tvMuteBtn" title="Mudo">🔊</button>
+                    <input type="range" class="tv-vol-slider" id="tvVolumeSlider" min="0" max="100" value="100">
+                </div>
+                <button class="tv-fs-btn" id="tvFullscreenBtn" title="Tela Cheia">
+                    <svg viewBox="0 0 24 24" width="18" height="18" fill="white">
+                        <path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/>
+                    </svg>
+                    <span>TELA CHEIA</span>
+                </button>
+                <button class="tv-close-btn" id="tvCloseBtn" title="Fechar TV">✖</button>
+            </div>
         </div>
     </div>
 </div>
