@@ -963,7 +963,10 @@
             <div class="tv-brand-badge">AO VIVO</div>
             <span class="tv-brand-title" id="tvCurrentTitle">TV Playtronic</span>
         </div>
-        <button class="tv-close-btn" id="tvCloseBtn" title="Fechar TV">✖</button>
+        <div style="display: flex; gap: 10px; pointer-events: auto;">
+            <button class="tv-close-btn" id="tvFullscreenBtn" title="Tela Cheia">⛶</button>
+            <button class="tv-close-btn" id="tvCloseBtn" title="Fechar TV">✖</button>
+        </div>
     </div>
     <div class="tv-content">
         <div id="tvPlayerContainer"></div>
@@ -1381,6 +1384,7 @@
     let tvServerOffset = 0;
     let tvDriftInterval = null;
     let tvActive = false;
+    let tvSkipOffset = 0;
     let tvPendingUpdate = false;
 
     // ============ PREFERÊNCIAS PERSISTENTES ============
@@ -3035,7 +3039,7 @@
     async function autoBackfillDurations() {
         if (!currentUser || !isAdmin()) return;
         if (_backfillRunning) return;
-        const missing = videos.filter(v => !Number(v.duracaoSegundos));
+        const missing = videos.filter(v => !Number(v.duracaoSegundos) && v.duracaoSegundos !== 0);
         if (missing.length === 0) return;
 
         _backfillRunning = true;
@@ -3678,7 +3682,7 @@
     function computeTVPosition(playlist, total) {
         if (!playlist.length || total <= 0) return null;
         const serverNow = Date.now() + tvServerOffset;
-        const pos = ((serverNow - TV_EPOCH_MS) % total + total) % total;
+        const pos = ((serverNow - TV_EPOCH_MS + tvSkipOffset) % total + total) % total;
         let acc = 0;
         for (let i = 0; i < playlist.length; i++) {
             const d = playlist[i].duracaoSegundos;
@@ -3749,7 +3753,10 @@
             if (pos.video.youtubeId !== tvCurrentYtId) { loadTVPlayer(); return; }
             try {
                 const actual = tvPlayer.getCurrentTime();
-                if (Math.abs(actual - pos.offset) > 3) tvPlayer.seekTo(pos.offset, true);
+                const diff = Math.abs(actual - pos.offset);
+                if (diff > 5 && diff < 30) {
+                    tvPlayer.seekTo(pos.offset, true);
+                }
             } catch (e) {}
         }, 15000);
     }
@@ -3787,7 +3794,12 @@
                         try { ev.target.unloadModule('captions'); ev.target.unloadModule('cc'); } catch (e) {}
                     },
                     onStateChange: handleTVStateChange,
-                    onError: () => { setTimeout(() => onTVVideoEnded(), 1500); }
+                    onError: (ev) => {
+                        console.warn('TV Player Error (Pulando vídeo):', ev.data);
+                        tvSkipOffset += (pos.video.duracaoSegundos || 60);
+                        document.getElementById('tvLoading').style.display = 'flex';
+                        setTimeout(loadTVPlayer, 1000);
+                    }
                 }
             });
             return;
@@ -3800,8 +3812,11 @@
                 tvPlayer.loadVideoById({ videoId: pos.video.youtubeId, startSeconds: pos.offset });
                 tvPlayer.setVolume(100);
             } else {
-                tvPlayer.seekTo(pos.offset, true);
-            }
+                    const actual = tvPlayer.getCurrentTime();
+                    if (Math.abs(actual - pos.offset) > 3) {
+                        tvPlayer.seekTo(pos.offset, true);
+                    }
+                }
         } catch (e) { console.warn('TV load:', e); }
     }
 
@@ -3839,6 +3854,14 @@
     });
 
     document.getElementById('tvCloseBtn')?.addEventListener('click', closeTV);
+    document.getElementById('tvFullscreenBtn')?.addEventListener('click', () => {
+        const tvScreen = document.getElementById('tvScreen');
+        if (!document.fullscreenElement) {
+            tvScreen.requestFullscreen().catch(err => console.warn(err));
+        } else {
+            document.exitFullscreen();
+        }
+    });
     document.getElementById('tvUnmuteBtn')?.addEventListener('click', startTVPlayback);
     document.getElementById('tvUnmuteOverlay')?.addEventListener('click', startTVPlayback);
 
