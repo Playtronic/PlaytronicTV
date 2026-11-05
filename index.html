@@ -1187,7 +1187,9 @@
                         <div class="progress-thumb" id="progressThumb"></div>
                     </div>
                     <span class="time-label" id="timeLabel">0:00 / 0:00</span>
-                    <button class="control-btn" id="fullscreenBtn" title="Tela Cheia">⛶</button>
+                    <button class="control-btn" id="fullscreenBtn" title="Tela Cheia">
+                        <svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20"><path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/></svg>
+                    </button>
                 </div>
             </div>
             <div id="youtubePlayer"></div>
@@ -2703,6 +2705,16 @@
             lastLogin: firebase.firestore.FieldValue.serverTimestamp()
         }, { merge: true }).catch(e => console.warn('catalog_users write:', e));
     }
+
+    function checkMyAdsVisibility() {
+        if (!myAdsBtn) return;
+        if (currentUser && isAdmin()) {
+            myAdsBtn.style.display = 'flex';
+        } else {
+            myAdsBtn.style.display = 'none';
+        }
+    }
+
     auth.onAuthStateChanged((user) => {
         currentUser = user;
         if (favoritesRef) { favoritesRef.off(); favoritesRef = null; }
@@ -3673,7 +3685,7 @@
     function computeTVPosition(playlist, total) {
         if (!playlist.length || total <= 0) return null;
         const serverNow = Date.now() + tvServerOffset;
-        const pos = ((serverNow - TV_EPOCH_MS + tvSkipOffset) % total + total) % total;
+        const pos = ((serverNow - TV_EPOCH_MS) % total + total) % total;
         let acc = 0;
         for (let i = 0; i < playlist.length; i++) {
             const d = playlist[i].duracaoSegundos;
@@ -3690,6 +3702,10 @@
         }
         if (!catalogSubscription.active) {
             openPixLightbox();
+            return;
+        }
+        if (!videosLoaded) {
+            alert('Carregando o catálogo. Aguarde alguns instantes e tente novamente.');
             return;
         }
         tvPlaylist = buildTVPlaylist();
@@ -3794,14 +3810,14 @@
                         ev.target.playVideo();
                         ev.target.setVolume(100);
                         try { ev.target.unloadModule('captions'); ev.target.unloadModule('cc'); } catch (e) {}
+                        try { ev.target.setOption('captions', 'track', {}); } catch (e) {}
                     },
                     onStateChange: handleTVStateChange,
                     onError: (ev) => {
                         if (ev.data === 100 || ev.data === 101 || ev.data === 150) {
                             console.warn('TV Player Error (Vídeo indisponível, pulando):', ev.data);
-                            tvSkipOffset += (pos.video.duracaoSegundos || 60);
-                            document.getElementById('tvLoading').style.display = 'flex';
                             if (tvPlayer) { tvPlayer.destroy(); tvPlayer = null; }
+                            document.getElementById('tvLoading').style.display = 'flex';
                             setTimeout(loadTVPlayer, 1000);
                         } else {
                             console.warn('TV Player Error ignorado (CORS/Autoplay):', ev.data);
@@ -3831,11 +3847,9 @@
         adModal.classList.add('active');
         document.body.classList.add('ad-modal-open');
 
-        // Sorteia um banner interno
         const ad = adBanners[Math.floor(Math.random() * adBanners.length)] || adBanners[0];
         if (ad) {
             centerWrapper.innerHTML = `<img src="${ad.src}" style="width:100%; height:100%; object-fit:contain; cursor:pointer;" onclick="window.open('${ad.link}', '_blank')">`;
-            // Contabiliza view
             if (ad.src) {
                 fetch(CF_BASE + '/incrementInternalAdViews', {
                     method: 'POST',
@@ -3965,7 +3979,6 @@
                 playerMobileTop.style.display = '';
                 playerMobileBottom.style.display = isLandscape ? 'none' : '';
                 playerBottomAd.style.display = 'none';
-                // Anúncios móveis
                 playerMobileTop.innerHTML = '<div style="width:100%; height:100%; display:flex; align-items:center; justify-content:center; background:#eee; color:#333; font-size:12px;">Anúncio Móvel Top</div>';
                 if (!isLandscape) {
                     playerMobileBottom.innerHTML = '<div style="width:100%; height:100%; display:flex; align-items:center; justify-content:center; background:#eee; color:#333; font-size:12px;">Anúncio Móvel Bottom</div>';
@@ -4002,12 +4015,6 @@
         openComments(video.youtubeId);
     }
 
-    window.addEventListener('resize', () => {
-        if (document.getElementById('adInterstitialModal').classList.contains('active')) {
-            // Ajuste responsivo de anúncios no modal
-        }
-    });
-
     function onPlayerReady(event) {
         playerReady = true;
         event.target.playVideo();
@@ -4015,6 +4022,7 @@
         event.target.setVolume(currentVolume);
         updateVolumeUI(currentVolume);
         try { event.target.unloadModule('captions'); event.target.unloadModule('cc'); } catch(e) {}
+        try { event.target.setOption('captions', 'track', {}); } catch (e) {}
     }
 
     function onPlayerStateChange(event) {
@@ -4134,9 +4142,9 @@
 
     fullscreenBtn.addEventListener('click', () => {
         if (!document.fullscreenElement) {
-            if (playerWrapper.requestFullscreen) playerWrapper.requestFullscreen();
+            if (playerWrapper.requestFullscreen) playerWrapper.requestFullscreen().catch(e => console.warn(e));
         } else {
-            if (document.exitFullscreen) document.exitFullscreen();
+            if (document.exitFullscreen) document.exitFullscreen().catch(e => console.warn(e));
         }
     });
 
