@@ -235,22 +235,7 @@
         .player-vote-btn.like.active { background: #2ecc71; border-color: #2ecc71; }
         .player-vote-btn.dislike.active { background: #e74c3c; border-color: #e74c3c; }
         
-        #sharePlayerBtn { 
-            position: absolute; 
-            top: 15px; 
-            right: 15px; 
-            background: rgba(0,0,0,0.6); 
-            border: 1px solid rgba(255,255,255,0.1); 
-            z-index: 30; 
-            padding: 8px 12px; 
-            border-radius: 15px; 
-            cursor: pointer; 
-            color: #fff; 
-            font-size: 0.9rem; 
-            font-weight: bold; 
-            transition: 0.2s; 
-            pointer-events: auto !important; /* O SEGREDO ESTÁ AQUI */
-        }
+        #sharePlayerBtn { position: absolute; top: 15px; right: 15px; background: rgba(0,0,0,0.6); border: 1px solid rgba(255,255,255,0.1); z-index: 30; padding: 8px 12px; border-radius: 15px; cursor: pointer; color: #fff; font-size: 0.9rem; font-weight: bold; transition: 0.2s; pointer-events: auto !important; }
         #sharePlayerBtn:hover { background: #3b82f6; border-color: #60a5fa; }
 
         .center-play-btn { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 76px; height: 76px; border-radius: 50%; background: #fdbb2d; border: none; color: #000; cursor: pointer; z-index: 25; pointer-events: auto; display: flex; align-items: center; justify-content: center; transition: opacity 0.3s ease, transform 0.3s ease; box-shadow: 0 4px 20px rgba(0,0,0,0.5); padding: 0; }
@@ -4015,10 +4000,6 @@
             document.body.removeChild(textArea);
         }
     }
-        }).catch(err => {
-            prompt('Copie o link abaixo para compartilhar:', url);
-        });
-    }
 
     function processarDeepLink() {
         if (deepLinkProcessed || !videosLoaded) return;
@@ -4303,7 +4284,6 @@
     document.getElementById('tvUnmuteBtn')?.addEventListener('click', startTVPlayback);
 
     // ============ INICIALIZAÇÃO ============
-    
     loadCustomAds();
 </script>
 </body>
