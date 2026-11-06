@@ -235,7 +235,22 @@
         .player-vote-btn.like.active { background: #2ecc71; border-color: #2ecc71; }
         .player-vote-btn.dislike.active { background: #e74c3c; border-color: #e74c3c; }
         
-        #sharePlayerBtn { position: absolute; top: 15px; right: 15px; background: rgba(0,0,0,0.6); border: 1px solid rgba(255,255,255,0.1); z-index: 30; padding: 8px 12px; border-radius: 15px; cursor: pointer; color: #fff; font-size: 0.9rem; font-weight: bold; transition: 0.2s; }
+        #sharePlayerBtn { 
+            position: absolute; 
+            top: 15px; 
+            right: 15px; 
+            background: rgba(0,0,0,0.6); 
+            border: 1px solid rgba(255,255,255,0.1); 
+            z-index: 30; 
+            padding: 8px 12px; 
+            border-radius: 15px; 
+            cursor: pointer; 
+            color: #fff; 
+            font-size: 0.9rem; 
+            font-weight: bold; 
+            transition: 0.2s; 
+            pointer-events: auto !important; /* O SEGREDO ESTÁ AQUI */
+        }
         #sharePlayerBtn:hover { background: #3b82f6; border-color: #60a5fa; }
 
         .center-play-btn { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 76px; height: 76px; border-radius: 50%; background: #fdbb2d; border: none; color: #000; cursor: pointer; z-index: 25; pointer-events: auto; display: flex; align-items: center; justify-content: center; transition: opacity 0.3s ease, transform 0.3s ease; box-shadow: 0 4px 20px rgba(0,0,0,0.5); padding: 0; }
@@ -3777,12 +3792,11 @@
         
         const shareBtn = document.getElementById('sharePlayerBtn');
         if (shareBtn) {
-            shareBtn.replaceWith(shareBtn.cloneNode(true));
-            document.getElementById('sharePlayerBtn').addEventListener('click', (e) => {
+            shareBtn.onclick = (e) => {
                 e.preventDefault();
                 e.stopPropagation();
                 compartilharVideo(video.youtubeId);
-            });
+            };
         }
 
         openComments(video.youtubeId);
@@ -3969,15 +3983,38 @@
         if (!youtubeId) return;
         const url = window.location.origin + window.location.pathname + '#video=' + youtubeId;
         
-        navigator.clipboard.writeText(url).then(() => {
+        const mostrarSucesso = () => {
             const btn = document.getElementById('sharePlayerBtn');
             if (btn) {
                 const originalText = btn.innerHTML;
                 btn.innerHTML = '✅';
                 setTimeout(() => btn.innerHTML = originalText, 2000);
             } else {
-                alert('Link copiado com sucesso!');
+                alert('Link copiado com sucesso!\n' + url);
             }
+        };
+
+        if (navigator.clipboard && window.isSecureContext) {
+            navigator.clipboard.writeText(url).then(mostrarSucesso).catch(() => {
+                prompt('Copie o link abaixo para compartilhar:', url);
+            });
+        } else {
+            const textArea = document.createElement("textarea");
+            textArea.value = url;
+            textArea.style.position = "fixed";
+            textArea.style.opacity = "0";
+            document.body.appendChild(textArea);
+            textArea.focus();
+            textArea.select();
+            try {
+                document.execCommand('copy');
+                mostrarSucesso();
+            } catch (err) {
+                prompt('Copie o link abaixo para compartilhar:', url);
+            }
+            document.body.removeChild(textArea);
+        }
+    }
         }).catch(err => {
             prompt('Copie o link abaixo para compartilhar:', url);
         });
