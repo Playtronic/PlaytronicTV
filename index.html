@@ -3814,7 +3814,7 @@
             shareBtn.onclick = (e) => {
                 e.preventDefault();
                 e.stopPropagation();
-                compartilharVideo(video.youtubeId);
+                compartilharVideo(video.key);
             };
         }
 
@@ -3997,22 +3997,22 @@
         }, 500);
     }
 
-    // ============ COMPARTILHAMENTO (DEEP LINK) ============
-    function compartilharVideo(youtubeId) {
-        if (!youtubeId) return;
-        const url = window.location.origin + window.location.pathname + '#video=' + youtubeId;
+    // ============ COMPARTILHAMENTO (DEEP LINK SEGURO) ============
+    function compartilharVideo(videoKey) {
+        if (!videoKey) return;
+        const url = window.location.origin + window.location.pathname + '#video=' + videoKey;
         
         const mostrarSucesso = () => {
             const btn = document.getElementById('sharePlayerBtn');
             if (btn) {
                 const originalText = btn.innerHTML;
                 btn.innerHTML = '✅ Copiado!';
-                btn.style.background = 'rgba(34,197,94,0.4)'; // Fica verde
+                btn.style.background = 'rgba(34,197,94,0.4)';
                 btn.style.borderColor = 'rgba(34,197,94,0.6)';
                 
                 setTimeout(() => {
                     btn.innerHTML = originalText;
-                    btn.style.background = 'rgba(59,130,246,0.3)'; // Volta a ficar azul
+                    btn.style.background = 'rgba(59,130,246,0.3)';
                     btn.style.borderColor = 'rgba(59,130,246,0.6)';
                 }, 2000);
             } else {
@@ -4047,8 +4047,11 @@
         
         const hash = window.location.hash;
         if (hash && hash.startsWith('#video=')) {
-            const ytId = hash.replace('#video=', '');
-            const video = videos.find(v => v.youtubeId === ytId);
+            const identifier = hash.replace('#video=', '');
+            
+            // Prioriza a Chave do Firebase (segura) e tenta o ID do YouTube como fallback (compatibilidade)
+            let video = videos.find(v => v.key === identifier);
+            if (!video) video = videos.find(v => v.youtubeId === identifier);
             
             if (video) {
                 deepLinkProcessed = true;
