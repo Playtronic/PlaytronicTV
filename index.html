@@ -142,7 +142,6 @@
 
         .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.72); display: none; align-items: center; justify-content: center; z-index: 1500; backdrop-filter: blur(6px); padding: 100px 20px 20px 20px; }
         .modal-overlay.active { display: flex; }
-
         #notificationsModal { z-index: 2200; }
 
         .modal { background: #152961; border: 1px solid rgba(255,255,255,0.12); border-radius: 14px; padding: 26px; width: 100%; max-width: 520px; box-shadow: 0 25px 60px rgba(0,0,0,0.8); animation: modalIn 0.2s ease; max-height: 85vh; overflow-y: auto; }
@@ -168,6 +167,7 @@
         .modal-actions .secondary:hover { background: rgba(255,255,255,0.2); }
         .modal-actions .primary { background: #fdbb2d; color: #000; }
         .modal-actions .primary:hover { background: #ffcc44; }
+        
         .my-ads-toolbar { display: flex; gap: 10px; margin-bottom: 20px; width: 100%; }
         .my-ads-toolbar input { flex: 1; background: rgba(255,255,255,0.08); color: #fff; border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; padding: 11px 14px; font-size: 0.9rem; outline: none; transition: 0.2s; }
         .my-ads-toolbar input:focus { border-color: #fdbb2d; }
@@ -191,6 +191,7 @@
         .ad-info-views { font-size: 0.75rem; color: #fdbb2d; font-weight: 700; }
         .remove-ad-btn { background: #ef4444; color: #fff; border: none; padding: 8px 14px; border-radius: 6px; cursor: pointer; font-size: 0.8rem; font-weight: bold; flex-shrink: 0; transition: background 0.2s; }
         .remove-ad-btn:hover { background: #dc2626; }
+        
         .perf-tabs { display: flex; gap: 10px; margin-bottom: 15px; margin-top: 5px; flex-shrink: 0; }
         .perf-tab-btn { flex: 1; padding: 10px; border-radius: 8px; border: none; font-weight: bold; cursor: pointer; transition: 0.2s; font-size: 0.9rem; }
         .perf-tab-btn.active { background: #fdbb2d; color: #000; }
@@ -208,6 +209,7 @@
         .perf-table .perf-title { max-width: 220px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
         .perf-table .perf-note-cell { color: #fdbb2d; font-weight: 700; }
         .perf-empty { text-align: center; padding: 30px; color: #94a3b8; font-size: 0.9rem; }
+        
         #pixPlanSelector { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 20px; }
         .plan-option { position: relative; background: rgba(255,255,255,0.05); border: 2px solid rgba(255,255,255,0.15); border-radius: 10px; padding: 14px 10px; text-align: center; cursor: pointer; transition: 0.2s; user-select: none; }
         .plan-option:hover { border-color: rgba(253,187,45,0.5); background: rgba(255,255,255,0.08); }
@@ -252,6 +254,7 @@
         .volume-container { display: flex; align-items: center; gap: 8px; }
         .volume-slider { -webkit-appearance: none; width: 80px; height: 4px; background: rgba(255,255,255,0.3); border-radius: 2px; outline: none; cursor: pointer; }
         .volume-slider::-webkit-slider-thumb { -webkit-appearance: none; width: 12px; height: 12px; border-radius: 50%; background: #fdbb2d; cursor: pointer; }
+        
         #player-bottom-ad { display: none; width: 100%; max-width: 728px; height: 90px; background: transparent; border-radius: 8px; overflow: hidden; flex-shrink: 0; margin: 0 auto; position: relative; }
         #player-bottom-ad iframe { display: block; border: 0; width: 100%; height: 100%; position: absolute; top: 0; left: 0; z-index: 1; }
         .player-mobile-banner { display: none; flex-shrink: 0; background: #ffffff; border-radius: 8px; overflow: hidden; position: relative; margin: 0 auto; border: 1px solid rgba(255,255,255,0.2); }
@@ -309,11 +312,9 @@
         .new-comment-form { display: flex; gap: 10px; align-items: flex-start; background: rgba(0,0,0,0.2); padding: 15px; border-radius: 10px; }
         .new-comment-form textarea { width: 100%; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; padding: 10px; color: #fff; resize: vertical; min-height: 60px; outline: none; font-family: inherit; font-size: 0.9rem; }
         .new-comment-form textarea:focus { border-color: #fdbb2d; }
-
         .comment-card { display: flex; gap: 12px; padding: 15px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.1); word-break: break-word; position: relative; }
         .comment-card.pinned { border: 2px solid #10b981; box-shadow: 0 0 15px rgba(16, 185, 129, 0.2); }
         .comment-card.pinned::before { content: '📌 Fixado'; position: absolute; top: -10px; left: 10px; background: #10b981; color: #fff; font-size: 0.65rem; font-weight: bold; padding: 2px 8px; border-radius: 10px; }
-
         .comment-avatar { width: 42px; height: 42px; border-radius: 50%; object-fit: cover; flex-shrink: 0; border: 2px solid rgba(255,255,255,0.15); }
         .comment-content { flex: 1; min-width: 0; }
         .comment-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; flex-wrap: wrap; gap: 5px; }
@@ -329,10 +330,8 @@
         .comment-action-btn.delete:hover { color: #ef4444; }
         .comment-action-btn.pin-btn:hover { color: #10b981; }
         .comment-action-btn.reply-action:hover { color: #60a5fa; }
-
         .replies-container { display: none; margin-top: 12px; margin-left: 20px; padding-left: 18px; border-left: 2px solid rgba(253,187,45,0.25); flex-direction: column; gap: 10px; }
         .replies-container.expanded { display: flex; }
-
         .reply-card { display: flex; gap: 10px; padding: 10px 12px; border-radius: 8px; background: rgba(0,0,0,0.25); border: 1px solid rgba(255,255,255,0.06); position: relative; font-size: 0.85rem; }
         .reply-card.pinned { border: 2px solid #10b981; box-shadow: 0 0 12px rgba(16,185,129,0.15); }
         .reply-card.pinned::before { content: '📌 Fixado'; position: absolute; top: -9px; left: 10px; background: #10b981; color: #fff; font-size: 0.6rem; font-weight: bold; padding: 1px 7px; border-radius: 8px; }
@@ -343,13 +342,11 @@
         .reply-date { font-size: 0.68rem; color: #94a3b8; }
         .reply-text { color: #f8fafc; font-size: 0.88rem; line-height: 1.4; margin-bottom: 6px; white-space: pre-wrap; word-break: break-word; }
         .reply-text .mention { color: #a78bfa; font-weight: 600; }
-
         .reply-actions { display: flex; gap: 12px; align-items: center; font-size: 0.75rem; flex-wrap: wrap; }
         .reply-action-btn { background: none; border: none; color: #94a3b8; cursor: pointer; font-size: 0.75rem; font-family: inherit; padding: 0; display: flex; align-items: center; gap: 4px; transition: color 0.2s; }
         .reply-action-btn:hover { color: #fdbb2d; }
         .reply-action-btn.pin-btn:hover { color: #10b981; }
         .reply-action-btn.delete-btn:hover { color: #ef4444; }
-
         .replies-toggle-wrapper { margin-top: 10px; }
         .replies-toggle-btn { background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.15); color: #cbd5e1; padding: 6px 14px; border-radius: 6px; font-size: 0.8rem; cursor: pointer; font-family: inherit; display: inline-flex; align-items: center; gap: 6px; transition: 0.2s; font-weight: 600; }
         .replies-toggle-btn:hover { background: rgba(253,187,45,0.12); border-color: #fdbb2d; color: #fdbb2d; }
@@ -357,7 +354,6 @@
         .replies-toggle-btn .arrow { display: inline-block; transition: transform 0.25s; font-size: 0.7rem; }
         .replies-toggle-btn.expanded .arrow { transform: rotate(180deg); }
         .replies-toggle-btn .reply-badge { background: #fdbb2d; color: #000; border-radius: 10px; padding: 1px 7px; font-size: 0.7rem; font-weight: 800; }
-
         .reply-form { display: none; margin-top: 10px; background: rgba(0,0,0,0.25); padding: 10px; border-radius: 8px; gap: 8px; align-items: flex-start; border: 1px solid rgba(255,255,255,0.08); }
         .reply-form.active { display: flex; }
         .reply-form textarea { flex: 1; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.2); border-radius: 6px; padding: 8px 10px; color: #fff; resize: vertical; min-height: 44px; outline: none; font-family: inherit; font-size: 0.85rem; }
@@ -365,7 +361,6 @@
         .reply-form .reply-form-btn { background: #fdbb2d; color: #000; border: none; padding: 8px 16px; border-radius: 6px; font-weight: bold; cursor: pointer; font-family: inherit; font-size: 0.82rem; align-self: stretch; transition: 0.2s; }
         .reply-form .reply-form-btn:hover { background: #ffcc44; }
         .reply-form .reply-form-btn:disabled { opacity: 0.5; cursor: not-allowed; }
-
         .notif-item { display: flex; gap: 12px; padding: 12px; border-radius: 10px; margin-bottom: 8px; background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.05); cursor: pointer; transition: 0.2s; position: relative; }
         .notif-item:hover { background: rgba(255,255,255,0.06); border-color: rgba(253,187,45,0.3); transform: translateX(2px); }
         .notif-item.unread { background: rgba(253,187,45,0.09); border-left: 3px solid #fdbb2d; }
@@ -381,7 +376,6 @@
         .notif-mark-all-btn:hover { background: rgba(253,187,45,0.15); border-color: #fdbb2d; color: #fdbb2d; }
         .notif-delete-btn { background: none; border: none; color: #94a3b8; cursor: pointer; padding: 2px; font-size: 0.9rem; transition: color 0.2s; }
         .notif-delete-btn:hover { color: #ef4444; }
-
         .admin-tabs { display: flex; gap: 8px; margin-bottom: 15px; flex-wrap: wrap; flex-shrink: 0; }
         .admin-tab-btn { flex: 1; min-width: 100px; padding: 10px; border-radius: 8px; border: none; font-weight: bold; cursor: pointer; transition: 0.2s; font-size: 0.82rem; background: rgba(255,255,255,0.12); color: #fff; font-family: inherit; }
         .admin-tab-btn.active { background: #fdbb2d; color: #000; }
@@ -410,7 +404,6 @@
         #banAlertModal .alert-box { border: 2px solid #ef4444; }
         #banAlertModal h2 { color: #ef4444; }
 
-        /* ============ LIGHTBOX ANCINE ============ */
         #ancineLightbox {
             position: fixed; inset: 0;
             background: rgba(0,0,0,0.78);
@@ -494,6 +487,91 @@
         .tag.ancine-tag { cursor: pointer; transition: transform 0.15s, box-shadow 0.15s; }
         .tag.ancine-tag:hover { transform: scale(1.08); box-shadow: 0 0 10px rgba(255,255,255,0.35); }
 
+        #tvFab {
+            position: fixed;
+            bottom: 26px;
+            right: 26px;
+            z-index: 9997;
+            display: none;
+            align-items: center;
+            gap: 10px;
+            background: linear-gradient(135deg, #ef4444, #b91c1c);
+            color: #fff;
+            padding: 14px 22px;
+            border-radius: 50px;
+            border: none;
+            font-weight: 800;
+            font-size: 0.92rem;
+            cursor: pointer;
+            box-shadow: 0 8px 25px rgba(239,68,68,0.45), 0 4px 12px rgba(0,0,0,0.4);
+            transition: transform 0.2s, box-shadow 0.2s, background 0.3s;
+            font-family: inherit;
+            letter-spacing: 0.6px;
+            animation: tvFabEnter 0.45s ease;
+        }
+        #tvFab:hover { transform: translateY(-3px) scale(1.03); box-shadow: 0 12px 35px rgba(239,68,68,0.65), 0 6px 16px rgba(0,0,0,0.5); }
+        #tvFab.locked { background: linear-gradient(135deg, #7c3aed, #5b21b6); box-shadow: 0 8px 25px rgba(124,58,237,0.45), 0 4px 12px rgba(0,0,0,0.4); }
+        #tvFab.locked:hover { box-shadow: 0 12px 35px rgba(124,58,237,0.65), 0 6px 16px rgba(0,0,0,0.5); }
+        #tvFab .tv-fab-dot { width: 9px; height: 9px; border-radius: 50%; background: #fff; animation: tvLivePulse 1.5s infinite; flex-shrink: 0; }
+        #tvFab.locked .tv-fab-dot { display: none; }
+        #tvFab .tv-fab-lock { display: none; font-size: 0.85rem; }
+        #tvFab.locked .tv-fab-lock { display: inline; }
+        @keyframes tvLivePulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.35; transform: scale(0.7); } }
+        @keyframes tvFabEnter { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: translateY(0); } }
+
+        #tvScreen { position: fixed; inset: 0; background: #000; z-index: 10000001; display: none; flex-direction: column; }
+        #tvScreen.active { display: flex; }
+        
+        #tvScreen .tv-topbar {
+            position: absolute; top: 0; left: 0; right: 0; padding: 20px;
+            display: flex; align-items: center; justify-content: flex-end;
+            background: linear-gradient(to bottom, rgba(0,0,0,0.85), transparent);
+            z-index: 10; pointer-events: none; opacity: 0; transition: opacity 0.4s ease;
+        }
+        #tvScreen .tv-topbar > * { pointer-events: auto; }
+        #tvScreen .tv-close-btn {
+            background: transparent; border: none; color: #fff; font-size: 1.8rem;
+            cursor: pointer; display: flex; align-items: center; justify-content: center;
+            transition: 0.2s; width: auto; padding: 0;
+        }
+        #tvScreen .tv-close-btn:hover { transform: scale(1.15); color: #fdbb2d; }
+
+        #tvScreen .tv-content { position: relative; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; }
+        #tvPlayerContainer { width: 100%; height: 100%; position: relative; background: #000; display: flex; align-items: center; justify-content: center; }
+        #tvPlayerContainer iframe { width: 100% !important; height: 100% !important; pointer-events: none !important; border: none; }
+        
+        #tvScreen .tv-bottombar {
+            position: absolute; bottom: 0; left: 0; right: 0; padding: 22px 24px;
+            display: flex; justify-content: space-between; align-items: flex-end;
+            background: linear-gradient(to top, rgba(0,0,0,0.92), transparent);
+            z-index: 10; pointer-events: none; opacity: 0; transition: opacity 0.4s ease; width: 100%;
+        }
+        #tvScreen .tv-bottombar > * { pointer-events: auto; }
+        #tvScreen .tv-now-playing { display: flex; align-items: center; gap: 12px; color: #fff; flex: 1; }
+        #tvScreen .tv-now-label { font-size: 0.75rem; letter-spacing: 1.2px; font-weight: 900; color: #ef4444; white-space: nowrap; display: inline-flex; align-items: center; gap: 6px; }
+        #tvScreen .tv-now-label::before { content: ''; width: 8px; height: 8px; background: #ef4444; border-radius: 50%; animation: tvLivePulse 1.5s infinite; }
+        #tvScreen .tv-now-title { font-size: 1.05rem; font-weight: 600; text-shadow: 1px 1px 6px rgba(0,0,0,0.9); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        
+        #tvScreen .tv-controls { display: flex; align-items: center; gap: 15px; }
+        #tvScreen .tv-fs-btn { background: transparent; border: none; color: white; cursor: pointer; padding: 0; display: flex; align-items: center; transition: transform 0.2s; }
+        #tvScreen .tv-fs-btn:hover { transform: scale(1.15); }
+        #tvScreen .tv-fs-btn svg { width: 24px; height: 24px; fill: white; }
+        #tvScreen .tv-volume-container { display: flex; align-items: center; gap: 8px; background: transparent; padding: 0; margin-right: 5px; }
+        #tvScreen .tv-vol-btn { background: none; border: none; color: white; font-size: 1.2rem; cursor: pointer; padding: 0; }
+        #tvScreen .tv-vol-slider { -webkit-appearance: none; width: 70px; height: 4px; background: rgba(255,255,255,0.3); border-radius: 2px; outline: none; cursor: pointer; }
+        #tvScreen .tv-vol-slider::-webkit-slider-thumb { -webkit-appearance: none; width: 12px; height: 12px; border-radius: 50%; background: #fdbb2d; cursor: pointer; }
+
+        #tvScreen.tv-playing .tv-topbar, #tvScreen.tv-playing .tv-bottombar { opacity: 1; }
+        #tvScreen.ui-hidden .tv-topbar, #tvScreen.ui-hidden .tv-bottombar { opacity: 0 !important; pointer-events: none !important; }
+
+        #tvScreen .tv-loading { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; background: #000; z-index: 5; color: #fff; }
+        #tvScreen .tv-loading .tv-spinner { border: 4px solid rgba(239,68,68,0.25); border-top: 4px solid #ef4444; border-radius: 50%; width: 64px; height: 64px; animation: spin 1s linear infinite; margin-bottom: 18px; }
+        #tvScreen .tv-loading-text { font-size: 0.95rem; color: #cbd5e1; }
+        #tvScreen .tv-unmute-overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.92); z-index: 8; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #fff; gap: 22px; cursor: pointer; transition: opacity 0.3s; }
+        #tvScreen .tv-unmute-overlay.hidden { opacity: 0; pointer-events: none; }
+        #tvScreen .tv-unmute-btn { background: #ef4444; color: #fff; padding: 16px 42px; border-radius: 50px; font-size: 1.05rem; font-weight: 800; border: none; cursor: pointer; display: flex; align-items: center; gap: 12px; box-shadow: 0 10px 40px rgba(239,68,68,0.55); transition: 0.2s; font-family: inherit; letter-spacing: 0.5px; }
+        #tvScreen .tv-unmute-btn:hover { transform: scale(1.05); background: #dc2626; }
+
         @media (min-width: 901px) { .ad-side-banner { display: block; } }
 
         @media (max-width: 900px) {
@@ -557,6 +635,10 @@
             .notif-item { padding: 10px; }
             .notif-avatar { width: 36px; height: 36px; }
             .notif-text { font-size: 0.82rem; }
+            #tvFab { bottom: 16px; right: 16px; padding: 12px 18px; font-size: 0.82rem; gap: 8px; }
+            #tvScreen .tv-topbar { padding: 10px 12px; }
+            #tvScreen .tv-bottombar { padding: 14px 16px; }
+            #tvScreen .tv-now-title { font-size: 0.88rem; }
         }
 
         @media (max-width: 900px) and (orientation: portrait) {
@@ -568,34 +650,13 @@
             #playerMobileTop { display: block; order: 2; margin: 0 auto; }
             #commentsSection { display: flex; order: 3; margin-top: 10px; }
             #playerMobileBottom { display: block; order: 4; margin-top: 10px; }
-
             .catalog-sort-bar { gap: 8px; }
-            .filter-group {
-                flex-wrap: nowrap;
-                gap: 5px;
-                justify-content: flex-start;
-                overflow-x: auto;
-                -webkit-overflow-scrolling: touch;
-                scrollbar-width: none;
-                width: 100%;
-            }
+            .filter-group { flex-wrap: nowrap; gap: 5px; justify-content: flex-start; overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none; width: 100%; }
             .filter-group::-webkit-scrollbar { display: none; }
             .filter-group .sort-label { flex-shrink: 0; font-size: 0.74rem; }
-            .filter-checkbox {
-                flex-shrink: 0;
-                font-size: 0.72rem;
-                padding: 5px 8px;
-                gap: 4px;
-            }
+            .filter-checkbox { flex-shrink: 0; font-size: 0.72rem; padding: 5px 8px; gap: 4px; }
             .filter-checkbox input[type="checkbox"] { width: 13px; height: 13px; }
-
-            .sort-group {
-                flex-wrap: nowrap;
-                gap: 5px;
-                margin-left: 0;
-                justify-content: stretch;
-                width: 100%;
-            }
+            .sort-group { flex-wrap: nowrap; gap: 5px; margin-left: 0; justify-content: stretch; width: 100%; }
             .sort-group .sort-label { flex-shrink: 0; width: auto; font-size: 0.7rem; }
             .sort-group select { flex: 1; min-width: 0; font-size: 0.75rem; padding: 6px 8px; }
         }
@@ -617,84 +678,6 @@
             #commentsSection { display: flex; order: 3; margin-top: 10px; width: 100%; }
             #playerMobileBottom { display: none !important; }
         }
-    
-        /* ✅ CORREÇÃO: Tirar contornos e forçar layout */
-        #tvScreen .tv-topbar { display: flex !important; justify-content: flex-end !important; }
-        #tvScreen .tv-bottombar { display: flex !important; justify-content: space-between !important; align-items: flex-end !important; width: 100% !important; }
-        #tvScreen .tv-now-playing { display: flex !important; align-items: center !important; flex: 1 !important; }
-        #tvScreen .tv-controls { display: flex !important; align-items: center !important; gap: 15px !important; margin-left: auto !important; }
-        #tvScreen .tv-close-btn, #tvScreen .tv-fs-btn, #tvScreen .tv-vol-btn {
-            background: transparent !important; border: none !important; box-shadow: none !important;
-            padding: 0 !important; outline: none !important; transition: transform 0.2s !important;
-        }
-        #tvScreen .tv-close-btn:hover, #tvScreen .tv-fs-btn:hover, #tvScreen .tv-vol-btn:hover { transform: scale(1.15) !important; }
-        #tvScreen:not(.tv-playing) .tv-topbar, #tvScreen:not(.tv-playing) .tv-bottombar, #tvScreen.ui-hidden .tv-topbar, #tvScreen.ui-hidden .tv-bottombar {
-            opacity: 0 !important; pointer-events: none !important;
-        }
-        #tvScreen .tv-topbar, #tvScreen .tv-bottombar { transition: opacity 0.4s ease !important; }
-        #tvScreen .tv-topbar, #tvScreen .tv-bottombar, #tvScreen .tv-controls, #tvScreen .tv-vol-btn, #tvScreen .tv-vol-slider, #tvScreen .tv-fs-btn, #tvScreen .tv-close-btn {
-            pointer-events: auto !important;
-        }
-    
-        /* ✅ CORREÇÃO FINAL: Layout e Limpeza Visual */
-        #tvScreen .tv-topbar {
-            display: flex !important;
-            justify-content: flex-end !important;
-            padding: 20px !important;
-            background: linear-gradient(to bottom, rgba(0,0,0,0.8), transparent) !important;
-            pointer-events: auto !important;
-        }
-        #tvScreen .tv-close-btn {
-            background: transparent !important; border: none !important; color: white !important;
-            font-size: 1.8rem !important; cursor: pointer !important; padding: 0 !important;
-            transition: transform 0.2s !important;
-        }
-        #tvScreen .tv-close-btn:hover { transform: scale(1.15) !important; }
-
-        #tvScreen .tv-bottombar {
-            display: flex !important;
-            justify-content: space-between !important;
-            align-items: flex-end !important;
-            width: 100% !important;
-            padding: 20px !important;
-            background: linear-gradient(to top, rgba(0,0,0,0.8), transparent) !important;
-            pointer-events: auto !important;
-        }
-        #tvScreen .tv-now-playing { display: flex !important; align-items: center !important; gap: 10px !important; flex: 1 !important; }
-        #tvScreen .tv-now-label { color: #ef4444 !important; font-weight: bold !important; font-size: 0.85rem !important; }
-        #tvScreen .tv-now-title { color: white !important; font-weight: bold !important; font-size: 1.1rem !important; }
-
-        #tvScreen .tv-controls { display: flex !important; align-items: center !important; gap: 15px !important; margin-left: auto !important; }
-        
-        #tvScreen .tv-volume-container {
-            display: flex !important; align-items: center !important; gap: 8px !important;
-            background: transparent !important; border: none !important; padding: 0 !important;
-        }
-        #tvScreen .tv-vol-btn {
-            background: transparent !important; border: none !important; color: white !important;
-            font-size: 1.2rem !important; cursor: pointer !important; padding: 0 !important;
-        }
-        #tvScreen .tv-vol-slider {
-            width: 70px !important; -webkit-appearance: none !important; height: 4px !important;
-            background: rgba(255,255,255,0.3) !important; border-radius: 2px !important; outline: none !important; cursor: pointer !important;
-        }
-        #tvScreen .tv-vol-slider::-webkit-slider-thumb {
-            -webkit-appearance: none !important; width: 12px !important; height: 12px !important;
-            border-radius: 50% !important; background: #fdbb2d !important; cursor: pointer !important;
-        }
-        #tvScreen .tv-fs-btn {
-            background: transparent !important; border: none !important; color: white !important;
-            cursor: pointer !important; padding: 0 !important; display: flex !important; align-items: center !important;
-            transition: transform 0.2s !important;
-        }
-        #tvScreen .tv-fs-btn:hover { transform: scale(1.15) !important; }
-
-        /* Esconder controles antes do play e Auto-Hide */
-        #tvScreen:not(.tv-playing) .tv-topbar, #tvScreen:not(.tv-playing) .tv-bottombar,
-        #tvScreen.ui-hidden .tv-topbar, #tvScreen.ui-hidden .tv-bottombar {
-            opacity: 0 !important; pointer-events: none !important;
-        }
-        #tvScreen .tv-topbar, #tvScreen .tv-bottombar { transition: opacity 0.4s ease !important; }
     </style>
 </head>
 <body>
@@ -794,6 +777,46 @@
             <img src="https://i.ibb.co/pjVXNp4P/Playtronic.png" alt="Playtronic Games" class="footer-logo">
         </a>
     </footer>
+</div>
+
+<button id="tvFab" aria-label="Assistir TV ao Vivo">
+    <span class="tv-fab-dot"></span>
+    <span class="tv-fab-lock">🔒</span>
+    <span id="tvFabLabel">TV AO VIVO</span>
+</button>
+
+<div id="tvScreen">
+    <div class="tv-topbar" id="tvTopbar">
+        <span id="tvCurrentTitle" style="display: none;"></span>
+        <button class="tv-close-btn" id="tvCloseBtn" title="Fechar TV">✖</button>
+    </div>
+    <div class="tv-content">
+        <div id="tvPlayerContainer"></div>
+        <div class="tv-loading" id="tvLoading">
+            <div class="tv-spinner"></div>
+            <div class="tv-loading-text">Sintonizando transmissão...</div>
+        </div>
+        <div class="tv-unmute-overlay" id="tvUnmuteOverlay">
+            <button class="tv-unmute-btn" id="tvUnmuteBtn">▶ Entrar na transmissão</button>
+        </div>
+    </div>
+    <div class="tv-bottombar" id="tvBottombar">
+        <div class="tv-now-playing" id="tvNowPlaying">
+            <span class="tv-now-label">AO VIVO</span>
+            <span class="tv-now-title" id="tvNowTitle"></span>
+        </div>
+        <div class="tv-controls">
+            <div class="tv-volume-container">
+                <button class="tv-vol-btn" id="tvMuteBtn" title="Mudo">🔊</button>
+                <input type="range" class="tv-vol-slider" id="tvVolumeSlider" min="0" max="100" value="100">
+            </div>
+            <button class="tv-fs-btn" id="tvFullscreenBtn" title="Tela Cheia">
+                <svg viewBox="0 0 24 24" width="24" height="24" fill="white">
+                    <path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/>
+                </svg>
+            </button>
+        </div>
+    </div>
 </div>
 
 <div class="modal-overlay" id="notificationsModal">
@@ -1270,7 +1293,7 @@
         const searchContainer = document.querySelector('.search-container');
         if (!searchContainer) return;
         const ancineLb = document.getElementById('ancineLightbox');
-        const isModalOpen = document.querySelector('.modal-overlay.active') || document.getElementById('playerScreen').classList.contains('active') || document.getElementById('adInterstitialModal').classList.contains('active') || document.getElementById('banAlertModal').classList.contains('active') || document.getElementById('blockAlertModal').classList.contains('active') || document.getElementById('pixLightbox').style.display === 'flex' || (ancineLb && ancineLb.classList.contains('active'));
+        const isModalOpen = document.querySelector('.modal-overlay.active') || document.getElementById('playerScreen').classList.contains('active') || document.getElementById('tvScreen').classList.contains('active') || document.getElementById('adInterstitialModal').classList.contains('active') || document.getElementById('banAlertModal').classList.contains('active') || document.getElementById('blockAlertModal').classList.contains('active') || document.getElementById('pixLightbox').style.display === 'flex' || (ancineLb && ancineLb.classList.contains('active'));
         if (isModalOpen) {
             searchContainer.style.display = 'none';
             document.body.classList.add('no-scroll', 'search-hidden');
@@ -1278,6 +1301,7 @@
             searchContainer.style.display = '';
             document.body.classList.remove('no-scroll', 'search-hidden');
         }
+        updateFABVisibility();
     }
     const domObserver = new MutationObserver((mutations) => {
         let shouldUpdate = false;
@@ -1291,13 +1315,56 @@
             document.getElementById('playerScreen'), document.getElementById('adInterstitialModal'),
             document.getElementById('pixLightbox'), document.getElementById('banAlertModal'),
             document.getElementById('blockAlertModal'), document.getElementById('notificationsModal'),
-            document.getElementById('ancineLightbox'),
+            document.getElementById('ancineLightbox'), document.getElementById('tvScreen'),
             ...document.querySelectorAll('.modal-overlay')
         ];
         targets.forEach(t => { if(t) domObserver.observe(t, { attributes: true, attributeFilter: ['class', 'style'] }); });
         updateSearchVisibility();
         window.addEventListener('resize', updateSearchVisibility);
     });
+
+    // ═══════════════════════════════════════════════════════════════
+    // FAB — TV AO VIVO
+    // ═══════════════════════════════════════════════════════════════
+    function updateFABVisibility() {
+        const fab = document.getElementById('tvFab');
+        if (!fab) return;
+        const isModalOpen = document.querySelector('.modal-overlay.active')
+            || document.getElementById('playerScreen').classList.contains('active')
+            || document.getElementById('tvScreen').classList.contains('active')
+            || document.getElementById('adInterstitialModal').classList.contains('active')
+            || document.getElementById('banAlertModal').classList.contains('active')
+            || document.getElementById('blockAlertModal').classList.contains('active')
+            || document.getElementById('pixLightbox').style.display === 'flex'
+            || (document.getElementById('ancineLightbox') && document.getElementById('ancineLightbox').classList.contains('active'));
+
+        if (isModalOpen || !currentUser) {
+            fab.style.display = 'none';
+            return;
+        }
+
+        fab.style.display = 'flex';
+        const isSub = catalogSubscription.active;
+        fab.classList.toggle('locked', !isSub);
+    }
+
+    document.getElementById('tvFab')?.addEventListener('click', () => {
+        if (!currentUser) return;
+        if (!catalogSubscription.active) {
+            openPixLightbox();
+            return;
+        }
+        if (!isTVReady()) {
+            alert('A programação está sendo preparada. Aguarde alguns instantes e tente novamente.');
+            return;
+        }
+        openTV();
+    });
+
+    function isTVReady() {
+        if (videos.length === 0) return false;
+        return videos.some(v => Number(v.duracaoSegundos) > 0);
+    }
 
     // ============ PRESENÇA ============
     function setupPresence(user) {
@@ -2423,6 +2490,7 @@
         checkCatalogSubscription();
         checkMyAdsVisibility();
         updateNotificationBadge();
+        updateFABVisibility();
     });
 
     // ============ VOTOS / VIEWS ============
@@ -2707,6 +2775,9 @@
         videos = Object.entries(data).map(([key, v]) => ({ key, ...v }));
         videosLoaded = true;
         tryRender();
+        if (tvActive) {
+            if (typeof scheduleTVRebuild === 'function') scheduleTVRebuild();
+        }
     }, (err) => {
         loadingMsg.style.display = 'none';
         catalogGrid.innerHTML = `<div class="empty-state" style="display:block;">Erro ao carregar catálogo: ${escapeHtml(err.message)}</div>`;
@@ -3122,6 +3193,7 @@
         } else {
             subscribeBtn.style.display = 'flex'; subscriptionBadge.style.display = 'none'; userSubInfo.style.display = 'none';
         }
+        updateFABVisibility();
     }
     async function openPixLightbox() {
         userCard.classList.remove('active');
@@ -3574,7 +3646,6 @@
         document.getElementById('adNativeRight').innerHTML = '';
         document.getElementById('adMobileTop').innerHTML = '';
         document.getElementById('adMobileBottom').innerHTML = '';
-
         const isLandscape = window.matchMedia('(max-width: 900px) and (orientation: landscape)').matches;
         const isPortrait = window.matchMedia('(max-width: 900px) and (orientation: portrait)').matches;
         if (isLandscape) {
@@ -3586,7 +3657,6 @@
             injectLeftNativeAd();
             injectRightStandardAd();
         }
-
         if (adYtPlayer) { try { adYtPlayer.stopVideo(); adYtPlayer.destroy(); } catch(e){} adYtPlayer = null; }
         if (activePaidAds.length > 0) {
             activePaidAds.sort((a, b) => (a.lastShownAt || 0) - (b.lastShownAt || 0));
@@ -3869,6 +3939,263 @@
             } catch (e) {}
         }, 500);
     }
+
+    // ============ TV AO VIVO ============
+    const TV_EPOCH_MS = 1704067200000;
+    let tvPlayer = null;
+    let tvPlayerReady = false;
+    let tvPlaylist = [];
+    let tvTotalDuration = 0;
+    let tvCurrentYtId = null;
+    let tvServerOffset = 0;
+    let tvTimeSynced = false;
+    let tvDriftInterval = null;
+    let tvActive = false;
+    let _tvRebuildDebounce = null;
+    let _tvLastReloadTime = 0;
+    let _tvReloadCount = 0;
+    let tvCurrentVolume = 100;
+    let tvIsMuted = false;
+    let tvHideUITimer = null;
+
+    rtdb.ref('.info/serverTimeOffset').on('value', snap => {
+        tvServerOffset = snap.val() || 0;
+        tvTimeSynced = true;
+    });
+
+    function buildTVPlaylist() {
+        return videos
+            .filter(v => Number(v.duracaoSegundos) > 15 && /^[a-zA-Z0-9_-]{11}$/.test(v.youtubeId || ''))
+            .sort((a, b) => {
+                const orderA = a.order || 0;
+                const orderB = b.order || 0;
+                if (orderA !== orderB) return orderA - orderB;
+                return (a.youtubeId || '').localeCompare(b.youtubeId || '');
+            })
+            .map(v => ({ youtubeId: v.youtubeId, titulo: v.titulo || '', duracaoSegundos: Number(v.duracaoSegundos) }));
+    }
+
+    function computeTVPosition(playlist, total) {
+        if (!playlist.length || total <= 0) return null;
+        const serverNowMs = Date.now() + tvServerOffset;
+        const elapsedSec = Math.floor((serverNowMs - TV_EPOCH_MS) / 1000);
+        const pos = ((elapsedSec % total) + total) % total;
+        let acc = 0;
+        for (let i = 0; i < playlist.length; i++) {
+            const d = playlist[i].duracaoSegundos;
+            if (pos < acc + d) return { index: i, offset: pos - acc, video: playlist[i] };
+            acc += d;
+        }
+        return { index: 0, offset: 0, video: playlist[0] };
+    }
+
+    function scheduleTVRebuild() {
+        if (!tvActive) return;
+        clearTimeout(_tvRebuildDebounce);
+        _tvRebuildDebounce = setTimeout(() => {
+            const newPlaylist = buildTVPlaylist();
+            if (newPlaylist.length === 0) { closeTV(); return; }
+            const newTotal = newPlaylist.reduce((s, v) => s + v.duracaoSegundos, 0);
+            if (newTotal <= 0) return;
+            const changed = newPlaylist.length !== tvPlaylist.length || newTotal !== tvTotalDuration || newPlaylist.some((v, i) => !tvPlaylist[i] || v.youtubeId !== tvPlaylist[i].youtubeId);
+            if (!changed) return;
+            tvPlaylist = newPlaylist;
+            tvTotalDuration = newTotal;
+            const pos = computeTVPosition(tvPlaylist, tvTotalDuration);
+            if (!pos) return;
+            if (pos.video.youtubeId !== tvCurrentYtId) {
+                if (tvPlayer) { try { tvPlayer.destroy(); } catch(e) {} tvPlayer = null; }
+                tvCurrentYtId = null; tvPlayerReady = false;
+                document.getElementById('tvLoading').style.display = 'flex';
+                setTimeout(loadTVPlayer, 500);
+            }
+        }, 1200);
+    }
+
+    function openTV() {
+        if (!currentUser) {
+            auth.signInWithPopup(new firebase.auth.GoogleAuthProvider()).catch(() => {});
+            return;
+        }
+        if (!catalogSubscription.active) { openPixLightbox(); return; }
+        if (!tvTimeSynced) { alert('Sincronizando relógio. Aguarde e tente novamente.'); return; }
+        if (!videosLoaded) { alert('Carregando o catálogo. Aguarde.'); return; }
+        tvPlaylist = buildTVPlaylist();
+        if (tvPlaylist.length === 0) { alert('Ainda não há vídeos prontos.'); return; }
+        tvTotalDuration = tvPlaylist.reduce((s, v) => s + v.duracaoSegundos, 0);
+        tvActive = true;
+        tvPlayerReady = false;
+        _tvReloadCount = 0;
+        _tvLastReloadTime = 0;
+        document.getElementById('tvScreen').classList.add('active');
+        document.body.classList.add('no-scroll');
+        document.getElementById('tvLoading').style.display = 'flex';
+        document.getElementById('tvNowPlaying').style.display = 'none';
+        document.getElementById('tvUnmuteOverlay').classList.remove('hidden');
+        document.getElementById('tvPlayerContainer').innerHTML = '';
+        document.getElementById('tvScreen').classList.remove('tv-playing'); // Esconde os controles antes de começar
+        document.addEventListener('keydown', blockTVKeys, true);
+    }
+
+    function closeTV() {
+        tvActive = false;
+        document.removeEventListener('keydown', blockTVKeys, true);
+        if (tvDriftInterval) { clearInterval(tvDriftInterval); tvDriftInterval = null; }
+        if (tvPlayer) { try { tvPlayer.destroy(); } catch (e) {} tvPlayer = null; }
+        tvPlayerReady = false;
+        tvCurrentYtId = null;
+        _tvReloadCount = 0;
+        _tvLastReloadTime = 0;
+        if (document.fullscreenElement) document.exitFullscreen().catch(()=>{});
+        document.getElementById('tvScreen').classList.remove('active');
+        document.body.classList.remove('no-scroll');
+        updateSearchVisibility();
+    }
+
+    function blockTVKeys(e) {
+        if (!tvActive) return;
+        if ([' ', 'k', 'K', 'j', 'J', 'l', 'L', 'ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'].includes(e.key)) {
+            e.preventDefault(); e.stopPropagation();
+        }
+        if (e.key === 'f' || e.key === 'F') {
+            e.preventDefault(); toggleTVFullscreen();
+        }
+    }
+
+    function startTVPlayback() {
+        document.getElementById('tvUnmuteOverlay').classList.add('hidden');
+        document.getElementById('tvScreen').classList.add('tv-playing');
+        loadTVPlayer();
+        showTVControls();
+
+        if (tvDriftInterval) clearInterval(tvDriftInterval);
+        tvDriftInterval = setInterval(() => {
+            if (!tvActive || !tvPlayerReady || !tvPlayer) return;
+            try {
+                const playerState = tvPlayer.getPlayerState();
+                if (playerState === 0) {
+                    const now = Date.now();
+                    if (now - _tvLastReloadTime < 3000) {
+                        _tvReloadCount++;
+                        if (_tvReloadCount > 5) { _tvLastReloadTime = now + 10000; return; }
+                    } else { _tvReloadCount = 0; }
+                    _tvLastReloadTime = now;
+                    setTimeout(() => {
+                        if (!tvActive) return;
+                        if (tvPlayer) { try { tvPlayer.destroy(); } catch(e) {} tvPlayer = null; }
+                        tvCurrentYtId = null; tvPlayerReady = false;
+                        loadTVPlayer();
+                    }, 500);
+                    return;
+                }
+                if (playerState === 1) {
+                    const pos = computeTVPosition(tvPlaylist, tvTotalDuration);
+                    if (pos && pos.video.youtubeId === tvCurrentYtId) {
+                        const actual = tvPlayer.getCurrentTime();
+                        const diff = Math.abs(actual - pos.offset);
+                        if (diff > 15) tvPlayer.seekTo(pos.offset, true);
+                    }
+                }
+            } catch (e) {}
+        }, 5000);
+    }
+
+    function loadTVPlayer() {
+        const pos = computeTVPosition(tvPlaylist, tvTotalDuration);
+        if (!pos) return;
+        tvCurrentYtId = pos.video.youtubeId;
+        tvPlayerReady = false;
+
+        const titleEl = document.getElementById('tvNowTitle');
+        if (titleEl) titleEl.textContent = pos.video.titulo || 'Transmissão ao vivo';
+        document.getElementById('tvNowPlaying').style.display = 'flex';
+
+        const container = document.getElementById('tvPlayerContainer');
+        container.innerHTML = '<div id="tvPlayerDiv" style="width:100%; height:100%;"></div>';
+        if (tvPlayer) { try { tvPlayer.destroy(); } catch(e) {} tvPlayer = null; }
+
+        tvPlayer = new YT.Player('tvPlayerDiv', {
+            videoId: pos.video.youtubeId,
+            playerVars: { autoplay: 1, controls: 0, disablekb: 1, modestbranding: 1, rel: 0, iv_load_policy: 3, playsinline: 1, fs: 0, cc_load_policy: 0, origin: window.location.origin },
+            events: {
+                onReady: (ev) => {
+                    tvPlayerReady = true;
+                    document.getElementById('tvLoading').style.display = 'none';
+                    const freshPos = computeTVPosition(tvPlaylist, tvTotalDuration);
+                    if (freshPos && freshPos.video.youtubeId === tvCurrentYtId) {
+                        const safeOffset = Math.max(0, Math.min(freshPos.offset, pos.video.duracaoSegundos - 1));
+                        ev.target.seekTo(safeOffset, true);
+                    }
+                    ev.target.playVideo();
+                    ev.target.setVolume(tvCurrentVolume);
+                    updateTVVolumeUI(tvCurrentVolume);
+                },
+                onStateChange: (event) => {
+                    if (event.data === 1) document.getElementById('tvLoading').style.display = 'none';
+                },
+                onError: () => {
+                    if (tvPlayer) { try { tvPlayer.destroy(); } catch(e) {} tvPlayer = null; }
+                    tvPlayerReady = false;
+                    setTimeout(loadTVPlayer, 1500);
+                }
+            }
+        });
+    }
+
+    function toggleTVFullscreen() {
+        const tvScreen = document.getElementById('tvScreen');
+        if (!tvScreen) return;
+        const isFull = document.fullscreenElement || document.webkitFullscreenElement;
+        if (isFull) {
+            if (document.exitFullscreen) document.exitFullscreen().catch(() => {});
+        } else {
+            const req = tvScreen.requestFullscreen || tvScreen.webkitRequestFullscreen;
+            if (req) Promise.resolve(req.call(tvScreen)).catch(() => {});
+        }
+    }
+
+    function updateTVVolumeUI(val) {
+        const slider = document.getElementById('tvVolumeSlider');
+        const btn = document.getElementById('tvMuteBtn');
+        if (!slider || !btn) return;
+        slider.value = val;
+        if (val == 0) { btn.textContent = '🔇'; tvIsMuted = true; }
+        else if (val < 50) { btn.textContent = '🔈'; tvIsMuted = false; }
+        else { btn.textContent = '🔊'; tvIsMuted = false; }
+    }
+
+    function showTVControls() {
+        const screen = document.getElementById('tvScreen');
+        if (!screen || !screen.classList.contains('active')) return;
+        screen.classList.remove('ui-hidden');
+        clearTimeout(tvHideUITimer);
+        tvHideUITimer = setTimeout(() => {
+            const slider = document.getElementById('tvVolumeSlider');
+            if (document.activeElement !== slider) screen.classList.add('ui-hidden');
+        }, 3000);
+    }
+
+    document.getElementById('tvMuteBtn')?.addEventListener('click', () => {
+        if (!tvPlayerReady || !tvPlayer) return;
+        if (tvIsMuted) { tvPlayer.unMute(); tvPlayer.setVolume(tvCurrentVolume); updateTVVolumeUI(tvCurrentVolume); }
+        else { tvPlayer.mute(); updateTVVolumeUI(0); }
+        showTVControls();
+    });
+
+    document.getElementById('tvVolumeSlider')?.addEventListener('input', (e) => {
+        if (!tvPlayerReady || !tvPlayer) return;
+        const val = parseInt(e.target.value);
+        if (val > 0) tvCurrentVolume = val;
+        if (val == 0) tvPlayer.mute(); else { tvPlayer.unMute(); tvPlayer.setVolume(val); }
+        updateTVVolumeUI(val);
+        showTVControls();
+    });
+
+    document.getElementById('tvScreen')?.addEventListener('mousemove', showTVControls);
+    document.getElementById('tvScreen')?.addEventListener('touchstart', showTVControls, { passive: true });
+    document.getElementById('tvCloseBtn')?.addEventListener('click', closeTV);
+    document.getElementById('tvFullscreenBtn')?.addEventListener('click', toggleTVFullscreen);
+    document.getElementById('tvUnmuteBtn')?.addEventListener('click', startTVPlayback);
 
     // ============ INICIALIZAÇÃO ============
     loadCustomAds();
