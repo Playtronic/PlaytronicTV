@@ -1058,25 +1058,17 @@
             pointer-events: auto !important;
         }
         
-        /* ========================================================= */
-        /* ✅ FORÇAR LAYOUT CORRETO - SUBSTITUI REGRAS ANTIGAS        */
-        /* ========================================================= */
         
-        /* Topbar: Título na esquerda, X na direita */
+        /* ✅ Forçar o Topo a não ter texto, apenas o botão na direita */
         #tvScreen .tv-topbar {
             display: flex !important;
-            justify-content: space-between !important;
-            align-items: center !important;
-            width: 100% !important;
+            justify-content: flex-end !important;
             padding: 20px !important;
             background: linear-gradient(to bottom, rgba(0,0,0,0.8), transparent) !important;
             pointer-events: auto !important;
         }
-        #tvScreen .tv-brand { display: flex !important; align-items: center !important; gap: 10px !important; }
-        #tvScreen .tv-brand-badge { background: #ef4444 !important; color: white !important; padding: 4px 10px !important; border-radius: 4px !important; font-weight: bold !important; font-size: 0.8rem !important; display: block !important; }
-        #tvScreen .tv-brand-title { color: white !important; font-weight: bold !important; font-size: 1rem !important; display: block !important; }
-
-        /* Bottombar: AGORA na esquerda, Controles na direita */
+        
+        /* ✅ Forçar a Base a ter o layout correto */
         #tvScreen .tv-bottombar {
             display: flex !important;
             justify-content: space-between !important;
@@ -1087,12 +1079,9 @@
             pointer-events: auto !important;
         }
         #tvScreen .tv-now-playing { display: flex !important; align-items: center !important; gap: 10px !important; flex: 1 !important; }
-        #tvScreen .tv-now-label { color: #ef4444 !important; font-weight: bold !important; font-size: 0.8rem !important; }
-        #tvScreen .tv-now-title { color: white !important; font-weight: bold !important; font-size: 1.1rem !important; }
-        
         #tvScreen .tv-controls { display: flex !important; align-items: center !important; gap: 15px !important; margin-left: auto !important; }
         
-        /* Limpeza visual dos botões (sem bordas, sem fundos) */
+        /* ✅ Limpeza visual dos botões */
         #tvScreen .tv-close-btn, #tvScreen .tv-fs-btn, #tvScreen .tv-vol-btn {
             background: transparent !important; border: none !important; box-shadow: none !important;
             padding: 0 !important; cursor: pointer !important; color: white !important; font-size: 1.5rem !important;
@@ -1101,12 +1090,9 @@
         }
         #tvScreen .tv-close-btn:hover, #tvScreen .tv-fs-btn:hover, #tvScreen .tv-vol-btn:hover { transform: scale(1.2) !important; }
         
-        /* Esconder controles antes do play */
+        /* ✅ Esconder controles antes do play e Auto-Hide */
         #tvScreen:not(.tv-playing) .tv-topbar,
-        #tvScreen:not(.tv-playing) .tv-bottombar {
-            opacity: 0 !important; pointer-events: none !important;
-        }
-        /* Auto-Hide */
+        #tvScreen:not(.tv-playing) .tv-bottombar,
         #tvScreen.ui-hidden .tv-topbar,
         #tvScreen.ui-hidden .tv-bottombar {
             opacity: 0 !important; pointer-events: none !important;
@@ -1221,11 +1207,7 @@
 
 <div id="tvScreen">
     <div class="tv-topbar" id="tvTopbar">
-        <div class="tv-brand">
-            <div class="tv-brand-badge">AO VIVO</div>
-            <span class="tv-brand-title" id="tvCurrentTitle">TV Playtronic</span>
-        </div>
-        <div class="tv-controls">
+        <div class="tv-controls" style="justify-content: flex-end; width: 100%;">
             <button class="tv-close-btn" id="tvCloseBtn" title="Fechar TV">✖</button>
         </div>
     </div>
@@ -1241,8 +1223,8 @@
     </div>
     <div class="tv-bottombar" id="tvBottombar">
         <div class="tv-now-playing" id="tvNowPlaying">
-            <span class="tv-now-label">AGORA</span>
-            <span class="tv-now-title" id="tvNowTitle"></span>
+            <span class="tv-now-label" style="color:#ef4444; font-weight:bold;">AO VIVO</span>
+            <span class="tv-now-title" id="tvNowTitle" style="color:white; font-weight:bold;"></span>
         </div>
         <div class="tv-controls">
             <div class="tv-volume-container">
