@@ -142,6 +142,7 @@
 
         .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.72); display: none; align-items: center; justify-content: center; z-index: 1500; backdrop-filter: blur(6px); padding: 100px 20px 20px 20px; }
         .modal-overlay.active { display: flex; }
+
         #notificationsModal { z-index: 2200; }
 
         .modal { background: #152961; border: 1px solid rgba(255,255,255,0.12); border-radius: 14px; padding: 26px; width: 100%; max-width: 520px; box-shadow: 0 25px 60px rgba(0,0,0,0.8); animation: modalIn 0.2s ease; max-height: 85vh; overflow-y: auto; }
@@ -167,7 +168,6 @@
         .modal-actions .secondary:hover { background: rgba(255,255,255,0.2); }
         .modal-actions .primary { background: #fdbb2d; color: #000; }
         .modal-actions .primary:hover { background: #ffcc44; }
-        
         .my-ads-toolbar { display: flex; gap: 10px; margin-bottom: 20px; width: 100%; }
         .my-ads-toolbar input { flex: 1; background: rgba(255,255,255,0.08); color: #fff; border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; padding: 11px 14px; font-size: 0.9rem; outline: none; transition: 0.2s; }
         .my-ads-toolbar input:focus { border-color: #fdbb2d; }
@@ -191,7 +191,6 @@
         .ad-info-views { font-size: 0.75rem; color: #fdbb2d; font-weight: 700; }
         .remove-ad-btn { background: #ef4444; color: #fff; border: none; padding: 8px 14px; border-radius: 6px; cursor: pointer; font-size: 0.8rem; font-weight: bold; flex-shrink: 0; transition: background 0.2s; }
         .remove-ad-btn:hover { background: #dc2626; }
-        
         .perf-tabs { display: flex; gap: 10px; margin-bottom: 15px; margin-top: 5px; flex-shrink: 0; }
         .perf-tab-btn { flex: 1; padding: 10px; border-radius: 8px; border: none; font-weight: bold; cursor: pointer; transition: 0.2s; font-size: 0.9rem; }
         .perf-tab-btn.active { background: #fdbb2d; color: #000; }
@@ -209,7 +208,6 @@
         .perf-table .perf-title { max-width: 220px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
         .perf-table .perf-note-cell { color: #fdbb2d; font-weight: 700; }
         .perf-empty { text-align: center; padding: 30px; color: #94a3b8; font-size: 0.9rem; }
-        
         #pixPlanSelector { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 20px; }
         .plan-option { position: relative; background: rgba(255,255,255,0.05); border: 2px solid rgba(255,255,255,0.15); border-radius: 10px; padding: 14px 10px; text-align: center; cursor: pointer; transition: 0.2s; user-select: none; }
         .plan-option:hover { border-color: rgba(253,187,45,0.5); background: rgba(255,255,255,0.08); }
@@ -232,10 +230,14 @@
         .close-player-btn { position: absolute; top: 15px; left: 15px; background: rgba(0,0,0,0.6); border: 1px solid rgba(255,255,255,0.2); color: #fff; width: 40px; height: 40px; border-radius: 50%; font-size: 1.2rem; cursor: pointer; display: flex; align-items: center; justify-content: center; pointer-events: auto; z-index: 30; }
         .close-player-btn:hover { background: #e74c3c; transform: scale(1.1); }
         .player-video-title { position: absolute; top: 22px; left: 68px; color: #fff; font-size: 1.15rem; font-weight: 600; text-shadow: 1px 1px 4px rgba(0,0,0,0.9); max-width: calc(100% - 280px); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; pointer-events: none; z-index: 25; padding: 5px 10px; background: rgba(0,0,0,0.3); border-radius: 6px; }
-        .player-vote-container { position: absolute; top: 15px; right: 15px; display: flex; gap: 10px; background: rgba(0,0,0,0.6); padding: 8px 12px; border-radius: 25px; border: 1px solid rgba(255,255,255,0.1); pointer-events: auto; z-index: 30; }
+        .player-vote-container { position: absolute; top: 15px; right: 60px; display: flex; gap: 10px; background: rgba(0,0,0,0.6); padding: 8px 12px; border-radius: 25px; border: 1px solid rgba(255,255,255,0.1); pointer-events: auto; z-index: 30; }
         .player-vote-btn { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.15); color: #fff; padding: 6px 12px; border-radius: 15px; cursor: pointer; font-weight: bold; font-size: 0.9rem; display: flex; align-items: center; gap: 6px; transition: all 0.2s; }
         .player-vote-btn.like.active { background: #2ecc71; border-color: #2ecc71; }
         .player-vote-btn.dislike.active { background: #e74c3c; border-color: #e74c3c; }
+        
+        #sharePlayerBtn { position: absolute; top: 15px; right: 15px; background: rgba(0,0,0,0.6); border: 1px solid rgba(255,255,255,0.1); z-index: 30; padding: 8px 12px; border-radius: 15px; cursor: pointer; color: #fff; font-size: 0.9rem; font-weight: bold; transition: 0.2s; }
+        #sharePlayerBtn:hover { background: #3b82f6; border-color: #60a5fa; }
+
         .center-play-btn { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 76px; height: 76px; border-radius: 50%; background: #fdbb2d; border: none; color: #000; cursor: pointer; z-index: 25; pointer-events: auto; display: flex; align-items: center; justify-content: center; transition: opacity 0.3s ease, transform 0.3s ease; box-shadow: 0 4px 20px rgba(0,0,0,0.5); padding: 0; }
         .center-play-btn:hover { background: #ffcc44; transform: translate(-50%, -50%) scale(1.06); }
         .center-play-btn svg { display: block; pointer-events: none; width: 34px; height: 34px; }
@@ -254,7 +256,6 @@
         .volume-container { display: flex; align-items: center; gap: 8px; }
         .volume-slider { -webkit-appearance: none; width: 80px; height: 4px; background: rgba(255,255,255,0.3); border-radius: 2px; outline: none; cursor: pointer; }
         .volume-slider::-webkit-slider-thumb { -webkit-appearance: none; width: 12px; height: 12px; border-radius: 50%; background: #fdbb2d; cursor: pointer; }
-        
         #player-bottom-ad { display: none; width: 100%; max-width: 728px; height: 90px; background: transparent; border-radius: 8px; overflow: hidden; flex-shrink: 0; margin: 0 auto; position: relative; }
         #player-bottom-ad iframe { display: block; border: 0; width: 100%; height: 100%; position: absolute; top: 0; left: 0; z-index: 1; }
         .player-mobile-banner { display: none; flex-shrink: 0; background: #ffffff; border-radius: 8px; overflow: hidden; position: relative; margin: 0 auto; border: 1px solid rgba(255,255,255,0.2); }
@@ -312,9 +313,11 @@
         .new-comment-form { display: flex; gap: 10px; align-items: flex-start; background: rgba(0,0,0,0.2); padding: 15px; border-radius: 10px; }
         .new-comment-form textarea { width: 100%; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; padding: 10px; color: #fff; resize: vertical; min-height: 60px; outline: none; font-family: inherit; font-size: 0.9rem; }
         .new-comment-form textarea:focus { border-color: #fdbb2d; }
+
         .comment-card { display: flex; gap: 12px; padding: 15px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.1); word-break: break-word; position: relative; }
         .comment-card.pinned { border: 2px solid #10b981; box-shadow: 0 0 15px rgba(16, 185, 129, 0.2); }
         .comment-card.pinned::before { content: '📌 Fixado'; position: absolute; top: -10px; left: 10px; background: #10b981; color: #fff; font-size: 0.65rem; font-weight: bold; padding: 2px 8px; border-radius: 10px; }
+
         .comment-avatar { width: 42px; height: 42px; border-radius: 50%; object-fit: cover; flex-shrink: 0; border: 2px solid rgba(255,255,255,0.15); }
         .comment-content { flex: 1; min-width: 0; }
         .comment-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; flex-wrap: wrap; gap: 5px; }
@@ -330,8 +333,10 @@
         .comment-action-btn.delete:hover { color: #ef4444; }
         .comment-action-btn.pin-btn:hover { color: #10b981; }
         .comment-action-btn.reply-action:hover { color: #60a5fa; }
+
         .replies-container { display: none; margin-top: 12px; margin-left: 20px; padding-left: 18px; border-left: 2px solid rgba(253,187,45,0.25); flex-direction: column; gap: 10px; }
         .replies-container.expanded { display: flex; }
+
         .reply-card { display: flex; gap: 10px; padding: 10px 12px; border-radius: 8px; background: rgba(0,0,0,0.25); border: 1px solid rgba(255,255,255,0.06); position: relative; font-size: 0.85rem; }
         .reply-card.pinned { border: 2px solid #10b981; box-shadow: 0 0 12px rgba(16,185,129,0.15); }
         .reply-card.pinned::before { content: '📌 Fixado'; position: absolute; top: -9px; left: 10px; background: #10b981; color: #fff; font-size: 0.6rem; font-weight: bold; padding: 1px 7px; border-radius: 8px; }
@@ -342,11 +347,13 @@
         .reply-date { font-size: 0.68rem; color: #94a3b8; }
         .reply-text { color: #f8fafc; font-size: 0.88rem; line-height: 1.4; margin-bottom: 6px; white-space: pre-wrap; word-break: break-word; }
         .reply-text .mention { color: #a78bfa; font-weight: 600; }
+
         .reply-actions { display: flex; gap: 12px; align-items: center; font-size: 0.75rem; flex-wrap: wrap; }
         .reply-action-btn { background: none; border: none; color: #94a3b8; cursor: pointer; font-size: 0.75rem; font-family: inherit; padding: 0; display: flex; align-items: center; gap: 4px; transition: color 0.2s; }
         .reply-action-btn:hover { color: #fdbb2d; }
         .reply-action-btn.pin-btn:hover { color: #10b981; }
         .reply-action-btn.delete-btn:hover { color: #ef4444; }
+
         .replies-toggle-wrapper { margin-top: 10px; }
         .replies-toggle-btn { background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.15); color: #cbd5e1; padding: 6px 14px; border-radius: 6px; font-size: 0.8rem; cursor: pointer; font-family: inherit; display: inline-flex; align-items: center; gap: 6px; transition: 0.2s; font-weight: 600; }
         .replies-toggle-btn:hover { background: rgba(253,187,45,0.12); border-color: #fdbb2d; color: #fdbb2d; }
@@ -354,6 +361,7 @@
         .replies-toggle-btn .arrow { display: inline-block; transition: transform 0.25s; font-size: 0.7rem; }
         .replies-toggle-btn.expanded .arrow { transform: rotate(180deg); }
         .replies-toggle-btn .reply-badge { background: #fdbb2d; color: #000; border-radius: 10px; padding: 1px 7px; font-size: 0.7rem; font-weight: 800; }
+
         .reply-form { display: none; margin-top: 10px; background: rgba(0,0,0,0.25); padding: 10px; border-radius: 8px; gap: 8px; align-items: flex-start; border: 1px solid rgba(255,255,255,0.08); }
         .reply-form.active { display: flex; }
         .reply-form textarea { flex: 1; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.2); border-radius: 6px; padding: 8px 10px; color: #fff; resize: vertical; min-height: 44px; outline: none; font-family: inherit; font-size: 0.85rem; }
@@ -361,6 +369,7 @@
         .reply-form .reply-form-btn { background: #fdbb2d; color: #000; border: none; padding: 8px 16px; border-radius: 6px; font-weight: bold; cursor: pointer; font-family: inherit; font-size: 0.82rem; align-self: stretch; transition: 0.2s; }
         .reply-form .reply-form-btn:hover { background: #ffcc44; }
         .reply-form .reply-form-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
         .notif-item { display: flex; gap: 12px; padding: 12px; border-radius: 10px; margin-bottom: 8px; background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.05); cursor: pointer; transition: 0.2s; position: relative; }
         .notif-item:hover { background: rgba(255,255,255,0.06); border-color: rgba(253,187,45,0.3); transform: translateX(2px); }
         .notif-item.unread { background: rgba(253,187,45,0.09); border-left: 3px solid #fdbb2d; }
@@ -376,6 +385,7 @@
         .notif-mark-all-btn:hover { background: rgba(253,187,45,0.15); border-color: #fdbb2d; color: #fdbb2d; }
         .notif-delete-btn { background: none; border: none; color: #94a3b8; cursor: pointer; padding: 2px; font-size: 0.9rem; transition: color 0.2s; }
         .notif-delete-btn:hover { color: #ef4444; }
+
         .admin-tabs { display: flex; gap: 8px; margin-bottom: 15px; flex-wrap: wrap; flex-shrink: 0; }
         .admin-tab-btn { flex: 1; min-width: 100px; padding: 10px; border-radius: 8px; border: none; font-weight: bold; cursor: pointer; transition: 0.2s; font-size: 0.82rem; background: rgba(255,255,255,0.12); color: #fff; font-family: inherit; }
         .admin-tab-btn.active { background: #fdbb2d; color: #000; }
@@ -601,7 +611,8 @@
             .player-wrapper::after { height: 90px !important; }
             .player-controls { padding: 8px 12px 10px !important; }
             #player-bottom-ad { display: none !important; }
-            .player-vote-container { top: 10px; right: 10px; transform: scale(0.8); transform-origin: top right; }
+            .player-vote-container { top: 10px; right: 55px; transform: scale(0.8); transform-origin: top right; }
+            #sharePlayerBtn { top: 10px; right: 10px; transform: scale(0.8); transform-origin: top right; }
             .close-player-btn { top: 10px; left: 10px; width: 35px; height: 35px; font-size: 1rem; }
             .player-video-title { top: 12px; left: 55px; font-size: 0.85rem; max-width: calc(100% - 200px); }
             .player-controls { flex-wrap: wrap; gap: 4px 10px; align-items: center; }
@@ -996,10 +1007,14 @@
             <div class="custom-ui" id="customUI">
                 <button class="close-player-btn" id="closePlayerBtn" title="Fechar player">✖</button>
                 <div id="playerVideoTitle" class="player-video-title"></div>
+                
+                <button class="player-vote-btn" id="sharePlayerBtn" title="Compartilhar este vídeo">🔗</button>
+                
                 <div class="player-vote-container">
                     <button class="player-vote-btn like" id="playerLikeBtn" title="Curtir">👍 <span id="playerLikeCount">0</span></button>
                     <button class="player-vote-btn dislike" id="playerDislikeBtn" title="Descurtir">👎 <span id="playerDislikeCount">0</span></button>
                 </div>
+                
                 <button class="center-play-btn" id="centerPlayPauseBtn" title="Play/Pause">
                     <svg class="icon-play" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
                     <svg class="icon-pause" viewBox="0 0 24 24" fill="currentColor" style="display:none;"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
@@ -1238,6 +1253,7 @@
     let deletedCommentsRef = null;
     let adminCommentsData = { active: {}, deleted: {} };
     let currentAdminTab = 'all';
+    let deepLinkProcessed = false;
 
     // ============ HELPERS ============
     function isAdmin() { return currentUser && ADMIN_EMAILS.includes(currentUser.email); }
@@ -2491,6 +2507,7 @@
         checkMyAdsVisibility();
         updateNotificationBadge();
         updateFABVisibility();
+        setTimeout(processarDeepLink, 1000);
     });
 
     // ============ VOTOS / VIEWS ============
@@ -2659,7 +2676,6 @@
         const tags = [];
         if (item.pago) tags.push('<span class="tag tag-pago">PAGO</span>');
         if (item.ad) tags.push('<span class="tag tag-ad">AD</span>');
-        // ═══ Tag de classificação ANCINE (fallback: curta) ═══
         const classificacao = normalizarClassificacao(item.classificacao);
         const classInfo = CLASSIFICACAO_INFO[classificacao];
         tags.push(`<span class="tag ${classInfo.cls} ancine-tag" title="${classInfo.titulo} — clique para saber mais">${classInfo.label}</span>`);
@@ -2689,7 +2705,6 @@
         card.querySelector('.favorite-btn').addEventListener('click', (e) => { e.stopPropagation(); toggleFavorite(item.youtubeId); });
         card.querySelector('.edit').addEventListener('click', (e) => { e.stopPropagation(); openVideoModal('edit', item); });
         card.querySelector('.delete').addEventListener('click', (e) => { e.stopPropagation(); deleteVideo(item); });
-        // ═══ Clique na etiqueta de classificação ANCINE ═══
         const ancineTag = card.querySelector('.ancine-tag');
         if (ancineTag) {
             ancineTag.addEventListener('click', (e) => {
@@ -2754,9 +2769,6 @@
         if (favSection) favSection.style.display = favCount > 0 ? 'block' : 'none';
     }
 
-    // ═══════════════════════════════════════════════════════════════
-    // NAVEGAÇÃO DO CARROSSEL DE FAVORITOS (setas)
-    // ═══════════════════════════════════════════════════════════════
     function scrollFavoritesCarousel(direction) {
         const track = document.getElementById('favoritesTrack');
         if (!track) return;
@@ -2778,6 +2790,7 @@
         if (tvActive) {
             if (typeof scheduleTVRebuild === 'function') scheduleTVRebuild();
         }
+        setTimeout(processarDeepLink, 1000);
     }, (err) => {
         loadingMsg.style.display = 'none';
         catalogGrid.innerHTML = `<div class="empty-state" style="display:block;">Erro ao carregar catálogo: ${escapeHtml(err.message)}</div>`;
@@ -2820,7 +2833,7 @@
             videoModalTitle.textContent = 'Adicionar Vídeo';
             videoModalSub.textContent = 'O vídeo ficará visível para todos os usuários.';
             videoUrlInput.value = ''; videoTitleInput.value = ''; videoProdutoraInput.value = ''; videoAnoInput.value = '';
-            videoClassificacaoInput.value = 'curta'; // ═══ DEFAULT: CURTA ═══
+            videoClassificacaoInput.value = 'curta';
             document.querySelector('input[name="videoMarker"][value=""]').checked = true;
             urlHint.textContent = ''; urlHint.className = 'url-hint';
         } else {
@@ -3761,6 +3774,17 @@
             playerVars: { autoplay: 1, controls: 0, modestbranding: 1, rel: 0, iv_load_policy: 3, playsinline: 1, cc_load_policy: 0, fs: 0, origin: window.location.origin },
             events: { 'onReady': onPlayerReady, 'onStateChange': onPlayerStateChange }
         });
+        
+        const shareBtn = document.getElementById('sharePlayerBtn');
+        if (shareBtn) {
+            shareBtn.replaceWith(shareBtn.cloneNode(true));
+            document.getElementById('sharePlayerBtn').addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                compartilharVideo(video.youtubeId);
+            });
+        }
+
         openComments(video.youtubeId);
     }
     window.addEventListener('resize', () => {
@@ -3940,6 +3964,50 @@
         }, 500);
     }
 
+    // ============ COMPARTILHAMENTO (DEEP LINK) ============
+    function compartilharVideo(youtubeId) {
+        if (!youtubeId) return;
+        const url = window.location.origin + window.location.pathname + '#video=' + youtubeId;
+        
+        navigator.clipboard.writeText(url).then(() => {
+            const btn = document.getElementById('sharePlayerBtn');
+            if (btn) {
+                const originalText = btn.innerHTML;
+                btn.innerHTML = '✅';
+                setTimeout(() => btn.innerHTML = originalText, 2000);
+            } else {
+                alert('Link copiado com sucesso!');
+            }
+        }).catch(err => {
+            prompt('Copie o link abaixo para compartilhar:', url);
+        });
+    }
+
+    function processarDeepLink() {
+        if (deepLinkProcessed || !videosLoaded) return;
+        
+        const hash = window.location.hash;
+        if (hash && hash.startsWith('#video=')) {
+            const ytId = hash.replace('#video=', '');
+            const video = videos.find(v => v.youtubeId === ytId);
+            
+            if (video) {
+                deepLinkProcessed = true;
+                history.replaceState(null, '', window.location.pathname + window.location.search);
+
+                if (video.pago && !catalogSubscription.active) {
+                    openPixLightbox();
+                } 
+                else if (!catalogSubscription.active) {
+                    showAdInterstitial(video);
+                } 
+                else {
+                    openPlayer(video);
+                }
+            }
+        }
+    }
+
     // ============ TV AO VIVO ============
     const TV_EPOCH_MS = 1704067200000;
     let tvPlayer = null;
@@ -4033,7 +4101,7 @@
         document.getElementById('tvNowPlaying').style.display = 'none';
         document.getElementById('tvUnmuteOverlay').classList.remove('hidden');
         document.getElementById('tvPlayerContainer').innerHTML = '';
-        document.getElementById('tvScreen').classList.remove('tv-playing'); // Esconde os controles antes de começar
+        document.getElementById('tvScreen').classList.remove('tv-playing');
         document.addEventListener('keydown', blockTVKeys, true);
     }
 
