@@ -243,31 +243,6 @@
         .skip-btn .skip-num { position: absolute; top: 53%; left: 50%; transform: translate(-50%, -50%); font-size: 9px; font-weight: 800; font-family: Arial, sans-serif; line-height: 1; color: currentColor; pointer-events: none; }
         .player-controls { position: absolute; bottom: 0; left: 0; right: 0; padding: 20px 20px 15px; display: flex; align-items: center; gap: 15px; pointer-events: auto; background: linear-gradient(to top, #000 0%, #000 80%, transparent 100%); z-index: 25; }
         .control-btn { background: none; border: none; color: #fff; padding: 5px; cursor: pointer; font-size: 1.2rem; font-weight: bold; display: flex; align-items: center; justify-content: center; }
-
-        .player-controls #fullscreenBtn {
-            display: flex !important;
-            visibility: visible !important;
-            opacity: 1 !important;
-            background: rgba(255, 255, 255, 0.12);
-            border-radius: 6px;
-            padding: 6px 9px;
-            margin-left: 8px;
-            min-width: 34px;
-            min-height: 34px;
-            transition: background 0.2s, transform 0.15s;
-        }
-        .player-controls #fullscreenBtn:hover {
-            background: rgba(253, 187, 45, 0.35);
-            transform: scale(1.08);
-        }
-        .player-controls #fullscreenBtn svg {
-            width: 22px !important;
-            height: 22px !important;
-            fill: #fff !important;
-            color: #fff !important;
-            display: block !important;
-        }
-
         .control-btn:hover { color: #fdbb2d; }
         .progress-track { flex: 1; height: 6px; background: rgba(255,255,255,0.2); border-radius: 3px; cursor: pointer; position: relative; margin: 0 10px; }
         .progress-fill { height: 100%; background: #fdbb2d; border-radius: 3px; width: 0%; }
@@ -435,6 +410,7 @@
         #banAlertModal .alert-box { border: 2px solid #ef4444; }
         #banAlertModal h2 { color: #ef4444; }
 
+        /* ============ LIGHTBOX ANCINE ============ */
         #ancineLightbox {
             position: fixed; inset: 0;
             background: rgba(0,0,0,0.78);
@@ -517,250 +493,6 @@
         .ancine-box li strong { color: #0b0f19; }
         .tag.ancine-tag { cursor: pointer; transition: transform 0.15s, box-shadow 0.15s; }
         .tag.ancine-tag:hover { transform: scale(1.08); box-shadow: 0 0 10px rgba(255,255,255,0.35); }
-
-        #tvFab {
-            position: fixed;
-            bottom: 26px;
-            right: 26px;
-            z-index: 9997;
-            display: none;
-            align-items: center;
-            gap: 10px;
-            background: linear-gradient(135deg, #ef4444, #b91c1c);
-            color: #fff;
-            padding: 14px 22px;
-            border-radius: 50px;
-            border: none;
-            font-weight: 800;
-            font-size: 0.92rem;
-            cursor: pointer;
-            box-shadow: 0 8px 25px rgba(239,68,68,0.45), 0 4px 12px rgba(0,0,0,0.4);
-            transition: transform 0.2s, box-shadow 0.2s, background 0.3s;
-            font-family: inherit;
-            letter-spacing: 0.6px;
-            animation: tvFabEnter 0.45s ease;
-        }
-        #tvFab:hover {
-            transform: translateY(-3px) scale(1.03);
-            box-shadow: 0 12px 35px rgba(239,68,68,0.65), 0 6px 16px rgba(0,0,0,0.5);
-        }
-        #tvFab.locked {
-            background: linear-gradient(135deg, #7c3aed, #5b21b6);
-            box-shadow: 0 8px 25px rgba(124,58,237,0.45), 0 4px 12px rgba(0,0,0,0.4);
-        }
-        #tvFab.locked:hover {
-            box-shadow: 0 12px 35px rgba(124,58,237,0.65), 0 6px 16px rgba(0,0,0,0.5);
-        }
-        #tvFab .tv-fab-dot {
-            width: 9px;
-            height: 9px;
-            border-radius: 50%;
-            background: #fff;
-            animation: tvLivePulse 1.5s infinite;
-            flex-shrink: 0;
-        }
-        #tvFab.locked .tv-fab-dot { display: none; }
-        #tvFab .tv-fab-lock { display: none; font-size: 0.85rem; }
-        #tvFab.locked .tv-fab-lock { display: inline; }
-        @keyframes tvLivePulse {
-            0%, 100% { opacity: 1; transform: scale(1); }
-            50% { opacity: 0.35; transform: scale(0.7); }
-        }
-        @keyframes tvFabEnter {
-            from { opacity: 0; transform: translateY(24px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        #tvScreen {
-            position: fixed;
-            inset: 0;
-            background: #000;
-            z-index: 9999999;
-            display: none;
-            flex-direction: column;
-        }
-        #tvScreen.active { display: flex; }
-        #tvScreen .tv-topbar {
-            position: absolute;
-            top: 0; left: 0; right: 0;
-            padding: 15px 20px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            background: linear-gradient(to bottom, rgba(0,0,0,0.85), transparent);
-            z-index: 10;
-            pointer-events: none;
-        }
-        #tvScreen .tv-topbar > * { pointer-events: auto; }
-        
-        #tvScreen .tv-controls {
-            display: flex;
-            gap: 10px;
-            align-items: center;
-        }
-
-        /* ✅ Botão TELA CHEIA com texto visível */
-        #tvScreen .tv-close-btn, #tvScreen .tv-fs-btn {
-            background: rgba(0,0,0,0.65);
-            border: 1px solid rgba(255,255,255,0.25);
-            color: #fff;
-            height: 42px;
-            border-radius: 8px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: 0.2s;
-            font-family: inherit;
-            gap: 7px;
-            padding: 0 16px;
-            font-size: 0.82rem;
-            font-weight: 700;
-            letter-spacing: 0.5px;
-            white-space: nowrap;
-        }
-        #tvScreen .tv-close-btn {
-            width: 42px;
-            padding: 0;
-            border-radius: 50%;
-            font-size: 1.2rem;
-        }
-        #tvScreen .tv-fs-btn:hover { background: #3b82f6; transform: scale(1.05); border-color: #60a5fa; }
-        #tvScreen .tv-close-btn:hover { background: #ef4444; transform: scale(1.05); border-color: #f87171; }
-
-        #tvScreen .tv-brand { display: flex; align-items: center; gap: 12px; }
-        #tvScreen .tv-brand-badge {
-            background: #ef4444;
-            color: #fff;
-            padding: 6px 14px;
-            border-radius: 14px;
-            font-size: 0.75rem;
-            font-weight: 900;
-            letter-spacing: 1.2px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        #tvScreen .tv-brand-title {
-            color: #fff;
-            font-weight: 700;
-            font-size: 0.95rem;
-            text-shadow: 1px 1px 6px rgba(0,0,0,0.9);
-            max-width: 40vw;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-        }
-        #tvScreen .tv-content { position: relative; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; }
-        #tvPlayerContainer { width: 100%; height: 100%; position: relative; background: #000; display: flex; align-items: center; justify-content: center; }
-        #tvPlayerContainer iframe {
-            width: 100% !important;
-            height: 100% !important;
-            pointer-events: none !important;
-            border: none;
-        }
-        #tvScreen .tv-bottombar {
-            position: absolute;
-            bottom: 0; left: 0; right: 0;
-            padding: 22px 24px;
-            background: linear-gradient(to top, rgba(0,0,0,0.92), transparent);
-            z-index: 10;
-            pointer-events: none;
-        }
-        #tvScreen .tv-now-playing { display: none; align-items: center; gap: 12px; color: #fff; }
-        #tvScreen .tv-now-label {
-            font-size: 0.7rem;
-            letter-spacing: 1.2px;
-            font-weight: 900;
-            color: #ef4444;
-            white-space: nowrap;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-        }
-        #tvScreen .tv-now-label::before {
-            content: '';
-            width: 8px; height: 8px;
-            background: #ef4444;
-            border-radius: 50%;
-            animation: tvLivePulse 1.5s infinite;
-        }
-        #tvScreen .tv-now-title {
-            font-size: 1.05rem;
-            font-weight: 600;
-            text-shadow: 1px 1px 6px rgba(0,0,0,0.9);
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-        }
-        #tvScreen .tv-loading {
-            position: absolute;
-            inset: 0;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            background: #000;
-            z-index: 5;
-            color: #fff;
-        }
-        #tvScreen .tv-loading .tv-spinner {
-            border: 4px solid rgba(239,68,68,0.25);
-            border-top: 4px solid #ef4444;
-            border-radius: 50%;
-            width: 64px;
-            height: 64px;
-            animation: spin 1s linear infinite;
-            margin-bottom: 18px;
-        }
-        #tvScreen .tv-loading-text { font-size: 0.95rem; color: #cbd5e1; }
-        #tvScreen .tv-unmute-overlay {
-            position: absolute;
-            inset: 0;
-            background: rgba(0,0,0,0.92);
-            z-index: 8;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            color: #fff;
-            gap: 22px;
-            cursor: pointer;
-            transition: opacity 0.3s;
-        }
-        #tvScreen .tv-unmute-overlay.hidden { opacity: 0; pointer-events: none; }
-        #tvScreen .tv-unmute-btn {
-            background: #ef4444;
-            color: #fff;
-            padding: 16px 42px;
-            border-radius: 50px;
-            font-size: 1.05rem;
-            font-weight: 800;
-            border: none;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            box-shadow: 0 10px 40px rgba(239,68,68,0.55);
-            transition: 0.2s;
-            font-family: inherit;
-            letter-spacing: 0.5px;
-        }
-        #tvScreen .tv-unmute-btn:hover { transform: scale(1.05); background: #dc2626; }
-
-        @media (max-width: 900px) {
-            #tvFab { bottom: 16px; right: 16px; padding: 12px 18px; font-size: 0.82rem; gap: 8px; }
-            #tvFab .tv-fab-dot { width: 8px; height: 8px; }
-            #tvScreen .tv-topbar { padding: 10px 12px; }
-            #tvScreen .tv-brand-title { font-size: 0.8rem; max-width: 40vw; }
-            #tvScreen .tv-brand-badge { padding: 5px 10px; font-size: 0.68rem; }
-            #tvScreen .tv-fs-btn { height: 36px; padding: 0 10px; font-size: 0.7rem; gap: 4px; }
-            #tvScreen .tv-fs-btn svg { width: 14px; height: 14px; }
-            #tvScreen .tv-close-btn { width: 36px; height: 36px; font-size: 1rem; }
-            #tvScreen .tv-bottombar { padding: 14px 16px; }
-            #tvScreen .tv-now-title { font-size: 0.88rem; }
-            #tvScreen .tv-unmute-btn { padding: 14px 32px; font-size: 0.95rem; }
-        }
 
         @media (min-width: 901px) { .ad-side-banner { display: block; } }
 
@@ -885,219 +617,25 @@
             #commentsSection { display: flex; order: 3; margin-top: 10px; width: 100%; }
             #playerMobileBottom { display: none !important; }
         }
-        /* ✅ PATCH: modo imersivo da TV (fallback para navegadores sem Fullscreen API) */
-        #tvScreen.tv-immersive .tv-topbar,
-        #tvScreen.tv-immersive .tv-bottombar {
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.3s ease;
-        }
-        #tvScreen.tv-immersive:hover .tv-topbar,
-        #tvScreen.tv-immersive:hover .tv-bottombar {
-            opacity: 1;
-            pointer-events: auto;
-        }
-        /* ✅ PATCH FINAL: remove título duplicado do topo e alinha botões à direita */
-        #tvScreen .tv-brand { display: none !important; }
-        #tvScreen .tv-topbar { justify-content: flex-end !important; opacity: 1 !important; pointer-events: auto !important; visibility: visible !important; }
-        
-        /* ✅ PATCH FINAL: garante que a TV fique acima do header do site */
-        #tvScreen { z-index: 10000001 !important; }
-        
-        /* ✅ PATCH FINAL: corrige o botão fullscreen sumindo ao sair do modo nativo */
-        #tvScreen .tv-fs-btn { display: flex !important; visibility: visible !important; opacity: 1 !important; }
-        /* ✅ PATCH UX: Ocultação Automática (Auto-Hide) */
-        #tvScreen.ui-hidden .tv-topbar,
-        #tvScreen.ui-hidden .tv-bottombar {
-            opacity: 0 !important;
-            pointer-events: none !important;
-        }
-        #tvScreen .tv-topbar,
-        #tvScreen .tv-bottombar {
-            transition: opacity 0.4s ease !important;
-        }
-
-        /* ✅ PATCH UX: Controle de Volume */
-        .tv-volume-container {
-            display: flex; align-items: center; gap: 8px;
-            background: rgba(0,0,0,0.65); padding: 0 12px; height: 42px;
-            border-radius: 8px; border: 1px solid rgba(255,255,255,0.25);
-            transition: 0.2s;
-        }
-        .tv-volume-container:hover { background: rgba(0,0,0,0.8); border-color: rgba(255,255,255,0.4); }
-        .tv-vol-btn {
-            background: none; border: none; color: white; font-size: 1.1rem;
-            cursor: pointer; padding: 0; display: flex; align-items: center; justify-content: center;
-        }
-        .tv-vol-slider {
-            -webkit-appearance: none; width: 70px; height: 4px;
-            background: rgba(255,255,255,0.3); border-radius: 2px; outline: none; cursor: pointer;
-        }
-        .tv-vol-slider::-webkit-slider-thumb {
-            -webkit-appearance: none; width: 12px; height: 12px;
-            border-radius: 50%; background: #fdbb2d; cursor: pointer;
-        }
-        @media (max-width: 900px) {
-            .tv-vol-slider { width: 50px; }
-            .tv-volume-container { height: 36px; padding: 0 8px; }
-        }
-        /* ✅ PATCH LAYOUT: Barra inferior flexível */
-        #tvScreen .tv-bottombar {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 15px;
-            padding: 15px 24px;
-        }
-        #tvScreen .tv-now-playing {
-            flex: 1;
-            min-width: 0;
-        }
-        #tvScreen .tv-controls {
-            flex-shrink: 0;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        /* Esconde a barra superior antiga (que ficou vazia) */
-        #tvScreen .tv-topbar {
-            display: none !important;
-        }
-        /* ✅ CORREÇÃO: Permite cliques nos botões (pointer-events) */
-        #tvScreen .tv-topbar, 
-        #tvScreen .tv-bottombar, 
-        #tvScreen .tv-controls,
-        #tvScreen .tv-vol-btn,
-        #tvScreen .tv-vol-slider,
-        #tvScreen .tv-fs-btn,
-        #tvScreen .tv-close-btn {
-            pointer-events: auto !important;
-        }
-
-        /* ✅ CORREÇÃO: Oculta as barras antes do usuário clicar em Entrar */
-        #tvScreen:not(.tv-playing) .tv-topbar,
-        #tvScreen:not(.tv-playing) .tv-bottombar {
-            opacity: 0 !important;
-            pointer-events: none !important;
-        }
-
-        /* ✅ CORREÇÃO: Auto-hide após inatividade */
-        #tvScreen.ui-hidden .tv-topbar,
-        #tvScreen.ui-hidden .tv-bottombar {
-            opacity: 0 !important;
-            pointer-events: none !important;
-        }
-        #tvScreen .tv-topbar,
-        #tvScreen .tv-bottombar {
-            transition: opacity 0.4s ease !important;
-        }
     
-        #tvScreen .tv-topbar, 
-        #tvScreen .tv-bottombar, 
-        #tvScreen .tv-controls,
-        #tvScreen .tv-vol-btn,
-        #tvScreen .tv-vol-slider,
-        #tvScreen .tv-fs-btn,
-        #tvScreen .tv-close-btn {
-            pointer-events: auto !important;
-        }
-        #tvScreen:not(.tv-playing) .tv-topbar,
-        #tvScreen:not(.tv-playing) .tv-bottombar {
-            opacity: 0 !important;
-            pointer-events: none !important;
-        }
-        #tvScreen.ui-hidden .tv-topbar,
-        #tvScreen.ui-hidden .tv-bottombar {
-            opacity: 0 !important;
-            pointer-events: none !important;
-        }
-        
-        /* ✅ CSS: Remover contornos e fundos dos botões da TV */
-        #tvScreen .tv-close-btn, 
-        #tvScreen .tv-fs-btn {
-            background: transparent !important;
-            border: none !important;
-            box-shadow: none !important;
-            padding: 8px !important;
-            width: auto !important;
-            height: auto !important;
-            border-radius: 0 !important;
-            transition: transform 0.2s !important;
-        }
-        #tvScreen .tv-close-btn:hover, 
-        #tvScreen .tv-fs-btn:hover {
-            background: transparent !important;
-            transform: scale(1.15) !important;
-            color: #fdbb2d !important;
-        }
-        #tvScreen .tv-volume-container {
-            background: transparent !important;
-            border: none !important;
-            padding: 0 !important;
-            box-shadow: none !important;
-        }
-        /* Garantir que a interface só apareça no play */
-        #tvScreen:not(.tv-playing) .tv-topbar,
-        #tvScreen:not(.tv-playing) .tv-bottombar {
-            opacity: 0 !important;
-            pointer-events: none !important;
-        }
-        #tvScreen.ui-hidden .tv-topbar,
-        #tvScreen.ui-hidden .tv-bottombar {
-            opacity: 0 !important;
-            pointer-events: none !important;
-        }
-        /* Consertar cliques */
-        #tvScreen .tv-topbar, 
-        #tvScreen .tv-bottombar, 
-        #tvScreen .tv-controls,
-        #tvScreen .tv-vol-btn,
-        #tvScreen .tv-vol-slider,
-        #tvScreen .tv-fs-btn,
-        #tvScreen .tv-close-btn {
-            pointer-events: auto !important;
-        }
-        
-        
-        /* ✅ Forçar o Topo a não ter texto, apenas o botão na direita */
-        #tvScreen .tv-topbar {
-            display: flex !important;
-            justify-content: flex-end !important;
-            padding: 20px !important;
-            background: linear-gradient(to bottom, rgba(0,0,0,0.8), transparent) !important;
-            pointer-events: auto !important;
-        }
-        
-        /* ✅ Forçar a Base a ter o layout correto */
-        #tvScreen .tv-bottombar {
-            display: flex !important;
-            justify-content: space-between !important;
-            align-items: flex-end !important;
-            width: 100% !important;
-            padding: 20px !important;
-            background: linear-gradient(to top, rgba(0,0,0,0.8), transparent) !important;
-            pointer-events: auto !important;
-        }
-        #tvScreen .tv-now-playing { display: flex !important; align-items: center !important; gap: 10px !important; flex: 1 !important; }
+        /* ✅ CORREÇÃO: Tirar contornos e forçar layout */
+        #tvScreen .tv-topbar { display: flex !important; justify-content: flex-end !important; }
+        #tvScreen .tv-bottombar { display: flex !important; justify-content: space-between !important; align-items: flex-end !important; width: 100% !important; }
+        #tvScreen .tv-now-playing { display: flex !important; align-items: center !important; flex: 1 !important; }
         #tvScreen .tv-controls { display: flex !important; align-items: center !important; gap: 15px !important; margin-left: auto !important; }
-        
-        /* ✅ Limpeza visual dos botões */
         #tvScreen .tv-close-btn, #tvScreen .tv-fs-btn, #tvScreen .tv-vol-btn {
             background: transparent !important; border: none !important; box-shadow: none !important;
-            padding: 0 !important; cursor: pointer !important; color: white !important; font-size: 1.5rem !important;
-            display: flex !important; align-items: center !important; justify-content: center !important;
-            transition: transform 0.2s !important; pointer-events: auto !important;
+            padding: 0 !important; outline: none !important; transition: transform 0.2s !important;
         }
-        #tvScreen .tv-close-btn:hover, #tvScreen .tv-fs-btn:hover, #tvScreen .tv-vol-btn:hover { transform: scale(1.2) !important; }
-        
-        /* ✅ Esconder controles antes do play e Auto-Hide */
-        #tvScreen:not(.tv-playing) .tv-topbar,
-        #tvScreen:not(.tv-playing) .tv-bottombar,
-        #tvScreen.ui-hidden .tv-topbar,
-        #tvScreen.ui-hidden .tv-bottombar {
+        #tvScreen .tv-close-btn:hover, #tvScreen .tv-fs-btn:hover, #tvScreen .tv-vol-btn:hover { transform: scale(1.15) !important; }
+        #tvScreen:not(.tv-playing) .tv-topbar, #tvScreen:not(.tv-playing) .tv-bottombar, #tvScreen.ui-hidden .tv-topbar, #tvScreen.ui-hidden .tv-bottombar {
             opacity: 0 !important; pointer-events: none !important;
         }
-        </style>
+        #tvScreen .tv-topbar, #tvScreen .tv-bottombar { transition: opacity 0.4s ease !important; }
+        #tvScreen .tv-topbar, #tvScreen .tv-bottombar, #tvScreen .tv-controls, #tvScreen .tv-vol-btn, #tvScreen .tv-vol-slider, #tvScreen .tv-fs-btn, #tvScreen .tv-close-btn {
+            pointer-events: auto !important;
+        }
+    </style>
 </head>
 <body>
 
@@ -1137,7 +675,6 @@
                         <button id="adminMenuBtn">⚙️ Painel Admin</button>
                         <div id="adminDropdown">
                             <button id="addVideoBtn">➕ Inserir Vídeo</button>
-                            <button id="backfillDurationBtn">⏱️ Recalcular Durações</button>
                             <button id="performanceBtn">📈 Desempenho</button>
                             <button id="adminCommentsBtn">💬 Comentários</button>
                             <button id="pricingBtn">💰 Preços</button>
@@ -1198,47 +735,6 @@
         </a>
     </footer>
 </div>
-
-<button id="tvFab" aria-label="Assistir TV ao Vivo">
-    <span class="tv-fab-dot"></span>
-    <span class="tv-fab-lock">🔒</span>
-    <span id="tvFabLabel">TV AO VIVO</span>
-</button>
-
-<div id="tvScreen">
-    <div class="tv-topbar" id="tvTopbar">
-        <div class="tv-controls" style="justify-content: flex-end; width: 100%;">
-            <button class="tv-close-btn" id="tvCloseBtn" title="Fechar TV">✖</button>
-        </div>
-    </div>
-    <div class="tv-content">
-        <div id="tvPlayerContainer"></div>
-        <div class="tv-loading" id="tvLoading">
-            <div class="tv-spinner"></div>
-            <div class="tv-loading-text">Sintonizando transmissão...</div>
-        </div>
-        <div class="tv-unmute-overlay" id="tvUnmuteOverlay">
-            <button class="tv-unmute-btn" id="tvUnmuteBtn">▶ Entrar na transmissão</button>
-        </div>
-    </div>
-    <div class="tv-bottombar" id="tvBottombar">
-        <div class="tv-now-playing" id="tvNowPlaying">
-            <span class="tv-now-label" style="color:#ef4444; font-weight:bold;">AO VIVO</span>
-            <span class="tv-now-title" id="tvNowTitle" style="color:white; font-weight:bold;"></span>
-        </div>
-        <div class="tv-controls">
-            <div class="tv-volume-container">
-                <button class="tv-vol-btn" id="tvMuteBtn" title="Mudo">🔊</button>
-                <input type="range" class="tv-vol-slider" id="tvVolumeSlider" min="0" max="100" value="100">
-            </div>
-            <button class="tv-fs-btn" id="tvFullscreenBtn" title="Tela Cheia">
-                <svg viewBox="0 0 24 24" width="24" height="24" fill="white">
-                    <path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/>
-                </svg>
-            </button>
-        </div>
-    </div>
-    </div>
 
 <div class="modal-overlay" id="notificationsModal">
     <div class="modal flex-modal" style="max-width: 560px;">
@@ -1443,11 +939,7 @@
                         <div class="progress-thumb" id="progressThumb"></div>
                     </div>
                     <span class="time-label" id="timeLabel">0:00 / 0:00</span>
-                    <button class="control-btn" id="fullscreenBtn" title="Tela Cheia">
-                        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z" fill="#fff"/>
-                        </svg>
-                    </button>
+                    <button class="control-btn" id="fullscreenBtn" title="Tela Cheia">⛶</button>
                 </div>
             </div>
             <div id="youtubePlayer"></div>
@@ -1545,7 +1037,7 @@
         </div>
         <h2>Classificação Normativa ANCINE</h2>
         <p>No Brasil, a duração de uma obra audiovisual segue critérios legais determinados pela legislação nacional.</p>
-        <p>Abaixo, confira a classificação normativa da Agência Nacional do Cinema (ANCINE), baseada na Medida Provisória nº 2.228-1/2001, que define os formatos de acordo com o tempo de execução:</p>
+<p>Abaixo, confira a classificação normativa da Agência Nacional do Cinema (ANCINE), baseada na Medida Provisória nº 2.228-1/2001, que define os formatos de acordo com o tempo de execução:</p>
         <ul>
             <li><strong>Curta-Metragem:</strong> Obra audiovisual com duração igual ou inferior a 15 minutos.</li>
             <li><strong>Média-Metragem:</strong> Obra audiovisual com duração superior a 15 minutos e igual ou inferior a 70 minutos.</li>
@@ -1574,20 +1066,8 @@
     const CF_BASE = 'https://us-central1-playtronic-tv.cloudfunctions.net';
 
     // ═══════════════════════════════════════════════════════════════
-    // HELPERS GLOBAIS
+    // MAPA DE CLASSIFICAÇÃO ANCINE (com fallback 'curta')
     // ═══════════════════════════════════════════════════════════════
-    function disableCaptions(p) {
-        if (!p) return;
-        try { p.setOption('captions', 'track', {}); } catch (e) {}
-        try { p.setOption('cc', 'track', {}); } catch (e) {}
-    }
-    function disableCaptionsSoon(p) {
-        if (!p) return;
-        disableCaptions(p);
-        setTimeout(() => disableCaptions(p), 800);
-        setTimeout(() => disableCaptions(p), 2000);
-    }
-
     const CLASSIFICACAO_INFO = {
         curta: { label: 'CURTA', cls: 'tag-curta', titulo: 'Curta-metragem (até 15 min)' },
         media: { label: 'MÉDIA', cls: 'tag-media', titulo: 'Média-metragem (15 a 70 min)' },
@@ -1611,6 +1091,7 @@
     let commentsCountCache = {};
     let videosLoaded = false;
     let favoritesLoaded = false;
+    let myAdsTitlesCache = {};
     let viewAlreadyCounted = false;
     let catalogSubscription = { active: false, expiresAt: 0 };
     let pixPaymentCheckInterval = null;
@@ -1619,6 +1100,11 @@
     let currentPlanId = 'monthly';
     let catalogPlans = { monthly: { price: 6.90, months: 1, label: '30 dias' }, quarterly: { price: 17.90, months: 3, label: '3 meses' }, semiannual: { price: 29.90, months: 6, label: '6 meses' }, annual: { price: 49.90, months: 12, label: '1 ano' } };
     let adBanners = [ { src: 'https://i.ibb.co/1GpjQ5zD/image.png', link: 'https://playtronicgames.com.br', views: 0 }, { src: 'https://i.ibb.co/21QYYGKg/83697ff7-f124-4608-8b30-2bd6e05b5c39.png', link: 'https://playtronicgames.com.br', views: 0 } ];
+    let currentAdBannerIndex = 0;
+    let adPaymentPolling = null;
+    let currentAdPayment = null;
+    let adYtPlayer = null;
+    let myAdsData = [];
     let allUsersList = [];
     let allUsersTotalCount = 0;
     let allUsersActiveCount = 0;
@@ -1635,23 +1121,6 @@
     let expandedComments = new Set();
     let replyDrafts = {};
 
-    // ═══════════════════════════════════════════════════════════════
-    // TV — ESTADO
-    // ═══════════════════════════════════════════════════════════════
-    const TV_EPOCH_MS = 1704067200000; // 2024-01-01T00:00:00 UTC
-    let tvPlayer = null;
-    let tvPlayerReady = false;
-    let tvPlaylist = [];
-    let tvTotalDuration = 0;
-    let tvCurrentYtId = null;
-    let tvServerOffset = 0;
-    let tvTimeSynced = false;
-    let tvDriftInterval = null;
-    let tvActive = false;
-    let _tvRebuildDebounce = null;
-    let _tvLastReloadTime = 0;     // ✅ proteção anti-loop
-    let _tvReloadCount = 0;        // ✅ contador de recargas seguidas
-
     // ============ PREFERÊNCIAS PERSISTENTES ============
     const CATALOG_PREFS_KEY = 'playtronic_catalog_prefs_v1';
     function loadCatalogPreferences() {
@@ -1665,14 +1134,14 @@
             if (validFields.includes(prefs.sortField)) currentSortField = prefs.sortField;
             if (validOrders.includes(prefs.sortOrder)) currentSortOrder = prefs.sortOrder;
             if (validFilters.includes(prefs.contentFilter)) currentContentFilter = prefs.contentFilter;
-        } catch (e) {}
+        } catch (e) { console.warn('Erro ao carregar preferências:', e); }
     }
     function saveCatalogPreferences() {
         try {
             localStorage.setItem(CATALOG_PREFS_KEY, JSON.stringify({
                 sortField: currentSortField, sortOrder: currentSortOrder, contentFilter: currentContentFilter
             }));
-        } catch (e) {}
+        } catch (e) { console.warn('Erro ao salvar preferências:', e); }
     }
     loadCatalogPreferences();
 
@@ -1736,63 +1205,12 @@
         return null;
     }
 
-    // ═══════════════════════════════════════════════════════════════
-    // OBTENÇÃO DE DURAÇÃO
-    // ═══════════════════════════════════════════════════════════════
-    async function getDurationsFromCF(ids) {
-        if (!currentUser || !isAdmin()) return {};
-        try {
-            const token = await currentUser.getIdToken();
-            const r = await fetch(CF_BASE + '/getVideoDurations', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
-                body: JSON.stringify({ ids })
-            });
-            if (!r.ok) return {};
-            const data = await r.json();
-            return data.durations || {};
-        } catch (e) { return {}; }
-    }
-
-    function obterDuracaoYouTubeIframe(youtubeId) {
-        return new Promise((resolve) => {
-            const divId = 'dur-tmp-' + Math.random().toString(36).slice(2);
-            const div = document.createElement('div');
-            div.id = divId;
-            div.style.cssText = 'position:absolute; top:-9999px; left:-9999px; width:1px; height:1px;';
-            document.body.appendChild(div);
-            let done = false;
-            const finish = (val) => {
-                if (done) return; done = true;
-                clearTimeout(timeout);
-                try { p.destroy(); } catch (e) {}
-                try { div.remove(); } catch (e) {}
-                resolve(val);
-            };
-            const timeout = setTimeout(() => finish(0), 15000);
-            const p = new YT.Player(divId, {
-                height: '1', width: '1', videoId: youtubeId,
-                playerVars: { autoplay: 0, controls: 0 },
-                events: {
-                    onReady: (ev) => { const d = ev.target.getDuration(); finish(d > 0 ? Math.floor(d) : 0); },
-                    onError: () => finish(0)
-                }
-            });
-        });
-    }
-
-    async function obterDuracao(videoId) {
-        const map = await getDurationsFromCF([videoId]);
-        if (map[videoId] > 0) return map[videoId];
-        return await obterDuracaoYouTubeIframe(videoId);
-    }
-
     // ============ VISIBILIDADE / SCROLL ============
     function updateSearchVisibility() {
         const searchContainer = document.querySelector('.search-container');
         if (!searchContainer) return;
         const ancineLb = document.getElementById('ancineLightbox');
-        const isModalOpen = document.querySelector('.modal-overlay.active') || document.getElementById('playerScreen').classList.contains('active') || document.getElementById('tvScreen').classList.contains('active') || document.getElementById('adInterstitialModal').classList.contains('active') || document.getElementById('banAlertModal').classList.contains('active') || document.getElementById('blockAlertModal').classList.contains('active') || document.getElementById('pixLightbox').style.display === 'flex' || (ancineLb && ancineLb.classList.contains('active'));
+        const isModalOpen = document.querySelector('.modal-overlay.active') || document.getElementById('playerScreen').classList.contains('active') || document.getElementById('adInterstitialModal').classList.contains('active') || document.getElementById('banAlertModal').classList.contains('active') || document.getElementById('blockAlertModal').classList.contains('active') || document.getElementById('pixLightbox').style.display === 'flex' || (ancineLb && ancineLb.classList.contains('active'));
         if (isModalOpen) {
             searchContainer.style.display = 'none';
             document.body.classList.add('no-scroll', 'search-hidden');
@@ -1800,7 +1218,6 @@
             searchContainer.style.display = '';
             document.body.classList.remove('no-scroll', 'search-hidden');
         }
-        updateFABVisibility();
     }
     const domObserver = new MutationObserver((mutations) => {
         let shouldUpdate = false;
@@ -1814,57 +1231,13 @@
             document.getElementById('playerScreen'), document.getElementById('adInterstitialModal'),
             document.getElementById('pixLightbox'), document.getElementById('banAlertModal'),
             document.getElementById('blockAlertModal'), document.getElementById('notificationsModal'),
-            document.getElementById('ancineLightbox'), document.getElementById('tvScreen'),
+            document.getElementById('ancineLightbox'),
             ...document.querySelectorAll('.modal-overlay')
         ];
         targets.forEach(t => { if(t) domObserver.observe(t, { attributes: true, attributeFilter: ['class', 'style'] }); });
         updateSearchVisibility();
         window.addEventListener('resize', updateSearchVisibility);
     });
-
-    // ═══════════════════════════════════════════════════════════════
-    // FAB — TV AO VIVO
-    // ═══════════════════════════════════════════════════════════════
-    function updateFABVisibility() {
-        const fab = document.getElementById('tvFab');
-        if (!fab) return;
-        const isModalOpen = document.querySelector('.modal-overlay.active')
-            || document.getElementById('playerScreen').classList.contains('active')
-            || document.getElementById('tvScreen').classList.contains('active')
-            || document.getElementById('adInterstitialModal').classList.contains('active')
-            || document.getElementById('banAlertModal').classList.contains('active')
-            || document.getElementById('blockAlertModal').classList.contains('active')
-            || document.getElementById('pixLightbox').style.display === 'flex'
-            || (document.getElementById('ancineLightbox') && document.getElementById('ancineLightbox').classList.contains('active'));
-
-        if (isModalOpen || !currentUser) {
-            fab.style.display = 'none';
-            return;
-        }
-
-        fab.style.display = 'flex';
-        const isSub = catalogSubscription.active;
-        fab.classList.toggle('locked', !isSub);
-    }
-
-    document.getElementById('tvFab')?.addEventListener('click', () => {
-        if (!currentUser) return;
-        if (!catalogSubscription.active) {
-            openPixLightbox();
-            return;
-        }
-        if (!isTVReady()) {
-            alert('A programação está sendo preparada. Aguarde alguns instantes e tente novamente.');
-            return;
-        }
-        openTV();
-    });
-
-    // ✅ FIX: `.some()` em vez de `.every()` - permite TV funcionar mesmo com vídeos de duração 0
-    function isTVReady() {
-        if (videos.length === 0) return false;
-        return videos.some(v => Number(v.duracaoSegundos) > 0);
-    }
 
     // ============ PRESENÇA ============
     function setupPresence(user) {
@@ -1949,19 +1322,27 @@
         if (!data.toUid || !data.fromUid) return;
         if (data.toUid === data.fromUid) return;
         const notification = {
-            type: data.type, toUid: data.toUid, fromUid: data.fromUid,
+            type: data.type,
+            toUid: data.toUid,
+            fromUid: data.fromUid,
             fromName: (data.fromName || 'Usuário').substring(0, 100),
-            fromPhoto: data.fromPhoto || '', videoId: data.videoId || '',
-            videoTitle: (data.videoTitle || '').substring(0, 200), commentId: data.commentId || '',
-            commentText: (data.commentText || '').substring(0, 200), replyText: (data.replyText || '').substring(0, 200),
-            createdAt: Date.now(), read: false
+            fromPhoto: data.fromPhoto || '',
+            videoId: data.videoId || '',
+            videoTitle: (data.videoTitle || '').substring(0, 200),
+            commentId: data.commentId || '',
+            commentText: (data.commentText || '').substring(0, 200),
+            replyText: (data.replyText || '').substring(0, 200),
+            createdAt: Date.now(),
+            read: false
         };
-        try { await rtdb.ref('vod_notifications/' + data.toUid).push(notification); } catch (e) {}
+        try { await rtdb.ref('vod_notifications/' + data.toUid).push(notification); }
+        catch (e) { console.warn('Erro ao criar notificação:', e); }
     }
 
     async function markNotificationRead(notifId) {
         if (!currentUser) return;
-        try { await rtdb.ref(`vod_notifications/${currentUser.uid}/${notifId}/read`).set(true); } catch (e) {}
+        try { await rtdb.ref(`vod_notifications/${currentUser.uid}/${notifId}/read`).set(true); }
+        catch (e) { console.warn('Erro ao marcar como lida:', e); }
     }
     async function markAllNotificationsRead() {
         if (!currentUser) return;
@@ -1969,11 +1350,13 @@
         if (unreadIds.length === 0) return;
         const updates = {};
         unreadIds.forEach(id => { updates[`${id}/read`] = true; });
-        try { await rtdb.ref('vod_notifications/' + currentUser.uid).update(updates); } catch (e) {}
+        try { await rtdb.ref('vod_notifications/' + currentUser.uid).update(updates); }
+        catch (e) { alert('Erro ao marcar notificações: ' + e.message); }
     }
     async function deleteNotification(notifId) {
         if (!currentUser) return;
-        try { await rtdb.ref(`vod_notifications/${currentUser.uid}/${notifId}`).remove(); } catch (e) {}
+        try { await rtdb.ref(`vod_notifications/${currentUser.uid}/${notifId}`).remove(); }
+        catch (e) { alert('Erro ao excluir: ' + e.message); }
     }
 
     function formatNotificationText(notif) {
@@ -2713,7 +2096,7 @@
                 const snap = await db.collection('catalog_users').where('uid', 'in', chunk).get();
                 snap.forEach(doc => { usersCache[doc.id] = doc.data(); });
             }
-        } catch (e) {}
+        } catch (e) { console.warn('Erro ao buscar usuários:', e); }
         list.innerHTML = commentsToDisplay.map(c => {
             const cardColor = getCardColor(c.id);
             const u = usersCache[c.uid] || {};
@@ -2922,25 +2305,6 @@
         adminDropdown.style.display = adminDropdown.style.display === 'flex' ? 'none' : 'flex';
     });
 
-    // ═══ ANCINE lightbox ═══
-    function openAncineLightbox() {
-        document.getElementById('ancineLightbox').classList.add('active');
-        updateSearchVisibility();
-    }
-    function closeAncineLightbox() {
-        document.getElementById('ancineLightbox').classList.remove('active');
-        updateSearchVisibility();
-    }
-    document.getElementById('ancineCloseBtn')?.addEventListener('click', closeAncineLightbox);
-    document.getElementById('ancineLightbox')?.addEventListener('click', (e) => {
-        if (e.target === document.getElementById('ancineLightbox')) closeAncineLightbox();
-    });
-    document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape' && document.getElementById('ancineLightbox')?.classList.contains('active')) {
-            closeAncineLightbox();
-        }
-    });
-
     // ============ AUTENTICAÇÃO ============
     function registrarUsuarioPlaytronic(user) {
         if (!user) return;
@@ -2950,16 +2314,6 @@
             lastLogin: firebase.firestore.FieldValue.serverTimestamp()
         }, { merge: true }).catch(e => console.warn('catalog_users write:', e));
     }
-
-    function checkMyAdsVisibility() {
-        if (!myAdsBtn) return;
-        if (currentUser && isAdmin()) {
-            myAdsBtn.style.display = 'flex';
-        } else {
-            myAdsBtn.style.display = 'none';
-        }
-    }
-
     auth.onAuthStateChanged((user) => {
         currentUser = user;
         if (favoritesRef) { favoritesRef.off(); favoritesRef = null; }
@@ -3009,7 +2363,6 @@
         checkCatalogSubscription();
         checkMyAdsVisibility();
         updateNotificationBadge();
-        updateFABVisibility();
     });
 
     // ============ VOTOS / VIEWS ============
@@ -3178,6 +2531,7 @@
         const tags = [];
         if (item.pago) tags.push('<span class="tag tag-pago">PAGO</span>');
         if (item.ad) tags.push('<span class="tag tag-ad">AD</span>');
+        // ═══ Tag de classificação ANCINE (fallback: curta) ═══
         const classificacao = normalizarClassificacao(item.classificacao);
         const classInfo = CLASSIFICACAO_INFO[classificacao];
         tags.push(`<span class="tag ${classInfo.cls} ancine-tag" title="${classInfo.titulo} — clique para saber mais">${classInfo.label}</span>`);
@@ -3207,6 +2561,7 @@
         card.querySelector('.favorite-btn').addEventListener('click', (e) => { e.stopPropagation(); toggleFavorite(item.youtubeId); });
         card.querySelector('.edit').addEventListener('click', (e) => { e.stopPropagation(); openVideoModal('edit', item); });
         card.querySelector('.delete').addEventListener('click', (e) => { e.stopPropagation(); deleteVideo(item); });
+        // ═══ Clique na etiqueta de classificação ANCINE ═══
         const ancineTag = card.querySelector('.ancine-tag');
         if (ancineTag) {
             ancineTag.addEventListener('click', (e) => {
@@ -3271,6 +2626,9 @@
         if (favSection) favSection.style.display = favCount > 0 ? 'block' : 'none';
     }
 
+    // ═══════════════════════════════════════════════════════════════
+    // NAVEGAÇÃO DO CARROSSEL DE FAVORITOS (setas)
+    // ═══════════════════════════════════════════════════════════════
     function scrollFavoritesCarousel(direction) {
         const track = document.getElementById('favoritesTrack');
         if (!track) return;
@@ -3284,93 +2642,11 @@
     document.getElementById('carouselLeft')?.addEventListener('click', () => scrollFavoritesCarousel(-1));
     document.getElementById('carouselRight')?.addEventListener('click', () => scrollFavoritesCarousel(1));
 
-    // ═══════════════════════════════════════════════════════════════
-    // BACKFILL AUTOMÁTICO
-    // ═══════════════════════════════════════════════════════════════
-    let _backfillRunning = false;
-    let _backfillDebounce = null;
-
-    async function autoBackfillDurations(force = false) {
-        if (!currentUser || !isAdmin()) return;
-        if (_backfillRunning) return;
-        const missing = force ? videos.slice() : videos.filter(v => !Number(v.duracaoSegundos) && v.duracaoSegundos !== 0);
-        if (missing.length === 0) return;
-
-        _backfillRunning = true;
-        console.log(`[Backfill] Iniciando cálculo de ${missing.length} durações (force=${force})`);
-
-        try {
-            const BATCH = 50;
-            let done = 0, fail = 0;
-
-            for (let i = 0; i < missing.length; i += BATCH) {
-                const chunk = missing.slice(i, i + BATCH);
-                const ids = chunk.map(v => v.youtubeId);
-                const durations = await getDurationsFromCF(ids);
-
-                const updates = {};
-                for (const v of chunk) {
-                    if (durations[v.youtubeId] > 0) {
-                        updates['vod_videos/' + v.key + '/duracaoSegundos'] = durations[v.youtubeId];
-                    }
-                }
-
-                // ✅ FIX: NÃO sobrescreve com 0. Se falhar, mantém o valor anterior.
-                const falhasNoLote = chunk.filter(v => !durations[v.youtubeId]);
-                if (falhasNoLote.length > 0) {
-                    for (const v of falhasNoLote) {
-                        const dur = await obterDuracaoYouTubeIframe(v.youtubeId);
-                        if (dur > 0) {
-                            updates['vod_videos/' + v.key + '/duracaoSegundos'] = dur;
-                        } else {
-                            console.warn(`[Backfill] ❌ Falha em "${v.titulo}" (${v.youtubeId}) - mantendo valor anterior`);
-                        }
-                    }
-                }
-
-                if (Object.keys(updates).length > 0) {
-                    try {
-                        await rtdb.ref().update(updates);
-                        done += Object.keys(updates).length;
-                    } catch (e) {
-                        fail += Object.keys(updates).length;
-                        console.warn('[Backfill] Erro ao gravar lote:', e);
-                    }
-                }
-                fail += chunk.length - Object.keys(updates).length;
-                console.log(`[Backfill] ${Math.min(i + BATCH, missing.length)}/${missing.length}`);
-            }
-            console.log(`[Backfill] Concluído: ${done} ok, ${fail} falhas.`);
-        } catch (e) {
-            console.warn('[Backfill] Erro:', e);
-        } finally {
-            _backfillRunning = false;
-        }
-    }
-
-    document.getElementById('backfillDurationBtn').addEventListener('click', async () => {
-        adminDropdown.style.display = 'none';
-        if (!isAdmin()) return;
-        if (!confirm('Recalcular a duração de TODOS os vídeos?\n\n⚠️ Se algum vídeo falhar (bloqueado, privado ou erro do YouTube), a duração anterior será MANTIDA (não será sobrescrita por 0).')) return;
-        await autoBackfillDurations(true);
-    });
-
     rtdb.ref('vod_videos').on('value', (snap) => {
         const data = snap.val() || {};
         videos = Object.entries(data).map(([key, v]) => ({ key, ...v }));
         videosLoaded = true;
         tryRender();
-
-        if (tvActive) {
-            scheduleTVRebuild();
-        }
-
-        clearTimeout(_backfillDebounce);
-        _backfillDebounce = setTimeout(() => {
-            if (currentUser && isAdmin() && videos.some(v => !Number(v.duracaoSegundos))) {
-                autoBackfillDurations();
-            }
-        }, 3000);
     }, (err) => {
         loadingMsg.style.display = 'none';
         catalogGrid.innerHTML = `<div class="empty-state" style="display:block;">Erro ao carregar catálogo: ${escapeHtml(err.message)}</div>`;
@@ -3413,7 +2689,7 @@
             videoModalTitle.textContent = 'Adicionar Vídeo';
             videoModalSub.textContent = 'O vídeo ficará visível para todos os usuários.';
             videoUrlInput.value = ''; videoTitleInput.value = ''; videoProdutoraInput.value = ''; videoAnoInput.value = '';
-            videoClassificacaoInput.value = 'curta';
+            videoClassificacaoInput.value = 'curta'; // ═══ DEFAULT: CURTA ═══
             document.querySelector('input[name="videoMarker"][value=""]').checked = true;
             urlHint.textContent = ''; urlHint.className = 'url-hint';
         } else {
@@ -3451,25 +2727,12 @@
         const youtubeId = extractYouTubeId(urlRaw);
         if (!youtubeId) return alert('URL inválida.');
         if (videos.find(v => v.youtubeId === youtubeId && v.key !== editingVideoKey)) return alert('Este vídeo já está cadastrado.');
-
-        const btn = document.getElementById('confirmVideoBtn');
-        btn.disabled = true; btn.textContent = 'Calculando duração...';
-
-        let duracaoSegundos = 0;
-        try { duracaoSegundos = await obterDuracao(youtubeId); } catch (e) {}
-
-        if (!duracaoSegundos || duracaoSegundos <= 0) {
-            btn.disabled = false; btn.textContent = 'Salvar';
-            return alert('Não foi possível obter a duração do vídeo. Verifique se ele está público e permite incorporação.');
-        }
-
         try {
-            const payload = { youtubeId, titulo, produtora: produtora || null, ano, pago: !!pago, ad: !!ad, classificacao, duracaoSegundos };
+            const payload = { youtubeId, titulo, produtora: produtora || null, ano, pago: !!pago, ad: !!ad, classificacao };
             if (videoModalMode === 'add') { payload.order = Date.now(); await rtdb.ref('vod_videos').push().set(payload); }
             else await rtdb.ref('vod_videos/' + editingVideoKey).update(payload);
             closeVideoModal();
         } catch (err) { alert('Erro ao salvar: ' + err.message); }
-        finally { btn.disabled = false; btn.textContent = 'Salvar'; }
     });
     async function deleteVideo(video) {
         if (!isAdmin()) return;
@@ -3799,7 +3062,6 @@
         } else {
             subscribeBtn.style.display = 'flex'; subscriptionBadge.style.display = 'none'; userSubInfo.style.display = 'none';
         }
-        updateFABVisibility();
     }
     async function openPixLightbox() {
         userCard.classList.remove('active');
@@ -3913,507 +3175,411 @@
         setTimeout(() => document.getElementById('copyPixBtn').textContent = 'Copiar código', 2000);
     });
 
-    // ═══════════════════════════════════════════════════════════════
-    // TV AO VIVO — core
-    // ═══════════════════════════════════════════════════════════════
-    rtdb.ref('.info/serverTimeOffset').on('value', snap => {
-        tvServerOffset = snap.val() || 0;
-        tvTimeSynced = true;
-    });
-
-    // ✅ FIX: ignora vídeos com menos de 15 segundos (causa pulos)
-    function buildTVPlaylist() {
-        return videos
-            .filter(v => Number(v.duracaoSegundos) > 15 && /^[a-zA-Z0-9_-]{11}$/.test(v.youtubeId || ''))
-            .sort((a, b) => {
-                const orderA = a.order || 0;
-                const orderB = b.order || 0;
-                if (orderA !== orderB) return orderA - orderB;
-                return (a.youtubeId || '').localeCompare(b.youtubeId || '');
-            })
-            .map(v => ({
-                youtubeId: v.youtubeId,
-                titulo: v.titulo || '',
-                duracaoSegundos: Number(v.duracaoSegundos)
-            }));
-    }
-
-    function computeTVPosition(playlist, total) {
-        if (!playlist.length || total <= 0) return null;
-        // ✅ PATCH: converte ms → segundos antes de calcular a posição (sincronia entre usuários)
-        const serverNowMs = Date.now() + tvServerOffset;
-        const elapsedSec = Math.floor((serverNowMs - TV_EPOCH_MS) / 1000);
-        const pos = ((elapsedSec % total) + total) % total;
-        let acc = 0;
-        for (let i = 0; i < playlist.length; i++) {
-            const d = playlist[i].duracaoSegundos;
-            if (pos < acc + d) return { index: i, offset: pos - acc, video: playlist[i] };
-            acc += d;
-        }
-        return { index: 0, offset: 0, video: playlist[0] };
-    }
-
-    function rebuildTVPlaylist() {
-        if (!tvActive) return;
-        const newPlaylist = buildTVPlaylist();
-        if (newPlaylist.length === 0) {
-            closeTV();
-            return;
-        }
-        const newTotal = newPlaylist.reduce((s, v) => s + v.duracaoSegundos, 0);
-        if (newTotal <= 0) return;
-
-        const changed =
-            newPlaylist.length !== tvPlaylist.length ||
-            newTotal !== tvTotalDuration ||
-            newPlaylist.some((v, i) => !tvPlaylist[i] || v.youtubeId !== tvPlaylist[i].youtubeId);
-
-        if (!changed) return;
-
-        console.log('[TV] Playlist atualizada → ressincronizando posição');
-        tvPlaylist = newPlaylist;
-        tvTotalDuration = newTotal;
-
-        const pos = computeTVPosition(tvPlaylist, tvTotalDuration);
-        if (!pos) return;
-
-        if (pos.video.youtubeId !== tvCurrentYtId) {
-            if (tvPlayer) { try { tvPlayer.destroy(); } catch(e) {} tvPlayer = null; }
-            tvCurrentYtId = null;
-            tvPlayerReady = false;
-            document.getElementById('tvLoading').style.display = 'flex';
-            setTimeout(loadTVPlayer, 500);
-        } else if (tvPlayer && tvPlayerReady) {
-            try { tvPlayer.seekTo(pos.offset, true); } catch(e) {}
-        }
-    }
-
-    function scheduleTVRebuild() {
-        if (!tvActive) return;
-        clearTimeout(_tvRebuildDebounce);
-        _tvRebuildDebounce = setTimeout(rebuildTVPlaylist, 1200);
-    }
-
-    function openTV() {
-        if (!currentUser) {
-            auth.signInWithPopup(new firebase.auth.GoogleAuthProvider()).catch(() => {});
-            return;
-        }
-        if (!catalogSubscription.active) {
-            openPixLightbox();
-            return;
-        }
-        if (!tvTimeSynced) {
-            alert('Sincronizando relógio com o servidor. Por favor, aguarde alguns instantes e tente novamente.');
-            return;
-        }
-        if (!videosLoaded) {
-            alert('Carregando o catálogo. Aguarde alguns instantes e tente novamente.');
-            return;
-        }
-        // ✅ PATCH: guarda — se NENHUM vídeo tem duração, a playlist ficaria vazia
-        const _allMissingDur = videos.length > 0 && videos.filter(v => v.youtubeId).every(v => !(Number(v.duracaoSegundos) > 15));
-        if (_allMissingDur) {
-            if (isAdmin()) {
-                console.warn('[TV] Nenhum vídeo tem duração. Iniciando backfill em background...');
-                try { autoBackfillDurations(true); } catch (e) {}
-            }
-            alert('A programação está sendo preparada. Aguarde alguns instantes e tente novamente.');
-            return;
-        }
-        tvPlaylist = buildTVPlaylist();
-        if (tvPlaylist.length === 0) {
-            alert('Ainda não há vídeos prontos para a programação.');
-            return;
-        }
-        tvTotalDuration = tvPlaylist.reduce((s, v) => s + v.duracaoSegundos, 0);
-        tvActive = true;
-        tvPlayerReady = false;
-        _tvReloadCount = 0;
-        _tvLastReloadTime = 0;
-
-        document.getElementById('tvScreen').classList.add('active');
-        document.body.classList.add('no-scroll');
-        // (Auto-fullscreen removido para melhor UX. A TV abre em tela normal.)
-        document.getElementById('tvLoading').style.display = 'flex';
-        document.getElementById('tvNowPlaying').style.display = 'none';
-        document.getElementById('tvUnmuteOverlay').classList.remove('hidden');
-        document.getElementById('tvPlayerContainer').innerHTML = '';
-
-        document.addEventListener('keydown', blockTVKeys, true);
-    }
-
-    function blockTVKeys(e) {
-        if (!tvActive) return;
-        if ([' ', 'k', 'K', 'j', 'J', 'l', 'L', 'ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'].includes(e.key)) {
-            e.preventDefault();
-            e.stopPropagation();
-        }
-        // ✅ PATCH: tecla F alterna fullscreen
-        if (e.key === 'f' || e.key === 'F') {
-            e.preventDefault();
-            e.stopPropagation();
-            if (typeof window.toggleTVFullscreen === 'function') window.toggleTVFullscreen();
-        }
-    }
-
-    function closeTV() {
-        tvActive = false;
-        document.removeEventListener('keydown', blockTVKeys, true);
-        if (tvDriftInterval) { clearInterval(tvDriftInterval); tvDriftInterval = null; }
-        if (tvPlayer) { try { tvPlayer.destroy(); } catch (e) {} tvPlayer = null; }
-        tvPlayerReady = false;
-        tvCurrentYtId = null;
-        _tvReloadCount = 0;
-        _tvLastReloadTime = 0;
-        if (document.fullscreenElement) document.exitFullscreen().catch(()=>{});
-        document.getElementById('tvScreen').classList.remove('active');
-        document.body.classList.remove('no-scroll');
+    // ============ LIGHTBOX ANCINE ============
+    function openAncineLightbox() {
+        document.getElementById('ancineLightbox').classList.add('active');
         updateSearchVisibility();
     }
-
-    // ✅ FIX CRÍTICO: usa playerState para evitar loop de recarga
-    function startTVPlayback() {
-        document.getElementById('tvScreen').classList.add('tv-playing');
-        if (typeof showTVControls === 'function') showTVControls();
-        document.getElementById('tvUnmuteOverlay').classList.add('hidden');
-        if (typeof showTVControls === 'function') showTVControls();
-        loadTVPlayer();
-
-        if (tvDriftInterval) clearInterval(tvDriftInterval);
-
-        tvDriftInterval = setInterval(() => {
-            if (!tvActive || !tvPlayerReady || !tvPlayer) return;
-
-            try {
-                const playerState = tvPlayer.getPlayerState();
-
-                // ✅ Vídeo terminou → carrega o próximo
-                if (playerState === 0) {
-                    const now = Date.now();
-                    // Anti-loop: se recarregou mais de 5x em 3s, ativa cooldown
-                    if (now - _tvLastReloadTime < 3000) {
-                        _tvReloadCount++;
-                        if (_tvReloadCount > 5) {
-                            console.warn('[TV] Muitas recargas em sequência. Cooldown de 10s...');
-                            _tvReloadCount = 0;
-                            _tvLastReloadTime = now + 10000;
-                            document.getElementById('tvLoading').style.display = 'flex';
-                            return;
-                        }
-                    } else {
-                        _tvReloadCount = 0;
-                    }
-                    _tvLastReloadTime = now;
-
-                    setTimeout(() => {
-                        if (!tvActive) return;
-                        if (tvPlayer) { try { tvPlayer.destroy(); } catch(e) {} tvPlayer = null; }
-                        tvCurrentYtId = null;
-                        tvPlayerReady = false;
-                        loadTVPlayer();
-                    }, 500);
-                    return;
-                }
-
-                // ✅ Está tocando → só corrige o tempo se estiver MUITO dessincronizado
-                if (playerState === 1) {
-                    const pos = computeTVPosition(tvPlaylist, tvTotalDuration);
-                    if (!pos) return;
-
-                    if (pos.video.youtubeId === tvCurrentYtId) {
-                        const actual = tvPlayer.getCurrentTime();
-                        const diff = Math.abs(actual - pos.offset);
-                        // Aumentado de 4s para 15s: só corrige se estiver muito fora
-                        if (diff > 15) {
-                            console.log(`[TV] Tempo muito dessincronizado (${diff.toFixed(1)}s). Corrigindo seek...`);
-                            tvPlayer.seekTo(pos.offset, true);
-                        }
-                    }
-                    // Se o vídeo esperado é diferente mas o player está tocando normalmente,
-                    // deixa o vídeo terminar naturalmente (NÃO recarrega!)
-                }
-            } catch (e) {
-                // Silencioso - extensões do navegador podem causar erros esporádicos
-            }
-        }, 5000);
+    function closeAncineLightbox() {
+        document.getElementById('ancineLightbox').classList.remove('active');
+        updateSearchVisibility();
     }
+    document.getElementById('ancineCloseBtn')?.addEventListener('click', closeAncineLightbox);
+    document.getElementById('ancineLightbox')?.addEventListener('click', (e) => {
+        if (e.target === document.getElementById('ancineLightbox')) closeAncineLightbox();
+    });
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && document.getElementById('ancineLightbox')?.classList.contains('active')) {
+            closeAncineLightbox();
+        }
+    });
 
-    // ✅ FIX: loadTVPlayer com proteção anti-loop
-    function loadTVPlayer() {
-        const pos = computeTVPosition(tvPlaylist, tvTotalDuration);
-        if (!pos) return;
-        tvCurrentYtId = pos.video.youtubeId;
-        tvPlayerReady = false;
-
-        const curTitle = document.getElementById('tvCurrentTitle');
-        if (curTitle) curTitle.textContent = pos.video.titulo || 'TV Playtronic';
-        const nowTitle = document.getElementById('tvNowTitle');
-        if (nowTitle) nowTitle.textContent = pos.video.titulo || 'Transmissão ao vivo';
-        // Controlado via CSS (.tv-playing)
-
-        const container = document.getElementById('tvPlayerContainer');
-        container.innerHTML = '<div id="tvPlayerDiv" style="width:100%; height:100%;"></div>';
-
-        if (tvPlayer) { try { tvPlayer.destroy(); } catch(e) {} tvPlayer = null; }
-
-        tvPlayer = new YT.Player('tvPlayerDiv', {
-            videoId: pos.video.youtubeId,
-            playerVars: {
-                autoplay: 1, controls: 0, disablekb: 1, modestbranding: 1,
-                rel: 0, iv_load_policy: 3, playsinline: 1, fs: 0,
-                cc_load_policy: 0, origin: window.location.origin
-            },
+    // ============ ANÚNCIO PAGO ============
+    const insertAdModal = document.getElementById('insertAdModal');
+    const adYoutubeHint = document.getElementById('adYoutubeHint');
+    const newAdYoutubeUrl = document.getElementById('newAdYoutubeUrl');
+    const adCalcResult = document.getElementById('adCalcResult');
+    const adCalculatedPrice = document.getElementById('adCalculatedPrice');
+    const adDurationInfo = document.getElementById('adDurationInfo');
+    const adRateInfo = document.getElementById('adRateInfo');
+    const adInsertStep1 = document.getElementById('adInsertStep1');
+    const adInsertStep2 = document.getElementById('adInsertStep2');
+    const generateAdPixBtn = document.getElementById('generateAdPixBtn');
+    const adPixArea = document.getElementById('adPixArea');
+    const adPixQr = document.getElementById('adPixQr');
+    const adPixCode = document.getElementById('adPixCode');
+    const adPixStatus = document.getElementById('adPixStatus');
+    let hiddenPlayer = null;
+    let adVideoDuration = 0;
+    let adVideoId = '';
+    let adRateValue = 1.00;
+    document.getElementById('openInsertAdBtn').addEventListener('click', async () => {
+        adModal.classList.remove('active');
+        document.body.classList.remove('ad-modal-open');
+        if (adYtPlayer) { try { adYtPlayer.stopVideo(); adYtPlayer.destroy(); } catch(e){} adYtPlayer = null; }
+        insertAdModal.classList.add('active');
+        adInsertStep1.style.display = 'block';
+        adInsertStep2.style.display = 'none';
+        adCalcResult.style.display = 'none';
+        generateAdPixBtn.style.display = 'none';
+        newAdYoutubeUrl.value = '';
+        adYoutubeHint.textContent = '';
+        adVideoDuration = 0; adVideoId = '';
+        if (hiddenPlayer) { try { hiddenPlayer.destroy(); } catch(e){} hiddenPlayer = null; }
+        try {
+            const doc = await db.collection('platform_config').doc('catalog').get();
+            adRateValue = doc.exists && doc.data().adRate ? doc.data().adRate : 1.00;
+            adRateInfo.textContent = `Tarifa: R$ ${adRateValue.toFixed(2).replace('.', ',')} por segundo.`;
+        } catch(e) { adRateValue = 1.00; adRateInfo.textContent = 'Tarifa: R$ 1,00 por segundo.'; }
+    });
+    document.getElementById('cancelInsertAdBtn').addEventListener('click', () => insertAdModal.classList.remove('active'));
+    newAdYoutubeUrl.addEventListener('input', () => {
+        const url = newAdYoutubeUrl.value.trim();
+        if (hiddenPlayer) { try { hiddenPlayer.destroy(); } catch(e){} hiddenPlayer = null; }
+        adVideoDuration = 0; adVideoId = '';
+        adCalcResult.style.display = 'none';
+        generateAdPixBtn.style.display = 'none';
+        if (!url) { adYoutubeHint.textContent = ''; adYoutubeHint.className = 'url-hint'; return; }
+        const id = extractYouTubeId(url);
+        if (!id) { adYoutubeHint.textContent = 'URL inválida.'; adYoutubeHint.className = 'url-hint warn'; return; }
+        adYoutubeHint.textContent = 'Calculando duração...';
+        adYoutubeHint.className = 'url-hint ok';
+        adVideoId = id;
+        hiddenPlayer = new YT.Player('hiddenYTPlayer', {
+            height: '1', width: '1', videoId: id,
+            playerVars: { 'autoplay': 0, 'controls': 0 },
             events: {
-                onReady: (ev) => {
-                    tvPlayerReady = true;
-                    document.getElementById('tvLoading').style.display = 'none';
-
-                    const freshPos = computeTVPosition(tvPlaylist, tvTotalDuration);
-                    if (freshPos && freshPos.video.youtubeId === tvCurrentYtId) {
-                        const safeOffset = Math.max(0, Math.min(freshPos.offset, pos.video.duracaoSegundos - 1));
-                        ev.target.seekTo(safeOffset, true);
-                    }
-                    ev.target.playVideo();
-                    ev.target.setVolume(tvCurrentVolume); updateTVVolumeUI(tvCurrentVolume);
-                    disableCaptionsSoon(ev.target);
-                },
-                onStateChange: (event) => {
-                    if (event.data === 1) {
-                        document.getElementById('tvLoading').style.display = 'none';
-                        disableCaptionsSoon(event.target);
-                    } else if (event.data === 0) {
-                        // Fim do vídeo → notifica o loop
-                        // (deixa o startTVPlayback cuidar da transição)
+                'onReady': (ev) => {
+                    const dur = ev.target.getDuration();
+                    if (dur > 0) {
+                        if (dur > 300) { adYoutubeHint.textContent = 'O vídeo não pode ter mais de 5 minutos.'; adYoutubeHint.className = 'url-hint warn'; return; }
+                        adVideoDuration = Math.floor(dur);
+                        adCalculatedPrice.textContent = `R$ ${(adVideoDuration * adRateValue).toFixed(2).replace('.', ',')}`;
+                        adDurationInfo.textContent = `Duração: ${formatTime(adVideoDuration)} (${adVideoDuration}s)`;
+                        adYoutubeHint.textContent = 'Vídeo verificado!';
+                        adCalcResult.style.display = 'block';
+                        generateAdPixBtn.style.display = 'block';
+                    } else {
+                        adYoutubeHint.textContent = 'Erro ao calcular duração.';
+                        adYoutubeHint.className = 'url-hint warn';
                     }
                 },
-                onError: (ev) => {
-                    console.warn('TV Player Error:', ev.data);
-                    if (ev.data === 100 || ev.data === 101 || ev.data === 150) {
-                        // Vídeo indisponível → pula para o próximo
-                        if (tvPlayer) { try { tvPlayer.destroy(); } catch(e) {} tvPlayer = null; }
-                        tvPlayerReady = false;
-                        document.getElementById('tvLoading').style.display = 'flex';
-                        setTimeout(loadTVPlayer, 1500);
-                    }
-                }
+                'onError': () => { adYoutubeHint.textContent = 'Erro ao carregar o vídeo.'; adYoutubeHint.className = 'url-hint warn'; }
             }
+        });
+    });
+    generateAdPixBtn.addEventListener('click', async () => {
+        if (adVideoDuration <= 0 || !adVideoId) return;
+        if (!currentUser) {
+            try { await auth.signInWithPopup(new firebase.auth.GoogleAuthProvider()); }
+            catch (err) { if (err.code !== 'auth/popup-closed-by-user') alert(err.message); return; }
+        }
+        const btn = generateAdPixBtn;
+        btn.disabled = true; btn.textContent = 'Gerando PIX...';
+        try {
+            const token = await currentUser.getIdToken();
+            const r = await fetch(CF_BASE + '/createAdPayment', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+                body: JSON.stringify({ youtubeUrl: newAdYoutubeUrl.value.trim(), duration: adVideoDuration })
+            });
+            const data = await r.json();
+            if (!data.success) throw new Error(data.error || 'Erro');
+            currentAdPayment = { paymentId: data.paymentId, checkToken: data.checkToken };
+            adPixQr.innerHTML = data.qrCodeBase64 ? `<img src="data:image/png;base64,${data.qrCodeBase64}" style="width:100%; height:100%;">` : '';
+            adPixCode.value = data.qrCode || '';
+            adInsertStep1.style.display = 'none';
+            adInsertStep2.style.display = 'block';
+            adPixArea.style.display = 'block';
+            adPixStatus.style.display = 'none';
+            startAdPaymentPolling();
+        } catch (e) { alert('Erro: ' + e.message); btn.disabled = false; btn.textContent = 'Confirmar e Gerar PIX'; }
+    });
+    function startAdPaymentPolling() {
+        if (adPaymentPolling) clearInterval(adPaymentPolling);
+        adPixStatus.style.display = 'block'; adPixStatus.style.background = '#fff3cd'; adPixStatus.style.color = '#856404'; adPixStatus.textContent = '⏳ Aguardando pagamento...';
+        adPaymentPolling = setInterval(async () => {
+            if (!currentAdPayment) { clearInterval(adPaymentPolling); return; }
+            try {
+                const url = CF_BASE + '/checkCatalogPixStatus?paymentId=' + encodeURIComponent(currentAdPayment.paymentId) + '&token=' + encodeURIComponent(currentAdPayment.checkToken);
+                const r = await fetch(url);
+                const data = await r.json();
+                if (!data.success) return;
+                if (data.status === 'approved') {
+                    clearInterval(adPaymentPolling); adPaymentPolling = null;
+                    adPixStatus.style.background = '#d4edda'; adPixStatus.style.color = '#155724';
+                    adPixStatus.textContent = '✅ Pagamento confirmado! Anúncio no ar por 24h.';
+                    setTimeout(() => { insertAdModal.classList.remove('active'); checkMyAdsVisibility(); }, 3000);
+                } else if (data.status === 'rejected' || data.status === 'cancelled') {
+                    clearInterval(adPaymentPolling); adPaymentPolling = null;
+                    adPixStatus.style.background = '#f8d7da'; adPixStatus.style.color = '#721c24'; adPixStatus.textContent = '❌ Pagamento não realizado.';
+                }
+            } catch (e) {}
+        }, 4000);
+    }
+    document.getElementById('closeAdPixBtn').addEventListener('click', () => {
+        insertAdModal.classList.remove('active');
+        if (adPaymentPolling) { clearInterval(adPaymentPolling); adPaymentPolling = null; }
+    });
+    document.getElementById('copyAdPixBtn').addEventListener('click', () => {
+        adPixCode.select(); adPixCode.setSelectionRange(0, 99999); document.execCommand('copy');
+        document.getElementById('copyAdPixBtn').textContent = 'Copiado!';
+        setTimeout(() => document.getElementById('copyAdPixBtn').textContent = 'Copiar código', 2000);
+    });
+
+    // ============ MY ADS ============
+    const myAdsModal = document.getElementById('myAdsModal');
+    const myAdsListContainer = document.getElementById('myAdsListContainer');
+    const searchMyAds = document.getElementById('searchMyAds');
+    const sortMyAds = document.getElementById('sortMyAds');
+    async function checkMyAdsVisibility() {
+        if (!currentUser) { myAdsBtn.style.display = 'none'; return; }
+        try {
+            let hasAds = false;
+            if (isAdmin()) { const snap = await db.collection('paid_ads').limit(1).get(); hasAds = snap.size > 0; }
+            else { const snap = await db.collection('paid_ads').where('userId', '==', currentUser.uid).limit(1).get(); hasAds = snap.size > 0; }
+            myAdsBtn.style.display = hasAds ? 'flex' : 'none';
+        } catch (e) { myAdsBtn.style.display = 'none'; }
+    }
+    myAdsBtn.addEventListener('click', async () => {
+        userCard.classList.remove('active');
+        if (!currentUser) return;
+        myAdsModal.classList.add('active');
+        myAdsListContainer.innerHTML = '<p style="text-align:center; color:#94a3b8; padding: 20px;">Carregando...</p>';
+        searchMyAds.value = ''; sortMyAds.value = 'createdAt';
+        try {
+            let myAdsData = [];
+            if (isAdmin()) { const snap = await db.collection('paid_ads').get(); snap.forEach(doc => myAdsData.push({ id: doc.id, ...doc.data() })); }
+            else { const snap = await db.collection('paid_ads').where('userId', '==', currentUser.uid).get(); snap.forEach(doc => myAdsData.push({ id: doc.id, ...doc.data() })); }
+            const unique = [], seen = new Set();
+            myAdsData.forEach(ad => { if (!seen.has(ad.paymentId)) { seen.add(ad.paymentId); unique.push(ad); } });
+            myAdsData = unique;
+            renderMyAds(myAdsData);
+        } catch (e) { myAdsListContainer.innerHTML = '<p style="color:#ff6b6b; text-align:center; padding: 20px;">Erro.</p>'; }
+    });
+    document.getElementById('closeMyAdsBtn').addEventListener('click', () => myAdsModal.classList.remove('active'));
+    myAdsModal.addEventListener('click', (e) => { if (e.target === myAdsModal) myAdsModal.classList.remove('active'); });
+    searchMyAds.addEventListener('input', () => renderMyAds(window._currentMyAdsData || []));
+    sortMyAds.addEventListener('change', () => renderMyAds(window._currentMyAdsData || []));
+    function renderMyAds(dataArray) {
+        window._currentMyAdsData = dataArray;
+        const filter = searchMyAds.value.toLowerCase().trim();
+        const sortBy = sortMyAds.value;
+        let filtered = dataArray.filter(ad => {
+            const title = myAdsTitlesCache[ad.videoId] || '';
+            return (ad.paymentId || '').toLowerCase().includes(filter) || title.toLowerCase().includes(filter);
+        });
+        if (sortBy === 'views') filtered.sort((a, b) => (b.views || 0) - (a.views || 0));
+        else if (sortBy === 'amountPaid') filtered.sort((a, b) => (b.amountPaid || 0) - (a.amountPaid || 0));
+        else filtered.sort((a, b) => b.createdAt - a.createdAt);
+        if (filtered.length === 0) { myAdsListContainer.innerHTML = '<p style="text-align:center; color:#94a3b8; padding: 20px;">Nenhum anúncio.</p>'; return; }
+        myAdsListContainer.innerHTML = '';
+        const now = Date.now();
+        filtered.forEach(ad => {
+            const isExpired = ad.expiresAt < now;
+            const statusColor = isExpired ? '#e74c3c' : '#2ecc71';
+            const statusBg = isExpired ? 'rgba(231,76,60,0.1)' : 'rgba(46,204,113,0.1)';
+            const statusText = isExpired ? 'Expirado' : 'Ativo';
+            const dateCreated = new Date(ad.createdAt).toLocaleDateString('pt-BR');
+            const dateExpires = new Date(ad.expiresAt).toLocaleDateString('pt-BR');
+            const title = myAdsTitlesCache[ad.videoId] || 'Vídeo';
+            const card = document.createElement('div');
+            card.className = 'ad-history-card';
+            card.innerHTML = `
+                <img src="https://img.youtube.com/vi/${ad.videoId}/mqdefault.jpg" class="ad-history-thumb">
+                <div class="ad-history-info">
+                    <div class="ad-history-title" title="${escapeHtml(title)}">${escapeHtml(title)}</div>
+                    <div class="ad-history-dates">Publicado: ${dateCreated} • Expira: ${dateExpires}</div>
+                    <div class="ad-history-stats">👁️ <b>${ad.views || 0}</b> views • 💰 Pago: <b>R$ ${(ad.amountPaid || 0).toFixed(2).replace('.', ',')}</b></div>
+                    ${isAdmin() ? `<div class="ad-history-owner">User: ${(ad.userId || '?').substring(0,8)}...</div>` : ''}
+                </div>
+                <div class="ad-history-actions">
+                    <div class="ad-status-badge" style="color: ${statusColor}; background: ${statusBg}; border-color: ${statusColor};">${statusText}</div>
+                    <button class="delete-my-ad-btn btn-delete-ad" data-id="${ad.id}">Apagar</button>
+                </div>
+            `;
+            myAdsListContainer.appendChild(card);
+        });
+        document.querySelectorAll('.delete-my-ad-btn').forEach(btn => {
+            btn.addEventListener('click', async function() {
+                const adId = this.getAttribute('data-id');
+                if (!confirm('Apagar este anúncio permanentemente?')) return;
+                this.disabled = true; this.textContent = 'Apagando...';
+                try {
+                    await db.collection('paid_ads').doc(adId).delete();
+                    window._currentMyAdsData = window._currentMyAdsData.filter(ad => ad.id !== adId);
+                    renderMyAds(window._currentMyAdsData);
+                    checkMyAdsVisibility();
+                } catch (e) { alert('Erro: ' + e.message); this.disabled = false; this.textContent = 'Apagar'; }
+            });
         });
     }
 
-    document.getElementById('tvCloseBtn')?.addEventListener('click', closeTV);
-
-    // ✅ PATCH UX: Variáveis e funções para Volume e Auto-Hide
-    let tvCurrentVolume = 100;
-    let tvIsMuted = false;
-    let tvHideUITimer = null;
-
-    function updateTVVolumeUI(val) {
-        const slider = document.getElementById('tvVolumeSlider');
-        const btn = document.getElementById('tvMuteBtn');
-        if (!slider || !btn) return;
-        slider.value = val;
-        if (val == 0) { btn.textContent = '🔇'; tvIsMuted = true; }
-        else if (val < 50) { btn.textContent = '🔈'; tvIsMuted = false; }
-        else { btn.textContent = '🔊'; tvIsMuted = false; }
+    // ============ PLAYER ============
+    const playerScreen = document.getElementById('playerScreen');
+    const playerWrapper = document.getElementById('playerWrapper');
+    const customUI = document.getElementById('customUI');
+    const centerPlayPauseBtn = document.getElementById('centerPlayPauseBtn');
+    const fullscreenBtn = document.getElementById('fullscreenBtn');
+    const btnRewind10 = document.getElementById('btnRewind10');
+    const btnForward10 = document.getElementById('btnForward10');
+    const progressFill = document.getElementById('progressFill');
+    const progressTrack = document.getElementById('progressTrack');
+    const progressThumb = document.getElementById('progressThumb');
+    const timeLabel = document.getElementById('timeLabel');
+    const muteBtn = document.getElementById('muteBtn');
+    const volumeSlider = document.getElementById('volumeSlider');
+    const playerBottomAd = document.getElementById('player-bottom-ad');
+    const horizontalAdIframe = document.getElementById('horizontal-ad-iframe');
+    const playerVideoTitle = document.getElementById('playerVideoTitle');
+    const playerLoadingOverlay = document.getElementById('playerLoadingOverlay');
+    let player = null, playerReady = false, progressInterval = null, controlsTimeout = null, isPlaying = false, isEnded = false, isMuted = false, currentVolume = 100, isSeeking = false;
+    window.onYouTubeIframeAPIReady = function() {};
+    function setPlayPauseVisual(playing) {
+        const playIcon = centerPlayPauseBtn.querySelector('.icon-play');
+        const pauseIcon = centerPlayPauseBtn.querySelector('.icon-pause');
+        if (!playIcon || !pauseIcon) return;
+        if (playing) { playIcon.style.display = 'none'; pauseIcon.style.display = 'block'; centerPlayPauseBtn.classList.add('playing-state'); }
+        else { playIcon.style.display = 'block'; pauseIcon.style.display = 'none'; centerPlayPauseBtn.classList.remove('playing-state'); }
     }
-
-    function showTVControls() {
-        const screen = document.getElementById('tvScreen');
-        if (!screen || !screen.classList.contains('active')) return;
-        
-        // Remove a classe que oculta
-        screen.classList.remove('ui-hidden');
-        
-        // Reinicia o timer
-        clearTimeout(tvHideUITimer);
-        tvHideUITimer = setTimeout(() => {
-            // Só oculta se o usuário NÃO estiver interagindo com o slider de volume
-            const slider = document.getElementById('tvVolumeSlider');
-            if (document.activeElement !== slider) {
-                screen.classList.add('ui-hidden');
-            }
-        }, 3000); // 3 segundos de inatividade
-    }
-
-    // Eventos de Volume
-    document.getElementById('tvMuteBtn')?.addEventListener('click', () => {
-        if (!tvPlayerReady || !tvPlayer) return;
-        if (tvIsMuted) { tvPlayer.unMute(); tvPlayer.setVolume(tvCurrentVolume); updateTVVolumeUI(tvCurrentVolume); }
-        else { tvPlayer.mute(); updateTVVolumeUI(0); }
-        showTVControls();
-    });
-
-    document.getElementById('tvVolumeSlider')?.addEventListener('input', (e) => {
-        if (!tvPlayerReady || !tvPlayer) return;
-        const val = parseInt(e.target.value);
-        if (val > 0) tvCurrentVolume = val;
-        if (val == 0) tvPlayer.mute(); else { tvPlayer.unMute(); tvPlayer.setVolume(val); }
-        updateTVVolumeUI(val);
-        showTVControls();
-    });
-
-    // Eventos de Atividade (Mouse / Toque)
-    document.getElementById('tvScreen')?.addEventListener('mousemove', showTVControls);
-    document.getElementById('tvScreen')?.addEventListener('touchstart', showTVControls, { passive: true });
-
-    // ✅ PATCH: função global toggleTVFullscreen (usada pelo botão e pela tecla F)
-    function toggleTVFullscreen() {
-        const tvScreen = document.getElementById('tvScreen');
-        if (!tvScreen) return;
-        const isFull = document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement || document.msFullscreenElement;
-        if (isFull) {
-            const exit = document.exitFullscreen || document.webkitExitFullscreen || document.mozCancelFullScreen || document.msExitFullscreen;
-            if (exit) Promise.resolve(exit.call(document)).catch(() => {});
-        } else {
-            const req = tvScreen.requestFullscreen || tvScreen.webkitRequestFullscreen || tvScreen.mozRequestFullScreen || tvScreen.msRequestFullscreen;
-            if (req) {
-                Promise.resolve(req.call(tvScreen)).catch(() => {
-                    tvScreen.classList.toggle('tv-immersive');
-                });
-            } else {
-                tvScreen.classList.toggle('tv-immersive');
-            }
-        }
-    }
-    window.toggleTVFullscreen = toggleTVFullscreen;
-    document.getElementById('tvFullscreenBtn')?.addEventListener('click', toggleTVFullscreen);
-
-    // ✅ PATCH FINAL: Sincroniza estado ao sair da tela cheia via ESC
-    function _syncTVFullscreenUI() {
-        const isFull = document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement || document.msFullscreenElement;
-        const tvScreen = document.getElementById('tvScreen');
-        if (tvScreen && !isFull) {
-            tvScreen.classList.remove('tv-immersive');
-        }
-    }
-    document.addEventListener('fullscreenchange', _syncTVFullscreenUI);
-    document.addEventListener('webkitfullscreenchange', _syncTVFullscreenUI);
-
-    document.getElementById('tvUnmuteBtn')?.addEventListener('click', startTVPlayback);
-
-    // ═══════════════════════════════════════════════════════════════
-    // ANÚNCIOS E PLAYER DE VÍDEO (VOD)
-    // ═══════════════════════════════════════════════════════════════
+    const adModal = document.getElementById('adInterstitialModal');
+    const closeAdBtn = document.getElementById('closeInterstitialBtn');
+    const adTimerText = document.getElementById('adTimerText');
+    const adCenterWrapper = document.getElementById('adCenterWrapper');
     let pendingVideo = null;
     let adTimerInterval = null;
-
-    function showAdInterstitial(video) {
+    function mountStandardAd(container, opts, scriptSrc) {
+        if (!container) return;
+        container.innerHTML = '';
+        const iframe = document.createElement('iframe');
+        iframe.setAttribute('scrolling', 'no');
+        iframe.setAttribute('frameborder', '0');
+        iframe.style.cssText = 'display:block; border:0; position:absolute; top:0; left:0; width:100%; height:100%; overflow:hidden;';
+        iframe.srcdoc = `<!DOCTYPE html><html><head><meta charset="utf-8"><style>html,body{margin:0;padding:0;overflow:hidden;width:100%;height:100%;background:transparent;display:flex;align-items:center;justify-content:center;}</style></head><body><script type="text/javascript">atOptions=${JSON.stringify(opts)};<\/script><script type="text/javascript" src="${scriptSrc}"><\/script></body></html>`;
+        container.appendChild(iframe);
+    }
+    function closeAdAndPlay() {
+        if (!pendingVideo || !adModal.classList.contains('active')) return;
+        adModal.classList.remove('active');
+        document.body.classList.remove('ad-modal-open');
+        if (adYtPlayer) { try { adYtPlayer.stopVideo(); adYtPlayer.destroy(); } catch(e){} adYtPlayer = null; }
+        clearInterval(adTimerInterval);
+        const v = pendingVideo; pendingVideo = null;
+        openPlayer(v);
+    }
+    function injectLeftNativeAd() {
+        const container = document.getElementById('adNativeLeft');
+        if (!container) return;
+        container.innerHTML = '';
+        const adDiv = document.createElement('div');
+        adDiv.id = 'container-efe34bd92ca74a51f85465ca14314dc7';
+        container.appendChild(adDiv);
+        const script = document.createElement('script');
+        script.async = true;
+        script.setAttribute('data-cfasync', 'false');
+        script.src = 'https://dcengg.org/21/efe34bd92ca74a51f85465ca14314dc7';
+        container.appendChild(script);
+    }
+    function injectRightStandardAd() {
+        const container = document.getElementById('adNativeRight');
+        if (!container) return;
+        container.innerHTML = '';
+        const iframe = document.createElement('iframe');
+        iframe.setAttribute('scrolling', 'no');
+        iframe.setAttribute('frameborder', '0');
+        iframe.style.cssText = 'display:block; border:0; position:absolute; top:0; left:0; width:100%; height:100%; overflow:hidden;';
+        iframe.srcdoc = `<!DOCTYPE html><html><head><meta charset="utf-8"><style>html,body{margin:0;padding:0;overflow:hidden;width:100%;height:100%;background:transparent;display:flex;align-items:center;justify-content:center;}</style></head><body><script type="text/javascript">atOptions = {'key' : '0b2a1dd49cefbcb5c3f10330c969042c','format' : 'iframe','height' : 600,'width' : 160,'params' : {}};<\/script><script type="text/javascript" src="https://dcengg.org/22/0b2a1dd49cefbcb5c3f10330c969042c"><\/script></body></html>`;
+        container.appendChild(iframe);
+    }
+    async function showAdInterstitial(video) {
+        if (catalogSubscription.active) { openPlayer(video); return; }
+        closeAdBtn.disabled = true; closeAdBtn.classList.remove('active');
+        if (adTimerInterval) clearInterval(adTimerInterval);
+        if (isAdmin()) adminContainer.style.display = 'none';
+        let activePaidAds = [];
+        try {
+            const snap = await db.collection('paid_ads').where('expiresAt', '>', Date.now()).get();
+            snap.forEach(doc => activePaidAds.push({ id: doc.id, ...doc.data() }));
+        } catch (e) {}
+        if (activePaidAds.length === 0 && adBanners.length === 0 && !video.ad) {
+            if (isAdmin()) adminContainer.style.display = 'flex';
+            openPlayer(video);
+            return;
+        }
         pendingVideo = video;
-        const adModal = document.getElementById('adInterstitialModal');
-        const closeAdBtn = document.getElementById('closeInterstitialBtn');
-        const adTimerText = document.getElementById('adTimerText');
-        const centerWrapper = document.getElementById('adCenterWrapper');
-
         adModal.classList.add('active');
         document.body.classList.add('ad-modal-open');
+        adCenterWrapper.innerHTML = '';
+        document.getElementById('adNativeLeft').innerHTML = '';
+        document.getElementById('adNativeRight').innerHTML = '';
+        document.getElementById('adMobileTop').innerHTML = '';
+        document.getElementById('adMobileBottom').innerHTML = '';
 
-        const ad = adBanners[Math.floor(Math.random() * adBanners.length)] || adBanners[0];
-        if (ad) {
-            centerWrapper.innerHTML = `<img src="${ad.src}" style="width:100%; height:100%; object-fit:contain; cursor:pointer;" onclick="window.open('${ad.link}', '_blank')">`;
-            if (ad.src) {
-                fetch(CF_BASE + '/incrementInternalAdViews', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ adSrc: ad.src })
-                }).catch(()=>{});
-            }
+        const isLandscape = window.matchMedia('(max-width: 900px) and (orientation: landscape)').matches;
+        const isPortrait = window.matchMedia('(max-width: 900px) and (orientation: portrait)').matches;
+        if (isLandscape) {
+            mountStandardAd(document.getElementById('adNativeRight'), { key: '51efcb0e502dffc7c8c25030a1155128', format: 'iframe', height: 250, width: 300, params: {} }, 'https://dcengg.org/22/51efcb0e502dffc7c8c25030a1155128');
+        } else if (isPortrait) {
+            mountStandardAd(document.getElementById('adMobileTop'), { key: 'c7c3c36fda809c5dd35ae6ed9c4890ca', format: 'iframe', height: 50, width: 320, params: {} }, 'https://dcengg.org/22/c7c3c36fda809c5dd35ae6ed9c4890ca');
+            mountStandardAd(document.getElementById('adMobileBottom'), { key: '51efcb0e502dffc7c8c25030a1155128', format: 'iframe', height: 250, width: 300, params: {} }, 'https://dcengg.org/22/51efcb0e502dffc7c8c25030a1155128');
         } else {
-            centerWrapper.innerHTML = '';
+            injectLeftNativeAd();
+            injectRightStandardAd();
         }
 
-        closeAdBtn.disabled = true;
-        closeAdBtn.classList.remove('active');
-        let timeLeft = 5;
-
+        if (adYtPlayer) { try { adYtPlayer.stopVideo(); adYtPlayer.destroy(); } catch(e){} adYtPlayer = null; }
+        if (activePaidAds.length > 0) {
+            activePaidAds.sort((a, b) => (a.lastShownAt || 0) - (b.lastShownAt || 0));
+            const chosenAd = activePaidAds[0];
+            if (chosenAd) {
+                fetch(CF_BASE + '/incrementAdViews', {
+                    method: 'POST', headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ adId: chosenAd.id }), keepalive: true
+                }).catch(() => {});
+            }
+            adCenterWrapper.innerHTML = `<div id="ad-youtube-player" style="width:100%; height:100%; position:absolute; top:0; left:0;"></div>`;
+            adYtPlayer = new YT.Player('ad-youtube-player', {
+                videoId: chosenAd.videoId,
+                playerVars: { autoplay: 1, controls: 0, modestbranding: 1, rel: 0, showinfo: 0, iv_load_policy: 3, playsinline: 1, cc_load_policy: 0, disablekb: 1, origin: window.location.origin },
+                events: {
+                    'onReady': (ev) => ev.target.playVideo(),
+                    'onStateChange': (ev) => { if (ev.data === 0) closeAdAndPlay(); }
+                }
+            });
+        } else if (adBanners.length > 0) {
+            if (currentAdBannerIndex >= adBanners.length) currentAdBannerIndex = 0;
+            const ad = adBanners[currentAdBannerIndex];
+            adCenterWrapper.innerHTML = `<img src="${ad.src}" alt="Publicidade" style="width:100%; height:100%; object-fit:contain;">`;
+            fetch(CF_BASE + '/incrementInternalAdViews', {
+                method: 'POST', headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ adSrc: ad.src.trim() }), keepalive: true
+            }).catch(() => {});
+            currentAdBannerIndex = (currentAdBannerIndex + 1) % adBanners.length;
+        }
+        let timeLeft = activePaidAds.length > 0 ? 15 : 6;
+        adTimerText.textContent = `Aguarde ${timeLeft}s...`;
         clearInterval(adTimerInterval);
         adTimerInterval = setInterval(() => {
             timeLeft--;
-            adTimerText.textContent = `Aguarde ${timeLeft}s...`;
-            if (timeLeft <= 0) {
+            if (timeLeft > 0) adTimerText.textContent = `Aguarde ${timeLeft}s...`;
+            else {
                 clearInterval(adTimerInterval);
                 adTimerText.textContent = 'Pronto!';
-                closeAdBtn.disabled = false;
-                closeAdBtn.classList.add('active');
-                closeAdBtn.textContent = 'Fechar e Assistir';
+                closeAdBtn.disabled = false; closeAdBtn.classList.add('active');
+                closeAdBtn.textContent = 'Fechar e Assistir ▶';
             }
         }, 1000);
     }
-
-    function closeAdAndPlay() {
-        const adModal = document.getElementById('adInterstitialModal');
-        adModal.classList.remove('active');
-        document.body.classList.remove('ad-modal-open');
-        clearInterval(adTimerInterval);
-        if (pendingVideo) {
-            openPlayer(pendingVideo);
-            pendingVideo = null;
-        }
-    }
-
-    document.getElementById('closeInterstitialBtn').addEventListener('click', () => {
-        if (!document.getElementById('closeInterstitialBtn').disabled) closeAdAndPlay();
-    });
-
+    closeAdBtn.addEventListener('click', () => { if (!closeAdBtn.disabled) closeAdAndPlay(); });
     document.getElementById('adSubscribeBtn').addEventListener('click', () => {
-        const adModal = document.getElementById('adInterstitialModal');
         adModal.classList.remove('active');
         document.body.classList.remove('ad-modal-open');
+        if (isAdmin()) adminContainer.style.display = 'flex';
+        if (adYtPlayer) { try { adYtPlayer.stopVideo(); adYtPlayer.destroy(); } catch(e){} adYtPlayer = null; }
         clearInterval(adTimerInterval);
         pendingVideo = null;
         openPixLightbox();
     });
-
-    document.getElementById('openInsertAdBtn').addEventListener('click', () => {
-        alert('Para inserir um anúncio, acesse o painel admin.');
-    });
-
-    // ============ PLAYER VOD ============
-    let player = null;
-    let playerReady = false;
-    let isPlaying = false;
-    let isEnded = false;
-    let isSeeking = false;
-    let controlsTimeout = null;
-    let progressInterval = null;
-    let currentVolume = 100;
-    let isMuted = false;
-
-    const playerScreen = document.getElementById('playerScreen');
-    const playerWrapper = document.getElementById('playerWrapper');
-    const playerVideoTitle = document.getElementById('playerVideoTitle');
-    const playerLoadingOverlay = document.getElementById('playerLoadingOverlay');
-    const customUI = document.getElementById('customUI');
-    const progressFill = document.getElementById('progressFill');
-    const progressThumb = document.getElementById('progressThumb');
-    const timeLabel = document.getElementById('timeLabel');
-    const progressTrack = document.getElementById('progressTrack');
-    const centerPlayPauseBtn = document.getElementById('centerPlayPauseBtn');
-    const btnRewind10 = document.getElementById('btnRewind10');
-    const btnForward10 = document.getElementById('btnForward10');
-    const muteBtn = document.getElementById('muteBtn');
-    const volumeSlider = document.getElementById('volumeSlider');
-    const fullscreenBtn = document.getElementById('fullscreenBtn');
-    const playerBottomAd = document.getElementById('player-bottom-ad');
-    const horizontalAdIframe = document.getElementById('horizontal-ad-iframe');
-
-    function setPlayPauseVisual(isPlayingNow) {
-        const playIcon = centerPlayPauseBtn.querySelector('.icon-play');
-        const pauseIcon = centerPlayPauseBtn.querySelector('.icon-pause');
-        if (isPlayingNow) {
-            playIcon.style.display = 'none';
-            pauseIcon.style.display = 'block';
-            setTimeout(() => {
-                if (isPlaying) centerPlayPauseBtn.style.opacity = '0';
-                else centerPlayPauseBtn.style.opacity = '1';
-            }, 2000);
-        } else {
-            playIcon.style.display = 'block';
-            pauseIcon.style.display = 'none';
-            centerPlayPauseBtn.style.opacity = '1';
-        }
-    }
-
     async function openPlayer(video) {
         if (!currentUser) {
             try { await auth.signInWithPopup(new firebase.auth.GoogleAuthProvider()); }
@@ -4425,27 +3591,26 @@
         playerVideoTitle.textContent = video.titulo || 'Vídeo';
         viewAlreadyCounted = false;
         playerLoadingOverlay.classList.remove('hidden');
-
         const isMobileViewport = window.matchMedia('(max-width: 900px)').matches;
         const isLandscape = window.matchMedia('(max-width: 900px) and (orientation: landscape)').matches;
         const playerMobileTop = document.getElementById('playerMobileTop');
         const playerMobileBottom = document.getElementById('playerMobileBottom');
-
         if (!catalogSubscription.active) {
             if (isMobileViewport) {
                 playerMobileTop.style.display = '';
                 playerMobileBottom.style.display = isLandscape ? 'none' : '';
                 playerBottomAd.style.display = 'none';
-                playerMobileTop.innerHTML = '<div style="width:100%; height:100%; display:flex; align-items:center; justify-content:center; background:#eee; color:#333; font-size:12px;">Anúncio Móvel Top</div>';
+                mountStandardAd(playerMobileTop, { key: 'c7c3c36fda809c5dd35ae6ed9c4890ca', format: 'iframe', height: 50, width: 320, params: {} }, 'https://dcengg.org/22/c7c3c36fda809c5dd35ae6ed9c4890ca');
                 if (!isLandscape) {
-                    playerMobileBottom.innerHTML = '<div style="width:100%; height:100%; display:flex; align-items:center; justify-content:center; background:#eee; color:#333; font-size:12px;">Anúncio Móvel Bottom</div>';
+                    mountStandardAd(playerMobileBottom, { key: '51efcb0e502dffc7c8c25030a1155128', format: 'iframe', height: 250, width: 300, params: {} }, 'https://dcengg.org/22/51efcb0e502dffc7c8c25030a1155128');
                 }
             } else {
                 playerMobileTop.style.display = 'none'; playerMobileBottom.style.display = 'none';
                 playerBottomAd.style.display = 'block';
                 if (!playerBottomAd.dataset.mounted) {
                     playerBottomAd.dataset.mounted = '1';
-                    horizontalAdIframe.srcdoc = `<!DOCTYPE html><html><head><style>html,body{margin:0;padding:0;overflow:hidden;background:transparent;width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:#333;font-size:14px;}</style></head><body>Anúncio Desktop</body></html>`;
+                    const htmlAd = `<!DOCTYPE html><html><head><meta charset="utf-8"><style>html,body{margin:0;padding:0;overflow:hidden;background:transparent;width:100%;height:100%;display:flex;align-items:center;justify-content:center;}</style></head><body><script type="text/javascript">atOptions={'key':'c0b67a9be1ab830aba44c6c24a020adc','format':'iframe','height':90,'width':728,'params':{}};<\/script><script type="text/javascript" src="https://dcengg.org/22/c0b67a9be1ab830aba44c6c24a020adc"><\/script></body></html>`;
+                    horizontalAdIframe.srcdoc = htmlAd;
                 }
             }
         } else {
@@ -4453,17 +3618,14 @@
             playerMobileBottom.style.display = 'none';
             playerBottomAd.style.display = 'none';
         }
-
         if (player) { player.destroy(); player = null; }
         playerReady = false; isPlaying = false; isEnded = false; isSeeking = false;
         setPlayPauseVisual(false);
         currentPlayerVideoId = video.youtubeId;
         atualizarPlayerUI(video.youtubeId);
         showControls();
-
         const container = document.getElementById('youtubePlayer');
         container.innerHTML = '<div id="ytPlayerDiv" style="width:100%; height:100%;"></div>';
-
         player = new YT.Player('ytPlayerDiv', {
             height: '100%', width: '100%', videoId: video.youtubeId,
             playerVars: { autoplay: 1, controls: 0, modestbranding: 1, rel: 0, iv_load_policy: 3, playsinline: 1, cc_load_policy: 0, fs: 0, origin: window.location.origin },
@@ -4471,21 +3633,54 @@
         });
         openComments(video.youtubeId);
     }
-
+    window.addEventListener('resize', () => {
+        if (document.getElementById('adInterstitialModal').classList.contains('active')) {
+            const isLandscape = window.matchMedia('(max-width: 900px) and (orientation: landscape)').matches;
+            const isPortrait = window.matchMedia('(max-width: 900px) and (orientation: portrait)').matches;
+            document.getElementById('adNativeLeft').innerHTML = '';
+            document.getElementById('adNativeRight').innerHTML = '';
+            document.getElementById('adMobileTop').innerHTML = '';
+            document.getElementById('adMobileBottom').innerHTML = '';
+            if (isLandscape) {
+                mountStandardAd(document.getElementById('adNativeRight'), { key: '51efcb0e502dffc7c8c25030a1155128', format: 'iframe', height: 250, width: 300, params: {} }, 'https://dcengg.org/22/51efcb0e502dffc7c8c25030a1155128');
+            } else if (isPortrait) {
+                mountStandardAd(document.getElementById('adMobileTop'), { key: 'c7c3c36fda809c5dd35ae6ed9c4890ca', format: 'iframe', height: 50, width: 320, params: {} }, 'https://dcengg.org/22/c7c3c36fda809c5dd35ae6ed9c4890ca');
+                mountStandardAd(document.getElementById('adMobileBottom'), { key: '51efcb0e502dffc7c8c25030a1155128', format: 'iframe', height: 250, width: 300, params: {} }, 'https://dcengg.org/22/51efcb0e502dffc7c8c25030a1155128');
+            } else {
+                injectLeftNativeAd();
+                injectRightStandardAd();
+            }
+        }
+        if (document.getElementById('playerScreen').classList.contains('active')) {
+            const isMobileViewport = window.matchMedia('(max-width: 900px)').matches;
+            const isLandscape = window.matchMedia('(max-width: 900px) and (orientation: landscape)').matches;
+            const playerMobileTop = document.getElementById('playerMobileTop');
+            const playerMobileBottom = document.getElementById('playerMobileBottom');
+            if (isMobileViewport && !catalogSubscription.active) {
+                if (isLandscape) {
+                    playerMobileBottom.style.display = 'none';
+                } else {
+                    playerMobileBottom.style.display = 'block';
+                    if (!playerMobileBottom.querySelector('iframe')) {
+                        mountStandardAd(playerMobileBottom, { key: '51efcb0e502dffc7c8c25030a1155128', format: 'iframe', height: 250, width: 300, params: {} }, 'https://dcengg.org/22/51efcb0e502dffc7c8c25030a1155128');
+                    }
+                }
+            }
+        }
+    });
     function onPlayerReady(event) {
         playerReady = true;
         event.target.playVideo();
         startProgressTracker();
         event.target.setVolume(currentVolume);
         updateVolumeUI(currentVolume);
-        disableCaptionsSoon(event.target);
+        try { event.target.unloadModule('captions'); event.target.unloadModule('cc'); } catch(e) {}
     }
-
     function onPlayerStateChange(event) {
         if (event.data === 1) {
             isPlaying = true; isEnded = false;
             setPlayPauseVisual(true);
-            disableCaptionsSoon(event.target);
+            try { event.target.unloadModule('captions'); event.target.unloadModule('cc'); } catch(e) {}
             if (!viewAlreadyCounted && currentPlayerVideoId) {
                 viewAlreadyCounted = true;
                 rtdb.ref('vod_views/' + currentPlayerVideoId).transaction(v => (v || 0) + 1).catch(() => {});
@@ -4497,35 +3692,29 @@
         } else if (event.data === 0) {
             isPlaying = false; isEnded = true; setPlayPauseVisual(false); showControls(); playerLoadingOverlay.classList.add('hidden');
         } else if (event.data === 3) {
-            disableCaptionsSoon(event.target);
+            try { event.target.unloadModule('captions'); event.target.unloadModule('cc'); } catch(e) {}
         }
     }
-
     function showControls() { customUI.classList.remove('player-ui-hidden'); playerWrapper.classList.remove('hide-shadows'); resetControlsTimer(); }
     function showControlsNoTimer() { customUI.classList.remove('player-ui-hidden'); playerWrapper.classList.remove('hide-shadows'); clearTimeout(controlsTimeout); }
     function hideControls() { if (isEnded || isSeeking) return; customUI.classList.add('player-ui-hidden'); playerWrapper.classList.add('hide-shadows'); }
     function resetControlsTimer() { clearTimeout(controlsTimeout); if (isEnded || isSeeking) return; controlsTimeout = setTimeout(hideControls, 5500); }
-
     if (window.matchMedia('(pointer: fine)').matches) {
         playerWrapper.addEventListener('mousemove', showControls);
         playerWrapper.addEventListener('mouseleave', () => resetControlsTimer());
     }
-
     playerWrapper.addEventListener('click', (e) => {
         if (e.target.closest('.custom-ui')) return;
         if (!playerReady || !player) return;
         if (customUI.classList.contains('player-ui-hidden')) showControls(); else resetControlsTimer();
     });
-
     centerPlayPauseBtn.addEventListener('click', () => {
         if (!playerReady || !player) return;
         if (isPlaying) player.pauseVideo(); else player.playVideo();
         resetControlsTimer();
     });
-
     btnRewind10.addEventListener('click', () => { if (playerReady && player) { player.seekTo(Math.max(0, player.getCurrentTime() - 10), true); resetControlsTimer(); } });
     btnForward10.addEventListener('click', () => { if (playerReady && player) { player.seekTo(Math.min(player.getDuration(), player.getCurrentTime() + 10), true); resetControlsTimer(); } });
-
     progressTrack.addEventListener('mousedown', (e) => {
         isSeeking = true; showControlsNoTimer();
         const rect = progressTrack.getBoundingClientRect();
@@ -4551,21 +3740,18 @@
         document.addEventListener('mousemove', onMove);
         document.addEventListener('mouseup', onUp);
     });
-
     function updateVolumeUI(val) {
         volumeSlider.value = val;
         if (val == 0) { muteBtn.textContent = '🔇'; isMuted = true; }
         else if (val < 50) { muteBtn.textContent = '🔈'; isMuted = false; }
         else { muteBtn.textContent = '🔊'; isMuted = false; }
     }
-
     muteBtn.addEventListener('click', () => {
         if (!playerReady || !player) return;
         if (isMuted) { player.unMute(); player.setVolume(currentVolume); updateVolumeUI(currentVolume); }
         else { player.mute(); updateVolumeUI(0); }
         resetControlsTimer();
     });
-
     volumeSlider.addEventListener('input', (e) => {
         if (!playerReady || !player) return;
         const val = parseInt(e.target.value);
@@ -4574,7 +3760,6 @@
         updateVolumeUI(val);
         resetControlsTimer();
     });
-
     function closePlayer() {
         if (document.fullscreenElement) document.exitFullscreen().catch(() => {});
         if (progressInterval) { clearInterval(progressInterval); progressInterval = null; }
@@ -4591,19 +3776,15 @@
         playerLoadingOverlay.classList.remove('hidden');
         if (isAdmin()) adminContainer.style.display = 'flex';
         closeComments();
-        updateSearchVisibility();
     }
-
     document.getElementById('closePlayerBtn').addEventListener('click', closePlayer);
-
     fullscreenBtn.addEventListener('click', () => {
         if (!document.fullscreenElement) {
-            if (playerWrapper.requestFullscreen) playerWrapper.requestFullscreen().catch(e => console.warn(e));
+            if (playerWrapper.requestFullscreen) playerWrapper.requestFullscreen();
         } else {
-            if (document.exitFullscreen) document.exitFullscreen().catch(e => console.warn(e));
+            if (document.exitFullscreen) document.exitFullscreen();
         }
     });
-
     document.addEventListener('keydown', (e) => {
         if (!playerScreen.classList.contains('active') || e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
         if (e.key === ' ' || e.key === 'k' || e.key === 'K') { e.preventDefault(); if (playerReady && player) { if (isPlaying) player.pauseVideo(); else player.playVideo(); resetControlsTimer(); } }
@@ -4612,7 +3793,6 @@
         else if (e.key === 'f' || e.key === 'F') { e.preventDefault(); fullscreenBtn.click(); }
         else if (e.key === 'Escape') { if (document.fullscreenElement) document.exitFullscreen(); else closePlayer(); }
     });
-
     function startProgressTracker() {
         if (progressInterval) clearInterval(progressInterval);
         progressInterval = setInterval(() => {
@@ -4630,7 +3810,7 @@
         }, 500);
     }
 
-    // Inicialização
+    // ============ INICIALIZAÇÃO ============
     loadCustomAds();
 </script>
 </body>
