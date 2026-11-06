@@ -635,6 +635,66 @@
         #tvScreen .tv-topbar, #tvScreen .tv-bottombar, #tvScreen .tv-controls, #tvScreen .tv-vol-btn, #tvScreen .tv-vol-slider, #tvScreen .tv-fs-btn, #tvScreen .tv-close-btn {
             pointer-events: auto !important;
         }
+    
+        /* ✅ CORREÇÃO FINAL: Layout e Limpeza Visual */
+        #tvScreen .tv-topbar {
+            display: flex !important;
+            justify-content: flex-end !important;
+            padding: 20px !important;
+            background: linear-gradient(to bottom, rgba(0,0,0,0.8), transparent) !important;
+            pointer-events: auto !important;
+        }
+        #tvScreen .tv-close-btn {
+            background: transparent !important; border: none !important; color: white !important;
+            font-size: 1.8rem !important; cursor: pointer !important; padding: 0 !important;
+            transition: transform 0.2s !important;
+        }
+        #tvScreen .tv-close-btn:hover { transform: scale(1.15) !important; }
+
+        #tvScreen .tv-bottombar {
+            display: flex !important;
+            justify-content: space-between !important;
+            align-items: flex-end !important;
+            width: 100% !important;
+            padding: 20px !important;
+            background: linear-gradient(to top, rgba(0,0,0,0.8), transparent) !important;
+            pointer-events: auto !important;
+        }
+        #tvScreen .tv-now-playing { display: flex !important; align-items: center !important; gap: 10px !important; flex: 1 !important; }
+        #tvScreen .tv-now-label { color: #ef4444 !important; font-weight: bold !important; font-size: 0.85rem !important; }
+        #tvScreen .tv-now-title { color: white !important; font-weight: bold !important; font-size: 1.1rem !important; }
+
+        #tvScreen .tv-controls { display: flex !important; align-items: center !important; gap: 15px !important; margin-left: auto !important; }
+        
+        #tvScreen .tv-volume-container {
+            display: flex !important; align-items: center !important; gap: 8px !important;
+            background: transparent !important; border: none !important; padding: 0 !important;
+        }
+        #tvScreen .tv-vol-btn {
+            background: transparent !important; border: none !important; color: white !important;
+            font-size: 1.2rem !important; cursor: pointer !important; padding: 0 !important;
+        }
+        #tvScreen .tv-vol-slider {
+            width: 70px !important; -webkit-appearance: none !important; height: 4px !important;
+            background: rgba(255,255,255,0.3) !important; border-radius: 2px !important; outline: none !important; cursor: pointer !important;
+        }
+        #tvScreen .tv-vol-slider::-webkit-slider-thumb {
+            -webkit-appearance: none !important; width: 12px !important; height: 12px !important;
+            border-radius: 50% !important; background: #fdbb2d !important; cursor: pointer !important;
+        }
+        #tvScreen .tv-fs-btn {
+            background: transparent !important; border: none !important; color: white !important;
+            cursor: pointer !important; padding: 0 !important; display: flex !important; align-items: center !important;
+            transition: transform 0.2s !important;
+        }
+        #tvScreen .tv-fs-btn:hover { transform: scale(1.15) !important; }
+
+        /* Esconder controles antes do play e Auto-Hide */
+        #tvScreen:not(.tv-playing) .tv-topbar, #tvScreen:not(.tv-playing) .tv-bottombar,
+        #tvScreen.ui-hidden .tv-topbar, #tvScreen.ui-hidden .tv-bottombar {
+            opacity: 0 !important; pointer-events: none !important;
+        }
+        #tvScreen .tv-topbar, #tvScreen .tv-bottombar { transition: opacity 0.4s ease !important; }
     </style>
 </head>
 <body>
