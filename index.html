@@ -133,15 +133,12 @@
         .tag-curta { background: #f59e0b; color: #000; }
         .tag-media { background: #8b5cf6; color: #fff; }
         .tag-longa { background: #ec4899; color: #fff; }
-        .tag-yt { background: #ff0000; color: #fff; }
         .card-meta { font-size: 0.8rem; font-style: italic; color: #94a3b8; line-height: 1.35; margin-bottom: 8px; }
         .card-meta-line { display: block; }
         .watch-btn { background: #fdbb2d; color: #000; border: none; padding: 10px; border-radius: 6px; font-weight: bold; font-size: 0.95rem; cursor: pointer; transition: background 0.2s, transform 0.1s; width: 100%; margin-top: auto; }
         .watch-btn:hover { background: #ffcc44; transform: scale(1.02); }
         .watch-btn.locked { background: linear-gradient(135deg, #7c3aed, #6d28d9); color: #fff; }
         .watch-btn.locked:hover { background: linear-gradient(135deg, #6d28d9, #5b21b6); }
-        .watch-btn.yt-red { background: #ff0000; color: #fff; }
-        .watch-btn.yt-red:hover { background: #cc0000; }
 
         .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.72); display: none; align-items: center; justify-content: center; z-index: 1500; backdrop-filter: blur(6px); padding: 100px 20px 20px 20px; }
         .modal-overlay.active { display: flex; }
@@ -1253,18 +1250,22 @@
     }
 
     // ═══════════════════════════════════════════════════════════════
-    // ✅ NOVO HELPER: Abre o vídeo diretamente no YouTube
-    // (usado para vídeos que bloqueiam incorporação externa)
+    // ✅ Abre o vídeo no YouTube em NOVA ABA (usando <a> click - 100% confiável)
+    //    Não usa window.open() para evitar que popup blocker dispare o fallback
+    //    de mesma-aba indevidamente (window.open com noopener retorna null mesmo
+    //    quando o popup abre com sucesso em vários navegadores).
     // ═══════════════════════════════════════════════════════════════
     function openYouTubeVideo(video) {
         if (!video || !video.youtubeId) return;
         const url = 'https://www.youtube.com/watch?v=' + encodeURIComponent(video.youtubeId);
-        // Abre em nova aba; o usuário pode colocar em tela cheia lá
-        const w = window.open(url, '_blank', 'noopener,noreferrer');
-        if (!w) {
-            // Fallback caso popup seja bloqueado
-            window.location.href = url;
-        }
+        const a = document.createElement('a');
+        a.href = url;
+        a.target = '_blank';
+        a.rel = 'noopener noreferrer';
+        a.style.display = 'none';
+        document.body.appendChild(a);
+        a.click();
+        setTimeout(() => { try { document.body.removeChild(a); } catch (e) {} }, 0);
     }
 
     function updateSearchVisibility() {
@@ -1341,7 +1342,6 @@
 
     function isTVReady() {
         if (videos.length === 0) return false;
-        // ✅ Vídeos marcados como "Abrir no YouTube" não entram na TV ao Vivo
         return videos.some(v => !v.abrirNoYoutube && Number(v.duracaoSegundos) > 0);
     }
 
@@ -1523,7 +1523,6 @@
             if (video) {
                 closeNotificationsModal();
                 userCard.classList.remove('active');
-                // ✅ Respeita o flag abrirNoYoutube
                 if (video.abrirNoYoutube) openYouTubeVideo(video);
                 else openPlayer(video);
             }
@@ -2128,8 +2127,7 @@
         document.getElementById('adminCommentsModal').classList.remove('active');
         if (adminCommentsRef) { adminCommentsRef.off(); adminCommentsRef = null; }
         if (deletedCommentsRef) { deletedCommentsRef.off(); deletedCommentsRef = null; }
-        // Moderação de comentários: mantém o player interno mesmo para vídeos "Abrir no YouTube"
-        // para que o admin possa ver comentários. Se o embed falhar, os comentários ainda funcionam.
+        // Moderação: força o player interno para o admin poder ver comentários (mesmo em vídeos com abrirNoYoutube)
         openPlayer(video);
     }
     window.viewVideoFromAdmin = viewVideoFromAdmin;
@@ -2635,8 +2633,6 @@
         const tags = [];
         if (item.pago) tags.push('<span class="tag tag-pago">PAGO</span>');
         if (item.ad) tags.push('<span class="tag tag-ad">AD</span>');
-        // ✅ Tag indicando que o vídeo abre no YouTube
-        if (item.abrirNoYoutube) tags.push('<span class="tag tag-yt" title="Este vídeo abre no YouTube">↗ YT</span>');
         const classificacao = normalizarClassificacao(item.classificacao);
         const classInfo = CLASSIFICACAO_INFO[classificacao];
         tags.push(`<span class="tag ${classInfo.cls} ancine-tag" title="${classInfo.titulo} — clique para saber mais">${classInfo.label}</span>`);
@@ -2675,23 +2671,11 @@
         }
         const watchBtn = card.querySelector('.watch-btn');
         const isPago = !!item.pago;
-        // ✅ Ajusta o texto/label do botão considerando o flag abrirNoYoutube
-        if (isPago && !catalogSubscription.active) {
-            watchBtn.textContent = '🔒 Assinar para assistir';
-            watchBtn.classList.add('locked');
-        } else if (item.abrirNoYoutube) {
-            watchBtn.textContent = '▶ Assistir no YouTube';
-            watchBtn.classList.remove('locked');
-            watchBtn.classList.add('yt-red');
-        } else {
-            watchBtn.textContent = '▶ Assistir';
-            watchBtn.classList.remove('locked');
-            watchBtn.classList.remove('yt-red');
-        }
+        if (isPago && !catalogSubscription.active) { watchBtn.textContent = '🔒 Assinar para assistir'; watchBtn.classList.add('locked'); }
+        else { watchBtn.textContent = '▶ Assistir'; watchBtn.classList.remove('locked'); }
         watchBtn.addEventListener('click', () => {
             if (isPago && !catalogSubscription.active) { openPixLightbox(); return; }
             if (!catalogSubscription.active) { showAdInterstitial(item); return; }
-            // ✅ Assinante: decide entre player interno e YouTube
             if (item.abrirNoYoutube) { openYouTubeVideo(item); return; }
             openPlayer(item);
         });
@@ -3611,7 +3595,6 @@
         clearInterval(adTimerInterval);
         if (isAdmin()) adminContainer.style.display = 'flex';
         const v = pendingVideo; pendingVideo = null;
-        // ✅ Se o vídeo foi marcado para abrir no YouTube, abre lá em vez do player interno
         if (v.abrirNoYoutube) openYouTubeVideo(v);
         else openPlayer(v);
     }
@@ -3641,7 +3624,6 @@
     }
     async function showAdInterstitial(video) {
         if (catalogSubscription.active) {
-            // Assinante não vê anúncio — vai direto para o destino
             if (video.abrirNoYoutube) { openYouTubeVideo(video); return; }
             openPlayer(video); return;
         }
@@ -3655,7 +3637,6 @@
         } catch (e) {}
         if (activePaidAds.length === 0 && adBanners.length === 0 && !video.ad) {
             if (isAdmin()) adminContainer.style.display = 'flex';
-            // ✅ Sem anúncio para mostrar: abre destino diretamente
             if (video.abrirNoYoutube) openYouTubeVideo(video);
             else openPlayer(video);
             return;
@@ -4070,7 +4051,6 @@
 
     function buildTVPlaylist() {
         return videos
-            // ✅ Exclui vídeos marcados como "Abrir no YouTube" da playlist ao vivo
             .filter(v => !v.abrirNoYoutube && Number(v.duracaoSegundos) > 15 && /^[a-zA-Z0-9_-]{11}$/.test(v.youtubeId || ''))
             .sort((a, b) => {
                 const orderA = a.order || 0;
