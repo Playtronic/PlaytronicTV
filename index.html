@@ -338,11 +338,69 @@
             margin-top: 15px;
             opacity: 0.7;
             transition: opacity 0.3s ease, transform 0.3s ease;
-            cursor: help;
+            cursor: pointer; /* Alterado para pointer pois agora é clicável */
         }
         .legal-seal:hover {
             opacity: 1;
             transform: scale(1.05);
+        }
+
+        /* Modal de Zoom do Selo Legal */
+        #legalSealModal {
+            z-index: 9999999; /* Acima de tudo */
+            background: rgba(0, 0, 0, 0.85); /* Fundo escuro semi-transparente */
+            padding: 40px 20px;
+        }
+        .seal-content-wrapper {
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            height: 100%;
+        }
+        .seal-large-img {
+            max-width: 90vw;
+            max-height: 85vh;
+            object-fit: contain;
+            filter: drop-shadow(0 15px 40px rgba(0,0,0,0.6));
+            animation: sealZoomIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        .seal-close-btn {
+            position: absolute;
+            top: 20px;
+            right: 30px;
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.3);
+            color: #fff;
+            font-size: 1.5rem;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+            z-index: 10;
+        }
+        .seal-close-btn:hover {
+            background: #ef4444;
+            border-color: #ef4444;
+            transform: scale(1.1) rotate(90deg);
+        }
+        @keyframes sealZoomIn {
+            from { opacity: 0; transform: scale(0.8); }
+            to { opacity: 1; transform: scale(1); }
+        }
+        @media (max-width: 900px) {
+            .seal-close-btn {
+                top: 15px;
+                right: 15px;
+                width: 40px;
+                height: 40px;
+                font-size: 1.2rem;
+            }
         }
 
         #favoritesSection { margin-bottom: 30px; width: 100%; max-width: 1400px; margin-left: auto; margin-right: auto; }
@@ -837,7 +895,7 @@
         </a>
         
         <!-- NOVO SELO 100% LEGAL AQUI -->
-        <img src="https://i.ibb.co/TXtSwzv/bbe90bc3-acb4-4258-8fa4-37f1cf976218.png" alt="Selo 100% Legal" class="legal-seal" title="Conteúdo audiovisual em conformidade com a legislação">
+        <img src="https://i.ibb.co/TXtSwzv/bbe90bc3-acb4-4258-8fa4-37f1cf976218.png" alt="Selo 100% Legal" class="legal-seal" title="Clique para ampliar">
         
     </footer>
 </div>
@@ -1046,6 +1104,14 @@
         </div>
         <div id="myAdsListContainer" style="max-height: 400px; overflow-y: auto; padding-right: 5px;"></div>
         <div class="modal-actions"><button class="secondary" id="closeMyAdsBtn">Fechar</button></div>
+    </div>
+</div>
+
+<!-- MODAL DE ZOOM DO SELO 100% LEGAL -->
+<div id="legalSealModal" class="modal-overlay">
+    <div class="seal-content-wrapper">
+        <button class="seal-close-btn" id="closeSealModalBtn" title="Fechar">✖</button>
+        <img src="https://i.ibb.co/TXtSwzv/bbe90bc3-acb4-4258-8fa4-37f1cf976218.png" alt="Selo 100% Legal" class="seal-large-img">
     </div>
 </div>
 
@@ -1362,7 +1428,8 @@
         const searchContainer = document.querySelector('.search-container');
         if (!searchContainer) return;
         const ancineLb = document.getElementById('ancineLightbox');
-        const isModalOpen = document.querySelector('.modal-overlay.active') || document.getElementById('playerScreen').classList.contains('active') || document.getElementById('tvScreen').classList.contains('active') || document.getElementById('adInterstitialModal').classList.contains('active') || document.getElementById('banAlertModal').classList.contains('active') || document.getElementById('blockAlertModal').classList.contains('active') || document.getElementById('pixLightbox').style.display === 'flex' || (ancineLb && ancineLb.classList.contains('active'));
+        const legalSealModal = document.getElementById('legalSealModal');
+        const isModalOpen = document.querySelector('.modal-overlay.active') || document.getElementById('playerScreen').classList.contains('active') || document.getElementById('tvScreen').classList.contains('active') || document.getElementById('adInterstitialModal').classList.contains('active') || document.getElementById('banAlertModal').classList.contains('active') || document.getElementById('blockAlertModal').classList.contains('active') || document.getElementById('pixLightbox').style.display === 'flex' || (ancineLb && ancineLb.classList.contains('active')) || (legalSealModal && legalSealModal.classList.contains('active'));
         if (isModalOpen) {
             searchContainer.style.display = 'none';
             document.body.classList.add('no-scroll', 'search-hidden');
@@ -1385,6 +1452,7 @@
             document.getElementById('pixLightbox'), document.getElementById('banAlertModal'),
             document.getElementById('blockAlertModal'), document.getElementById('notificationsModal'),
             document.getElementById('ancineLightbox'), document.getElementById('tvScreen'),
+            document.getElementById('legalSealModal'),
             ...document.querySelectorAll('.modal-overlay')
         ];
         targets.forEach(t => { if(t) domObserver.observe(t, { attributes: true, attributeFilter: ['class', 'style'] }); });
@@ -1405,7 +1473,8 @@
             || document.getElementById('banAlertModal').classList.contains('active')
             || document.getElementById('blockAlertModal').classList.contains('active')
             || document.getElementById('pixLightbox').style.display === 'flex'
-            || (document.getElementById('ancineLightbox') && document.getElementById('ancineLightbox').classList.contains('active'));
+            || (document.getElementById('ancineLightbox') && document.getElementById('ancineLightbox').classList.contains('active'))
+            || (document.getElementById('legalSealModal') && document.getElementById('legalSealModal').classList.contains('active'));
 
         if (isModalOpen || !currentUser) {
             fab.style.display = 'none';
@@ -3391,6 +3460,39 @@
             closeAncineLightbox();
         }
     });
+
+    // ============ LIGHTBOX DO SELO 100% LEGAL ============
+    const legalSealImg = document.querySelector('.legal-seal');
+    const legalSealModal = document.getElementById('legalSealModal');
+    const closeSealModalBtn = document.getElementById('closeSealModalBtn');
+
+    if (legalSealImg && legalSealModal && closeSealModalBtn) {
+        legalSealImg.addEventListener('click', (e) => {
+            e.preventDefault();
+            legalSealModal.classList.add('active');
+            updateSearchVisibility();
+        });
+
+        const closeSealModal = () => {
+            legalSealModal.classList.remove('active');
+            updateSearchVisibility();
+        };
+
+        closeSealModalBtn.addEventListener('click', closeSealModal);
+        
+        legalSealModal.addEventListener('click', (e) => {
+            // Fecha se clicar fora da imagem
+            if (e.target === legalSealModal) {
+                closeSealModal();
+            }
+        });
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && legalSealModal.classList.contains('active')) {
+                closeSealModal();
+            }
+        });
+    }
 
     // ============ ANÚNCIO PAGO ============
     const insertAdModal = document.getElementById('insertAdModal');
