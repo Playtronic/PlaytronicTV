@@ -867,6 +867,7 @@
                         <option value="all">Todos os usuários</option>
                         <option value="active">Apenas assinantes</option>
                         <option value="inactive">Apenas não-assinantes</option>
+                        <option value="watching">▶ Assistindo agora</option>
                     </select>
                 </div>
                 <div id="subsListContainer" style="flex: 1; overflow-y: auto; background: rgba(0,0,0,0.2); border-radius: 8px; padding: 10px; border: 1px solid rgba(255,255,255,0.05);"></div>
@@ -1166,6 +1167,136 @@
     let expandedComments = new Set();
     let replyDrafts = {};
 
+    /* ⬇️ NOVO — WATCH STATUS (painel Desempenho) ⬇️ */
+    let watchStatusCache = {};         // { uid: { state, videoId, videoTitle, position, duration, updatedAt, lastWatchedVideoId, lastWatchedTitle, playerType } }
+    let watchStatusListener = null;
+    let watchStatusHeartbeat = null;
+
+    function reportWatchStatus(state) {
+        if (!currentUser) return;
+        const video = currentPlayerVideoId
+            ? videos.find(v => v.youtubeId === currentPlayerVideoId)
+            : null;
+
+        let pos = 0, dur = 0;
+        if (player && playerReady && typeof player.getCurrentTime === 'function') {
+            try { pos = Math.floor(player.getCurrentTime() || 0); } catch (e) {}
+            try { dur = Math.floor(player.getDuration() || 0); } catch (e) {}
+        }
+
+        const payload = {
+            state,
+            updatedAt: firebase.database.ServerValue.TIMESTAMP
+        };
+
+        if (video) {
+            Object.assign(payload, {
+                videoId: currentPlayerVideoId,
+                videoTitle: video.titulo || '',
+                position: pos,
+                duration: dur,
+                playerType: 'vod',
+                lastWatchedVideoId: currentPlayerVideoId,
+                lastWatchedTitle: video.titulo || ''
+            });
+        } else if (state === 'none') {
+            Object.assign(payload, {
+                videoId: null,
+                videoTitle: null,
+                position: 0,
+                duration: 0,
+                playerType: null
+            });
+        }
+
+        rtdb.ref('vod_watch_status/' + currentUser.uid)
+            .update(payload)
+            .catch(() => {});
+    }
+
+    function reportTVStatus(state, title) {
+        if (!currentUser) return;
+        const payload = {
+            state,
+            updatedAt: firebase.database.ServerValue.TIMESTAMP,
+            videoId: '_live_tv_',
+            videoTitle: title || 'TV ao Vivo',
+            position: 0,
+            duration: 0,
+            playerType: 'tv',
+            lastWatchedVideoId: '_live_tv_',
+            lastWatchedTitle: 'TV ao Vivo'
+        };
+        rtdb.ref('vod_watch_status/' + currentUser.uid)
+            .update(payload)
+            .catch(() => {});
+    }
+
+    function startWatchStatusHeartbeat() {
+        if (watchStatusHeartbeat) return;
+        watchStatusHeartbeat = setInterval(() => {
+            if (isPlaying && playerReady && currentPlayerVideoId) {
+                reportWatchStatus('playing');
+            }
+        }, 15000);
+    }
+    function stopWatchStatusHeartbeat() {
+        if (watchStatusHeartbeat) {
+            clearInterval(watchStatusHeartbeat);
+            watchStatusHeartbeat = null;
+        }
+    }
+
+    function startWatchStatusListener() {
+        if (watchStatusListener) return;
+        watchStatusListener = rtdb.ref('vod_watch_status');
+        watchStatusListener.on('value', (snap) => {
+            watchStatusCache = snap.val() || {};
+            if (document.getElementById('performanceModal')?.classList.contains('active') &&
+                document.getElementById('viewSubs')?.style.display !== 'none') {
+                renderSubsList();
+            }
+        });
+    }
+    function stopWatchStatusListener() {
+        if (watchStatusListener) {
+            watchStatusListener.off();
+            watchStatusListener = null;
+        }
+    }
+
+    function renderWatchStatusHTML(uid) {
+        const s = watchStatusCache[uid];
+        const isOnline = checkIsOnline(uid);
+        const FRESH_MS = 3 * 60 * 1000;
+
+        if (isOnline && s && s.updatedAt && (Date.now() - s.updatedAt < FRESH_MS)) {
+            const title = escapeHtml(s.videoTitle || s.videoId || '');
+            const timeStr = (s.position && s.duration)
+                ? ` • ${formatTime(s.position)} / ${formatTime(s.duration)}`
+                : '';
+
+            if (s.state === 'playing') {
+                return `<div style="font-size:0.72rem;color:#22c55e;margin-top:3px;">▶ <b>Assistindo:</b> ${title}${timeStr}</div>`;
+            }
+            if (s.state === 'paused') {
+                return `<div style="font-size:0.72rem;color:#f59e0b;margin-top:3px;">⏸ <b>Pausado em:</b> ${title}${timeStr}</div>`;
+            }
+            if (s.state === 'ended') {
+                return `<div style="font-size:0.72rem;color:#94a3b8;margin-top:3px;">⏹ <b>Finalizado:</b> ${title}</div>`;
+            }
+        }
+
+        if (s && s.lastWatchedVideoId) {
+            const title = escapeHtml(s.lastWatchedTitle || s.lastWatchedVideoId);
+            const tag = isOnline ? 'inativo' : 'offline';
+            return `<div style="font-size:0.72rem;color:#64748b;margin-top:3px;">🕓 <b>Último:</b> ${title} <em>(${tag})</em></div>`;
+        }
+
+        return `<div style="font-size:0.72rem;color:#475569;margin-top:3px;">⚫ Nenhum vídeo em execução</div>`;
+    }
+    /* ⬆️ NOVO — fim do bloco WATCH STATUS ⬆️ */
+
     const CATALOG_PREFS_KEY = 'playtronic_catalog_prefs_v1';
     function loadCatalogPreferences() {
         try {
@@ -1249,12 +1380,6 @@
         return null;
     }
 
-    // ═══════════════════════════════════════════════════════════════
-    // ✅ Abre o vídeo no YouTube em NOVA ABA (usando <a> click - 100% confiável)
-    //    Não usa window.open() para evitar que popup blocker dispare o fallback
-    //    de mesma-aba indevidamente (window.open com noopener retorna null mesmo
-    //    quando o popup abre com sucesso em vários navegadores).
-    // ═══════════════════════════════════════════════════════════════
     function openYouTubeVideo(video) {
         if (!video || !video.youtubeId) return;
         const url = 'https://www.youtube.com/watch?v=' + encodeURIComponent(video.youtubeId);
@@ -2127,7 +2252,6 @@
         document.getElementById('adminCommentsModal').classList.remove('active');
         if (adminCommentsRef) { adminCommentsRef.off(); adminCommentsRef = null; }
         if (deletedCommentsRef) { deletedCommentsRef.off(); deletedCommentsRef = null; }
-        // Moderação: força o player interno para o admin poder ver comentários (mesmo em vídeos com abrirNoYoutube)
         openPlayer(video);
     }
     window.viewVideoFromAdmin = viewVideoFromAdmin;
@@ -2392,6 +2516,7 @@
     logoutBtn.addEventListener('click', () => {
         if (currentUser) {
             rtdb.ref('/onlineUsers/' + currentUser.uid).remove();
+            rtdb.ref('/vod_watch_status/' + currentUser.uid).remove();
             if (presenceInterval) { clearInterval(presenceInterval); presenceInterval = null; }
         }
         auth.signOut().then(() => window.location.reload());
@@ -2986,13 +3111,17 @@
     document.getElementById('performanceBtn').addEventListener('click', () => {
         adminDropdown.style.display = 'none';
         performanceModal.classList.add('active');
+        startWatchStatusListener();
         tabVideosBtn.click();
         if (perfSearchInput) perfSearchInput.value = '';
         if (subsFilterSelect) subsFilterSelect.value = 'all';
         loadActiveSubscribers();
     });
-    document.getElementById('closePerformanceBtn').addEventListener('click', () => performanceModal.classList.remove('active'));
-    performanceModal.addEventListener('click', (e) => { if (e.target === performanceModal) performanceModal.classList.remove('active'); });
+    document.getElementById('closePerformanceBtn').addEventListener('click', () => {
+        performanceModal.classList.remove('active');
+        stopWatchStatusListener();
+    });
+    performanceModal.addEventListener('click', (e) => { if (e.target === performanceModal) { performanceModal.classList.remove('active'); stopWatchStatusListener(); } });
     tabVideosBtn.addEventListener('click', () => {
         tabVideosBtn.classList.add('active'); tabSubsBtn.classList.remove('active');
         viewVideos.style.display = 'flex'; viewSubs.style.display = 'none';
@@ -3034,7 +3163,18 @@
         if (subsActiveCount) subsActiveCount.textContent = allUsersActiveCount.toLocaleString('pt-BR');
         if (allUsersList.length === 0) { subsListContainer.innerHTML = '<div class="perf-empty">Nenhum usuário.</div>'; return; }
         const filter = subsFilterSelect ? subsFilterSelect.value : 'all';
-        const filtered = allUsersList.filter(u => filter === 'active' ? u.isSubscriber : filter === 'inactive' ? !u.isSubscriber : true);
+        const filtered = allUsersList.filter(u => {
+            if (filter === 'active')   return u.isSubscriber;
+            if (filter === 'inactive') return !u.isSubscriber;
+            if (filter === 'watching') {
+                const s = watchStatusCache[u.uid];
+                const isOnline = checkIsOnline(u.uid);
+                const FRESH_MS = 3 * 60 * 1000;
+                return isOnline && s && ['playing','paused','ended'].includes(s.state)
+                    && s.updatedAt && (Date.now() - s.updatedAt < FRESH_MS);
+            }
+            return true;
+        });
         if (filtered.length === 0) { subsListContainer.innerHTML = '<div class="perf-empty">Nenhum usuário com esse filtro.</div>'; return; }
         const now = Date.now();
         subsListContainer.innerHTML = filtered.map(u => {
@@ -3062,6 +3202,7 @@
                             <div style="color: #fff; font-weight: bold; font-size: 0.9rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${escapeHtml(u.name || '(sem nome)')}${isOnline ? ' <span style="color:#22c55e;font-size:0.7rem;">(Online)</span>' : ''}</div>
                             <div style="color: #94a3b8; font-size: 0.75rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${escapeHtml(u.email || '(sem e-mail)')}</div>
                             <div style="color: #64748b; font-size: 0.7rem; margin-top: 3px;">🕓 Último login: ${escapeHtml(formatLastSignIn(u.lastSignIn))}</div>
+                            ${renderWatchStatusHTML(u.uid)}
                         </div>
                     </div>
                     ${rightSide}
@@ -3830,10 +3971,19 @@
             }
             playerLoadingOverlay.classList.add('hidden');
             showControls();
+            /* ⬇️ NOVO */
+            reportWatchStatus('playing');
+            startWatchStatusHeartbeat();
         } else if (event.data === 2) {
             isPlaying = false; setPlayPauseVisual(false); showControls();
+            /* ⬇️ NOVO */
+            reportWatchStatus('paused');
+            stopWatchStatusHeartbeat();
         } else if (event.data === 0) {
             isPlaying = false; isEnded = true; setPlayPauseVisual(false); showControls(); playerLoadingOverlay.classList.add('hidden');
+            /* ⬇️ NOVO */
+            reportWatchStatus('ended');
+            stopWatchStatusHeartbeat();
         } else if (event.data === 3) {
             try { event.target.unloadModule('captions'); event.target.unloadModule('cc'); } catch(e) {}
         }
@@ -3918,6 +4068,9 @@
         playerVideoTitle.textContent = '';
         playerLoadingOverlay.classList.remove('hidden');
         if (isAdmin()) adminContainer.style.display = 'flex';
+        /* ⬇️ NOVO */
+        stopWatchStatusHeartbeat();
+        reportWatchStatus('none');
         closeComments();
     }
     document.getElementById('closePlayerBtn').addEventListener('click', closePlayer);
@@ -4133,6 +4286,8 @@
         _tvReloadCount = 0;
         _tvLastReloadTime = 0;
         if (document.fullscreenElement) document.exitFullscreen().catch(()=>{});
+        /* ⬇️ NOVO */
+        if (currentUser) reportWatchStatus('none');
         document.getElementById('tvScreen').classList.remove('active');
         document.body.classList.remove('no-scroll');
         updateSearchVisibility();
@@ -4215,6 +4370,8 @@
                     ev.target.playVideo();
                     ev.target.setVolume(tvCurrentVolume);
                     updateTVVolumeUI(tvCurrentVolume);
+                    /* ⬇️ NOVO */
+                    reportTVStatus('playing', pos.video.titulo || 'TV ao Vivo');
                 },
                 onStateChange: (event) => {
                     if (event.data === 1) document.getElementById('tvLoading').style.display = 'none';
