@@ -133,12 +133,15 @@
         .tag-curta { background: #f59e0b; color: #000; }
         .tag-media { background: #8b5cf6; color: #fff; }
         .tag-longa { background: #ec4899; color: #fff; }
+        .tag-yt { background: #ff0000; color: #fff; }
         .card-meta { font-size: 0.8rem; font-style: italic; color: #94a3b8; line-height: 1.35; margin-bottom: 8px; }
         .card-meta-line { display: block; }
         .watch-btn { background: #fdbb2d; color: #000; border: none; padding: 10px; border-radius: 6px; font-weight: bold; font-size: 0.95rem; cursor: pointer; transition: background 0.2s, transform 0.1s; width: 100%; margin-top: auto; }
         .watch-btn:hover { background: #ffcc44; transform: scale(1.02); }
         .watch-btn.locked { background: linear-gradient(135deg, #7c3aed, #6d28d9); color: #fff; }
         .watch-btn.locked:hover { background: linear-gradient(135deg, #6d28d9, #5b21b6); }
+        .watch-btn.yt-red { background: #ff0000; color: #fff; }
+        .watch-btn.yt-red:hover { background: #cc0000; }
 
         .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.72); display: none; align-items: center; justify-content: center; z-index: 1500; backdrop-filter: blur(6px); padding: 100px 20px 20px 20px; }
         .modal-overlay.active { display: flex; }
@@ -162,6 +165,9 @@
         .modal-checkbox-row { display: flex; align-items: center; gap: 20px; margin-top: 14px; flex-wrap: wrap; }
         .modal-checkbox-row label { display: inline-flex; align-items: center; gap: 8px; margin: 0; text-transform: none; letter-spacing: 0; font-size: 0.9rem; color: #e2e8f0; cursor: pointer; }
         .modal-checkbox-row input[type="checkbox"], .modal-checkbox-row input[type="radio"] { width: 18px; height: 18px; accent-color: #fdbb2d; cursor: pointer; }
+        .yt-checkbox-row { margin-top: 12px; padding: 10px 12px; background: rgba(255,0,0,0.08); border: 1px solid rgba(255,0,0,0.3); border-radius: 8px; }
+        .yt-checkbox-row label { color: #fca5a5 !important; font-weight: 600; font-size: 0.88rem; text-transform: none; letter-spacing: 0; margin: 0; }
+        .yt-checkbox-row input[type="checkbox"] { accent-color: #ff0000; }
         .modal-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 24px; }
         .modal-actions button { padding: 10px 20px; border-radius: 8px; border: none; font-weight: 700; cursor: pointer; font-size: 0.9rem; transition: 0.2s; font-family: inherit; }
         .modal-actions .secondary { background: rgba(255,255,255,0.12); color: #fff; }
@@ -231,45 +237,12 @@
         .close-player-btn:hover { background: #e74c3c; transform: scale(1.1); }
         .player-video-title { position: absolute; top: 22px; left: 68px; color: #fff; font-size: 1.15rem; font-weight: 600; text-shadow: 1px 1px 4px rgba(0,0,0,0.9); max-width: calc(100% - 280px); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; pointer-events: none; z-index: 25; padding: 5px 10px; background: rgba(0,0,0,0.3); border-radius: 6px; }
         
-        /* ✅ NOVO LAYOUT DOS VOTOS E COMPARTILHAR */
-        .player-vote-container { 
-            position: absolute; 
-            top: 15px; 
-            right: 15px; 
-            display: flex; 
-            flex-direction: column; 
-            gap: 8px; 
-            background: rgba(0,0,0,0.6); 
-            padding: 10px; 
-            border-radius: 12px; 
-            border: 1px solid rgba(255,255,255,0.1); 
-            pointer-events: auto; 
-            z-index: 30; 
-            min-width: 140px;
-        }
-        .player-vote-btn { 
-            background: rgba(255,255,255,0.1); 
-            border: 1px solid rgba(255,255,255,0.15); 
-            color: #fff; 
-            padding: 8px 12px; 
-            border-radius: 8px; 
-            cursor: pointer; 
-            font-weight: bold; 
-            font-size: 0.9rem; 
-            display: flex; 
-            align-items: center; 
-            justify-content: center;
-            gap: 6px; 
-            transition: all 0.2s; 
-        }
+        .player-vote-container { position: absolute; top: 15px; right: 15px; display: flex; flex-direction: column; gap: 8px; background: rgba(0,0,0,0.6); padding: 10px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); pointer-events: auto; z-index: 30; min-width: 140px; }
+        .player-vote-btn { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.15); color: #fff; padding: 8px 12px; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 0.9rem; display: flex; align-items: center; justify-content: center; gap: 6px; transition: all 0.2s; }
         .player-vote-btn.like.active { background: #2ecc71; border-color: #2ecc71; }
         .player-vote-btn.dislike.active { background: #e74c3c; border-color: #e74c3c; }
         
-        #sharePlayerBtn { 
-            background: rgba(59,130,246,0.3); 
-            border: 1px solid rgba(59,130,246,0.6); 
-            width: 100%;
-        }
+        #sharePlayerBtn { background: rgba(59,130,246,0.3); border: 1px solid rgba(59,130,246,0.6); width: 100%; }
         #sharePlayerBtn:hover { background: rgba(59,130,246,0.5); }
 
         .center-play-btn { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 76px; height: 76px; border-radius: 50%; background: #fdbb2d; border: none; color: #000; cursor: pointer; z-index: 25; pointer-events: auto; display: flex; align-items: center; justify-content: center; transition: opacity 0.3s ease, transform 0.3s ease; box-shadow: 0 4px 20px rgba(0,0,0,0.5); padding: 0; }
@@ -331,86 +304,18 @@
         .footer-logo-link { display: inline-block; margin-top: 15px; }
         .footer-logo { height: 25px; max-width: 150px; width: auto; object-fit: contain; }
         
-        /* Estilo do Selo 100% Legal */
-        .legal-seal {
-            height: 60px;
-            width: auto;
-            margin-top: 15px;
-            opacity: 0.7;
-            transition: opacity 0.3s ease, transform 0.3s ease;
-            cursor: pointer;
-        }
-        .legal-seal:hover {
-            opacity: 1;
-            transform: scale(1.05);
-        }
+        .legal-seal { height: 60px; width: auto; margin-top: 15px; opacity: 0.7; transition: opacity 0.3s ease, transform 0.3s ease; cursor: pointer; }
+        .legal-seal:hover { opacity: 1; transform: scale(1.05); }
 
-        /* Modal de Zoom do Selo Legal */
-        #legalSealModal {
-            z-index: 10000002; /* Acima do header */
-            background: rgba(0, 0, 0, 0.85);
-            padding: 20px;
-        }
-        .seal-content-wrapper {
-            position: relative;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            width: 100%;
-            height: 100%;
-        }
-        .seal-img-container {
-            position: relative;
-            display: inline-flex;
-            justify-content: center;
-            align-items: center;
-            max-width: 90vw;
-            max-height: 85vh;
-        }
-        .seal-large-img {
-            max-width: 100%;
-            max-height: 85vh;
-            object-fit: contain;
-            filter: drop-shadow(0 15px 40px rgba(0,0,0,0.6));
-            animation: sealZoomIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            display: block;
-        }
-        .seal-close-btn {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            background: rgba(255,255,255,0.15);
-            border: 1px solid rgba(255,255,255,0.4);
-            color: #fff;
-            font-size: 1.5rem;
-            width: 44px;
-            height: 44px;
-            border-radius: 50%;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.2s;
-            z-index: 10;
-            backdrop-filter: blur(4px);
-        }
-        .seal-close-btn:hover {
-            background: #ef4444;
-            border-color: #ef4444;
-            transform: scale(1.1) rotate(90deg);
-        }
-        @keyframes sealZoomIn {
-            from { opacity: 0; transform: scale(0.8); }
-            to { opacity: 1; transform: scale(1); }
-        }
+        #legalSealModal { z-index: 10000002; background: rgba(0, 0, 0, 0.85); padding: 20px; }
+        .seal-content-wrapper { position: relative; display: flex; justify-content: center; align-items: center; width: 100%; height: 100%; }
+        .seal-img-container { position: relative; display: inline-flex; justify-content: center; align-items: center; max-width: 90vw; max-height: 85vh; }
+        .seal-large-img { max-width: 100%; max-height: 85vh; object-fit: contain; filter: drop-shadow(0 15px 40px rgba(0,0,0,0.6)); animation: sealZoomIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); display: block; }
+        .seal-close-btn { position: absolute; top: 10px; right: 10px; background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.4); color: #fff; font-size: 1.5rem; width: 44px; height: 44px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s; z-index: 10; backdrop-filter: blur(4px); }
+        .seal-close-btn:hover { background: #ef4444; border-color: #ef4444; transform: scale(1.1) rotate(90deg); }
+        @keyframes sealZoomIn { from { opacity: 0; transform: scale(0.8); } to { opacity: 1; transform: scale(1); } }
         @media (max-width: 900px) {
-            .seal-close-btn {
-                top: 5px;
-                right: 5px;
-                width: 36px;
-                height: 36px;
-                font-size: 1.2rem;
-            }
+            .seal-close-btn { top: 5px; right: 5px; width: 36px; height: 36px; font-size: 1.2rem; }
         }
 
         #favoritesSection { margin-bottom: 30px; width: 100%; max-width: 1400px; margin-left: auto; margin-right: auto; }
@@ -555,87 +460,20 @@
             box-shadow: 0 25px 60px rgba(0,0,0,0.7);
             animation: modalIn 0.2s ease;
         }
-        .ancine-box .ancine-close {
-            position: absolute;
-            top: 10px; right: 12px;
-            background: transparent;
-            border: none;
-            color: #64748b;
-            font-size: 1.9rem;
-            line-height: 1;
-            cursor: pointer;
-            padding: 2px 10px;
-            border-radius: 6px;
-            transition: 0.2s;
-        }
+        .ancine-box .ancine-close { position: absolute; top: 10px; right: 12px; background: transparent; border: none; color: #64748b; font-size: 1.9rem; line-height: 1; cursor: pointer; padding: 2px 10px; border-radius: 6px; transition: 0.2s; }
         .ancine-box .ancine-close:hover { color: #0b0f19; background: #f1f5f9; }
-        .ancine-box .ancine-logo-wrap {
-            text-align: center;
-            margin-bottom: 18px;
-            padding-bottom: 14px;
-            border-bottom: 1px solid #e2e8f0;
-        }
-        .ancine-box .ancine-logo-wrap img {
-            height: 70px;
-            max-width: 100%;
-            object-fit: contain;
-        }
-        .ancine-box h2 {
-            color: #0b0f19;
-            text-align: center;
-            font-size: 1.25rem;
-            margin-bottom: 16px;
-            font-weight: 700;
-            letter-spacing: 0.2px;
-        }
-        .ancine-box p {
-            color: #334155;
-            line-height: 1.65;
-            font-size: 0.94rem;
-            margin-bottom: 14px;
-        }
+        .ancine-box .ancine-logo-wrap { text-align: center; margin-bottom: 18px; padding-bottom: 14px; border-bottom: 1px solid #e2e8f0; }
+        .ancine-box .ancine-logo-wrap img { height: 70px; max-width: 100%; object-fit: contain; }
+        .ancine-box h2 { color: #0b0f19; text-align: center; font-size: 1.25rem; margin-bottom: 16px; font-weight: 700; letter-spacing: 0.2px; }
+        .ancine-box p { color: #334155; line-height: 1.65; font-size: 0.94rem; margin-bottom: 14px; }
         .ancine-box p strong { color: #0b0f19; }
-        .ancine-box ul {
-            list-style: none;
-            padding: 0;
-            margin: 18px 0 0;
-        }
-        .ancine-box li {
-            padding: 12px 14px;
-            border-radius: 8px;
-            background: #f1f5f9;
-            margin-bottom: 10px;
-            font-size: 0.9rem;
-            line-height: 1.5;
-            color: #1e293b;
-            border-left: 4px solid #fdbb2d;
-        }
+        .ancine-box ul { list-style: none; padding: 0; margin: 18px 0 0; }
+        .ancine-box li { padding: 12px 14px; border-radius: 8px; background: #f1f5f9; margin-bottom: 10px; font-size: 0.9rem; line-height: 1.5; color: #1e293b; border-left: 4px solid #fdbb2d; }
         .ancine-box li strong { color: #0b0f19; }
         .tag.ancine-tag { cursor: pointer; transition: transform 0.15s, box-shadow 0.15s; }
         .tag.ancine-tag:hover { transform: scale(1.08); box-shadow: 0 0 10px rgba(255,255,255,0.35); }
 
-        #tvFab {
-            position: fixed;
-            bottom: 26px;
-            right: 26px;
-            z-index: 9997;
-            display: none;
-            align-items: center;
-            gap: 10px;
-            background: linear-gradient(135deg, #ef4444, #b91c1c);
-            color: #fff;
-            padding: 14px 22px;
-            border-radius: 50px;
-            border: none;
-            font-weight: 800;
-            font-size: 0.92rem;
-            cursor: pointer;
-            box-shadow: 0 8px 25px rgba(239,68,68,0.45), 0 4px 12px rgba(0,0,0,0.4);
-            transition: transform 0.2s, box-shadow 0.2s, background 0.3s;
-            font-family: inherit;
-            letter-spacing: 0.6px;
-            animation: tvFabEnter 0.45s ease;
-        }
+        #tvFab { position: fixed; bottom: 26px; right: 26px; z-index: 9997; display: none; align-items: center; gap: 10px; background: linear-gradient(135deg, #ef4444, #b91c1c); color: #fff; padding: 14px 22px; border-radius: 50px; border: none; font-weight: 800; font-size: 0.92rem; cursor: pointer; box-shadow: 0 8px 25px rgba(239,68,68,0.45), 0 4px 12px rgba(0,0,0,0.4); transition: transform 0.2s, box-shadow 0.2s, background 0.3s; font-family: inherit; letter-spacing: 0.6px; animation: tvFabEnter 0.45s ease; }
         #tvFab:hover { transform: translateY(-3px) scale(1.03); box-shadow: 0 12px 35px rgba(239,68,68,0.65), 0 6px 16px rgba(0,0,0,0.5); }
         #tvFab.locked { background: linear-gradient(135deg, #7c3aed, #5b21b6); box-shadow: 0 8px 25px rgba(124,58,237,0.45), 0 4px 12px rgba(0,0,0,0.4); }
         #tvFab.locked:hover { box-shadow: 0 12px 35px rgba(124,58,237,0.65), 0 6px 16px rgba(0,0,0,0.5); }
@@ -649,30 +487,16 @@
         #tvScreen { position: fixed; inset: 0; background: #000; z-index: 10000001; display: none; flex-direction: column; }
         #tvScreen.active { display: flex; }
         
-        #tvScreen .tv-topbar {
-            position: absolute; top: 0; left: 0; right: 0; padding: 20px;
-            display: flex; align-items: center; justify-content: flex-end;
-            background: linear-gradient(to bottom, rgba(0,0,0,0.85), transparent);
-            z-index: 10; pointer-events: none; opacity: 0; transition: opacity 0.4s ease;
-        }
+        #tvScreen .tv-topbar { position: absolute; top: 0; left: 0; right: 0; padding: 20px; display: flex; align-items: center; justify-content: flex-end; background: linear-gradient(to bottom, rgba(0,0,0,0.85), transparent); z-index: 10; pointer-events: none; opacity: 0; transition: opacity 0.4s ease; }
         #tvScreen .tv-topbar > * { pointer-events: auto; }
-        #tvScreen .tv-close-btn {
-            background: transparent; border: none; color: #fff; font-size: 1.8rem;
-            cursor: pointer; display: flex; align-items: center; justify-content: center;
-            transition: 0.2s; width: auto; padding: 0;
-        }
+        #tvScreen .tv-close-btn { background: transparent; border: none; color: #fff; font-size: 1.8rem; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.2s; width: auto; padding: 0; }
         #tvScreen .tv-close-btn:hover { transform: scale(1.15); color: #fdbb2d; }
 
         #tvScreen .tv-content { position: relative; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; }
         #tvPlayerContainer { width: 100%; height: 100%; position: relative; background: #000; display: flex; align-items: center; justify-content: center; }
         #tvPlayerContainer iframe { width: 100% !important; height: 100% !important; pointer-events: none !important; border: none; }
         
-        #tvScreen .tv-bottombar {
-            position: absolute; bottom: 0; left: 0; right: 0; padding: 22px 24px;
-            display: flex; justify-content: space-between; align-items: flex-end;
-            background: linear-gradient(to top, rgba(0,0,0,0.92), transparent);
-            z-index: 10; pointer-events: none; opacity: 0; transition: opacity 0.4s ease; width: 100%;
-        }
+        #tvScreen .tv-bottombar { position: absolute; bottom: 0; left: 0; right: 0; padding: 22px 24px; display: flex; justify-content: space-between; align-items: flex-end; background: linear-gradient(to top, rgba(0,0,0,0.92), transparent); z-index: 10; pointer-events: none; opacity: 0; transition: opacity 0.4s ease; width: 100%; }
         #tvScreen .tv-bottombar > * { pointer-events: auto; }
         #tvScreen .tv-now-playing { display: flex; align-items: center; gap: 12px; color: #fff; flex: 1; }
         #tvScreen .tv-now-label { font-size: 0.75rem; letter-spacing: 1.2px; font-weight: 900; color: #ef4444; white-space: nowrap; display: inline-flex; align-items: center; gap: 6px; }
@@ -903,10 +727,7 @@
         <a href="https://playtronicgames.com.br" target="_blank" class="footer-logo-link">
             <img src="https://i.ibb.co/pjVXNp4P/Playtronic.png" alt="Playtronic Games" class="footer-logo">
         </a>
-        
-        <!-- NOVO SELO 100% LEGAL AQUI -->
         <img src="https://i.ibb.co/TXtSwzv/bbe90bc3-acb4-4258-8fa4-37f1cf976218.png" alt="Selo 100% Legal" class="legal-seal" title="Clique para ampliar">
-        
     </footer>
 </div>
 
@@ -984,6 +805,9 @@
             <label><input type="radio" name="videoMarker" value=""> Nenhum</label>
             <label><input type="radio" name="videoMarker" value="pago"> PAGO</label>
             <label><input type="radio" name="videoMarker" value="ad"> AD</label>
+        </div>
+        <div class="modal-checkbox-row yt-checkbox-row">
+            <label><input type="checkbox" id="videoAbrirNoYoutubeInput"> ↗ Abrir no YouTube (para vídeos que bloqueiam incorporação)</label>
         </div>
         <div class="modal-actions">
             <button class="secondary" id="cancelVideoBtn">Cancelar</button>
@@ -1117,7 +941,6 @@
     </div>
 </div>
 
-<!-- MODAL DE ZOOM DO SELO 100% LEGAL -->
 <div id="legalSealModal" class="modal-overlay">
     <div class="seal-content-wrapper">
         <div class="seal-img-container">
@@ -1294,9 +1117,6 @@
     const ADMIN_EMAIL = ADMIN_EMAILS[0];
     const CF_BASE = 'https://us-central1-playtronic-tv.cloudfunctions.net';
 
-    // ═══════════════════════════════════════════════════════════════
-    // MAPA DE CLASSIFICAÇÃO ANCINE (com fallback 'curta')
-    // ═══════════════════════════════════════════════════════════════
     const CLASSIFICACAO_INFO = {
         curta: { label: 'CURTA', cls: 'tag-curta', titulo: 'Curta-metragem (até 15 min)' },
         media: { label: 'MÉDIA', cls: 'tag-media', titulo: 'Média-metragem (15 a 70 min)' },
@@ -1306,7 +1126,6 @@
         return (v && CLASSIFICACAO_INFO[v]) ? v : 'curta';
     }
 
-    // ============ ESTADO GLOBAL ============
     let currentUser = null;
     let videos = [];
     let currentFilter = '';
@@ -1350,7 +1169,6 @@
     let expandedComments = new Set();
     let replyDrafts = {};
 
-    // ============ PREFERÊNCIAS PERSISTENTES ============
     const CATALOG_PREFS_KEY = 'playtronic_catalog_prefs_v1';
     function loadCatalogPreferences() {
         try {
@@ -1386,7 +1204,6 @@
     let currentAdminTab = 'all';
     let deepLinkProcessed = false;
 
-    // ============ HELPERS ============
     function isAdmin() { return currentUser && ADMIN_EMAILS.includes(currentUser.email); }
     function escapeHtml(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
     function getCardColor(id) {
@@ -1435,7 +1252,21 @@
         return null;
     }
 
-    // ============ VISIBILIDADE / SCROLL ============
+    // ═══════════════════════════════════════════════════════════════
+    // ✅ NOVO HELPER: Abre o vídeo diretamente no YouTube
+    // (usado para vídeos que bloqueiam incorporação externa)
+    // ═══════════════════════════════════════════════════════════════
+    function openYouTubeVideo(video) {
+        if (!video || !video.youtubeId) return;
+        const url = 'https://www.youtube.com/watch?v=' + encodeURIComponent(video.youtubeId);
+        // Abre em nova aba; o usuário pode colocar em tela cheia lá
+        const w = window.open(url, '_blank', 'noopener,noreferrer');
+        if (!w) {
+            // Fallback caso popup seja bloqueado
+            window.location.href = url;
+        }
+    }
+
     function updateSearchVisibility() {
         const searchContainer = document.querySelector('.search-container');
         if (!searchContainer) return;
@@ -1472,9 +1303,6 @@
         window.addEventListener('resize', updateSearchVisibility);
     });
 
-    // ═══════════════════════════════════════════════════════════════
-    // FAB — TV AO VIVO
-    // ═══════════════════════════════════════════════════════════════
     function updateFABVisibility() {
         const fab = document.getElementById('tvFab');
         if (!fab) return;
@@ -1513,10 +1341,10 @@
 
     function isTVReady() {
         if (videos.length === 0) return false;
-        return videos.some(v => Number(v.duracaoSegundos) > 0);
+        // ✅ Vídeos marcados como "Abrir no YouTube" não entram na TV ao Vivo
+        return videos.some(v => !v.abrirNoYoutube && Number(v.duracaoSegundos) > 0);
     }
 
-    // ============ PRESENÇA ============
     function setupPresence(user) {
         if (!user) return;
         const userStatusRef = rtdb.ref('/onlineUsers/' + user.uid);
@@ -1550,7 +1378,6 @@
         }
     });
 
-    // ═══ NOTIFICAÇÕES ═══
     function loadUserNotifications(uid) {
         if (notificationsRef) { notificationsRef.off(); notificationsRef = null; }
         if (!uid) {
@@ -1696,7 +1523,9 @@
             if (video) {
                 closeNotificationsModal();
                 userCard.classList.remove('active');
-                openPlayer(video);
+                // ✅ Respeita o flag abrirNoYoutube
+                if (video.abrirNoYoutube) openYouTubeVideo(video);
+                else openPlayer(video);
             }
         }
     }
@@ -1765,7 +1594,6 @@
         document.body.classList.remove('no-scroll');
     });
 
-    // ============ COMENTÁRIOS ============
     document.getElementById('commentInput').addEventListener('input', (e) => {
         document.getElementById('commentCharCount').textContent = `${e.target.value.length}/500`;
     });
@@ -2274,7 +2102,6 @@
         } catch (e) { alert('Erro ao fixar: ' + e.message); }
     }
 
-    // ============ PAINEL ADMIN: COMENTÁRIOS ============
     document.getElementById('adminCommentsBtn').addEventListener('click', () => {
         adminDropdown.style.display = 'none';
         document.getElementById('adminCommentsModal').classList.add('active');
@@ -2301,6 +2128,8 @@
         document.getElementById('adminCommentsModal').classList.remove('active');
         if (adminCommentsRef) { adminCommentsRef.off(); adminCommentsRef = null; }
         if (deletedCommentsRef) { deletedCommentsRef.off(); deletedCommentsRef = null; }
+        // Moderação de comentários: mantém o player interno mesmo para vídeos "Abrir no YouTube"
+        // para que o admin possa ver comentários. Se o embed falhar, os comentários ainda funcionam.
         openPlayer(video);
     }
     window.viewVideoFromAdmin = viewVideoFromAdmin;
@@ -2539,7 +2368,6 @@
         } catch (e) { alert(e.message); }
     }
 
-    // ============ DOM / ELEMENTOS BASE ============
     const loginBtn = document.getElementById('loginBtn');
     const userInfo = document.getElementById('userInfo');
     const userAvatar = document.getElementById('userAvatar');
@@ -2582,7 +2410,6 @@
         adminDropdown.style.display = adminDropdown.style.display === 'flex' ? 'none' : 'flex';
     });
 
-    // ============ AUTENTICAÇÃO ============
     function registrarUsuarioPlaytronic(user) {
         if (!user) return;
         db.collection('catalog_users').doc(user.uid).set({
@@ -2644,7 +2471,6 @@
         setTimeout(processarDeepLink, 1000);
     });
 
-    // ============ VOTOS / VIEWS ============
     function calcularNotaFromCache(videoId) {
         const data = votesCache[videoId];
         if (!data) return 'N/D';
@@ -2708,7 +2534,6 @@
     document.getElementById('playerLikeBtn').addEventListener('click', () => { if (currentPlayerVideoId) votar(currentPlayerVideoId, 'like'); });
     document.getElementById('playerDislikeBtn').addEventListener('click', () => { if (currentPlayerVideoId) votar(currentPlayerVideoId, 'dislike'); });
 
-    // ============ CATÁLOGO ============
     const catalogGrid = document.getElementById('catalogGrid');
     const loadingMsg = document.getElementById('loadingMsg');
     const emptyState = document.getElementById('emptyState');
@@ -2810,6 +2635,8 @@
         const tags = [];
         if (item.pago) tags.push('<span class="tag tag-pago">PAGO</span>');
         if (item.ad) tags.push('<span class="tag tag-ad">AD</span>');
+        // ✅ Tag indicando que o vídeo abre no YouTube
+        if (item.abrirNoYoutube) tags.push('<span class="tag tag-yt" title="Este vídeo abre no YouTube">↗ YT</span>');
         const classificacao = normalizarClassificacao(item.classificacao);
         const classInfo = CLASSIFICACAO_INFO[classificacao];
         tags.push(`<span class="tag ${classInfo.cls} ancine-tag" title="${classInfo.titulo} — clique para saber mais">${classInfo.label}</span>`);
@@ -2848,12 +2675,25 @@
         }
         const watchBtn = card.querySelector('.watch-btn');
         const isPago = !!item.pago;
-        if (isPago && !catalogSubscription.active) { watchBtn.textContent = '🔒 Assinar para assistir'; watchBtn.classList.add('locked'); }
-        else { watchBtn.textContent = '▶ Assistir'; watchBtn.classList.remove('locked'); }
+        // ✅ Ajusta o texto/label do botão considerando o flag abrirNoYoutube
+        if (isPago && !catalogSubscription.active) {
+            watchBtn.textContent = '🔒 Assinar para assistir';
+            watchBtn.classList.add('locked');
+        } else if (item.abrirNoYoutube) {
+            watchBtn.textContent = '▶ Assistir no YouTube';
+            watchBtn.classList.remove('locked');
+            watchBtn.classList.add('yt-red');
+        } else {
+            watchBtn.textContent = '▶ Assistir';
+            watchBtn.classList.remove('locked');
+            watchBtn.classList.remove('yt-red');
+        }
         watchBtn.addEventListener('click', () => {
             if (isPago && !catalogSubscription.active) { openPixLightbox(); return; }
-            if (!catalogSubscription.active) showAdInterstitial(item);
-            else openPlayer(item);
+            if (!catalogSubscription.active) { showAdInterstitial(item); return; }
+            // ✅ Assinante: decide entre player interno e YouTube
+            if (item.abrirNoYoutube) { openYouTubeVideo(item); return; }
+            openPlayer(item);
         });
         return card;
     }
@@ -2944,7 +2784,6 @@
         catch (err) { alert(err.message); }
     }
 
-    // ============ MODAL VÍDEO (ADMIN) ============
     const videoModal = document.getElementById('videoModal');
     const videoModalTitle = document.getElementById('videoModalTitle');
     const videoModalSub = document.getElementById('videoModalSub');
@@ -2953,6 +2792,7 @@
     const videoProdutoraInput = document.getElementById('videoProdutoraInput');
     const videoAnoInput = document.getElementById('videoAnoInput');
     const videoClassificacaoInput = document.getElementById('videoClassificacaoInput');
+    const videoAbrirNoYoutubeInput = document.getElementById('videoAbrirNoYoutubeInput');
     const urlHint = document.getElementById('urlHint');
     videoUrlInput.addEventListener('input', () => {
         const id = extractYouTubeId(videoUrlInput.value);
@@ -2968,6 +2808,7 @@
             videoModalSub.textContent = 'O vídeo ficará visível para todos os usuários.';
             videoUrlInput.value = ''; videoTitleInput.value = ''; videoProdutoraInput.value = ''; videoAnoInput.value = '';
             videoClassificacaoInput.value = 'curta';
+            videoAbrirNoYoutubeInput.checked = false;
             document.querySelector('input[name="videoMarker"][value=""]').checked = true;
             urlHint.textContent = ''; urlHint.className = 'url-hint';
         } else {
@@ -2978,6 +2819,7 @@
             videoProdutoraInput.value = video.produtora || '';
             videoAnoInput.value = video.ano != null ? String(video.ano) : '';
             videoClassificacaoInput.value = normalizarClassificacao(video.classificacao);
+            videoAbrirNoYoutubeInput.checked = !!video.abrirNoYoutube;
             const currentMarker = video.pago ? 'pago' : (video.ad ? 'ad' : '');
             const markerEl = document.querySelector(`input[name="videoMarker"][value="${currentMarker}"]`);
             if (markerEl) markerEl.checked = true;
@@ -2998,6 +2840,7 @@
         const markerEl = document.querySelector('input[name="videoMarker"]:checked');
         const marker = markerEl ? markerEl.value : '';
         const pago = marker === 'pago', ad = marker === 'ad';
+        const abrirNoYoutube = !!videoAbrirNoYoutubeInput.checked;
         if (!urlRaw) return alert('Informe a URL.');
         if (!titulo) return alert('Informe o título.');
         let ano = null;
@@ -3006,7 +2849,7 @@
         if (!youtubeId) return alert('URL inválida.');
         if (videos.find(v => v.youtubeId === youtubeId && v.key !== editingVideoKey)) return alert('Este vídeo já está cadastrado.');
         try {
-            const payload = { youtubeId, titulo, produtora: produtora || null, ano, pago: !!pago, ad: !!ad, classificacao };
+            const payload = { youtubeId, titulo, produtora: produtora || null, ano, pago: !!pago, ad: !!ad, classificacao, abrirNoYoutube };
             if (videoModalMode === 'add') { payload.order = Date.now(); await rtdb.ref('vod_videos').push().set(payload); }
             else await rtdb.ref('vod_videos/' + editingVideoKey).update(payload);
             closeVideoModal();
@@ -3020,7 +2863,6 @@
     }
     document.getElementById('addVideoBtn').addEventListener('click', () => { adminDropdown.style.display = 'none'; openVideoModal('add'); });
 
-    // ============ PREÇOS ============
     const pricingModal = document.getElementById('pricingModal');
     document.getElementById('pricingBtn').addEventListener('click', async () => {
         adminDropdown.style.display = 'none';
@@ -3062,7 +2904,6 @@
         } catch (e) { alert(e.message); }
     });
 
-    // ============ ANÚNCIOS INTERNOS ============
     function normalizarBanners(raw) {
         if (!raw) return [];
         let arr = Array.isArray(raw) ? raw : Object.values(raw);
@@ -3146,7 +2987,6 @@
         checkCatalogSubscription();
     });
 
-    // ============ DESEMPENHO ============
     const performanceModal = document.getElementById('performanceModal');
     const perfTableContainer = document.getElementById('perfTableContainer');
     const perfSearchInput = document.getElementById('perfSearchInput');
@@ -3308,7 +3148,6 @@
         });
     }
 
-    // ============ ASSINATURA ============
     async function checkCatalogSubscription() {
         if (isSimulatingSub) {
             catalogSubscription = { active: true, expiresAt: Date.now() + (30 * 24 * 60 * 60 * 1000) };
@@ -3454,7 +3293,6 @@
         setTimeout(() => document.getElementById('copyPixBtn').textContent = 'Copiar código', 2000);
     });
 
-    // ============ LIGHTBOX ANCINE ============
     function openAncineLightbox() {
         document.getElementById('ancineLightbox').classList.add('active');
         updateSearchVisibility();
@@ -3473,7 +3311,6 @@
         }
     });
 
-    // ============ LIGHTBOX DO SELO 100% LEGAL ============
     const legalSealImg = document.querySelector('.legal-seal');
     const legalSealModal = document.getElementById('legalSealModal');
     const closeSealModalBtn = document.getElementById('closeSealModalBtn');
@@ -3493,7 +3330,6 @@
         closeSealModalBtn.addEventListener('click', closeSealModal);
         
         legalSealModal.addEventListener('click', (e) => {
-            // Fecha se clicar fora da imagem
             if (e.target === legalSealModal) {
                 closeSealModal();
             }
@@ -3506,7 +3342,6 @@
         });
     }
 
-    // ============ ANÚNCIO PAGO ============
     const insertAdModal = document.getElementById('insertAdModal');
     const adYoutubeHint = document.getElementById('adYoutubeHint');
     const newAdYoutubeUrl = document.getElementById('newAdYoutubeUrl');
@@ -3639,7 +3474,6 @@
         setTimeout(() => document.getElementById('copyAdPixBtn').textContent = 'Copiar código', 2000);
     });
 
-    // ============ MY ADS ============
     const myAdsModal = document.getElementById('myAdsModal');
     const myAdsListContainer = document.getElementById('myAdsListContainer');
     const searchMyAds = document.getElementById('searchMyAds');
@@ -3727,7 +3561,6 @@
         });
     }
 
-    // ============ PLAYER ============
     const playerScreen = document.getElementById('playerScreen');
     const playerWrapper = document.getElementById('playerWrapper');
     const customUI = document.getElementById('customUI');
@@ -3776,8 +3609,11 @@
         document.body.classList.remove('ad-modal-open');
         if (adYtPlayer) { try { adYtPlayer.stopVideo(); adYtPlayer.destroy(); } catch(e){} adYtPlayer = null; }
         clearInterval(adTimerInterval);
+        if (isAdmin()) adminContainer.style.display = 'flex';
         const v = pendingVideo; pendingVideo = null;
-        openPlayer(v);
+        // ✅ Se o vídeo foi marcado para abrir no YouTube, abre lá em vez do player interno
+        if (v.abrirNoYoutube) openYouTubeVideo(v);
+        else openPlayer(v);
     }
     function injectLeftNativeAd() {
         const container = document.getElementById('adNativeLeft');
@@ -3804,7 +3640,11 @@
         container.appendChild(iframe);
     }
     async function showAdInterstitial(video) {
-        if (catalogSubscription.active) { openPlayer(video); return; }
+        if (catalogSubscription.active) {
+            // Assinante não vê anúncio — vai direto para o destino
+            if (video.abrirNoYoutube) { openYouTubeVideo(video); return; }
+            openPlayer(video); return;
+        }
         closeAdBtn.disabled = true; closeAdBtn.classList.remove('active');
         if (adTimerInterval) clearInterval(adTimerInterval);
         if (isAdmin()) adminContainer.style.display = 'none';
@@ -3815,7 +3655,9 @@
         } catch (e) {}
         if (activePaidAds.length === 0 && adBanners.length === 0 && !video.ad) {
             if (isAdmin()) adminContainer.style.display = 'flex';
-            openPlayer(video);
+            // ✅ Sem anúncio para mostrar: abre destino diretamente
+            if (video.abrirNoYoutube) openYouTubeVideo(video);
+            else openPlayer(video);
             return;
         }
         pendingVideo = video;
@@ -4130,7 +3972,6 @@
         }, 500);
     }
 
-    // ============ COMPARTILHAMENTO (DEEP LINK SEGURO) ============
     function compartilharVideo(videoKey) {
         if (!videoKey) return;
         const url = window.location.origin + window.location.pathname + '#video=' + videoKey;
@@ -4181,8 +4022,6 @@
         const hash = window.location.hash;
         if (hash && hash.startsWith('#video=')) {
             const identifier = hash.replace('#video=', '');
-            
-            // Prioriza a Chave do Firebase (segura) e tenta o ID do YouTube como fallback (compatibilidade)
             let video = videos.find(v => v.key === identifier);
             if (!video) video = videos.find(v => v.youtubeId === identifier);
             
@@ -4195,6 +4034,9 @@
                 } 
                 else if (!catalogSubscription.active) {
                     showAdInterstitial(video);
+                } 
+                else if (video.abrirNoYoutube) {
+                    openYouTubeVideo(video);
                 } 
                 else {
                     openPlayer(video);
@@ -4228,7 +4070,8 @@
 
     function buildTVPlaylist() {
         return videos
-            .filter(v => Number(v.duracaoSegundos) > 15 && /^[a-zA-Z0-9_-]{11}$/.test(v.youtubeId || ''))
+            // ✅ Exclui vídeos marcados como "Abrir no YouTube" da playlist ao vivo
+            .filter(v => !v.abrirNoYoutube && Number(v.duracaoSegundos) > 15 && /^[a-zA-Z0-9_-]{11}$/.test(v.youtubeId || ''))
             .sort((a, b) => {
                 const orderA = a.order || 0;
                 const orderB = b.order || 0;
@@ -4460,7 +4303,6 @@
     document.getElementById('tvFullscreenBtn')?.addEventListener('click', toggleTVFullscreen);
     document.getElementById('tvUnmuteBtn')?.addEventListener('click', startTVPlayback);
 
-    // ============ INICIALIZAÇÃO ============
     loadCustomAds();
 </script>
 </body>
