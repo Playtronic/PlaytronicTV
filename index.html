@@ -1167,28 +1167,21 @@
     let expandedComments = new Set();
     let replyDrafts = {};
 
-    /* ⬇️ NOVO — WATCH STATUS (painel Desempenho) ⬇️ */
-    let watchStatusCache = {};         // { uid: { state, videoId, videoTitle, position, duration, updatedAt, lastWatchedVideoId, lastWatchedTitle, playerType } }
+    /* ⬇️ WATCH STATUS (painel Desempenho) ⬇️ */
+    let watchStatusCache = {};
     let watchStatusListener = null;
     let watchStatusHeartbeat = null;
+    let watchStatusTicker = null;
 
     function reportWatchStatus(state) {
         if (!currentUser) return;
-        const video = currentPlayerVideoId
-            ? videos.find(v => v.youtubeId === currentPlayerVideoId)
-            : null;
-
+        const video = currentPlayerVideoId ? videos.find(v => v.youtubeId === currentPlayerVideoId) : null;
         let pos = 0, dur = 0;
         if (player && playerReady && typeof player.getCurrentTime === 'function') {
             try { pos = Math.floor(player.getCurrentTime() || 0); } catch (e) {}
             try { dur = Math.floor(player.getDuration() || 0); } catch (e) {}
         }
-
-        const payload = {
-            state,
-            updatedAt: firebase.database.ServerValue.TIMESTAMP
-        };
-
+        const payload = { state, updatedAt: firebase.database.ServerValue.TIMESTAMP };
         if (video) {
             Object.assign(payload, {
                 videoId: currentPlayerVideoId,
@@ -1200,18 +1193,9 @@
                 lastWatchedTitle: video.titulo || ''
             });
         } else if (state === 'none') {
-            Object.assign(payload, {
-                videoId: null,
-                videoTitle: null,
-                position: 0,
-                duration: 0,
-                playerType: null
-            });
+            Object.assign(payload, { videoId: null, videoTitle: null, position: 0, duration: 0, playerType: null });
         }
-
-        rtdb.ref('vod_watch_status/' + currentUser.uid)
-            .update(payload)
-            .catch(() => {});
+        rtdb.ref('vod_watch_status/' + currentUser.uid).update(payload).catch(() => {});
     }
 
     function reportTVStatus(state, title) {
@@ -1227,24 +1211,17 @@
             lastWatchedVideoId: '_live_tv_',
             lastWatchedTitle: 'TV ao Vivo'
         };
-        rtdb.ref('vod_watch_status/' + currentUser.uid)
-            .update(payload)
-            .catch(() => {});
+        rtdb.ref('vod_watch_status/' + currentUser.uid).update(payload).catch(() => {});
     }
 
     function startWatchStatusHeartbeat() {
         if (watchStatusHeartbeat) return;
         watchStatusHeartbeat = setInterval(() => {
-            if (isPlaying && playerReady && currentPlayerVideoId) {
-                reportWatchStatus('playing');
-            }
-        }, 15000);
+            if (isPlaying && playerReady && currentPlayerVideoId) reportWatchStatus('playing');
+        }, 10000);
     }
     function stopWatchStatusHeartbeat() {
-        if (watchStatusHeartbeat) {
-            clearInterval(watchStatusHeartbeat);
-            watchStatusHeartbeat = null;
-        }
+        if (watchStatusHeartbeat) { clearInterval(watchStatusHeartbeat); watchStatusHeartbeat = null; }
     }
 
     function startWatchStatusListener() {
@@ -1259,10 +1236,38 @@
         });
     }
     function stopWatchStatusListener() {
-        if (watchStatusListener) {
-            watchStatusListener.off();
-            watchStatusListener = null;
-        }
+        stopWatchStatusTicker();
+        if (watchStatusListener) { watchStatusListener.off(); watchStatusListener = null; }
+    }
+
+    function getServerNowMs() {
+        try { return Date.now() + (tvServerOffset || 0); } catch (e) { return Date.now(); }
+    }
+    function formatLiveWatchPos(pos, dur) {
+        return (dur && dur > 0) ? formatTime(pos) + ' / ' + formatTime(dur) : formatTime(pos);
+    }
+    function updateWatchPositionsTick() {
+        const container = document.getElementById('subsListContainer');
+        if (!container) return;
+        const now = getServerNowMs();
+        container.querySelectorAll('.watch-pos-live[data-state="playing"]').forEach(el => {
+            const basePos = parseInt(el.getAttribute('data-base-pos')) || 0;
+            const baseTs  = parseInt(el.getAttribute('data-base-ts'))  || 0;
+            const dur     = parseInt(el.getAttribute('data-dur'))      || 0;
+            if (!baseTs) return;
+            const elapsed = Math.floor((now - baseTs) / 1000);
+            if (elapsed > 20) { el.textContent = formatLiveWatchPos(basePos, dur); return; }
+            let pos = Math.max(0, basePos + elapsed);
+            if (dur > 0 && pos > dur) pos = dur;
+            el.textContent = formatLiveWatchPos(pos, dur);
+        });
+    }
+    function startWatchStatusTicker() {
+        if (watchStatusTicker) return;
+        watchStatusTicker = setInterval(updateWatchPositionsTick, 1000);
+    }
+    function stopWatchStatusTicker() {
+        if (watchStatusTicker) { clearInterval(watchStatusTicker); watchStatusTicker = null; }
     }
 
     function renderWatchStatusHTML(uid) {
@@ -1272,15 +1277,16 @@
 
         if (isOnline && s && s.updatedAt && (Date.now() - s.updatedAt < FRESH_MS)) {
             const title = escapeHtml(s.videoTitle || s.videoId || '');
-            const timeStr = (s.position && s.duration)
-                ? ` • ${formatTime(s.position)} / ${formatTime(s.duration)}`
-                : '';
-
             if (s.state === 'playing') {
-                return `<div style="font-size:0.72rem;color:#22c55e;margin-top:3px;">▶ <b>Assistindo:</b> ${title}${timeStr}</div>`;
+                /* ⬇️ P19 — tratamento específico para vídeos externos (YouTube) */
+                if (s.playerType === 'youtube_external') {
+                    return `<div style="font-size:0.72rem;color:#22c55e;margin-top:3px;">▶ <b>Assistindo no YouTube:</b> ${title}</div>`;
+                }
+                const basePos = s.position || 0, dur = s.duration || 0;
+                return `<div style="font-size:0.72rem;color:#22c55e;margin-top:3px;">▶ <b>Assistindo:</b> ${title} • <span class="watch-pos-live" data-state="playing" data-base-pos="${basePos}" data-base-ts="${s.updatedAt}" data-dur="${dur}">${formatLiveWatchPos(basePos, dur)}</span></div>`;
             }
             if (s.state === 'paused') {
-                return `<div style="font-size:0.72rem;color:#f59e0b;margin-top:3px;">⏸ <b>Pausado em:</b> ${title}${timeStr}</div>`;
+                return `<div style="font-size:0.72rem;color:#f59e0b;margin-top:3px;">⏸ <b>Pausado em:</b> ${title} • ${formatLiveWatchPos(s.position || 0, s.duration || 0)}</div>`;
             }
             if (s.state === 'ended') {
                 return `<div style="font-size:0.72rem;color:#94a3b8;margin-top:3px;">⏹ <b>Finalizado:</b> ${title}</div>`;
@@ -1295,7 +1301,59 @@
 
         return `<div style="font-size:0.72rem;color:#475569;margin-top:3px;">⚫ Nenhum vídeo em execução</div>`;
     }
-    /* ⬆️ NOVO — fim do bloco WATCH STATUS ⬆️ */
+    /* ⬆️ fim do bloco WATCH STATUS ⬆️ */
+
+    /* ⬇️ EXTERNAL WATCH (vídeos que abrem no YouTube) ⬇️ */
+    let externalWatchHeartbeat = null;
+    let _externalWatchActive = false;
+    let _externalWatchSetupDone = false;
+
+    function reportExternalWatch(video) {
+        if (!currentUser || !video || !video.youtubeId) return;
+        _externalWatchActive = true;
+        const payload = {
+            state: 'playing',
+            playerType: 'youtube_external',
+            videoId: video.youtubeId,
+            videoTitle: video.titulo || '',
+            updatedAt: firebase.database.ServerValue.TIMESTAMP,
+            lastWatchedVideoId: video.youtubeId,
+            lastWatchedTitle: video.titulo || ''
+        };
+        rtdb.ref('vod_watch_status/' + currentUser.uid).update(payload).catch(() => {});
+        if (externalWatchHeartbeat) clearInterval(externalWatchHeartbeat);
+        externalWatchHeartbeat = setInterval(() => {
+            if (!currentUser || !_externalWatchActive) return;
+            rtdb.ref('vod_watch_status/' + currentUser.uid).update({
+                state: 'playing',
+                updatedAt: firebase.database.ServerValue.TIMESTAMP
+            }).catch(() => {});
+        }, 60000);
+        setTimeout(() => {
+            if (_externalWatchActive && !document.hidden) {
+                _externalWatchActive = false;
+                if (externalWatchHeartbeat) { clearInterval(externalWatchHeartbeat); externalWatchHeartbeat = null; }
+                reportWatchStatus('none');
+            }
+        }, 3 * 60 * 1000);
+    }
+
+    function setupExternalWatchListener() {
+        if (_externalWatchSetupDone) return;
+        _externalWatchSetupDone = true;
+        document.addEventListener('visibilitychange', () => {
+            if (document.hidden) return;
+            if (!_externalWatchActive) return;
+            _externalWatchActive = false;
+            if (externalWatchHeartbeat) { clearInterval(externalWatchHeartbeat); externalWatchHeartbeat = null; }
+            setTimeout(() => {
+                if (!document.hidden && !_externalWatchActive) {
+                    reportWatchStatus('none');
+                }
+            }, 1500);
+        });
+    }
+    /* ⬆️ fim do bloco EXTERNAL WATCH ⬆️ */
 
     const CATALOG_PREFS_KEY = 'playtronic_catalog_prefs_v1';
     function loadCatalogPreferences() {
@@ -1380,8 +1438,11 @@
         return null;
     }
 
+    /* ⬇️ P18 — reporta antes de abrir a aba do YouTube */
     function openYouTubeVideo(video) {
         if (!video || !video.youtubeId) return;
+        setupExternalWatchListener();
+        reportExternalWatch(video);
         const url = 'https://www.youtube.com/watch?v=' + encodeURIComponent(video.youtubeId);
         const a = document.createElement('a');
         a.href = url;
@@ -2517,6 +2578,7 @@
         if (currentUser) {
             rtdb.ref('/onlineUsers/' + currentUser.uid).remove();
             rtdb.ref('/vod_watch_status/' + currentUser.uid).remove();
+            if (externalWatchHeartbeat) { clearInterval(externalWatchHeartbeat); externalWatchHeartbeat = null; }
             if (presenceInterval) { clearInterval(presenceInterval); presenceInterval = null; }
         }
         auth.signOut().then(() => window.location.reload());
@@ -3125,11 +3187,13 @@
     tabVideosBtn.addEventListener('click', () => {
         tabVideosBtn.classList.add('active'); tabSubsBtn.classList.remove('active');
         viewVideos.style.display = 'flex'; viewSubs.style.display = 'none';
+        stopWatchStatusTicker();
         renderPerformanceTable();
     });
     tabSubsBtn.addEventListener('click', () => {
         tabSubsBtn.classList.add('active'); tabVideosBtn.classList.remove('active');
         viewVideos.style.display = 'none'; viewSubs.style.display = 'flex';
+        startWatchStatusTicker();
         renderSubsList();
     });
     if (perfSearchInput) perfSearchInput.addEventListener('input', renderPerformanceTable);
@@ -3971,17 +4035,14 @@
             }
             playerLoadingOverlay.classList.add('hidden');
             showControls();
-            /* ⬇️ NOVO */
             reportWatchStatus('playing');
             startWatchStatusHeartbeat();
         } else if (event.data === 2) {
             isPlaying = false; setPlayPauseVisual(false); showControls();
-            /* ⬇️ NOVO */
             reportWatchStatus('paused');
             stopWatchStatusHeartbeat();
         } else if (event.data === 0) {
             isPlaying = false; isEnded = true; setPlayPauseVisual(false); showControls(); playerLoadingOverlay.classList.add('hidden');
-            /* ⬇️ NOVO */
             reportWatchStatus('ended');
             stopWatchStatusHeartbeat();
         } else if (event.data === 3) {
@@ -4068,7 +4129,6 @@
         playerVideoTitle.textContent = '';
         playerLoadingOverlay.classList.remove('hidden');
         if (isAdmin()) adminContainer.style.display = 'flex';
-        /* ⬇️ NOVO */
         stopWatchStatusHeartbeat();
         reportWatchStatus('none');
         closeComments();
@@ -4286,7 +4346,6 @@
         _tvReloadCount = 0;
         _tvLastReloadTime = 0;
         if (document.fullscreenElement) document.exitFullscreen().catch(()=>{});
-        /* ⬇️ NOVO */
         if (currentUser) reportWatchStatus('none');
         document.getElementById('tvScreen').classList.remove('active');
         document.body.classList.remove('no-scroll');
@@ -4370,7 +4429,6 @@
                     ev.target.playVideo();
                     ev.target.setVolume(tvCurrentVolume);
                     updateTVVolumeUI(tvCurrentVolume);
-                    /* ⬇️ NOVO */
                     reportTVStatus('playing', pos.video.titulo || 'TV ao Vivo');
                 },
                 onStateChange: (event) => {
