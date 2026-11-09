@@ -587,6 +587,8 @@
             #tvScreen .tv-topbar { padding: 10px 12px; }
             #tvScreen .tv-bottombar { padding: 14px 16px; }
             #tvScreen .tv-now-title { font-size: 0.88rem; }
+            .perf-tabs { flex-wrap: wrap; }
+            .perf-tab-btn { font-size: 0.8rem; min-width: 90px; }
         }
 
         @media (max-width: 900px) and (orientation: portrait) {
@@ -845,18 +847,22 @@
     </div>
 </div>
 
+<!-- ═══════════════ PERFORMANCE MODAL (agora com aba de Comentários) ═══════════════ -->
 <div class="modal-overlay" id="performanceModal">
     <div class="modal flex-modal" style="max-width: 950px;">
         <h2>📈 Desempenho</h2>
         <div class="perf-tabs">
             <button id="tabVideosBtn" class="perf-tab-btn active">Vídeos</button>
             <button id="tabSubsBtn" class="perf-tab-btn">Assinantes Ativos</button>
+            <button id="tabCommentsBtn" class="perf-tab-btn">💬 Comentários</button>
         </div>
         <div class="modal-scroll" style="display: flex; flex-direction: column;">
+            <!-- ── Vídeos ── -->
             <div id="viewVideos" style="flex: 1; display: flex; flex-direction: column;">
                 <div class="perf-search-container"><input type="text" id="perfSearchInput" placeholder="Buscar por título do vídeo..."></div>
                 <div id="perfTableContainer" style="flex: 1; overflow-y: auto; border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; margin-top: 10px;"></div>
             </div>
+            <!-- ── Assinantes ── -->
             <div id="viewSubs" style="display: none; flex: 1; flex-direction: column;">
                 <div style="display: flex; gap: 10px; align-items: center; flex-shrink: 0; margin-bottom: 10px; flex-wrap: wrap;">
                     <div style="color: #fdbb2d; font-weight: 700; font-size: 0.88rem; display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
@@ -872,22 +878,18 @@
                 </div>
                 <div id="subsListContainer" style="flex: 1; overflow-y: auto; background: rgba(0,0,0,0.2); border-radius: 8px; padding: 10px; border: 1px solid rgba(255,255,255,0.05);"></div>
             </div>
+            <!-- ── Comentários (movido do modal separado) ── -->
+            <div id="viewComments" style="display: none; flex: 1; flex-direction: column;">
+                <div class="admin-tabs" style="flex-shrink: 0;">
+                    <button class="admin-tab-btn active" data-tab="all">Todos</button>
+                    <button class="admin-tab-btn" data-tab="reported">Denunciados</button>
+                    <button class="admin-tab-btn" data-tab="deleted">Removidos</button>
+                    <button class="admin-tab-btn" data-tab="blocked">Bloqueados/Banidos</button>
+                </div>
+                <div id="adminCommentsListContainer" style="flex: 1; overflow-y: auto; padding-right: 5px;"></div>
+            </div>
         </div>
         <div class="modal-actions"><button class="secondary" id="closePerformanceBtn">Fechar</button></div>
-    </div>
-</div>
-
-<div class="modal-overlay" id="adminCommentsModal">
-    <div class="modal flex-modal" style="max-width: 900px;">
-        <h2>💬 Gerenciar Comentários</h2>
-        <div class="admin-tabs">
-            <button class="admin-tab-btn active" data-tab="all">Todos</button>
-            <button class="admin-tab-btn" data-tab="reported">Denunciados</button>
-            <button class="admin-tab-btn" data-tab="deleted">Removidos</button>
-            <button class="admin-tab-btn" data-tab="blocked">Bloqueados/Banidos</button>
-        </div>
-        <div class="modal-scroll" id="adminCommentsListContainer" style="flex: 1; overflow-y: auto; padding-right: 5px;"></div>
-        <div class="modal-actions"><button class="secondary" id="closeAdminCommentsBtn">Fechar</button></div>
     </div>
 </div>
 
@@ -1237,6 +1239,7 @@
     }
     function stopWatchStatusListener() {
         stopWatchStatusTicker();
+        stopSubsOnlineTicker();
         if (watchStatusListener) { watchStatusListener.off(); watchStatusListener = null; }
     }
 
@@ -1270,6 +1273,26 @@
         if (watchStatusTicker) { clearInterval(watchStatusTicker); watchStatusTicker = null; }
     }
 
+    /* ⬇️ TICKER PARA RE-RENDER ONLINE-FIRST (novo) ⬇️ */
+    let subsOnlineTicker = null;
+    function startSubsOnlineTicker() {
+        if (subsOnlineTicker) return;
+        subsOnlineTicker = setInterval(() => {
+            const perfModal = document.getElementById('performanceModal');
+            const viewSubsEl = document.getElementById('viewSubs');
+            const container = document.getElementById('subsListContainer');
+            if (!perfModal || !perfModal.classList.contains('active')) return;
+            if (!viewSubsEl || viewSubsEl.style.display === 'none') return;
+            if (!container) return;
+            const scrollTop = container.scrollTop;
+            renderSubsList();
+            container.scrollTop = scrollTop;
+        }, 30000);
+    }
+    function stopSubsOnlineTicker() {
+        if (subsOnlineTicker) { clearInterval(subsOnlineTicker); subsOnlineTicker = null; }
+    }
+
     function renderWatchStatusHTML(uid) {
         const s = watchStatusCache[uid];
         const isOnline = checkIsOnline(uid);
@@ -1278,7 +1301,6 @@
         if (isOnline && s && s.updatedAt && (Date.now() - s.updatedAt < FRESH_MS)) {
             const title = escapeHtml(s.videoTitle || s.videoId || '');
             if (s.state === 'playing') {
-                /* ⬇️ P19 — tratamento específico para vídeos externos (YouTube) */
                 if (s.playerType === 'youtube_external') {
                     return `<div style="font-size:0.72rem;color:#22c55e;margin-top:3px;">▶ <b>Assistindo no YouTube:</b> ${title}</div>`;
                 }
@@ -1301,7 +1323,6 @@
 
         return `<div style="font-size:0.72rem;color:#475569;margin-top:3px;">⚫ Nenhum vídeo em execução</div>`;
     }
-    /* ⬆️ fim do bloco WATCH STATUS ⬆️ */
 
     /* ⬇️ EXTERNAL WATCH (vídeos que abrem no YouTube) ⬇️ */
     let externalWatchHeartbeat = null;
@@ -1353,7 +1374,6 @@
             }, 1500);
         });
     }
-    /* ⬆️ fim do bloco EXTERNAL WATCH ⬆️ */
 
     const CATALOG_PREFS_KEY = 'playtronic_catalog_prefs_v1';
     function loadCatalogPreferences() {
@@ -1438,7 +1458,6 @@
         return null;
     }
 
-    /* ⬇️ P18 — reporta antes de abrir a aba do YouTube */
     function openYouTubeVideo(video) {
         if (!video || !video.youtubeId) return;
         setupExternalWatchListener();
@@ -2287,16 +2306,270 @@
         } catch (e) { alert('Erro ao fixar: ' + e.message); }
     }
 
+    /* ══════════════════════════════════════════════════════════════════════
+       MODAL DE DESEMPENHO (agora com aba de Comentários integrada)
+       ══════════════════════════════════════════════════════════════════════ */
+
+    const performanceModal = document.getElementById('performanceModal');
+    const perfTableContainer = document.getElementById('perfTableContainer');
+    const perfSearchInput = document.getElementById('perfSearchInput');
+    const tabVideosBtn = document.getElementById('tabVideosBtn');
+    const tabSubsBtn = document.getElementById('tabSubsBtn');
+    const tabCommentsBtn = document.getElementById('tabCommentsBtn');
+    const viewVideos = document.getElementById('viewVideos');
+    const viewSubs = document.getElementById('viewSubs');
+    const viewComments = document.getElementById('viewComments');
+    const subsListContainer = document.getElementById('subsListContainer');
+    const subsFilterSelect = document.getElementById('subsFilterSelect');
+    const subsTotalCount = document.getElementById('subsTotalCount');
+    const subsActiveCount = document.getElementById('subsActiveCount');
+    const subsOnlineCount = document.getElementById('subsOnlineCount');
+
+    function resetPerfTabs() {
+        tabVideosBtn.classList.remove('active');
+        tabSubsBtn.classList.remove('active');
+        tabCommentsBtn.classList.remove('active');
+        viewVideos.style.display = 'none';
+        viewSubs.style.display = 'none';
+        viewComments.style.display = 'none';
+    }
+
+    function openPerformanceModal(initialTab) {
+        performanceModal.classList.add('active');
+        startWatchStatusListener();
+        resetPerfTabs();
+        if (perfSearchInput) perfSearchInput.value = '';
+        if (subsFilterSelect) subsFilterSelect.value = 'all';
+        loadActiveSubscribers();
+        if (initialTab === 'comments') {
+            tabCommentsBtn.classList.add('active');
+            viewComments.style.display = 'flex';
+            stopWatchStatusTicker();
+            stopSubsOnlineTicker();
+            loadAdminComments();
+        } else if (initialTab === 'subs') {
+            tabSubsBtn.classList.add('active');
+            viewSubs.style.display = 'flex';
+            startWatchStatusTicker();
+            startSubsOnlineTicker();
+            renderSubsList();
+        } else {
+            tabVideosBtn.classList.add('active');
+            viewVideos.style.display = 'flex';
+            stopWatchStatusTicker();
+            stopSubsOnlineTicker();
+            renderPerformanceTable();
+        }
+    }
+
+    function closePerformanceModal() {
+        performanceModal.classList.remove('active');
+        stopWatchStatusListener();
+        stopWatchStatusTicker();
+        stopSubsOnlineTicker();
+        if (adminCommentsRef) { adminCommentsRef.off(); adminCommentsRef = null; }
+        if (deletedCommentsRef) { deletedCommentsRef.off(); deletedCommentsRef = null; }
+    }
+
+    document.getElementById('performanceBtn').addEventListener('click', () => {
+        adminDropdown.style.display = 'none';
+        openPerformanceModal('videos');
+    });
+
     document.getElementById('adminCommentsBtn').addEventListener('click', () => {
         adminDropdown.style.display = 'none';
-        document.getElementById('adminCommentsModal').classList.add('active');
+        openPerformanceModal('comments');
+    });
+
+    document.getElementById('closePerformanceBtn').addEventListener('click', closePerformanceModal);
+    performanceModal.addEventListener('click', (e) => {
+        if (e.target === performanceModal) closePerformanceModal();
+    });
+
+    tabVideosBtn.addEventListener('click', () => {
+        resetPerfTabs();
+        tabVideosBtn.classList.add('active');
+        viewVideos.style.display = 'flex';
+        stopWatchStatusTicker();
+        stopSubsOnlineTicker();
+        renderPerformanceTable();
+    });
+    tabSubsBtn.addEventListener('click', () => {
+        resetPerfTabs();
+        tabSubsBtn.classList.add('active');
+        viewSubs.style.display = 'flex';
+        startWatchStatusTicker();
+        startSubsOnlineTicker();
+        renderSubsList();
+    });
+    tabCommentsBtn.addEventListener('click', () => {
+        resetPerfTabs();
+        tabCommentsBtn.classList.add('active');
+        viewComments.style.display = 'flex';
+        stopWatchStatusTicker();
+        stopSubsOnlineTicker();
         loadAdminComments();
     });
-    document.getElementById('closeAdminCommentsBtn').addEventListener('click', () => {
-        document.getElementById('adminCommentsModal').classList.remove('active');
-        if (adminCommentsRef) adminCommentsRef.off();
-        if (deletedCommentsRef) deletedCommentsRef.off();
-    });
+
+    if (perfSearchInput) perfSearchInput.addEventListener('input', renderPerformanceTable);
+    if (subsFilterSelect) subsFilterSelect.addEventListener('change', renderSubsList);
+
+    async function loadActiveSubscribers() {
+        try {
+            const token = await currentUser.getIdToken();
+            const r = await fetch(CF_BASE + '/getAllUsersWithSubscriptions', { headers: { Authorization: 'Bearer ' + token } });
+            const data = await r.json();
+            if (data.success) {
+                allUsersList = data.users || [];
+                allUsersTotalCount = data.total || 0;
+                allUsersActiveCount = data.activeSubscribers || 0;
+                updateOnlineCountDisplay();
+                if (tabSubsBtn.classList.contains('active')) renderSubsList();
+            }
+        } catch (e) { console.warn(e); }
+    }
+    function formatPlanLabel(planId) {
+        return ({ monthly: '30 dias', quarterly: '3 meses', semiannual: '6 meses', annual: '1 ano' })[planId] || planId || '—';
+    }
+    function formatLastSignIn(iso) {
+        if (!iso) return 'Nunca';
+        const ms = Date.parse(iso);
+        if (!ms) return 'Nunca';
+        return new Date(ms).toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+    }
+
+    function renderSubsList() {
+        if (!subsListContainer) return;
+        if (subsTotalCount) subsTotalCount.textContent = allUsersTotalCount.toLocaleString('pt-BR');
+        if (subsActiveCount) subsActiveCount.textContent = allUsersActiveCount.toLocaleString('pt-BR');
+        if (allUsersList.length === 0) { subsListContainer.innerHTML = '<div class="perf-empty">Nenhum usuário.</div>'; return; }
+        const filter = subsFilterSelect ? subsFilterSelect.value : 'all';
+        const filtered = allUsersList.filter(u => {
+            if (filter === 'active')   return u.isSubscriber;
+            if (filter === 'inactive') return !u.isSubscriber;
+            if (filter === 'watching') {
+                const s = watchStatusCache[u.uid];
+                const isOnline = checkIsOnline(u.uid);
+                const FRESH_MS = 3 * 60 * 1000;
+                return isOnline && s && ['playing','paused','ended'].includes(s.state)
+                    && s.updatedAt && (Date.now() - s.updatedAt < FRESH_MS);
+            }
+            return true;
+        });
+
+        /* ⬇️ NOVO: ONLINE-FIRST (sort estável, mantém ordem original dentro de cada grupo) ⬇️ */
+        filtered.sort((a, b) => {
+            const aOnline = checkIsOnline(a.uid);
+            const bOnline = checkIsOnline(b.uid);
+            if (aOnline && !bOnline) return -1;
+            if (!aOnline && bOnline) return 1;
+            return 0;
+        });
+        /* ⬆️ FIM DO ONLINE-FIRST ⬆️ */
+
+        if (filtered.length === 0) { subsListContainer.innerHTML = '<div class="perf-empty">Nenhum usuário com esse filtro.</div>'; return; }
+        const now = Date.now();
+        subsListContainer.innerHTML = filtered.map(u => {
+            const isOnline = checkIsOnline(u.uid);
+            const avatarUrl = u.photoURL || 'https://www.gravatar.com/avatar/?d=mp';
+            let rightSide;
+            if (u.isSubscriber) {
+                const daysLeft = Math.max(0, Math.ceil((u.expiresAt - now) / (1000 * 60 * 60 * 24)));
+                const expDate = new Date(u.expiresAt).toLocaleDateString('pt-BR');
+                rightSide = `<div style="display: flex; flex-direction: column; align-items: flex-end; gap: 4px; flex-shrink: 0;">
+                    <div style="color: #22c55e; font-weight: bold; background: rgba(34,197,94,0.15); padding: 4px 10px; border-radius: 12px; font-size: 0.75rem; border: 1px solid rgba(34,197,94,0.3); white-space: nowrap;">⭐ ${escapeHtml(formatPlanLabel(u.planId))}</div>
+                    <div style="color: #94a3b8; font-size: 0.7rem; text-align: right;">${daysLeft}d rest. • Vence: ${expDate}</div>
+                </div>`;
+            } else {
+                rightSide = `<div style="color: #94a3b8; font-weight: bold; background: rgba(148,163,184,0.1); padding: 4px 10px; border-radius: 12px; font-size: 0.75rem; border: 1px solid rgba(148,163,184,0.2); white-space: nowrap; flex-shrink: 0;">Não assinante</div>`;
+            }
+            return `
+                <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px; border-bottom: 1px solid rgba(255,255,255,0.05); gap: 12px; ${isOnline ? 'background: rgba(34,197,94,0.05); border-left: 3px solid #22c55e;' : ''}">
+                    <div style="display: flex; align-items: center; gap: 12px; min-width: 0; flex: 1;">
+                        <div style="position: relative; flex-shrink: 0;">
+                            <img src="${escapeHtml(avatarUrl)}" style="width: 42px; height: 42px; border-radius: 50%; object-fit: cover; border: 1px solid rgba(255,255,255,0.1);">
+                            ${isOnline ? `<span style="position: absolute; bottom: 0; right: 0; width: 12px; height: 12px; background: #22c55e; border-radius: 50%; border: 2px solid #152961;" title="Online"></span>` : ''}
+                        </div>
+                        <div style="min-width: 0; flex: 1;">
+                            <div style="color: #fff; font-weight: bold; font-size: 0.9rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${escapeHtml(u.name || '(sem nome)')}${isOnline ? ' <span style="color:#22c55e;font-size:0.7rem;">(Online)</span>' : ''}</div>
+                            <div style="color: #94a3b8; font-size: 0.75rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${escapeHtml(u.email || '(sem e-mail)')}</div>
+                            <div style="color: #64748b; font-size: 0.7rem; margin-top: 3px;">🕓 Último login: ${escapeHtml(formatLastSignIn(u.lastSignIn))}</div>
+                            ${renderWatchStatusHTML(u.uid)}
+                        </div>
+                    </div>
+                    ${rightSide}
+                </div>
+            `;
+        }).join('');
+    }
+
+    function getPerfSortValue(item, field) {
+        if (field === 'titulo') return item.titulo || '';
+        if (field === 'publishedAt') return item.publishedAt || 0;
+        if (field === 'views') return item.views || 0;
+        if (field === 'likes') return item.likes || 0;
+        if (field === 'dislikes') return item.dislikes || 0;
+        if (field === 'nota') return item.nota === 'N/D' ? -1 : parseFloat(item.nota);
+        return 0;
+    }
+    function renderPerformanceTable() {
+        if (!perfTableContainer) return;
+        if (!videos || videos.length === 0) { perfTableContainer.innerHTML = '<div class="perf-empty">Nenhum vídeo cadastrado.</div>'; return; }
+        const searchTerm = (perfSearchInput ? perfSearchInput.value : '').toLowerCase().trim();
+        let filtered = searchTerm ? videos.filter(v => (v.titulo || '').toLowerCase().includes(searchTerm)) : videos;
+        if (filtered.length === 0) { perfTableContainer.innerHTML = `<div class="perf-empty">Nenhum vídeo encontrado.</div>`; return; }
+        const data = filtered.map(v => ({
+            youtubeId: v.youtubeId, titulo: v.titulo || '(Sem título)', publishedAt: v.order || 0,
+            views: viewsCache[v.youtubeId] || 0,
+            likes: (votesCache[v.youtubeId] || {}).likes || 0,
+            dislikes: (votesCache[v.youtubeId] || {}).dislikes || 0,
+            nota: calcularNotaFromCache(v.youtubeId)
+        }));
+        const field = perfSortField, order = perfSortOrder;
+        data.sort((a, b) => {
+            const av = getPerfSortValue(a, field), bv = getPerfSortValue(b, field);
+            const cmp = field === 'titulo' ? av.localeCompare(bv) : av - bv;
+            return order === 'asc' ? cmp : -cmp;
+        });
+        const arrow = f => field === f ? (order === 'asc' ? ' ▲' : ' ▼') : '';
+        perfTableContainer.innerHTML = `
+            <table class="perf-table">
+                <thead><tr>
+                    <th></th>
+                    <th data-sort="titulo">Título${arrow('titulo')}</th>
+                    <th data-sort="publishedAt">Publicado${arrow('publishedAt')}</th>
+                    <th data-sort="views">Views${arrow('views')}</th>
+                    <th data-sort="likes">Likes${arrow('likes')}</th>
+                    <th data-sort="dislikes">Dislikes${arrow('dislikes')}</th>
+                    <th data-sort="nota">Nota${arrow('nota')}</th>
+                </tr></thead>
+                <tbody>${data.map(v => `
+                    <tr>
+                        <td><img class="perf-thumb" src="https://img.youtube.com/vi/${v.youtubeId}/mqdefault.jpg" alt=""></td>
+                        <td class="perf-title" title="${escapeHtml(v.titulo)}">${escapeHtml(v.titulo)}</td>
+                        <td>${v.publishedAt ? new Date(v.publishedAt).toLocaleDateString('pt-BR') : '—'}</td>
+                        <td>${v.views.toLocaleString('pt-BR')}</td>
+                        <td>👍 ${v.likes.toLocaleString('pt-BR')}</td>
+                        <td>👎 ${v.dislikes.toLocaleString('pt-BR')}</td>
+                        <td class="perf-note-cell">⭐ ${v.nota}</td>
+                    </tr>`).join('')}
+                </tbody>
+            </table>
+        `;
+        perfTableContainer.querySelectorAll('th[data-sort]').forEach(th => {
+            th.addEventListener('click', () => {
+                const f = th.getAttribute('data-sort');
+                if (perfSortField === f) perfSortOrder = perfSortOrder === 'asc' ? 'desc' : 'asc';
+                else { perfSortField = f; perfSortOrder = (f === 'titulo') ? 'asc' : 'desc'; }
+                renderPerformanceTable();
+            });
+        });
+    }
+
+    /* ══════════════════════════════════════════════════════════════════════
+       ADMIN COMMENTS (agora dentro do modal de Desempenho)
+       ══════════════════════════════════════════════════════════════════════ */
+
     document.querySelectorAll('.admin-tab-btn').forEach(btn => {
         btn.addEventListener('click', () => {
             document.querySelectorAll('.admin-tab-btn').forEach(b => b.classList.remove('active'));
@@ -2310,9 +2583,7 @@
     function viewVideoFromAdmin(ytid) {
         const video = getVideoByYoutubeId(ytid);
         if (!video) { alert('Vídeo não encontrado no catálogo.'); return; }
-        document.getElementById('adminCommentsModal').classList.remove('active');
-        if (adminCommentsRef) { adminCommentsRef.off(); adminCommentsRef = null; }
-        if (deletedCommentsRef) { deletedCommentsRef.off(); deletedCommentsRef = null; }
+        closePerformanceModal();
         openPlayer(video);
     }
     window.viewVideoFromAdmin = viewVideoFromAdmin;
@@ -2550,6 +2821,10 @@
             loadBlockedUsersList(document.getElementById('adminCommentsListContainer'));
         } catch (e) { alert(e.message); }
     }
+
+    /* ══════════════════════════════════════════════════════════════════════
+       AUTH / LOGIN
+       ══════════════════════════════════════════════════════════════════════ */
 
     const loginBtn = document.getElementById('loginBtn');
     const userInfo = document.getElementById('userInfo');
@@ -3157,185 +3432,6 @@
         alert(isSimulatingSub ? '🧪 Simulação ATIVADA' : '🧪 Simulação DESATIVADA');
         checkCatalogSubscription();
     });
-
-    const performanceModal = document.getElementById('performanceModal');
-    const perfTableContainer = document.getElementById('perfTableContainer');
-    const perfSearchInput = document.getElementById('perfSearchInput');
-    const tabVideosBtn = document.getElementById('tabVideosBtn');
-    const tabSubsBtn = document.getElementById('tabSubsBtn');
-    const viewVideos = document.getElementById('viewVideos');
-    const viewSubs = document.getElementById('viewSubs');
-    const subsListContainer = document.getElementById('subsListContainer');
-    const subsFilterSelect = document.getElementById('subsFilterSelect');
-    const subsTotalCount = document.getElementById('subsTotalCount');
-    const subsActiveCount = document.getElementById('subsActiveCount');
-    const subsOnlineCount = document.getElementById('subsOnlineCount');
-    document.getElementById('performanceBtn').addEventListener('click', () => {
-        adminDropdown.style.display = 'none';
-        performanceModal.classList.add('active');
-        startWatchStatusListener();
-        tabVideosBtn.click();
-        if (perfSearchInput) perfSearchInput.value = '';
-        if (subsFilterSelect) subsFilterSelect.value = 'all';
-        loadActiveSubscribers();
-    });
-    document.getElementById('closePerformanceBtn').addEventListener('click', () => {
-        performanceModal.classList.remove('active');
-        stopWatchStatusListener();
-    });
-    performanceModal.addEventListener('click', (e) => { if (e.target === performanceModal) { performanceModal.classList.remove('active'); stopWatchStatusListener(); } });
-    tabVideosBtn.addEventListener('click', () => {
-        tabVideosBtn.classList.add('active'); tabSubsBtn.classList.remove('active');
-        viewVideos.style.display = 'flex'; viewSubs.style.display = 'none';
-        stopWatchStatusTicker();
-        renderPerformanceTable();
-    });
-    tabSubsBtn.addEventListener('click', () => {
-        tabSubsBtn.classList.add('active'); tabVideosBtn.classList.remove('active');
-        viewVideos.style.display = 'none'; viewSubs.style.display = 'flex';
-        startWatchStatusTicker();
-        renderSubsList();
-    });
-    if (perfSearchInput) perfSearchInput.addEventListener('input', renderPerformanceTable);
-    if (subsFilterSelect) subsFilterSelect.addEventListener('change', renderSubsList);
-    async function loadActiveSubscribers() {
-        try {
-            const token = await currentUser.getIdToken();
-            const r = await fetch(CF_BASE + '/getAllUsersWithSubscriptions', { headers: { Authorization: 'Bearer ' + token } });
-            const data = await r.json();
-            if (data.success) {
-                allUsersList = data.users || [];
-                allUsersTotalCount = data.total || 0;
-                allUsersActiveCount = data.activeSubscribers || 0;
-                updateOnlineCountDisplay();
-                if (tabSubsBtn.classList.contains('active')) renderSubsList();
-            }
-        } catch (e) { console.warn(e); }
-    }
-    function formatPlanLabel(planId) {
-        return ({ monthly: '30 dias', quarterly: '3 meses', semiannual: '6 meses', annual: '1 ano' })[planId] || planId || '—';
-    }
-    function formatLastSignIn(iso) {
-        if (!iso) return 'Nunca';
-        const ms = Date.parse(iso);
-        if (!ms) return 'Nunca';
-        return new Date(ms).toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
-    }
-    function renderSubsList() {
-        if (!subsListContainer) return;
-        if (subsTotalCount) subsTotalCount.textContent = allUsersTotalCount.toLocaleString('pt-BR');
-        if (subsActiveCount) subsActiveCount.textContent = allUsersActiveCount.toLocaleString('pt-BR');
-        if (allUsersList.length === 0) { subsListContainer.innerHTML = '<div class="perf-empty">Nenhum usuário.</div>'; return; }
-        const filter = subsFilterSelect ? subsFilterSelect.value : 'all';
-        const filtered = allUsersList.filter(u => {
-            if (filter === 'active')   return u.isSubscriber;
-            if (filter === 'inactive') return !u.isSubscriber;
-            if (filter === 'watching') {
-                const s = watchStatusCache[u.uid];
-                const isOnline = checkIsOnline(u.uid);
-                const FRESH_MS = 3 * 60 * 1000;
-                return isOnline && s && ['playing','paused','ended'].includes(s.state)
-                    && s.updatedAt && (Date.now() - s.updatedAt < FRESH_MS);
-            }
-            return true;
-        });
-        if (filtered.length === 0) { subsListContainer.innerHTML = '<div class="perf-empty">Nenhum usuário com esse filtro.</div>'; return; }
-        const now = Date.now();
-        subsListContainer.innerHTML = filtered.map(u => {
-            const isOnline = checkIsOnline(u.uid);
-            const avatarUrl = u.photoURL || 'https://www.gravatar.com/avatar/?d=mp';
-            let rightSide;
-            if (u.isSubscriber) {
-                const daysLeft = Math.max(0, Math.ceil((u.expiresAt - now) / (1000 * 60 * 60 * 24)));
-                const expDate = new Date(u.expiresAt).toLocaleDateString('pt-BR');
-                rightSide = `<div style="display: flex; flex-direction: column; align-items: flex-end; gap: 4px; flex-shrink: 0;">
-                    <div style="color: #22c55e; font-weight: bold; background: rgba(34,197,94,0.15); padding: 4px 10px; border-radius: 12px; font-size: 0.75rem; border: 1px solid rgba(34,197,94,0.3); white-space: nowrap;">⭐ ${escapeHtml(formatPlanLabel(u.planId))}</div>
-                    <div style="color: #94a3b8; font-size: 0.7rem; text-align: right;">${daysLeft}d rest. • Vence: ${expDate}</div>
-                </div>`;
-            } else {
-                rightSide = `<div style="color: #94a3b8; font-weight: bold; background: rgba(148,163,184,0.1); padding: 4px 10px; border-radius: 12px; font-size: 0.75rem; border: 1px solid rgba(148,163,184,0.2); white-space: nowrap; flex-shrink: 0;">Não assinante</div>`;
-            }
-            return `
-                <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px; border-bottom: 1px solid rgba(255,255,255,0.05); gap: 12px;">
-                    <div style="display: flex; align-items: center; gap: 12px; min-width: 0; flex: 1;">
-                        <div style="position: relative; flex-shrink: 0;">
-                            <img src="${escapeHtml(avatarUrl)}" style="width: 42px; height: 42px; border-radius: 50%; object-fit: cover; border: 1px solid rgba(255,255,255,0.1);">
-                            ${isOnline ? `<span style="position: absolute; bottom: 0; right: 0; width: 12px; height: 12px; background: #22c55e; border-radius: 50%; border: 2px solid #152961;" title="Online"></span>` : ''}
-                        </div>
-                        <div style="min-width: 0; flex: 1;">
-                            <div style="color: #fff; font-weight: bold; font-size: 0.9rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${escapeHtml(u.name || '(sem nome)')}${isOnline ? ' <span style="color:#22c55e;font-size:0.7rem;">(Online)</span>' : ''}</div>
-                            <div style="color: #94a3b8; font-size: 0.75rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${escapeHtml(u.email || '(sem e-mail)')}</div>
-                            <div style="color: #64748b; font-size: 0.7rem; margin-top: 3px;">🕓 Último login: ${escapeHtml(formatLastSignIn(u.lastSignIn))}</div>
-                            ${renderWatchStatusHTML(u.uid)}
-                        </div>
-                    </div>
-                    ${rightSide}
-                </div>
-            `;
-        }).join('');
-    }
-    function getPerfSortValue(item, field) {
-        if (field === 'titulo') return item.titulo || '';
-        if (field === 'publishedAt') return item.publishedAt || 0;
-        if (field === 'views') return item.views || 0;
-        if (field === 'likes') return item.likes || 0;
-        if (field === 'dislikes') return item.dislikes || 0;
-        if (field === 'nota') return item.nota === 'N/D' ? -1 : parseFloat(item.nota);
-        return 0;
-    }
-    function renderPerformanceTable() {
-        if (!perfTableContainer) return;
-        if (!videos || videos.length === 0) { perfTableContainer.innerHTML = '<div class="perf-empty">Nenhum vídeo cadastrado.</div>'; return; }
-        const searchTerm = (perfSearchInput ? perfSearchInput.value : '').toLowerCase().trim();
-        let filtered = searchTerm ? videos.filter(v => (v.titulo || '').toLowerCase().includes(searchTerm)) : videos;
-        if (filtered.length === 0) { perfTableContainer.innerHTML = `<div class="perf-empty">Nenhum vídeo encontrado.</div>`; return; }
-        const data = filtered.map(v => ({
-            youtubeId: v.youtubeId, titulo: v.titulo || '(Sem título)', publishedAt: v.order || 0,
-            views: viewsCache[v.youtubeId] || 0,
-            likes: (votesCache[v.youtubeId] || {}).likes || 0,
-            dislikes: (votesCache[v.youtubeId] || {}).dislikes || 0,
-            nota: calcularNotaFromCache(v.youtubeId)
-        }));
-        const field = perfSortField, order = perfSortOrder;
-        data.sort((a, b) => {
-            const av = getPerfSortValue(a, field), bv = getPerfSortValue(b, field);
-            const cmp = field === 'titulo' ? av.localeCompare(bv) : av - bv;
-            return order === 'asc' ? cmp : -cmp;
-        });
-        const arrow = f => field === f ? (order === 'asc' ? ' ▲' : ' ▼') : '';
-        perfTableContainer.innerHTML = `
-            <table class="perf-table">
-                <thead><tr>
-                    <th></th>
-                    <th data-sort="titulo">Título${arrow('titulo')}</th>
-                    <th data-sort="publishedAt">Publicado${arrow('publishedAt')}</th>
-                    <th data-sort="views">Views${arrow('views')}</th>
-                    <th data-sort="likes">Likes${arrow('likes')}</th>
-                    <th data-sort="dislikes">Dislikes${arrow('dislikes')}</th>
-                    <th data-sort="nota">Nota${arrow('nota')}</th>
-                </tr></thead>
-                <tbody>${data.map(v => `
-                    <tr>
-                        <td><img class="perf-thumb" src="https://img.youtube.com/vi/${v.youtubeId}/mqdefault.jpg" alt=""></td>
-                        <td class="perf-title" title="${escapeHtml(v.titulo)}">${escapeHtml(v.titulo)}</td>
-                        <td>${v.publishedAt ? new Date(v.publishedAt).toLocaleDateString('pt-BR') : '—'}</td>
-                        <td>${v.views.toLocaleString('pt-BR')}</td>
-                        <td>👍 ${v.likes.toLocaleString('pt-BR')}</td>
-                        <td>👎 ${v.dislikes.toLocaleString('pt-BR')}</td>
-                        <td class="perf-note-cell">⭐ ${v.nota}</td>
-                    </tr>`).join('')}
-                </tbody>
-            </table>
-        `;
-        perfTableContainer.querySelectorAll('th[data-sort]').forEach(th => {
-            th.addEventListener('click', () => {
-                const f = th.getAttribute('data-sort');
-                if (perfSortField === f) perfSortOrder = perfSortOrder === 'asc' ? 'desc' : 'asc';
-                else { perfSortField = f; perfSortOrder = (f === 'titulo') ? 'asc' : 'desc'; }
-                renderPerformanceTable();
-            });
-        });
-    }
 
     async function checkCatalogSubscription() {
         if (isSimulatingSub) {
