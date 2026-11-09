@@ -669,7 +669,6 @@
                         <div id="adminDropdown">
                             <button id="addVideoBtn">➕ Inserir Vídeo</button>
                             <button id="performanceBtn">📈 Desempenho</button>
-                            <button id="adminCommentsBtn">💬 Comentários</button>
                             <button id="pricingBtn">💰 Preços</button>
                             <button id="manageAdsBtn">🖼️ Anúncio Interno</button>
                             <button id="simulateSubBtn" style="color: #a78bfa;">🧪 Simular Assinante</button>
@@ -847,7 +846,7 @@
     </div>
 </div>
 
-<!-- ═══════════════ PERFORMANCE MODAL (agora com aba de Comentários) ═══════════════ -->
+<!-- ═══════════════ PERFORMANCE MODAL (com aba de Comentários integrada) ═══════════════ -->
 <div class="modal-overlay" id="performanceModal">
     <div class="modal flex-modal" style="max-width: 950px;">
         <h2>📈 Desempenho</h2>
@@ -878,7 +877,7 @@
                 </div>
                 <div id="subsListContainer" style="flex: 1; overflow-y: auto; background: rgba(0,0,0,0.2); border-radius: 8px; padding: 10px; border: 1px solid rgba(255,255,255,0.05);"></div>
             </div>
-            <!-- ── Comentários (movido do modal separado) ── -->
+            <!-- ── Comentários ── -->
             <div id="viewComments" style="display: none; flex: 1; flex-direction: column;">
                 <div class="admin-tabs" style="flex-shrink: 0;">
                     <button class="admin-tab-btn active" data-tab="all">Todos</button>
@@ -1273,7 +1272,7 @@
         if (watchStatusTicker) { clearInterval(watchStatusTicker); watchStatusTicker = null; }
     }
 
-    /* ⬇️ TICKER PARA RE-RENDER ONLINE-FIRST (novo) ⬇️ */
+    /* ⬇️ TICKER ONLINE-FIRST (re-render preservando scroll) ⬇️ */
     let subsOnlineTicker = null;
     function startSubsOnlineTicker() {
         if (subsOnlineTicker) return;
@@ -1324,7 +1323,7 @@
         return `<div style="font-size:0.72rem;color:#475569;margin-top:3px;">⚫ Nenhum vídeo em execução</div>`;
     }
 
-    /* ⬇️ EXTERNAL WATCH (vídeos que abrem no YouTube) ⬇️ */
+    /* ⬇️ EXTERNAL WATCH ⬇️ */
     let externalWatchHeartbeat = null;
     let _externalWatchActive = false;
     let _externalWatchSetupDone = false;
@@ -2307,7 +2306,7 @@
     }
 
     /* ══════════════════════════════════════════════════════════════════════
-       MODAL DE DESEMPENHO (agora com aba de Comentários integrada)
+       MODAL DE DESEMPENHO — Vídeos, Assinantes, Comentários
        ══════════════════════════════════════════════════════════════════════ */
 
     const performanceModal = document.getElementById('performanceModal');
@@ -2374,11 +2373,6 @@
     document.getElementById('performanceBtn').addEventListener('click', () => {
         adminDropdown.style.display = 'none';
         openPerformanceModal('videos');
-    });
-
-    document.getElementById('adminCommentsBtn').addEventListener('click', () => {
-        adminDropdown.style.display = 'none';
-        openPerformanceModal('comments');
     });
 
     document.getElementById('closePerformanceBtn').addEventListener('click', closePerformanceModal);
@@ -2457,7 +2451,7 @@
             return true;
         });
 
-        /* ⬇️ NOVO: ONLINE-FIRST (sort estável, mantém ordem original dentro de cada grupo) ⬇️ */
+        /* ⬇️ ONLINE-FIRST: sort estável mantém ordem original dentro de cada grupo ⬇️ */
         filtered.sort((a, b) => {
             const aOnline = checkIsOnline(a.uid);
             const bOnline = checkIsOnline(b.uid);
@@ -2465,7 +2459,6 @@
             if (!aOnline && bOnline) return 1;
             return 0;
         });
-        /* ⬆️ FIM DO ONLINE-FIRST ⬆️ */
 
         if (filtered.length === 0) { subsListContainer.innerHTML = '<div class="perf-empty">Nenhum usuário com esse filtro.</div>'; return; }
         const now = Date.now();
@@ -2567,7 +2560,7 @@
     }
 
     /* ══════════════════════════════════════════════════════════════════════
-       ADMIN COMMENTS (agora dentro do modal de Desempenho)
+       ADMIN COMMENTS (dentro do modal de Desempenho)
        ══════════════════════════════════════════════════════════════════════ */
 
     document.querySelectorAll('.admin-tab-btn').forEach(btn => {
