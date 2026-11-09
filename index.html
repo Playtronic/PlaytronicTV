@@ -436,7 +436,7 @@
         #ancineLightbox {
             position: fixed; inset: 0;
             background: rgba(0,0,0,0.78);
-            z-index: 99999;
+            z-index: 10000005; /* AUMENTADO PARA FICAR ACIMA DO HEADER */
             display: none;
             align-items: center; justify-content: center;
             backdrop-filter: blur(6px);
@@ -623,10 +623,13 @@
             .ad-mobile-top-banner, .ad-mobile-bottom-banner, #adNativeLeft { display: none !important; }
             #adNativeRight { display: block !important; order: 2; width: 300px !important; height: 250px !important; flex-shrink: 0; }
             .player-container { display: flex; flex-direction: column; align-items: center; width: 100%; }
-            .player-wrapper { order: 1; width: 100%; max-width: 100%; max-height: calc(100vh - 75px); margin: 0 auto; aspect-ratio: 16/9; border-radius: 0; }
-            #playerMobileTop { display: none !important; }
-            #commentsSection { display: flex; order: 3; margin-top: 10px; width: 100%; }
+            .player-wrapper { order: 1; width: 100%; max-width: 100%; max-height: calc(100vh - 120px); margin: 0 auto; aspect-ratio: 16/9; border-radius: 0; }
+            
+            /* CORREÇÃO: Exibe o playerMobileTop no modo landscape */
+            #playerMobileTop { display: block !important; order: 2; margin: 10px auto; width: 320px; height: 50px; }
             #playerMobileBottom { display: none !important; }
+            
+            #commentsSection { display: flex; order: 3; margin-top: 10px; width: 100%; }
         }
     </style>
 </head>
