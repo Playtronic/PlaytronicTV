@@ -123,13 +123,17 @@
         .admin-btn.delete { background: rgba(231,76,60,0.92); }
         .admin-btn.delete:hover { background: #c0392b; transform: scale(1.08); }
         
-        /* NOVOS ESTILOS PARA SUSPENSÃO */
+        /* ESTILOS PARA SUSPENSÃO */
         .admin-btn.suspend { background: rgba(245,158,11,0.92); color: #000; }
         .admin-btn.suspend:hover { background: #f59e0b; transform: scale(1.08); }
         .admin-btn.unsuspend { background: rgba(34,197,94,0.92); color: #000; }
         .admin-btn.unsuspend:hover { background: #22c55e; transform: scale(1.08); }
-        .card.suspended { opacity: 0.5; border: 2px dashed #f59e0b; }
-        .card.suspended .card-poster::after { opacity: 0.8; }
+        .card.suspended { opacity: 0.6; border: 2px dashed #f59e0b; }
+        .card.suspended .card-poster img { filter: grayscale(1) contrast(0.85); transition: filter 0.3s ease; }
+        .card.suspended:hover .card-poster img { filter: grayscale(0.1) contrast(1); }
+        .card.suspended .card-poster::after { opacity: 0.85; }
+        .card.suspended .card-title,
+        .card.suspended .card-meta { color: #94a3b8; }
         .tag.tag-suspenso { background: #f59e0b; color: #000; }
 
         .card-info { padding: 15px; display: flex; flex-direction: column; flex: 1; justify-content: flex-start; z-index: 2; }
@@ -706,6 +710,7 @@
                 <label class="filter-checkbox checked"><input type="checkbox" name="contentFilter" value="all" checked><span>Todos</span></label>
                 <label class="filter-checkbox"><input type="checkbox" name="contentFilter" value="free"><span>Gratuitos</span></label>
                 <label class="filter-checkbox"><input type="checkbox" name="contentFilter" value="paid"><span>Pagos</span></label>
+                <label class="filter-checkbox" id="suspendedFilterLabel" style="display: none;"><input type="checkbox" name="contentFilter" value="suspended"><span>⏸️ Suspensos</span></label>
             </div>
             <div class="sort-group">
                 <span class="sort-label">🔀 Ordenar por:</span>
@@ -1398,7 +1403,7 @@
             const prefs = JSON.parse(raw) || {};
             const validFields = ['order', 'produtora', 'ano', 'likes', 'views', 'comments', 'titulo'];
             const validOrders = ['asc', 'desc'];
-            const validFilters = ['all', 'free', 'paid'];
+            const validFilters = ['all', 'free', 'paid', 'suspended'];
             if (validFields.includes(prefs.sortField)) currentSortField = prefs.sortField;
             if (validOrders.includes(prefs.sortOrder)) currentSortOrder = prefs.sortOrder;
             if (validFilters.includes(prefs.contentFilter)) currentContentFilter = prefs.contentFilter;
@@ -2947,6 +2952,7 @@
     }
     auth.onAuthStateChanged((user) => {
         currentUser = user;
+        updateAdminFilterVisibility();
         if (favoritesRef) { favoritesRef.off(); favoritesRef = null; }
         userFavorites = {};
         favoritesLoaded = false;
@@ -3075,6 +3081,22 @@
     if (sortOrderSelect) sortOrderSelect.addEventListener('change', () => { currentSortOrder = sortOrderSelect.value; saveCatalogPreferences(); if (videosLoaded && favoritesLoaded) renderCards(); });
 
     const contentFilterCheckboxes = document.querySelectorAll('input[name="contentFilter"]');
+
+    function updateAdminFilterVisibility() {
+        const label = document.getElementById('suspendedFilterLabel');
+        if (!label) return;
+        if (isAdmin()) {
+            label.style.display = '';
+        } else {
+            label.style.display = 'none';
+            if (currentContentFilter === 'suspended') {
+                currentContentFilter = 'all';
+                updateContentFilterUI();
+                saveCatalogPreferences();
+            }
+        }
+    }
+
     function updateContentFilterUI() {
         contentFilterCheckboxes.forEach(cb => {
             const isChecked = cb.value === currentContentFilter;
@@ -3084,6 +3106,7 @@
     }
     contentFilterCheckboxes.forEach(cb => {
         cb.addEventListener('click', (e) => {
+            if (cb.value === 'suspended' && !isAdmin()) { e.preventDefault(); cb.checked = false; return; }
             if (currentContentFilter === cb.value) { e.preventDefault(); cb.checked = true; return; }
             currentContentFilter = cb.value;
             updateContentFilterUI();
@@ -3248,6 +3271,7 @@
         let filtered = baseVideos;
         if (currentContentFilter === 'free') filtered = filtered.filter(v => !v.pago);
         else if (currentContentFilter === 'paid') filtered = filtered.filter(v => v.pago);
+        else if (currentContentFilter === 'suspended') filtered = filtered.filter(v => v.isSuspended);
         if (currentFilter) {
             filtered = filtered.filter(v => {
                 const title = (v.titulo || '').toLowerCase();
@@ -3274,6 +3298,7 @@
             let msg = 'Nenhum vídeo encontrado';
             if (currentContentFilter === 'paid') msg = 'Nenhum conteúdo pago encontrado';
             else if (currentContentFilter === 'free') msg = 'Nenhum conteúdo gratuito encontrado';
+            else if (currentContentFilter === 'suspended') msg = 'Nenhum vídeo suspenso encontrado';
             if (currentFilter) msg += ` para "${currentFilter}"`;
             emptyState.textContent = msg + '.';
             emptyState.style.display = 'block';
