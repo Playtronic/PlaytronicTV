@@ -372,6 +372,10 @@
         .reply-action-btn:hover { color: #fdbb2d; }
         .reply-action-btn.pin-btn:hover { color: #10b981; }
         .reply-action-btn.delete-btn:hover { color: #ef4444; }
+        /* ADIÇÃO: Estilos de like/dislike/report para as respostas */
+        .reply-action-btn.active.like { color: #22c55e; font-weight: bold; }
+        .reply-action-btn.active.dislike { color: #ef4444; font-weight: bold; }
+        .reply-action-btn.report-btn:hover { color: #f59e0b; }
 
         .replies-toggle-wrapper { margin-top: 10px; }
         .replies-toggle-btn { background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.15); color: #cbd5e1; padding: 6px 14px; border-radius: 6px; font-size: 0.8rem; cursor: pointer; font-family: inherit; display: inline-flex; align-items: center; gap: 6px; transition: 0.2s; font-weight: 600; }
@@ -436,7 +440,7 @@
         #ancineLightbox {
             position: fixed; inset: 0;
             background: rgba(0,0,0,0.78);
-            z-index: 10000005; /* AUMENTADO PARA FICAR ACIMA DO HEADER */
+            z-index: 10000005;
             display: none;
             align-items: center; justify-content: center;
             backdrop-filter: blur(6px);
@@ -612,18 +616,7 @@
         }
 
         @media (max-width: 900px) and (orientation: landscape) {
-            /* Correção do Modal do Usuário no modo paisagem */
-            .user-card { 
-                position: fixed; 
-                top: 60px; 
-                right: 15px; 
-                left: auto; 
-                width: 280px; 
-                min-width: 280px; 
-                max-height: calc(100vh - 70px); 
-                overflow-y: auto; 
-                padding: 15px;
-            }
+            .user-card { position: fixed; top: 60px; right: 15px; left: auto; width: 280px; min-width: 280px; max-height: calc(100vh - 70px); overflow-y: auto; padding: 15px; }
             .user-card button { padding: 10px; font-size: 0.85rem; }
 
             #adInterstitialModal { flex-direction: row; justify-content: center; align-items: center; padding: 10px; gap: 10px; overflow: hidden !important; }
@@ -638,11 +631,8 @@
             #adNativeRight { display: block !important; order: 2; width: 300px !important; height: 250px !important; flex-shrink: 0; }
             .player-container { display: flex; flex-direction: column; align-items: center; width: 100%; }
             .player-wrapper { order: 1; width: 100%; max-width: 100%; max-height: calc(100vh - 120px); margin: 0 auto; aspect-ratio: 16/9; border-radius: 0; }
-            
-            /* Exibe o playerMobileTop no modo landscape */
             #playerMobileTop { display: block !important; order: 2; margin: 10px auto; width: 320px; height: 50px; }
             #playerMobileBottom { display: none !important; }
-            
             #commentsSection { display: flex; order: 3; margin-top: 10px; width: 100%; }
         }
     </style>
@@ -1956,6 +1946,8 @@
         const isParentCommentAuthor = currentUser && currentUser.uid === parentComment.uid;
         const canDelete = isReplyAuthor || isAdmin();
         const canPin = isParentCommentAuthor;
+        const canReport = !isReplyAuthor && currentUser;
+        const userVote = (reply.userVotes || {})[currentUser ? currentUser.uid : ''] || null;
 
         let displayText = escapeHtml(reply.text || '');
         displayText = displayText.replace(/(@[a-zA-Z0-9_.áàâãéêíóôõúçÁÀÂÃÉÊÍÓÔÕÚÇ\-]+)/g, '<span class="mention">$1</span>');
@@ -1970,7 +1962,10 @@
                     </div>
                     <div class="reply-text">${displayText}</div>
                     <div class="reply-actions">
+                        <button class="reply-action-btn ${userVote === 'like' ? 'active like' : ''}" data-action="like-reply" data-cid="${parentComment.id}" data-rid="${replyId}">👍 <span>${reply.likes || 0}</span></button>
+                        <button class="reply-action-btn ${userVote === 'dislike' ? 'active dislike' : ''}" data-action="dislike-reply" data-cid="${parentComment.id}" data-rid="${replyId}">👎 <span>${reply.dislikes || 0}</span></button>
                         ${currentUser ? `<button class="reply-action-btn" data-action="reply-to-reply" data-cid="${parentComment.id}" data-rid="${replyId}" data-reply-uid="${escapeHtml(reply.uid || '')}" data-reply-name="${escapeHtml(reply.name || 'Usuário')}">💬 Responder</button>` : ''}
+                        ${canReport ? `<button class="reply-action-btn report-btn" data-action="report-reply" data-cid="${parentComment.id}" data-rid="${replyId}">🚩 Denunciar</button>` : ''}
                         ${canPin ? `<button class="reply-action-btn pin-btn" data-action="pin-reply" data-cid="${parentComment.id}" data-rid="${replyId}" data-pin="${!reply.isPinned}">📌 ${reply.isPinned ? 'Desafixar' : 'Fixar'}</button>` : ''}
                         ${canDelete ? `<button class="reply-action-btn delete-btn" data-action="delete-reply" data-cid="${parentComment.id}" data-rid="${replyId}">🗑️ Excluir</button>` : ''}
                     </div>
@@ -2029,7 +2024,10 @@
                 const action = btn.getAttribute('data-action');
                 const cid = btn.getAttribute('data-cid');
                 const rid = btn.getAttribute('data-rid');
-                if (action === 'reply-to-reply') {
+                if (action === 'like-reply') votarReply(currentCommentsVideoId, cid, rid, 'like');
+                else if (action === 'dislike-reply') votarReply(currentCommentsVideoId, cid, rid, 'dislike');
+                else if (action === 'report-reply') reportReply(currentCommentsVideoId, cid, rid);
+                else if (action === 'reply-to-reply') {
                     const rUid = btn.getAttribute('data-reply-uid');
                     const rName = btn.getAttribute('data-reply-name');
                     toggleReplyForm(cid, rid, { uid: rUid, name: rName });
@@ -2136,7 +2134,9 @@
             timestamp: firebase.database.ServerValue.TIMESTAMP,
             isPinned: false,
             replyToUid: replyToUid !== parentComment.uid ? replyToUid : null,
-            replyToName: replyToUid !== parentComment.uid ? replyToName : null
+            replyToName: replyToUid !== parentComment.uid ? replyToName : null,
+            likes: 0,
+            dislikes: 0
         };
 
         try {
@@ -2267,9 +2267,52 @@
         } catch (e) { console.warn('Erro ao votar:', e); }
     }
 
+    async function votarReply(videoId, commentId, replyId, tipo) {
+        if (!currentUser) return alert('Faça login.');
+        const ref = rtdb.ref(`vod_comments/${videoId}/${commentId}/replies/${replyId}`);
+        const userVoteRef = ref.child('userVotes/' + currentUser.uid);
+        try {
+            const snap = await userVoteRef.once('value');
+            const votoAtual = snap.val();
+            if (votoAtual === tipo) {
+                await userVoteRef.remove();
+                await ref.child(tipo === 'like' ? 'likes' : 'dislikes').transaction(c => Math.max(0, (c || 0) - 1));
+            } else {
+                if (votoAtual) await ref.child(votoAtual === 'like' ? 'likes' : 'dislikes').transaction(c => Math.max(0, (c || 0) - 1));
+                await userVoteRef.set(tipo);
+                await ref.child(tipo === 'like' ? 'likes' : 'dislikes').transaction(c => (c || 0) + 1);
+
+                if (tipo === 'like') {
+                    const replySnap = await ref.once('value');
+                    const reply = replySnap.val();
+                    if (reply && reply.uid && reply.uid !== currentUser.uid) {
+                        const video = videos.find(v => v.youtubeId === videoId);
+                        await createNotification({
+                            type: 'like',
+                            toUid: reply.uid,
+                            fromUid: currentUser.uid,
+                            fromName: currentUser.displayName || 'Usuário',
+                            fromPhoto: currentUser.photoURL || '',
+                            videoId: videoId,
+                            videoTitle: video ? video.titulo : '',
+                            commentId: commentId,
+                            commentText: reply.text || ''
+                        });
+                    }
+                }
+            }
+        } catch (e) { console.warn('Erro ao votar na resposta:', e); }
+    }
+
     async function reportComment(videoId, commentId) {
         if (!confirm('Denunciar este comentário como impróprio?')) return;
         try { await rtdb.ref(`vod_comments/${videoId}/${commentId}`).update({ isReported: true }); alert('Comentário denunciado. Obrigado!'); }
+        catch (e) { alert(e.message); }
+    }
+
+    async function reportReply(videoId, commentId, replyId) {
+        if (!confirm('Denunciar esta resposta como imprópria?')) return;
+        try { await rtdb.ref(`vod_comments/${videoId}/${commentId}/replies/${replyId}`).update({ isReported: true }); alert('Resposta denunciada. Obrigado!'); }
         catch (e) { alert(e.message); }
     }
 
