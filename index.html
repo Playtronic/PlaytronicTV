@@ -122,6 +122,16 @@
         .admin-btn.edit:hover { background: #fdbb2d; transform: scale(1.08); }
         .admin-btn.delete { background: rgba(231,76,60,0.92); }
         .admin-btn.delete:hover { background: #c0392b; transform: scale(1.08); }
+        
+        /* NOVOS ESTILOS PARA SUSPENSÃO */
+        .admin-btn.suspend { background: rgba(245,158,11,0.92); color: #000; }
+        .admin-btn.suspend:hover { background: #f59e0b; transform: scale(1.08); }
+        .admin-btn.unsuspend { background: rgba(34,197,94,0.92); color: #000; }
+        .admin-btn.unsuspend:hover { background: #22c55e; transform: scale(1.08); }
+        .card.suspended { opacity: 0.5; border: 2px dashed #f59e0b; }
+        .card.suspended .card-poster::after { opacity: 0.8; }
+        .tag.tag-suspenso { background: #f59e0b; color: #000; }
+
         .card-info { padding: 15px; display: flex; flex-direction: column; flex: 1; justify-content: flex-start; z-index: 2; }
         .card-title { font-size: 1.15rem; font-weight: 600; color: #f8fafc; line-height: 1.3; margin-bottom: 4px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; text-align: left; min-height: 2.6em; }
         .card-tags { display: flex; gap: 5px; flex-wrap: wrap; margin-bottom: 12px; min-height: 22px; }
@@ -372,7 +382,6 @@
         .reply-action-btn:hover { color: #fdbb2d; }
         .reply-action-btn.pin-btn:hover { color: #10b981; }
         .reply-action-btn.delete-btn:hover { color: #ef4444; }
-        /* ADIÇÃO: Estilos de like/dislike/report para as respostas */
         .reply-action-btn.active.like { color: #22c55e; font-weight: bold; }
         .reply-action-btn.active.dislike { color: #ef4444; font-weight: bold; }
         .reply-action-btn.report-btn:hover { color: #f59e0b; }
@@ -1553,7 +1562,7 @@
 
     function isTVReady() {
         if (videos.length === 0) return false;
-        return videos.some(v => !v.abrirNoYoutube && Number(v.duracaoSegundos) > 0);
+        return videos.some(v => !v.abrirNoYoutube && Number(v.duracaoSegundos) > 0 && !v.isSuspended);
     }
 
     function setupPresence(user) {
@@ -1731,11 +1740,13 @@
         await markNotificationRead(notifId);
         if (notif.videoId) {
             const video = videos.find(v => v.youtubeId === notif.videoId);
-            if (video) {
+            if (video && (!video.isSuspended || isAdmin())) {
                 closeNotificationsModal();
                 userCard.classList.remove('active');
                 if (video.abrirNoYoutube) openYouTubeVideo(video);
                 else openPlayer(video);
+            } else if (video && video.isSuspended && !isAdmin()) {
+                alert('Este vídeo está temporariamente suspenso.');
             }
         }
     }
@@ -2576,7 +2587,8 @@
             views: viewsCache[v.youtubeId] || 0,
             likes: (votesCache[v.youtubeId] || {}).likes || 0,
             dislikes: (votesCache[v.youtubeId] || {}).dislikes || 0,
-            nota: calcularNotaFromCache(v.youtubeId)
+            nota: calcularNotaFromCache(v.youtubeId),
+            isSuspended: !!v.isSuspended
         }));
         const field = perfSortField, order = perfSortOrder;
         data.sort((a, b) => {
@@ -2595,6 +2607,7 @@
                     <th data-sort="likes">Likes${arrow('likes')}</th>
                     <th data-sort="dislikes">Dislikes${arrow('dislikes')}</th>
                     <th data-sort="nota">Nota${arrow('nota')}</th>
+                    <th>Status</th>
                 </tr></thead>
                 <tbody>${data.map(v => `
                     <tr>
@@ -2605,6 +2618,7 @@
                         <td>👍 ${v.likes.toLocaleString('pt-BR')}</td>
                         <td>👎 ${v.dislikes.toLocaleString('pt-BR')}</td>
                         <td class="perf-note-cell">⭐ ${v.nota}</td>
+                        <td>${v.isSuspended ? '<span style="color:#f59e0b;font-weight:bold;">⏸️ Suspenso</span>' : '<span style="color:#22c55e;font-weight:bold;">▶️ Ativo</span>'}</td>
                     </tr>`).join('')}
                 </tbody>
             </table>
@@ -3140,6 +3154,12 @@
         card.className = 'card';
         card.dataset.ytid = item.youtubeId;
         card.dataset.key = item.key;
+        
+        const isSuspended = !!item.isSuspended;
+        if (isSuspended && isAdmin()) {
+            card.classList.add('suspended');
+        }
+
         const ytid = escapeHtml(item.youtubeId);
         const titulo = escapeHtml(item.titulo || '');
         const posterUrl = `https://img.youtube.com/vi/${ytid}/mqdefault.jpg`;
@@ -3148,6 +3168,8 @@
         const tags = [];
         if (item.pago) tags.push('<span class="tag tag-pago">PAGO</span>');
         if (item.ad) tags.push('<span class="tag tag-ad">AD</span>');
+        if (isSuspended) tags.push('<span class="tag tag-suspenso">SUSPENSO</span>');
+        
         const classificacao = normalizarClassificacao(item.classificacao);
         const classInfo = CLASSIFICACAO_INFO[classificacao];
         tags.push(`<span class="tag ${classInfo.cls} ancine-tag" title="${classInfo.titulo} — clique para saber mais">${classInfo.label}</span>`);
@@ -3157,12 +3179,21 @@
         const produtoraHtml = produtora ? `<span class="card-meta-line">${escapeHtml(produtora)}</span>` : '';
         const anoHtml = ano !== null ? `<span class="card-meta-line">Ano: ${escapeHtml(String(ano))}</span>` : '';
         const metaHtml = (produtoraHtml || anoHtml) ? `<div class="card-meta">${produtoraHtml}${anoHtml}</div>` : '';
+        
+        let suspendBtnHtml = '';
+        if (isAdmin()) {
+            suspendBtnHtml = isSuspended
+                ? `<button class="admin-btn unsuspend" title="Reativar vídeo">▶️</button>`
+                : `<button class="admin-btn suspend" title="Suspender vídeo">⏸️</button>`;
+        }
+
         card.innerHTML = `
             <div class="card-poster">
                 <img src="${posterUrl}" alt="Capa de ${titulo}" loading="lazy">
                 <div class="rating-badge">⭐ ${nota}</div>
                 <button class="favorite-btn ${isFav ? 'active' : ''}" title="Favoritar">${isFav ? '❤️' : '🤍'}</button>
                 <div class="admin-actions">
+                    ${suspendBtnHtml}
                     <button class="admin-btn edit" title="Editar vídeo">✏️</button>
                     <button class="admin-btn delete" title="Remover vídeo">🗑️</button>
                 </div>
@@ -3177,6 +3208,14 @@
         card.querySelector('.favorite-btn').addEventListener('click', (e) => { e.stopPropagation(); toggleFavorite(item.youtubeId); });
         card.querySelector('.edit').addEventListener('click', (e) => { e.stopPropagation(); openVideoModal('edit', item); });
         card.querySelector('.delete').addEventListener('click', (e) => { e.stopPropagation(); deleteVideo(item); });
+        
+        if (isAdmin()) {
+            const suspendBtn = card.querySelector('.suspend, .unsuspend');
+            if (suspendBtn) {
+                suspendBtn.addEventListener('click', (e) => { e.stopPropagation(); toggleSuspendVideo(item); });
+            }
+        }
+
         const ancineTag = card.querySelector('.ancine-tag');
         if (ancineTag) {
             ancineTag.addEventListener('click', (e) => {
@@ -3189,6 +3228,7 @@
         if (isPago && !catalogSubscription.active) { watchBtn.textContent = '🔒 Assinar para assistir'; watchBtn.classList.add('locked'); }
         else { watchBtn.textContent = '▶ Assistir'; watchBtn.classList.remove('locked'); }
         watchBtn.addEventListener('click', () => {
+            if (isSuspended && !isAdmin()) { alert('Este vídeo está temporariamente suspenso.'); return; }
             if (isPago && !catalogSubscription.active) { openPixLightbox(); return; }
             if (!catalogSubscription.active) { showAdInterstitial(item); return; }
             if (item.abrirNoYoutube) { openYouTubeVideo(item); return; }
@@ -3199,7 +3239,13 @@
 
     function renderCards() {
         if (loadingMsg.style.display !== 'none') loadingMsg.style.display = 'none';
-        let filtered = videos;
+        
+        let baseVideos = videos;
+        if (!isAdmin()) {
+            baseVideos = videos.filter(v => !v.isSuspended);
+        }
+
+        let filtered = baseVideos;
         if (currentContentFilter === 'free') filtered = filtered.filter(v => !v.pago);
         else if (currentContentFilter === 'paid') filtered = filtered.filter(v => v.pago);
         if (currentFilter) {
@@ -3216,8 +3262,8 @@
         const favTrack = document.getElementById('favoritesTrack');
         if (favTrack) favTrack.innerHTML = '';
         let favCount = 0;
-        if (catalogSortBar) catalogSortBar.style.display = (videos.length > 0) ? 'flex' : 'none';
-        if (videos.length === 0) {
+        if (catalogSortBar) catalogSortBar.style.display = (baseVideos.length > 0) ? 'flex' : 'none';
+        if (baseVideos.length === 0) {
             emptyState.textContent = 'Nenhum vídeo cadastrado ainda.';
             emptyState.style.display = 'block';
             if (favSection) favSection.style.display = 'none';
@@ -3237,9 +3283,25 @@
         emptyState.style.display = 'none';
         sorted.forEach(item => {
             catalogGrid.appendChild(buildCard(item));
-            if (userFavorites[item.youtubeId] && favTrack) { favTrack.appendChild(buildCard(item)); favCount++; }
+            if (userFavorites[item.youtubeId] && favTrack) {
+                if (isAdmin() || !item.isSuspended) {
+                    favTrack.appendChild(buildCard(item)); favCount++;
+                }
+            }
         });
         if (favSection) favSection.style.display = favCount > 0 ? 'block' : 'none';
+    }
+
+    async function toggleSuspendVideo(video) {
+        if (!isAdmin()) return;
+        const newStatus = !video.isSuspended;
+        const action = newStatus ? 'suspender' : 'reativar';
+        if (!confirm(`Tem certeza que deseja ${action} o vídeo "${video.titulo}"?`)) return;
+        try {
+            await rtdb.ref('vod_videos/' + video.key).update({ isSuspended: newStatus });
+        } catch (err) {
+            alert('Erro ao atualizar status: ' + err.message);
+        }
     }
 
     function scrollFavoritesCarousel(direction) {
@@ -4369,6 +4431,10 @@
             if (!video) video = videos.find(v => v.youtubeId === identifier);
             
             if (video) {
+                if (video.isSuspended && !isAdmin()) {
+                    alert('Este vídeo está temporariamente indisponível.');
+                    return;
+                }
                 deepLinkProcessed = true;
                 history.replaceState(null, '', window.location.pathname + window.location.search);
 
@@ -4413,7 +4479,7 @@
 
     function buildTVPlaylist() {
         return videos
-            .filter(v => !v.abrirNoYoutube && Number(v.duracaoSegundos) > 15 && /^[a-zA-Z0-9_-]{11}$/.test(v.youtubeId || ''))
+            .filter(v => !v.abrirNoYoutube && Number(v.duracaoSegundos) > 15 && /^[a-zA-Z0-9_-]{11}$/.test(v.youtubeId || '') && !v.isSuspended)
             .sort((a, b) => {
                 const orderA = a.order || 0;
                 const orderB = b.order || 0;
