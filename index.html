@@ -692,6 +692,15 @@
                 max-height: calc(100vh - 250px) !important;
             }
         }
+    
+        /* PATCH DEFINITIVO MOBILE DRIVE */
+        @media (max-width: 900px) {
+            .player-wrapper.drive-mode {
+                aspect-ratio: 16 / 9 !important;
+                height: auto !important;
+                max-height: calc(100vh - 250px) !important;
+            }
+        }
     </style>
 </head>
 <body>
@@ -4220,18 +4229,16 @@
         }
 
         _initYouTube(onReady, onStateChange) {
-            // Mostra os controles customizados para o YouTube
             document.querySelector('.player-controls').style.display = 'flex';
             document.querySelector('.center-play-btn').style.display = 'flex';
             document.getElementById('driveMask').style.display = 'none';
             document.getElementById('playerWrapper').classList.remove('drive-mode');
+            document.getElementById('customUI').classList.remove('player-ui-hidden');
 
             this.container.innerHTML = '<div id="ytPlayerDiv" style="width:100%; height:100%;"></div>';
             this.player = new YT.Player('ytPlayerDiv', {
                 height: '100%', width: '100%', videoId: this.video.youtubeId,
-                playerVars: { autoplay: 1, controls: 0, modestbranding: 1, rel: 0,
-                              iv_load_policy: 3, playsinline: 1, cc_load_policy: 0,
-                              fs: 0, origin: window.location.origin },
+                playerVars: { autoplay: 1, controls: 0, modestbranding: 1, rel: 0, iv_load_policy: 3, playsinline: 1, cc_load_policy: 0, fs: 0, origin: window.location.origin },
                 events: {
                     'onReady': (e) => {
                         try { e.target.unloadModule('captions'); e.target.unloadModule('cc'); } catch (_) {}
@@ -4246,11 +4253,12 @@
         }
 
         _initDrive(onReady, onStateChange) {
-            // Esconde APENAS os controles que conflitam com o player do Google
+            const customUI = document.getElementById('customUI');
+            customUI.classList.remove('player-ui-hidden');
+            customUI.style.pointerEvents = 'none'; 
+
             document.querySelector('.player-controls').style.display = 'none';
             document.querySelector('.center-play-btn').style.display = 'none';
-            
-            // Mostra a máscara para cobrir o botão "Abrir no Google Drive"
             document.getElementById('driveMask').style.display = 'block';
             document.getElementById('playerWrapper').classList.add('drive-mode');
 
@@ -4258,20 +4266,17 @@
             iframe.src = `https://drive.google.com/file/d/${this.video.driveFileId}/preview`;
             iframe.style.cssText = 'width:100%; height:100%; border:none; position:absolute; top:0; left:0; z-index:1; pointer-events: auto;';
             iframe.allow = 'autoplay; fullscreen';
-            /* sandbox removido para permitir play */ // Bloqueia redirects/popups
 
             this.container.innerHTML = '';
             this.container.appendChild(iframe);
             this.player = iframe;
 
-            // Simula o carregamento para destravar a tela e contar a view
             setTimeout(() => {
                 onReady({ target: this });
-                onStateChange({ data: 1 }); // Finge que está tocando
+                onStateChange({ data: 1 });
             }, 1000);
         }
 
-        // Métodos de controle (só o YouTube usa, o Drive é nativo)
         playVideo() { if (this.type === 'youtube') { this.player.playVideo(); } }
         pauseVideo() { if (this.type === 'youtube') { this.player.pauseVideo(); } }
         seekTo(seconds, allowSeekAhead) { if (this.type === 'youtube') { this.player.seekTo(seconds, allowSeekAhead); } }
@@ -4281,8 +4286,16 @@
         mute() { if (this.type === 'youtube') { this.player.mute(); } }
         unMute() { if (this.type === 'youtube') { this.player.unMute(); } }
         unloadModule() { }
+        
         destroy() {
-            if (this.type === 'youtube') { try { this.player.destroy(); } catch (_) {} }
+            if (this.type === 'youtube') {
+                try { this.player.destroy(); } catch (_) {}
+            } else {
+                try {
+                    this.player.src = 'about:blank';
+                    this.player.remove();
+                } catch (_) {}
+            }
             this.player = null;
         }
     }
@@ -4570,7 +4583,15 @@
     function showControls() { customUI.classList.remove('player-ui-hidden'); playerWrapper.classList.remove('hide-shadows'); resetControlsTimer(); }
     function showControlsNoTimer() { customUI.classList.remove('player-ui-hidden'); playerWrapper.classList.remove('hide-shadows'); clearTimeout(controlsTimeout); }
     function hideControls() { if (isEnded || isSeeking) return; customUI.classList.add('player-ui-hidden'); playerWrapper.classList.add('hide-shadows'); }
-    function resetControlsTimer() { clearTimeout(controlsTimeout); if (isEnded || isSeeking) return; controlsTimeout = setTimeout(hideControls, 5500); }
+    function resetControlsTimer() {
+        clearTimeout(controlsTimeout);
+        if (isEnded || isSeeking) return;
+        if (player && player.type === 'drive') {
+            document.getElementById('customUI').classList.remove('player-ui-hidden');
+            return;
+        }
+        controlsTimeout = setTimeout(hideControls, 5500);
+    }
     if (window.matchMedia('(pointer: fine)').matches) {
         playerWrapper.addEventListener('mousemove', showControls);
         playerWrapper.addEventListener('mouseleave', () => resetControlsTimer());
