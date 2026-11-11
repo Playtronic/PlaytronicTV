@@ -677,6 +677,12 @@
             #playerMobileBottom { display: none !important; }
             #commentsSection { display: flex; order: 3; margin-top: 10px; width: 100%; }
         }
+    
+        /* PATCH: Esconder sombras no Google Drive */
+        .player-wrapper.drive-mode::before, 
+        .player-wrapper.drive-mode::after { 
+            display: none !important; 
+        }
     </style>
 </head>
 <body>
@@ -4209,6 +4215,7 @@
             document.querySelector('.player-controls').style.display = 'flex';
             document.querySelector('.center-play-btn').style.display = 'flex';
             document.getElementById('driveMask').style.display = 'none';
+            document.getElementById('playerWrapper').classList.remove('drive-mode');
 
             this.container.innerHTML = '<div id="ytPlayerDiv" style="width:100%; height:100%;"></div>';
             this.player = new YT.Player('ytPlayerDiv', {
@@ -4236,6 +4243,7 @@
             
             // Mostra a máscara para cobrir o botão "Abrir no Google Drive"
             document.getElementById('driveMask').style.display = 'block';
+            document.getElementById('playerWrapper').classList.add('drive-mode');
 
             const iframe = document.createElement('iframe');
             iframe.src = `https://drive.google.com/file/d/${this.video.driveFileId}/preview`;
