@@ -3275,7 +3275,7 @@
             if (typeof b === 'string') return { src: b, link: 'https://playtronicgames.com.br', views: 0 };
             if (b && typeof b === 'object') { let url = b.src || b.url || b.image; return { ...b, src: url, views: Number(b.views || 0) }; }
             return null;
-        }).filter(b => b && b.src);
+        }).filter(b => b && b.src && !b.src.includes('{') && !b.src.includes('}'));
     }
     const manageAdsModal = document.getElementById('manageAdsModal');
     const adsListContainer = document.getElementById('adsListContainer');
@@ -3897,33 +3897,6 @@
     function mountStandardAd(container, opts, scriptSrc) {
         if (!container) return;
         container.innerHTML = '';
-        const iframe = document.createElement('iframe');
-        iframe.setAttribute('scrolling', 'no');
-        iframe.setAttribute('frameborder', '0');
-        iframe.style.cssText = 'display:block; border:0; position:absolute; top:0; left:0; width:100%; height:100%; overflow:hidden;';
-        
-        let css = 'html,body{margin:0;padding:0;overflow:hidden;width:100%;height:100%;background:transparent;display:flex;align-items:center;justify-content:center;}';
-        css += '@media (max-width: 900px) {';
-        css += '.player-wrapper.drive-mode { display: flex; flex-direction: column; aspect-ratio: auto !important; height: auto !important; max-height: none !important; background: #152961; border-radius: 12px; overflow: hidden; }';
-        css += '.player-wrapper.drive-mode #youtubePlayer { position: relative !important; width: 100% !important; aspect-ratio: 16 / 9 !important; height: auto !important; flex-shrink: 0; }';
-        css += '.player-wrapper.drive-mode iframe { position: absolute !important; top: 0; left: 0; width: 100%; height: 100%; }';
-        css += '.player-wrapper.drive-mode .custom-ui { position: relative !important; inset: auto !important; display: flex; flex-direction: column; width: 100%; background: #152961; padding: 12px; gap: 12px; pointer-events: auto; }';
-        css += '.player-wrapper.drive-mode .player-video-title { display: none !important; }';
-        css += '.player-wrapper.drive-mode .close-player-btn { position: static !important; width: 100%; height: 40px; border-radius: 8px; background: rgba(239, 68, 68, 0.15); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.3); margin-bottom: 4px; }';
-        css += '.player-wrapper.drive-mode .close-player-btn::after { content: " Fechar Player"; font-family: inherit; font-size: 0.9rem; font-weight: bold; margin-left: 5px; }';
-        css += '.player-wrapper.drive-mode .player-vote-container { position: static !important; flex-direction: row !important; background: transparent !important; padding: 0 !important; width: 100%; border: none !important; gap: 10px !important; }';
-        css += '.player-wrapper.drive-mode .player-vote-container > div { flex: 1; gap: 10px !important; }';
-        css += '.player-wrapper.drive-mode .player-vote-btn { flex: 1; padding: 10px !important; font-size: 0.9rem !important; }';
-        css += '.player-wrapper.drive-mode #sharePlayerBtn { flex: 1; padding: 10px !important; font-size: 0.9rem !important; }';
-        css += '.player-wrapper.drive-mode::before, .player-wrapper.drive-mode::after { display: none !important; } }';
-        
-        let html = '<!DOCTYPE html><html><head><meta charset="utf-8"><style>' + css + '</style></head><body>';
-        html += '\x3Cscript type="text/javascript">atOptions=' + JSON.stringify(opts) + ';\x3C/script>';
-        html += '\x3Cscript type="text/javascript" src="' + scriptSrc + '">\x3C/script>';
-        html += '</body></html>';
-        
-        iframe.srcdoc = html;
-        container.appendChild(iframe);
     }
 
     function closeAdAndPlay() {
@@ -3938,33 +3911,11 @@
     }
     function injectLeftNativeAd() {
         const container = document.getElementById('adNativeLeft');
-        if (!container) return;
-        container.innerHTML = '';
-        const adDiv = document.createElement('div');
-        adDiv.id = 'container-efe34bd92ca74a51f85465ca14314dc7';
-        container.appendChild(adDiv);
-        const script = document.createElement('script');
-        script.async = true;
-        script.setAttribute('data-cfasync', 'false');
-        script.src = 'https://dcengg.org/21/efe34bd92ca74a51f85465ca14314dc7';
-        container.appendChild(script);
+        if (container) container.innerHTML = '';
     }
     function injectRightStandardAd() {
         const container = document.getElementById('adNativeRight');
-        if (!container) return;
-        container.innerHTML = '';
-        const iframe = document.createElement('iframe');
-        iframe.setAttribute('scrolling', 'no');
-        iframe.setAttribute('frameborder', '0');
-        iframe.style.cssText = 'display:block; border:0; position:absolute; top:0; left:0; width:100%; height:100%; overflow:hidden;';
-        
-        let html = '<!DOCTYPE html><html><head><meta charset="utf-8"><style>html,body{margin:0;padding:0;overflow:hidden;width:100%;height:100%;background:transparent;display:flex;align-items:center;justify-content:center;}</style></head><body>';
-        html += '\x3Cscript type="text/javascript">atOptions = {"key":"0b2a1dd49cefbcb5c3f10330c969042c","format":"iframe","height":600,"width":160,"params":{}};\x3C/script>';
-        html += '\x3Cscript type="text/javascript" src="https://dcengg.org/22/0b2a1dd49cefbcb5c3f10330c969042c">\x3C/script>';
-        html += '</body></html>';
-        
-        iframe.srcdoc = html;
-        container.appendChild(iframe);
+        if (container) container.innerHTML = '';
     }
     async function showAdInterstitial(video) {
         if (catalogSubscription.active) {
@@ -3995,13 +3946,11 @@
         const isLandscape = window.matchMedia('(max-width: 900px) and (orientation: landscape)').matches;
         const isPortrait = window.matchMedia('(max-width: 900px) and (orientation: portrait)').matches;
         if (isLandscape) {
-            mountStandardAd(document.getElementById('adNativeRight'), { key: '51efcb0e502dffc7c8c25030a1155128', format: 'iframe', height: 250, width: 300, params: {} }, 'https://dcengg.org/22/51efcb0e502dffc7c8c25030a1155128');
+            // Removido chamada do mountStandardAd
         } else if (isPortrait) {
-            mountStandardAd(document.getElementById('adMobileTop'), { key: 'c7c3c36fda809c5dd35ae6ed9c4890ca', format: 'iframe', height: 50, width: 320, params: {} }, 'https://dcengg.org/22/c7c3c36fda809c5dd35ae6ed9c4890ca');
-            mountStandardAd(document.getElementById('adMobileBottom'), { key: '51efcb0e502dffc7c8c25030a1155128', format: 'iframe', height: 250, width: 300, params: {} }, 'https://dcengg.org/22/51efcb0e502dffc7c8c25030a1155128');
+            // Removido chamada do mountStandardAd
         } else {
-            injectLeftNativeAd();
-            injectRightStandardAd();
+            // Removido chamada do injectLeftNativeAd / injectRightStandardAd
         }
         if (adYtPlayer) { try { adYtPlayer.stopVideo(); adYtPlayer.destroy(); } catch(e){} adYtPlayer = null; }
         if (activePaidAds.length > 0) {
@@ -4077,19 +4026,13 @@
                 playerMobileTop.style.display = '';
                 playerMobileBottom.style.display = isLandscape ? 'none' : '';
                 playerBottomAd.style.display = 'none';
-                mountStandardAd(playerMobileTop, { key: 'c7c3c36fda809c5dd35ae6ed9c4890ca', format: 'iframe', height: 50, width: 320, params: {} }, 'https://dcengg.org/22/c7c3c36fda809c5dd35ae6ed9c4890ca');
-                if (!isLandscape) {
-                    mountStandardAd(playerMobileBottom, { key: '51efcb0e502dffc7c8c25030a1155128', format: 'iframe', height: 250, width: 300, params: {} }, 'https://dcengg.org/22/51efcb0e502dffc7c8c25030a1155128');
-                }
+                // Removidas chamadas de anúncios externos quebrados
             } else {
                 playerMobileTop.style.display = 'none'; playerMobileBottom.style.display = 'none';
                 playerBottomAd.style.display = 'block';
                 if (!playerBottomAd.dataset.mounted) {
                     playerBottomAd.dataset.mounted = '1';
-                    let htmlAd = '<!DOCTYPE html><html><head><meta charset="utf-8"><style>html,body{margin:0;padding:0;overflow:hidden;background:transparent;width:100%;height:100%;display:flex;align-items:center;justify-content:center;}</style></head><body>';
-                    htmlAd += '\x3Cscript type="text/javascript">atOptions={"key":"c0b67a9be1ab830aba44c6c24a020adc","format":"iframe","height":90,"width":728,"params":{}};\x3C/script>';
-                    htmlAd += '\x3Cscript type="text/javascript" src="https://dcengg.org/22/c0b67a9be1ab830aba44c6c24a020adc">\x3C/script></body></html>';
-                    horizontalAdIframe.srcdoc = htmlAd;
+                    // Removidas chamadas de anúncios externos quebrados
                 }
             }
         } else {
@@ -4130,15 +4073,7 @@
             document.getElementById('adNativeRight').innerHTML = '';
             document.getElementById('adMobileTop').innerHTML = '';
             document.getElementById('adMobileBottom').innerHTML = '';
-            if (isLandscape) {
-                mountStandardAd(document.getElementById('adNativeRight'), { key: '51efcb0e502dffc7c8c25030a1155128', format: 'iframe', height: 250, width: 300, params: {} }, 'https://dcengg.org/22/51efcb0e502dffc7c8c25030a1155128');
-            } else if (isPortrait) {
-                mountStandardAd(document.getElementById('adMobileTop'), { key: 'c7c3c36fda809c5dd35ae6ed9c4890ca', format: 'iframe', height: 50, width: 320, params: {} }, 'https://dcengg.org/22/c7c3c36fda809c5dd35ae6ed9c4890ca');
-                mountStandardAd(document.getElementById('adMobileBottom'), { key: '51efcb0e502dffc7c8c25030a1155128', format: 'iframe', height: 250, width: 300, params: {} }, 'https://dcengg.org/22/51efcb0e502dffc7c8c25030a1155128');
-            } else {
-                injectLeftNativeAd();
-                injectRightStandardAd();
-            }
+            // Removidas chamadas de anúncios externos
         }
         if (document.getElementById('playerScreen').classList.contains('active')) {
             const isMobileViewport = window.matchMedia('(max-width: 900px)').matches;
@@ -4150,9 +4085,7 @@
                     playerMobileBottom.style.display = 'none';
                 } else {
                     playerMobileBottom.style.display = 'block';
-                    if (!playerMobileBottom.querySelector('iframe')) {
-                        mountStandardAd(playerMobileBottom, { key: '51efcb0e502dffc7c8c25030a1155128', format: 'iframe', height: 250, width: 300, params: {} }, 'https://dcengg.org/22/51efcb0e502dffc7c8c25030a1155128');
-                    }
+                    // Removidas chamadas de anúncios externos
                 }
             }
         }
