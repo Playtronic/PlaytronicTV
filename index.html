@@ -258,6 +258,19 @@
             display: none !important; -webkit-appearance: none !important;
         }
 
+        /* MÁSCARA PARA ESCONDER O BOTÃO DO GOOGLE DRIVE */
+        .drive-mask {
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 80px;
+            height: 80px;
+            z-index: 10; /* Fica acima do iframe, abaixo dos botões customizados */
+            display: none;
+            background: transparent;
+            cursor: default;
+        }
+
         .custom-ui { position: absolute; inset: 0; z-index: 20; pointer-events: none; transition: opacity 0.4s ease, visibility 0.4s ease; }
         .custom-ui.player-ui-hidden { opacity: 0 !important; visibility: hidden !important; }
         .close-player-btn { position: absolute; top: 15px; left: 15px; background: rgba(0,0,0,0.6); border: 1px solid rgba(255,255,255,0.2); color: #fff; width: 40px; height: 40px; border-radius: 50%; font-size: 1.2rem; cursor: pointer; display: flex; align-items: center; justify-content: center; pointer-events: auto; z-index: 30; }
@@ -1053,6 +1066,8 @@
                 </div>
             </div>
             <div id="youtubePlayer"></div>
+            <!-- MÁSCARA PARA ESCONDER O BOTÃO DO GOOGLE DRIVE -->
+            <div id="driveMask" class="drive-mask"></div>
         </div>
         <div class="player-mobile-banner" id="playerMobileTop"></div>
         <div id="player-bottom-ad">
@@ -1528,12 +1543,6 @@
         m = url.match(/\/d\/([a-zA-Z0-9_-]{10,})/);
         if (m) return m[1];
         return null;
-    }
-
-    function buildDrivePlayUrl(video) {
-        if (video.playUrl && String(video.playUrl).trim()) return String(video.playUrl).trim();
-        if (!video.driveFileId) return '';
-        return `https://drive.google.com/uc?export=download&id=${encodeURIComponent(video.driveFileId)}`;
     }
 
     function getVideoThumbnail(video) {
@@ -4179,8 +4188,7 @@
     window.onYouTubeIframeAPIReady = function() {};
 
     // ────────────────────────────────────────────────────────────
-    // PLAYER ADAPTER — unifica YouTube (YT.Player) e Drive (<video>)
-    // Expõe a MESMA API usada no resto do código
+    // PLAYER ADAPTER — unifica YouTube (YT.Player) e Drive (iframe)
     // ────────────────────────────────────────────────────────────
     class PlayerAdapter {
         constructor(video, container) {
@@ -4197,6 +4205,11 @@
         }
 
         _initYouTube(onReady, onStateChange) {
+            // Mostra os controles customizados para o YouTube
+            document.querySelector('.player-controls').style.display = 'flex';
+            document.querySelector('.center-play-btn').style.display = 'flex';
+            document.getElementById('driveMask').style.display = 'none';
+
             this.container.innerHTML = '<div id="ytPlayerDiv" style="width:100%; height:100%;"></div>';
             this.player = new YT.Player('ytPlayerDiv', {
                 height: '100%', width: '100%', videoId: this.video.youtubeId,
@@ -4217,95 +4230,42 @@
         }
 
         _initDrive(onReady, onStateChange) {
-            const playUrl = buildDrivePlayUrl(this.video);
-            if (!playUrl) {
-                try { playerLoadingOverlay.classList.add('hidden'); } catch (_) {}
-                alert('Este vídeo do Drive não tem URL de reprodução configurada.');
-                return;
-            }
+            // Esconde APENAS os controles que conflitam com o player do Google
+            document.querySelector('.player-controls').style.display = 'none';
+            document.querySelector('.center-play-btn').style.display = 'none';
+            
+            // Mostra a máscara para cobrir o botão "Abrir no Google Drive"
+            document.getElementById('driveMask').style.display = 'block';
 
-            const v = document.createElement('video');
-            v.id = 'driveVideoElement';
-            v.style.cssText = 'width:100%;height:100%;display:block;border:none;position:absolute;top:0;left:0;z-index:1;pointer-events:none;background:#000;object-fit:contain;';
-            v.controls = false;
-            v.playsInline = true;
-            v.preload = 'auto';
-            v.setAttribute('playsinline', '');
-            v.setAttribute('webkit-playsinline', '');
-            v.src = playUrl;
+            const iframe = document.createElement('iframe');
+            iframe.src = `https://drive.google.com/file/d/${this.video.driveFileId}/preview`;
+            iframe.style.cssText = 'width:100%; height:100%; border:none; position:absolute; top:0; left:0; z-index:1;';
+            iframe.allow = 'autoplay';
+            iframe.setAttribute('sandbox', 'allow-scripts allow-same-origin'); // Bloqueia redirects/popups
 
             this.container.innerHTML = '';
-            this.container.appendChild(v);
-            this.player = v;
+            this.container.appendChild(iframe);
+            this.player = iframe;
 
-            const emit = (data) => onStateChange({ data, target: this });
-
-            v.addEventListener('loadedmetadata', () => {
-                this._ready = true;
+            // Simula o carregamento para destravar a tela e contar a view
+            setTimeout(() => {
                 onReady({ target: this });
-                const p = v.play();
-                if (p && typeof p.catch === 'function') p.catch(() => {});
-            });
-            v.addEventListener('play',    () => emit(1));
-            v.addEventListener('pause',   () => emit(2));
-            v.addEventListener('ended',   () => emit(0));
-            v.addEventListener('waiting', () => emit(3));
-            v.addEventListener('error',   () => {
-                console.error('[PlayerAdapter] erro no vídeo Drive:', v.error, v.src);
-                try { playerLoadingOverlay.classList.add('hidden'); } catch (_) {}
-                let msg = 'Erro ao carregar vídeo do Google Drive.';
-                if (v.error) {
-                    if (v.error.code === 4) msg += ' Formato não suportado ou link expirado.';
-                    if (v.error.code === 2) msg += ' Falha de rede ou arquivo inacessível.';
-                }
-                msg += ' Verifique se o arquivo está compartilhado como "Qualquer pessoa com o link".';
-                alert(msg);
-            });
+                onStateChange({ data: 1 }); // Finge que está tocando
+            }, 1000);
         }
 
-        playVideo() {
-            if (this.type === 'youtube') { this.player.playVideo(); }
-            else { const p = this.player.play(); if (p && typeof p.catch === 'function') p.catch(() => {}); }
-        }
-        pauseVideo() {
-            if (this.type === 'youtube') this.player.pauseVideo();
-            else this.player.pause();
-        }
-        seekTo(seconds, allowSeekAhead) {
-            if (this.type === 'youtube') this.player.seekTo(seconds, allowSeekAhead);
-            else this.player.currentTime = seconds;
-        }
-        getCurrentTime() {
-            if (this.type === 'youtube') { try { return this.player.getCurrentTime() || 0; } catch (_) { return 0; } }
-            return this.player.currentTime || 0;
-        }
-        getDuration() {
-            if (this.type === 'youtube') { try { return this.player.getDuration() || 0; } catch (_) { return 0; } }
-            return this.player.duration || 0;
-        }
-        setVolume(vol) {
-            if (this.type === 'youtube') this.player.setVolume(vol);
-            else this.player.volume = Math.max(0, Math.min(1, Number(vol) / 100));
-        }
-        mute() {
-            if (this.type === 'youtube') this.player.mute();
-            else this.player.muted = true;
-        }
-        unMute() {
-            if (this.type === 'youtube') this.player.unMute();
-            else this.player.muted = false;
-        }
+        // Métodos de controle (só o YouTube usa, o Drive é nativo)
+        playVideo() { if (this.type === 'youtube') { this.player.playVideo(); } }
+        pauseVideo() { if (this.type === 'youtube') { this.player.pauseVideo(); } }
+        seekTo(seconds, allowSeekAhead) { if (this.type === 'youtube') { this.player.seekTo(seconds, allowSeekAhead); } }
+        getCurrentTime() { return this.type === 'youtube' ? this.player.getCurrentTime() || 0 : 0; }
+        getDuration() { return this.type === 'youtube' ? this.player.getDuration() || 0 : 0; }
+        setVolume(vol) { if (this.type === 'youtube') { this.player.setVolume(vol); } }
+        mute() { if (this.type === 'youtube') { this.player.mute(); } }
+        unMute() { if (this.type === 'youtube') { this.player.unMute(); } }
         unloadModule() { }
         destroy() {
             if (this.type === 'youtube') { try { this.player.destroy(); } catch (_) {} }
-            else {
-                try {
-                    this.player.pause();
-                    this.player.removeAttribute('src');
-                    this.player.load();
-                    this.player.remove();
-                } catch (_) {}
-            }
             this.player = null;
         }
     }
@@ -4673,6 +4633,7 @@
         stopWatchStatusHeartbeat();
         reportWatchStatus('none');
         closeComments();
+        document.getElementById('driveMask').style.display = 'none'; // Reseta a máscara ao fechar
     }
     document.getElementById('closePlayerBtn').addEventListener('click', closePlayer);
     fullscreenBtn.addEventListener('click', () => {
