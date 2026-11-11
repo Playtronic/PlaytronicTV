@@ -684,12 +684,12 @@
             display: none !important; 
         }
     
-        /* PATCH: Ajuste do Player do Drive no Mobile */
+        /* PATCH DEFINITIVO: Força 16:9 no Drive para organizar controles no mobile */
         @media (max-width: 900px) {
             .player-wrapper.drive-mode {
-                aspect-ratio: auto !important;
-                height: 60vh; /* Deixa o player mais alto no celular */
-                max-height: 70vh !important;
+                aspect-ratio: 16 / 9 !important;
+                height: auto !important;
+                max-height: calc(100vh - 250px) !important;
             }
         }
     </style>
