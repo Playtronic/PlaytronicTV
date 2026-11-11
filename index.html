@@ -3893,6 +3893,7 @@
     const adCenterWrapper = document.getElementById('adCenterWrapper');
     let pendingVideo = null;
     let adTimerInterval = null;
+    
     function mountStandardAd(container, opts, scriptSrc) {
         if (!container) return;
         container.innerHTML = '';
@@ -3900,109 +3901,31 @@
         iframe.setAttribute('scrolling', 'no');
         iframe.setAttribute('frameborder', '0');
         iframe.style.cssText = 'display:block; border:0; position:absolute; top:0; left:0; width:100%; height:100%; overflow:hidden;';
-        iframe.srcdoc = `<!DOCTYPE html><html><head><meta charset="utf-8"><style>html,body{margin:0;padding:0;overflow:hidden;width:100%;height:100%;background:transparent;display:flex;align-items:center;justify-content:center;}
-        /* PATCH ABSOLUTO: Layout Mobile Perfeito para o Google Drive */
-        @media (max-width: 900px) {
-            /* O container geral do player vira uma coluna */
-            .player-wrapper.drive-mode {
-                display: flex;
-                flex-direction: column;
-                aspect-ratio: auto !important;
-                height: auto !important;
-                max-height: none !important;
-                background: #152961;
-                border-radius: 12px;
-                overflow: hidden;
-            }
-            
-            /* A área do iframe mantém o formato 16:9 */
-            .player-wrapper.drive-mode #youtubePlayer {
-                position: relative !important;
-                width: 100% !important;
-                aspect-ratio: 16 / 9 !important;
-                height: auto !important;
-                flex-shrink: 0;
-            }
-            
-            /* O iframe do Google se ajusta perfeitamente */
-            .player-wrapper.drive-mode iframe {
-                position: absolute !important;
-                top: 0; left: 0; width: 100%; height: 100%;
-            }
+        
+        // Usando concatenação para evitar que o navegador feche a tag <script> incorretamente
+        let html = '<!DOCTYPE html><html><head><meta charset="utf-8"><style>html,body{margin:0;padding:0;overflow:hidden;width:100%;height:100%;background:transparent;display:flex;align-items:center;justify-content:center;}';
+        html += '@media (max-width: 900px) {';
+        html += '.player-wrapper.drive-mode { display: flex; flex-direction: column; aspect-ratio: auto !important; height: auto !important; max-height: none !important; background: #152961; border-radius: 12px; overflow: hidden; }';
+        html += '.player-wrapper.drive-mode #youtubePlayer { position: relative !important; width: 100% !important; aspect-ratio: 16 / 9 !important; height: auto !important; flex-shrink: 0; }';
+        html += '.player-wrapper.drive-mode iframe { position: absolute !important; top: 0; left: 0; width: 100%; height: 100%; }';
+        html += '.player-wrapper.drive-mode .custom-ui { position: relative !important; inset: auto !important; display: flex; flex-direction: column; width: 100%; background: #152961; padding: 12px; gap: 12px; pointer-events: auto; }';
+        html += '.player-wrapper.drive-mode .player-video-title { display: none !important; }';
+        html += '.player-wrapper.drive-mode .close-player-btn { position: static !important; width: 100%; height: 40px; border-radius: 8px; background: rgba(239, 68, 68, 0.15); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.3); margin-bottom: 4px; }';
+        html += '.player-wrapper.drive-mode .close-player-btn::after { content: " Fechar Player"; font-family: inherit; font-size: 0.9rem; font-weight: bold; margin-left: 5px; }';
+        html += '.player-wrapper.drive-mode .player-vote-container { position: static !important; flex-direction: row !important; background: transparent !important; padding: 0 !important; width: 100%; border: none !important; gap: 10px !important; }';
+        html += '.player-wrapper.drive-mode .player-vote-container > div { flex: 1; gap: 10px !important; }';
+        html += '.player-wrapper.drive-mode .player-vote-btn { flex: 1; padding: 10px !important; font-size: 0.9rem !important; }';
+        html += '.player-wrapper.drive-mode #sharePlayerBtn { flex: 1; padding: 10px !important; font-size: 0.9rem !important; }';
+        html += '.player-wrapper.drive-mode::before, .player-wrapper.drive-mode::after { display: none !important; } }';
+        html += '</style></head><body>';
+        html += '<script type="text/javascript">atOptions=' + JSON.stringify(opts) + ';<\/script>';
+        html += '<script type="text/javascript" src="' + scriptSrc + '"><\/script>';
+        html += '</body></html>';
 
-            /* A barra de controles desce para baixo do vídeo */
-            .player-wrapper.drive-mode .custom-ui {
-                position: relative !important;
-                inset: auto !important;
-                display: flex;
-                flex-direction: column;
-                width: 100%;
-                background: #152961;
-                padding: 12px;
-                gap: 12px;
-                pointer-events: auto;
-            }
-            
-            .player-wrapper.drive-mode .player-video-title {
-                display: none !important;
-            }
-
-            /* Botão de fechar largo em cima da barra ou do lado */
-            .player-wrapper.drive-mode .close-player-btn {
-                position: static !important;
-                width: 100%;
-                height: 40px;
-                border-radius: 8px;
-                background: rgba(239, 68, 68, 0.15);
-                color: #ef4444;
-                border: 1px solid rgba(239, 68, 68, 0.3);
-                margin-bottom: 4px;
-            }
-            .player-wrapper.drive-mode .close-player-btn::after {
-                content: ' Fechar Player';
-                font-family: inherit;
-                font-size: 0.9rem;
-                font-weight: bold;
-                margin-left: 5px;
-            }
-
-            /* Botões de Curtir / Compartilhar organizados lado a lado */
-            .player-wrapper.drive-mode .player-vote-container {
-                position: static !important;
-                flex-direction: row !important;
-                background: transparent !important;
-                padding: 0 !important;
-                width: 100%;
-                border: none !important;
-                gap: 10px !important;
-            }
-            
-            .player-wrapper.drive-mode .player-vote-container > div {
-                flex: 1;
-                gap: 10px !important;
-            }
-            
-            .player-wrapper.drive-mode .player-vote-btn {
-                flex: 1;
-                padding: 10px !important;
-                font-size: 0.9rem !important;
-            }
-            
-            .player-wrapper.drive-mode #sharePlayerBtn {
-                flex: 1;
-                padding: 10px !important;
-                font-size: 0.9rem !important;
-            }
-
-            /* Remove as sombras horrorosas */
-            .player-wrapper.drive-mode::before, 
-            .player-wrapper.drive-mode::after { 
-                display: none !important; 
-            }
-        }
-    </style></head><body><script type="text/javascript">atOptions=${JSON.stringify(opts)};<\/script><script type="text/javascript" src="${scriptSrc}"><\/script></body></html>`;
+        iframe.srcdoc = html;
         container.appendChild(iframe);
     }
+
     function closeAdAndPlay() {
         if (!pendingVideo || !adModal.classList.contains('active')) return;
         adModal.classList.remove('active');
@@ -4034,7 +3957,13 @@
         iframe.setAttribute('scrolling', 'no');
         iframe.setAttribute('frameborder', '0');
         iframe.style.cssText = 'display:block; border:0; position:absolute; top:0; left:0; width:100%; height:100%; overflow:hidden;';
-        iframe.srcdoc = `<!DOCTYPE html><html><head><meta charset="utf-8"><style>html,body{margin:0;padding:0;overflow:hidden;width:100%;height:100%;background:transparent;display:flex;align-items:center;justify-content:center;}</style></head><body><script type="text/javascript">atOptions = {'key' : '0b2a1dd49cefbcb5c3f10330c969042c','format' : 'iframe','height' : 600,'width' : 160,'params' : {}};<\/script><script type="text/javascript" src="https://dcengg.org/22/0b2a1dd49cefbcb5c3f10330c969042c"><\/script></body></html>`;
+        
+        let html = '<!DOCTYPE html><html><head><meta charset="utf-8"><style>html,body{margin:0;padding:0;overflow:hidden;width:100%;height:100%;background:transparent;display:flex;align-items:center;justify-content:center;}</style></head><body>';
+        html += '<script type="text/javascript">atOptions = {"key":"0b2a1dd49cefbcb5c3f10330c969042c","format":"iframe","height":600,"width":160,"params":{}};<\/script>';
+        html += '<script type="text/javascript" src="https://dcengg.org/22/0b2a1dd49cefbcb5c3f10330c969042c"><\/script>';
+        html += '</body></html>';
+
+        iframe.srcdoc = html;
         container.appendChild(iframe);
     }
     async function showAdInterstitial(video) {
@@ -4157,7 +4086,9 @@
                 playerBottomAd.style.display = 'block';
                 if (!playerBottomAd.dataset.mounted) {
                     playerBottomAd.dataset.mounted = '1';
-                    const htmlAd = `<!DOCTYPE html><html><head><meta charset="utf-8"><style>html,body{margin:0;padding:0;overflow:hidden;background:transparent;width:100%;height:100%;display:flex;align-items:center;justify-content:center;}</style></head><body><script type="text/javascript">atOptions={'key':'c0b67a9be1ab830aba44c6c24a020adc','format':'iframe','height':90,'width':728,'params':{}};<\/script><script type="text/javascript" src="https://dcengg.org/22/c0b67a9be1ab830aba44c6c24a020adc"><\/script></body></html>`;
+                    let htmlAd = '<!DOCTYPE html><html><head><meta charset="utf-8"><style>html,body{margin:0;padding:0;overflow:hidden;background:transparent;width:100%;height:100%;display:flex;align-items:center;justify-content:center;}</style></head><body>';
+                    htmlAd += '<script type="text/javascript">atOptions={"key":"c0b67a9be1ab830aba44c6c24a020adc","format":"iframe","height":90,"width":728,"params":{}};<\/script>';
+                    htmlAd += '<script type="text/javascript" src="https://dcengg.org/22/c0b67a9be1ab830aba44c6c24a020adc"><\/script></body></html>';
                     horizontalAdIframe.srcdoc = htmlAd;
                 }
             }
