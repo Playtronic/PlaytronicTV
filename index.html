@@ -242,6 +242,22 @@
         .player-wrapper::after { content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 100px; background: linear-gradient(to top, #000 0%, #000 50%, transparent 100%); z-index: 5; pointer-events: none; transition: opacity 0.4s ease; }
         .player-wrapper.hide-shadows::before, .player-wrapper.hide-shadows::after { opacity: 0; }
         .player-wrapper iframe { width: 100%; height: 100%; display: block; border: none; position: absolute; top: 0; left: 0; z-index: 1; pointer-events: none; }
+
+        /* ── HTML5 <video> no player-wrapper (Drive) ── */
+        .player-wrapper video {
+            width: 100%; height: 100%; display: block;
+            border: none; position: absolute; top: 0; left: 0;
+            z-index: 1; pointer-events: none;
+            background: #000; object-fit: contain;
+        }
+        .player-wrapper video::-webkit-media-controls,
+        .player-wrapper video::-webkit-media-controls-enclosure,
+        .player-wrapper video::-webkit-media-controls-panel,
+        .player-wrapper video::-webkit-media-controls-play-button,
+        .player-wrapper video::-webkit-media-controls-start-playback-button {
+            display: none !important; -webkit-appearance: none !important;
+        }
+
         .custom-ui { position: absolute; inset: 0; z-index: 20; pointer-events: none; transition: opacity 0.4s ease, visibility 0.4s ease; }
         .custom-ui.player-ui-hidden { opacity: 0 !important; visibility: hidden !important; }
         .close-player-btn { position: absolute; top: 15px; left: 15px; background: rgba(0,0,0,0.6); border: 1px solid rgba(255,255,255,0.2); color: #fff; width: 40px; height: 40px; border-radius: 50%; font-size: 1.2rem; cursor: pointer; display: flex; align-items: center; justify-content: center; pointer-events: auto; z-index: 30; }
@@ -805,29 +821,55 @@
     <div class="modal">
         <h2 id="videoModalTitle">Adicionar Vídeo</h2>
         <p class="modal-sub" id="videoModalSub"></p>
-        <label>URL do YouTube</label>
+
+        <label>Tipo de Fonte</label>
+        <select id="videoSourceTypeInput">
+            <option value="youtube">YouTube</option>
+            <option value="drive">Google Drive</option>
+        </select>
+
+        <label id="videoUrlLabel">URL do YouTube</label>
         <input type="text" id="videoUrlInput" placeholder="https://www.youtube.com/watch?v=...">
         <div class="url-hint" id="urlHint"></div>
+
+        <div id="driveFieldsGroup" style="display: none;">
+            <label>URL de Reprodução (opcional)</label>
+            <input type="text" id="videoPlayUrlInput" placeholder="https://seu-proxy.com/stream/...">
+            <div class="url-hint" style="color: #94a3b8;">
+                Deixe vazio para usar o link direto do Drive (funciona para arquivos &lt; 100MB).
+                Para arquivos grandes, cole aqui a URL do seu proxy/API (Cloudflare Worker, Cloud Function, etc).
+            </div>
+        </div>
+
+        <label>Miniatura Personalizada (URL, opcional)</label>
+        <input type="text" id="videoThumbnailUrlInput" placeholder="https://... (deixe vazio para gerar automaticamente)">
+
         <label>Título</label>
         <input type="text" id="videoTitleInput" placeholder="Título do vídeo">
+
         <label>Produtora</label>
         <input type="text" id="videoProdutoraInput" placeholder="Ex.: Walt Disney Productions">
+
         <label>Ano</label>
         <input type="text" id="videoAnoInput" placeholder="Ex.: 1950" maxlength="4">
+
         <label>Classificação (Padrão ANCINE)</label>
         <select id="videoClassificacaoInput">
             <option value="curta" selected>Curta-metragem (até 15 min)</option>
             <option value="media">Média-metragem (15 a 70 min)</option>
             <option value="longa">Longa-metragem (acima de 70 min)</option>
         </select>
+
         <div class="modal-checkbox-row">
             <label><input type="radio" name="videoMarker" value=""> Nenhum</label>
             <label><input type="radio" name="videoMarker" value="pago"> PAGO</label>
             <label><input type="radio" name="videoMarker" value="ad"> AD</label>
         </div>
-        <div class="modal-checkbox-row yt-checkbox-row">
+
+        <div class="modal-checkbox-row yt-checkbox-row" id="abrirNoYoutubeGroup">
             <label><input type="checkbox" id="videoAbrirNoYoutubeInput"> ↗ Abrir no YouTube (para vídeos que bloqueiam incorporação)</label>
         </div>
+
         <div class="modal-actions">
             <button class="secondary" id="cancelVideoBtn">Cancelar</button>
             <button class="primary" id="confirmVideoBtn">Salvar</button>
@@ -867,7 +909,6 @@
     </div>
 </div>
 
-<!-- ═══════════════ PERFORMANCE MODAL (com aba de Comentários integrada) ═══════════════ -->
 <div class="modal-overlay" id="performanceModal">
     <div class="modal flex-modal" style="max-width: 950px;">
         <h2>📈 Desempenho</h2>
@@ -877,12 +918,10 @@
             <button id="tabCommentsBtn" class="perf-tab-btn">💬 Comentários</button>
         </div>
         <div class="modal-scroll" style="display: flex; flex-direction: column;">
-            <!-- ── Vídeos ── -->
             <div id="viewVideos" style="flex: 1; display: flex; flex-direction: column;">
                 <div class="perf-search-container"><input type="text" id="perfSearchInput" placeholder="Buscar por título do vídeo..."></div>
                 <div id="perfTableContainer" style="flex: 1; overflow-y: auto; border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; margin-top: 10px;"></div>
             </div>
-            <!-- ── Assinantes ── -->
             <div id="viewSubs" style="display: none; flex: 1; flex-direction: column;">
                 <div style="display: flex; gap: 10px; align-items: center; flex-shrink: 0; margin-bottom: 10px; flex-wrap: wrap;">
                     <div style="color: #fdbb2d; font-weight: 700; font-size: 0.88rem; display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
@@ -898,7 +937,6 @@
                 </div>
                 <div id="subsListContainer" style="flex: 1; overflow-y: auto; background: rgba(0,0,0,0.2); border-radius: 8px; padding: 10px; border: 1px solid rgba(255,255,255,0.05);"></div>
             </div>
-            <!-- ── Comentários ── -->
             <div id="viewComments" style="display: none; flex: 1; flex-direction: column;">
                 <div class="admin-tabs" style="flex-shrink: 0;">
                     <button class="admin-tab-btn active" data-tab="all">Todos</button>
@@ -1293,7 +1331,6 @@
         if (watchStatusTicker) { clearInterval(watchStatusTicker); watchStatusTicker = null; }
     }
 
-    /* ⬇️ TICKER ONLINE-FIRST (re-render preservando scroll) ⬇️ */
     let subsOnlineTicker = null;
     function startSubsOnlineTicker() {
         if (subsOnlineTicker) return;
@@ -1344,7 +1381,6 @@
         return `<div style="font-size:0.72rem;color:#475569;margin-top:3px;">⚫ Nenhum vídeo em execução</div>`;
     }
 
-    /* ⬇️ EXTERNAL WATCH ⬇️ */
     let externalWatchHeartbeat = null;
     let _externalWatchActive = false;
     let _externalWatchSetupDone = false;
@@ -1476,6 +1512,43 @@
             }
         } catch (_) { return null; }
         return null;
+    }
+
+    // ────────────────────────────────────────────────────────────
+    // HELPERS DO GOOGLE DRIVE
+    // ────────────────────────────────────────────────────────────
+    function extractDriveId(url) {
+        if (!url) return null;
+        url = url.trim();
+        if (/^[a-zA-Z0-9_-]{25,}$/.test(url) && !url.includes('/')) return url;
+        let m = url.match(/\/file\/d\/([a-zA-Z0-9_-]{10,})/);
+        if (m) return m[1];
+        m = url.match(/[?&]id=([a-zA-Z0-9_-]{10,})/);
+        if (m) return m[1];
+        m = url.match(/\/d\/([a-zA-Z0-9_-]{10,})/);
+        if (m) return m[1];
+        return null;
+    }
+
+    function buildDrivePlayUrl(video) {
+        if (video.playUrl && String(video.playUrl).trim()) return String(video.playUrl).trim();
+        if (!video.driveFileId) return '';
+        return `https://drive.google.com/uc?export=download&id=${encodeURIComponent(video.driveFileId)}`;
+    }
+
+    function getVideoThumbnail(video) {
+        if (video.thumbnailUrl && String(video.thumbnailUrl).trim()) return video.thumbnailUrl.trim();
+        if (video.sourceType === 'drive' && video.driveFileId) {
+            return `https://drive.google.com/thumbnail?id=${encodeURIComponent(video.driveFileId)}&sz=w400`;
+        }
+        return `https://img.youtube.com/vi/${video.youtubeId}/mqdefault.jpg`;
+    }
+
+    function playVideo(video) {
+        if (!video) return;
+        if (video.sourceType === 'drive') { openPlayer(video); return; }
+        if (video.abrirNoYoutube) { openYouTubeVideo(video); return; }
+        openPlayer(video);
     }
 
     function openYouTubeVideo(video) {
@@ -1748,8 +1821,7 @@
             if (video && (!video.isSuspended || isAdmin())) {
                 closeNotificationsModal();
                 userCard.classList.remove('active');
-                if (video.abrirNoYoutube) openYouTubeVideo(video);
-                else openPlayer(video);
+                playVideo(video);
             } else if (video && video.isSuspended && !isAdmin()) {
                 alert('Este vídeo está temporariamente suspenso.');
             }
@@ -2381,10 +2453,6 @@
         } catch (e) { alert('Erro ao fixar: ' + e.message); }
     }
 
-    /* ══════════════════════════════════════════════════════════════════════
-       MODAL DE DESEMPENHO — Vídeos, Assinantes, Comentários
-       ══════════════════════════════════════════════════════════════════════ */
-
     const performanceModal = document.getElementById('performanceModal');
     const perfTableContainer = document.getElementById('perfTableContainer');
     const perfSearchInput = document.getElementById('perfSearchInput');
@@ -2527,7 +2595,6 @@
             return true;
         });
 
-        /* ⬇️ ONLINE-FIRST: sort estável mantém ordem original dentro de cada grupo ⬇️ */
         filtered.sort((a, b) => {
             const aOnline = checkIsOnline(a.uid);
             const bOnline = checkIsOnline(b.uid);
@@ -2593,7 +2660,8 @@
             likes: (votesCache[v.youtubeId] || {}).likes || 0,
             dislikes: (votesCache[v.youtubeId] || {}).dislikes || 0,
             nota: calcularNotaFromCache(v.youtubeId),
-            isSuspended: !!v.isSuspended
+            isSuspended: !!v.isSuspended,
+            thumbnail: getVideoThumbnail(v)
         }));
         const field = perfSortField, order = perfSortOrder;
         data.sort((a, b) => {
@@ -2616,7 +2684,7 @@
                 </tr></thead>
                 <tbody>${data.map(v => `
                     <tr>
-                        <td><img class="perf-thumb" src="https://img.youtube.com/vi/${v.youtubeId}/mqdefault.jpg" alt=""></td>
+                        <td><img class="perf-thumb" src="${v.thumbnail}" alt="" onerror="this.src='https://via.placeholder.com/70x40/1e305c/fdbb2d'"></td>
                         <td class="perf-title" title="${escapeHtml(v.titulo)}">${escapeHtml(v.titulo)}</td>
                         <td>${v.publishedAt ? new Date(v.publishedAt).toLocaleDateString('pt-BR') : '—'}</td>
                         <td>${v.views.toLocaleString('pt-BR')}</td>
@@ -2638,10 +2706,6 @@
         });
     }
 
-    /* ══════════════════════════════════════════════════════════════════════
-       ADMIN COMMENTS (dentro do modal de Desempenho)
-       ══════════════════════════════════════════════════════════════════════ */
-
     document.querySelectorAll('.admin-tab-btn').forEach(btn => {
         btn.addEventListener('click', () => {
             document.querySelectorAll('.admin-tab-btn').forEach(b => b.classList.remove('active'));
@@ -2656,7 +2720,7 @@
         const video = getVideoByYoutubeId(ytid);
         if (!video) { alert('Vídeo não encontrado no catálogo.'); return; }
         closePerformanceModal();
-        openPlayer(video);
+        playVideo(video);
     }
     window.viewVideoFromAdmin = viewVideoFromAdmin;
 
@@ -2893,10 +2957,6 @@
             loadBlockedUsersList(document.getElementById('adminCommentsListContainer'));
         } catch (e) { alert(e.message); }
     }
-
-    /* ══════════════════════════════════════════════════════════════════════
-       AUTH / LOGIN
-       ══════════════════════════════════════════════════════════════════════ */
 
     const loginBtn = document.getElementById('loginBtn');
     const userInfo = document.getElementById('userInfo');
@@ -3177,22 +3237,20 @@
         card.className = 'card';
         card.dataset.ytid = item.youtubeId;
         card.dataset.key = item.key;
-        
-        const isSuspended = !!item.isSuspended;
-        if (isSuspended && isAdmin()) {
-            card.classList.add('suspended');
-        }
 
-        const ytid = escapeHtml(item.youtubeId);
+        const isSuspended = !!item.isSuspended;
+        if (isSuspended && isAdmin()) card.classList.add('suspended');
+
         const titulo = escapeHtml(item.titulo || '');
-        const posterUrl = `https://img.youtube.com/vi/${ytid}/mqdefault.jpg`;
+        const posterUrl = getVideoThumbnail(item);
         const isFav = !!userFavorites[item.youtubeId];
         const nota = calcularNotaFromCache(item.youtubeId);
         const tags = [];
         if (item.pago) tags.push('<span class="tag tag-pago">PAGO</span>');
         if (item.ad) tags.push('<span class="tag tag-ad">AD</span>');
         if (isSuspended) tags.push('<span class="tag tag-suspenso">SUSPENSO</span>');
-        
+        if (item.sourceType === 'drive') tags.push('<span class="tag" style="background:#0f9d58;color:#fff;">DRIVE</span>');
+
         const classificacao = normalizarClassificacao(item.classificacao);
         const classInfo = CLASSIFICACAO_INFO[classificacao];
         tags.push(`<span class="tag ${classInfo.cls} ancine-tag" title="${classInfo.titulo} — clique para saber mais">${classInfo.label}</span>`);
@@ -3202,7 +3260,7 @@
         const produtoraHtml = produtora ? `<span class="card-meta-line">${escapeHtml(produtora)}</span>` : '';
         const anoHtml = ano !== null ? `<span class="card-meta-line">Ano: ${escapeHtml(String(ano))}</span>` : '';
         const metaHtml = (produtoraHtml || anoHtml) ? `<div class="card-meta">${produtoraHtml}${anoHtml}</div>` : '';
-        
+
         let suspendBtnHtml = '';
         if (isAdmin()) {
             suspendBtnHtml = isSuspended
@@ -3212,7 +3270,7 @@
 
         card.innerHTML = `
             <div class="card-poster">
-                <img src="${posterUrl}" alt="Capa de ${titulo}" loading="lazy">
+                <img src="${posterUrl}" alt="Capa de ${titulo}" loading="lazy" onerror="this.src='https://via.placeholder.com/400x225/1e305c/fdbb2d?text=Sem+Capa'">
                 <div class="rating-badge">⭐ ${nota}</div>
                 <button class="favorite-btn ${isFav ? 'active' : ''}" title="Favoritar">${isFav ? '❤️' : '🤍'}</button>
                 <div class="admin-actions">
@@ -3231,31 +3289,25 @@
         card.querySelector('.favorite-btn').addEventListener('click', (e) => { e.stopPropagation(); toggleFavorite(item.youtubeId); });
         card.querySelector('.edit').addEventListener('click', (e) => { e.stopPropagation(); openVideoModal('edit', item); });
         card.querySelector('.delete').addEventListener('click', (e) => { e.stopPropagation(); deleteVideo(item); });
-        
+
         if (isAdmin()) {
             const suspendBtn = card.querySelector('.suspend, .unsuspend');
-            if (suspendBtn) {
-                suspendBtn.addEventListener('click', (e) => { e.stopPropagation(); toggleSuspendVideo(item); });
-            }
+            if (suspendBtn) suspendBtn.addEventListener('click', (e) => { e.stopPropagation(); toggleSuspendVideo(item); });
         }
 
         const ancineTag = card.querySelector('.ancine-tag');
-        if (ancineTag) {
-            ancineTag.addEventListener('click', (e) => {
-                e.stopPropagation();
-                openAncineLightbox();
-            });
-        }
+        if (ancineTag) ancineTag.addEventListener('click', (e) => { e.stopPropagation(); openAncineLightbox(); });
+
         const watchBtn = card.querySelector('.watch-btn');
         const isPago = !!item.pago;
         if (isPago && !catalogSubscription.active) { watchBtn.textContent = '🔒 Assinar para assistir'; watchBtn.classList.add('locked'); }
         else { watchBtn.textContent = '▶ Assistir'; watchBtn.classList.remove('locked'); }
+
         watchBtn.addEventListener('click', () => {
             if (isSuspended && !isAdmin()) { alert('Este vídeo está temporariamente suspenso.'); return; }
             if (isPago && !catalogSubscription.active) { openPixLightbox(); return; }
             if (!catalogSubscription.active) { showAdInterstitial(item); return; }
-            if (item.abrirNoYoutube) { openYouTubeVideo(item); return; }
-            openPlayer(item);
+            playVideo(item);
         });
         return card;
     }
@@ -3379,28 +3431,93 @@
     const videoAnoInput = document.getElementById('videoAnoInput');
     const videoClassificacaoInput = document.getElementById('videoClassificacaoInput');
     const videoAbrirNoYoutubeInput = document.getElementById('videoAbrirNoYoutubeInput');
+    const videoSourceTypeInput = document.getElementById('videoSourceTypeInput');
+    const videoPlayUrlInput = document.getElementById('videoPlayUrlInput');
+    const videoThumbnailUrlInput = document.getElementById('videoThumbnailUrlInput');
+    const driveFieldsGroup = document.getElementById('driveFieldsGroup');
+    const abrirNoYoutubeGroup = document.getElementById('abrirNoYoutubeGroup');
+    const videoUrlLabel = document.getElementById('videoUrlLabel');
     const urlHint = document.getElementById('urlHint');
-    videoUrlInput.addEventListener('input', () => {
-        const id = extractYouTubeId(videoUrlInput.value);
-        if (!videoUrlInput.value.trim()) { urlHint.textContent = ''; urlHint.className = 'url-hint'; }
-        else if (id) { urlHint.textContent = `ID detectado: ${id}`; urlHint.className = 'url-hint ok'; }
-        else { urlHint.textContent = 'URL inválida.'; urlHint.className = 'url-hint warn'; }
+
+    function updateVideoModalSourceUI() {
+        const isDrive = videoSourceTypeInput.value === 'drive';
+        driveFieldsGroup.style.display = isDrive ? 'block' : 'none';
+        abrirNoYoutubeGroup.style.display = isDrive ? 'none' : 'flex';
+        videoUrlLabel.textContent = isDrive ? 'URL do Google Drive' : 'URL do YouTube';
+        videoUrlInput.placeholder = isDrive
+            ? 'https://drive.google.com/file/d/.../view'
+            : 'https://www.youtube.com/watch?v=...';
+    }
+
+    videoSourceTypeInput.addEventListener('change', () => {
+        updateVideoModalSourceUI();
+        urlHint.textContent = '';
+        urlHint.className = 'url-hint';
     });
+
+    videoUrlInput.addEventListener('input', () => {
+        const value = videoUrlInput.value.trim();
+        if (!value) {
+            urlHint.textContent = '';
+            urlHint.className = 'url-hint';
+            return;
+        }
+        if (videoSourceTypeInput.value === 'drive') {
+            const id = extractDriveId(value);
+            if (id) {
+                urlHint.textContent = `File ID detectado: ${id}`;
+                urlHint.className = 'url-hint ok';
+            } else {
+                urlHint.textContent = 'URL do Drive inválida. Cole o link de compartilhamento (…/file/d/ID/view).';
+                urlHint.className = 'url-hint warn';
+            }
+        } else {
+            const id = extractYouTubeId(value);
+            if (id) {
+                urlHint.textContent = `ID detectado: ${id}`;
+                urlHint.className = 'url-hint ok';
+            } else {
+                urlHint.textContent = 'URL do YouTube inválida.';
+                urlHint.className = 'url-hint warn';
+            }
+        }
+    });
+
     function openVideoModal(mode, video = null) {
         videoModalMode = mode;
         editingVideoKey = video ? video.key : null;
+
         if (mode === 'add') {
             videoModalTitle.textContent = 'Adicionar Vídeo';
             videoModalSub.textContent = 'O vídeo ficará visível para todos os usuários.';
-            videoUrlInput.value = ''; videoTitleInput.value = ''; videoProdutoraInput.value = ''; videoAnoInput.value = '';
+            videoSourceTypeInput.value = 'youtube';
+            videoUrlInput.value = '';
+            videoPlayUrlInput.value = '';
+            videoThumbnailUrlInput.value = '';
+            videoTitleInput.value = '';
+            videoProdutoraInput.value = '';
+            videoAnoInput.value = '';
             videoClassificacaoInput.value = 'curta';
             videoAbrirNoYoutubeInput.checked = false;
             document.querySelector('input[name="videoMarker"][value=""]').checked = true;
-            urlHint.textContent = ''; urlHint.className = 'url-hint';
+            urlHint.textContent = '';
+            urlHint.className = 'url-hint';
         } else {
             videoModalTitle.textContent = 'Editar Vídeo';
             videoModalSub.textContent = 'Altere as informações.';
-            videoUrlInput.value = `https://www.youtube.com/watch?v=${video.youtubeId}`;
+            const st = video.sourceType === 'drive' ? 'drive' : 'youtube';
+            videoSourceTypeInput.value = st;
+
+            if (st === 'drive') {
+                videoUrlInput.value = video.driveFileId
+                    ? `https://drive.google.com/file/d/${video.driveFileId}/view`
+                    : '';
+                videoPlayUrlInput.value = video.playUrl || '';
+            } else {
+                videoUrlInput.value = `https://www.youtube.com/watch?v=${video.youtubeId}`;
+                videoPlayUrlInput.value = '';
+            }
+            videoThumbnailUrlInput.value = video.thumbnailUrl || '';
             videoTitleInput.value = video.titulo || '';
             videoProdutoraInput.value = video.produtora || '';
             videoAnoInput.value = video.ano != null ? String(video.ano) : '';
@@ -3409,15 +3526,20 @@
             const currentMarker = video.pago ? 'pago' : (video.ad ? 'ad' : '');
             const markerEl = document.querySelector(`input[name="videoMarker"][value="${currentMarker}"]`);
             if (markerEl) markerEl.checked = true;
-            urlHint.textContent = `ID atual: ${video.youtubeId}`; urlHint.className = 'url-hint ok';
+            urlHint.textContent = `ID atual: ${video.youtubeId}`;
+            urlHint.className = 'url-hint ok';
         }
+
+        updateVideoModalSourceUI();
         videoModal.classList.add('active');
         setTimeout(() => videoUrlInput.focus(), 50);
     }
     function closeVideoModal() { videoModal.classList.remove('active'); videoModalMode = 'add'; editingVideoKey = null; }
     document.getElementById('cancelVideoBtn').addEventListener('click', closeVideoModal);
     videoModal.addEventListener('click', (e) => { if (e.target === videoModal) closeVideoModal(); });
+
     document.getElementById('confirmVideoBtn').addEventListener('click', async () => {
+        const sourceType = videoSourceTypeInput.value === 'drive' ? 'drive' : 'youtube';
         const urlRaw = videoUrlInput.value.trim();
         const titulo = videoTitleInput.value.trim();
         const produtora = videoProdutoraInput.value.trim();
@@ -3426,21 +3548,68 @@
         const markerEl = document.querySelector('input[name="videoMarker"]:checked');
         const marker = markerEl ? markerEl.value : '';
         const pago = marker === 'pago', ad = marker === 'ad';
-        const abrirNoYoutube = !!videoAbrirNoYoutubeInput.checked;
+        const abrirNoYoutube = sourceType === 'youtube' && !!videoAbrirNoYoutubeInput.checked;
+        const playUrlRaw = videoPlayUrlInput.value.trim();
+        const thumbnailRaw = videoThumbnailUrlInput.value.trim();
+
         if (!urlRaw) return alert('Informe a URL.');
         if (!titulo) return alert('Informe o título.');
+
         let ano = null;
-        if (anoRaw) { if (!/^\d{4}$/.test(anoRaw)) return alert('Ano inválido.'); ano = parseInt(anoRaw, 10); }
-        const youtubeId = extractYouTubeId(urlRaw);
-        if (!youtubeId) return alert('URL inválida.');
-        if (videos.find(v => v.youtubeId === youtubeId && v.key !== editingVideoKey)) return alert('Este vídeo já está cadastrado.');
+        if (anoRaw) {
+            if (!/^\d{4}$/.test(anoRaw)) return alert('Ano inválido.');
+            ano = parseInt(anoRaw, 10);
+        }
+
+        let youtubeId, driveFileId = null;
+        if (sourceType === 'drive') {
+            const fileId = extractDriveId(urlRaw);
+            if (!fileId) return alert('URL do Google Drive inválida.');
+            driveFileId = fileId;
+            youtubeId = 'drive_' + fileId;
+        } else {
+            youtubeId = extractYouTubeId(urlRaw);
+            if (!youtubeId) return alert('URL do YouTube inválida.');
+        }
+
+        if (videos.find(v => v.youtubeId === youtubeId && v.key !== editingVideoKey)) {
+            return alert('Este vídeo já está cadastrado.');
+        }
+
         try {
-            const payload = { youtubeId, titulo, produtora: produtora || null, ano, pago: !!pago, ad: !!ad, classificacao, abrirNoYoutube };
-            if (videoModalMode === 'add') { payload.order = Date.now(); await rtdb.ref('vod_videos').push().set(payload); }
-            else await rtdb.ref('vod_videos/' + editingVideoKey).update(payload);
+            const payload = {
+                youtubeId,
+                titulo,
+                produtora: produtora || null,
+                ano,
+                pago: !!pago,
+                ad: !!ad,
+                classificacao,
+                sourceType
+            };
+            if (sourceType === 'youtube') {
+                payload.abrirNoYoutube = !!abrirNoYoutube;
+                payload.driveFileId = null;
+                payload.playUrl = null;
+            } else {
+                payload.driveFileId = driveFileId;
+                payload.abrirNoYoutube = false;
+                payload.playUrl = playUrlRaw || null;
+            }
+            payload.thumbnailUrl = thumbnailRaw || null;
+
+            if (videoModalMode === 'add') {
+                payload.order = Date.now();
+                await rtdb.ref('vod_videos').push().set(payload);
+            } else {
+                await rtdb.ref('vod_videos/' + editingVideoKey).update(payload);
+            }
             closeVideoModal();
-        } catch (err) { alert('Erro ao salvar: ' + err.message); }
+        } catch (err) {
+            alert('Erro ao salvar: ' + err.message);
+        }
     });
+
     async function deleteVideo(video) {
         if (!isAdmin()) return;
         if (!confirm(`Remover o vídeo "${video.titulo}"?`)) return;
@@ -3954,10 +4123,13 @@
             const dateCreated = new Date(ad.createdAt).toLocaleDateString('pt-BR');
             const dateExpires = new Date(ad.expiresAt).toLocaleDateString('pt-BR');
             const title = myAdsTitlesCache[ad.videoId] || 'Vídeo';
+            const adVideo = videos.find(v => v.youtubeId === ad.videoId);
+            const thumbUrl = adVideo ? getVideoThumbnail(adVideo)
+                : `https://img.youtube.com/vi/${ad.videoId}/mqdefault.jpg`;
             const card = document.createElement('div');
             card.className = 'ad-history-card';
             card.innerHTML = `
-                <img src="https://img.youtube.com/vi/${ad.videoId}/mqdefault.jpg" class="ad-history-thumb">
+                <img src="${thumbUrl}" class="ad-history-thumb" onerror="this.src='https://via.placeholder.com/100x56/1e305c/fdbb2d'">
                 <div class="ad-history-info">
                     <div class="ad-history-title" title="${escapeHtml(title)}">${escapeHtml(title)}</div>
                     <div class="ad-history-dates">Publicado: ${dateCreated} • Expira: ${dateExpires}</div>
@@ -4005,6 +4177,139 @@
     const playerLoadingOverlay = document.getElementById('playerLoadingOverlay');
     let player = null, playerReady = false, progressInterval = null, controlsTimeout = null, isPlaying = false, isEnded = false, isMuted = false, currentVolume = 100, isSeeking = false;
     window.onYouTubeIframeAPIReady = function() {};
+
+    // ────────────────────────────────────────────────────────────
+    // PLAYER ADAPTER — unifica YouTube (YT.Player) e Drive (<video>)
+    // Expõe a MESMA API usada no resto do código
+    // ────────────────────────────────────────────────────────────
+    class PlayerAdapter {
+        constructor(video, container) {
+            this.video = video;
+            this.container = container;
+            this.type = video.sourceType === 'drive' ? 'drive' : 'youtube';
+            this.player = null;
+            this._ready = false;
+        }
+
+        init(onReady, onStateChange) {
+            if (this.type === 'youtube') this._initYouTube(onReady, onStateChange);
+            else this._initDrive(onReady, onStateChange);
+        }
+
+        _initYouTube(onReady, onStateChange) {
+            this.container.innerHTML = '<div id="ytPlayerDiv" style="width:100%; height:100%;"></div>';
+            this.player = new YT.Player('ytPlayerDiv', {
+                height: '100%', width: '100%', videoId: this.video.youtubeId,
+                playerVars: { autoplay: 1, controls: 0, modestbranding: 1, rel: 0,
+                              iv_load_policy: 3, playsinline: 1, cc_load_policy: 0,
+                              fs: 0, origin: window.location.origin },
+                events: {
+                    'onReady': (e) => {
+                        try { e.target.unloadModule('captions'); e.target.unloadModule('cc'); } catch (_) {}
+                        onReady(e);
+                    },
+                    'onStateChange': (e) => {
+                        if (e.data === 3) { try { e.target.unloadModule('captions'); e.target.unloadModule('cc'); } catch (_) {} }
+                        onStateChange(e);
+                    }
+                }
+            });
+        }
+
+        _initDrive(onReady, onStateChange) {
+            const playUrl = buildDrivePlayUrl(this.video);
+            if (!playUrl) {
+                try { playerLoadingOverlay.classList.add('hidden'); } catch (_) {}
+                alert('Este vídeo do Drive não tem URL de reprodução configurada.');
+                return;
+            }
+
+            const v = document.createElement('video');
+            v.id = 'driveVideoElement';
+            v.style.cssText = 'width:100%;height:100%;display:block;border:none;position:absolute;top:0;left:0;z-index:1;pointer-events:none;background:#000;object-fit:contain;';
+            v.controls = false;
+            v.playsInline = true;
+            v.preload = 'auto';
+            v.setAttribute('playsinline', '');
+            v.setAttribute('webkit-playsinline', '');
+            v.src = playUrl;
+
+            this.container.innerHTML = '';
+            this.container.appendChild(v);
+            this.player = v;
+
+            const emit = (data) => onStateChange({ data, target: this });
+
+            v.addEventListener('loadedmetadata', () => {
+                this._ready = true;
+                onReady({ target: this });
+                const p = v.play();
+                if (p && typeof p.catch === 'function') p.catch(() => {});
+            });
+            v.addEventListener('play',    () => emit(1));
+            v.addEventListener('pause',   () => emit(2));
+            v.addEventListener('ended',   () => emit(0));
+            v.addEventListener('waiting', () => emit(3));
+            v.addEventListener('error',   () => {
+                console.error('[PlayerAdapter] erro no vídeo Drive:', v.error, v.src);
+                try { playerLoadingOverlay.classList.add('hidden'); } catch (_) {}
+                let msg = 'Erro ao carregar vídeo do Google Drive.';
+                if (v.error) {
+                    if (v.error.code === 4) msg += ' Formato não suportado ou link expirado.';
+                    if (v.error.code === 2) msg += ' Falha de rede ou arquivo inacessível.';
+                }
+                msg += ' Verifique se o arquivo está compartilhado como "Qualquer pessoa com o link".';
+                alert(msg);
+            });
+        }
+
+        playVideo() {
+            if (this.type === 'youtube') { this.player.playVideo(); }
+            else { const p = this.player.play(); if (p && typeof p.catch === 'function') p.catch(() => {}); }
+        }
+        pauseVideo() {
+            if (this.type === 'youtube') this.player.pauseVideo();
+            else this.player.pause();
+        }
+        seekTo(seconds, allowSeekAhead) {
+            if (this.type === 'youtube') this.player.seekTo(seconds, allowSeekAhead);
+            else this.player.currentTime = seconds;
+        }
+        getCurrentTime() {
+            if (this.type === 'youtube') { try { return this.player.getCurrentTime() || 0; } catch (_) { return 0; } }
+            return this.player.currentTime || 0;
+        }
+        getDuration() {
+            if (this.type === 'youtube') { try { return this.player.getDuration() || 0; } catch (_) { return 0; } }
+            return this.player.duration || 0;
+        }
+        setVolume(vol) {
+            if (this.type === 'youtube') this.player.setVolume(vol);
+            else this.player.volume = Math.max(0, Math.min(1, Number(vol) / 100));
+        }
+        mute() {
+            if (this.type === 'youtube') this.player.mute();
+            else this.player.muted = true;
+        }
+        unMute() {
+            if (this.type === 'youtube') this.player.unMute();
+            else this.player.muted = false;
+        }
+        unloadModule() { }
+        destroy() {
+            if (this.type === 'youtube') { try { this.player.destroy(); } catch (_) {} }
+            else {
+                try {
+                    this.player.pause();
+                    this.player.removeAttribute('src');
+                    this.player.load();
+                    this.player.remove();
+                } catch (_) {}
+            }
+            this.player = null;
+        }
+    }
+
     function setPlayPauseVisual(playing) {
         const playIcon = centerPlayPauseBtn.querySelector('.icon-play');
         const pauseIcon = centerPlayPauseBtn.querySelector('.icon-pause');
@@ -4036,8 +4341,7 @@
         clearInterval(adTimerInterval);
         if (isAdmin()) adminContainer.style.display = 'flex';
         const v = pendingVideo; pendingVideo = null;
-        if (v.abrirNoYoutube) openYouTubeVideo(v);
-        else openPlayer(v);
+        playVideo(v);
     }
     function injectLeftNativeAd() {
         const container = document.getElementById('adNativeLeft');
@@ -4065,8 +4369,8 @@
     }
     async function showAdInterstitial(video) {
         if (catalogSubscription.active) {
-            if (video.abrirNoYoutube) { openYouTubeVideo(video); return; }
-            openPlayer(video); return;
+            playVideo(video);
+            return;
         }
         closeAdBtn.disabled = true; closeAdBtn.classList.remove('active');
         if (adTimerInterval) clearInterval(adTimerInterval);
@@ -4078,8 +4382,7 @@
         } catch (e) {}
         if (activePaidAds.length === 0 && adBanners.length === 0 && !video.ad) {
             if (isAdmin()) adminContainer.style.display = 'flex';
-            if (video.abrirNoYoutube) openYouTubeVideo(video);
-            else openPlayer(video);
+            playVideo(video);
             return;
         }
         pendingVideo = video;
@@ -4154,6 +4457,7 @@
         pendingVideo = null;
         openPixLightbox();
     });
+
     async function openPlayer(video) {
         if (!currentUser) {
             try { await auth.signInWithPopup(new firebase.auth.GoogleAuthProvider()); }
@@ -4192,20 +4496,20 @@
             playerMobileBottom.style.display = 'none';
             playerBottomAd.style.display = 'none';
         }
-        if (player) { player.destroy(); player = null; }
+
+        if (player) { try { player.destroy(); } catch (_) {} player = null; }
         playerReady = false; isPlaying = false; isEnded = false; isSeeking = false;
         setPlayPauseVisual(false);
         currentPlayerVideoId = video.youtubeId;
         atualizarPlayerUI(video.youtubeId);
         showControls();
+
         const container = document.getElementById('youtubePlayer');
-        container.innerHTML = '<div id="ytPlayerDiv" style="width:100%; height:100%;"></div>';
-        player = new YT.Player('ytPlayerDiv', {
-            height: '100%', width: '100%', videoId: video.youtubeId,
-            playerVars: { autoplay: 1, controls: 0, modestbranding: 1, rel: 0, iv_load_policy: 3, playsinline: 1, cc_load_policy: 0, fs: 0, origin: window.location.origin },
-            events: { 'onReady': onPlayerReady, 'onStateChange': onPlayerStateChange }
-        });
-        
+        container.innerHTML = '';
+
+        player = new PlayerAdapter(video, container);
+        player.init(onPlayerReady, onPlayerStateChange);
+
         const shareBtn = document.getElementById('sharePlayerBtn');
         if (shareBtn) {
             shareBtn.onclick = (e) => {
@@ -4254,6 +4558,7 @@
     });
     function onPlayerReady(event) {
         playerReady = true;
+        playerLoadingOverlay.classList.add('hidden');
         event.target.playVideo();
         startProgressTracker();
         event.target.setVolume(currentVolume);
@@ -4448,13 +4753,11 @@
 
     function processarDeepLink() {
         if (deepLinkProcessed || !videosLoaded) return;
-        
         const hash = window.location.hash;
         if (hash && hash.startsWith('#video=')) {
             const identifier = hash.replace('#video=', '');
             let video = videos.find(v => v.key === identifier);
             if (!video) video = videos.find(v => v.youtubeId === identifier);
-            
             if (video) {
                 if (video.isSuspended && !isAdmin()) {
                     alert('Este vídeo está temporariamente indisponível.');
@@ -4462,19 +4765,9 @@
                 }
                 deepLinkProcessed = true;
                 history.replaceState(null, '', window.location.pathname + window.location.search);
-
-                if (video.pago && !catalogSubscription.active) {
-                    openPixLightbox();
-                } 
-                else if (!catalogSubscription.active) {
-                    showAdInterstitial(video);
-                } 
-                else if (video.abrirNoYoutube) {
-                    openYouTubeVideo(video);
-                } 
-                else {
-                    openPlayer(video);
-                }
+                if (video.pago && !catalogSubscription.active) openPixLightbox();
+                else if (!catalogSubscription.active) showAdInterstitial(video);
+                else playVideo(video);
             }
         }
     }
