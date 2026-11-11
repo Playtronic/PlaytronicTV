@@ -265,10 +265,74 @@
             right: 0;
             width: 80px;
             height: 80px;
-            z-index: 10; /* Fica acima do iframe, abaixo dos botões customizados */
+            z-index: 10;
             display: none;
             background: transparent;
             cursor: default;
+        }
+
+        /* PATCH: Esconder sombras no Google Drive */
+        .player-wrapper.drive-mode::before, 
+        .player-wrapper.drive-mode::after { 
+            display: none !important; 
+        }
+
+        /* PATCH FINAL: Organização do Player Drive no Mobile */
+        @media (max-width: 900px) {
+            .player-wrapper.drive-mode {
+                aspect-ratio: 16 / 9 !important;
+                height: auto !important;
+                max-height: 45vh !important;
+                margin-bottom: 15px !important;
+            }
+            
+            .drive-mode .player-video-title {
+                display: none !important;
+            }
+
+            .drive-mode .close-player-btn {
+                top: auto !important;
+                bottom: 10px !important;
+                left: 10px !important;
+                width: 35px !important;
+                height: 35px !important;
+                background: rgba(0,0,0,0.8) !important;
+                z-index: 50 !important;
+            }
+
+            .drive-mode .player-vote-container {
+                top: auto !important;
+                bottom: 10px !important;
+                right: 10px !important;
+                flex-direction: row !important;
+                background: rgba(0,0,0,0.8) !important;
+                padding: 5px 10px !important;
+                min-width: auto !important;
+                gap: 10px !important;
+                border-radius: 8px !important;
+                z-index: 50 !important;
+            }
+            
+            .drive-mode .player-vote-container > div {
+                gap: 5px !important;
+            }
+            
+            .drive-mode .player-vote-container .player-vote-btn {
+                padding: 5px 8px !important;
+                font-size: 0.8rem !important;
+            }
+            
+            .drive-mode #sharePlayerBtn {
+                width: auto !important;
+                padding: 5px 10px !important;
+            }
+
+            .drive-mode #driveMask {
+                width: 80px !important;
+                height: 40px !important;
+                top: 0 !important;
+                right: 0 !important;
+            }
         }
 
         .custom-ui { position: absolute; inset: 0; z-index: 20; pointer-events: none; transition: opacity 0.4s ease, visibility 0.4s ease; }
@@ -677,14 +741,7 @@
             #playerMobileBottom { display: none !important; }
             #commentsSection { display: flex; order: 3; margin-top: 10px; width: 100%; }
         }
-    
-        /* PATCH: Esconder sombras no Google Drive */
-        .player-wrapper.drive-mode::before, 
-        .player-wrapper.drive-mode::after { 
-            display: none !important; 
-        }
-    
-        
+    </style>
 </head>
 <body>
 
@@ -4212,6 +4269,7 @@
         }
 
         _initYouTube(onReady, onStateChange) {
+            // Mostra os controles customizados para o YouTube
             document.querySelector('.player-controls').style.display = 'flex';
             document.querySelector('.center-play-btn').style.display = 'flex';
             document.getElementById('driveMask').style.display = 'none';
@@ -4221,7 +4279,9 @@
             this.container.innerHTML = '<div id="ytPlayerDiv" style="width:100%; height:100%;"></div>';
             this.player = new YT.Player('ytPlayerDiv', {
                 height: '100%', width: '100%', videoId: this.video.youtubeId,
-                playerVars: { autoplay: 1, controls: 0, modestbranding: 1, rel: 0, iv_load_policy: 3, playsinline: 1, cc_load_policy: 0, fs: 0, origin: window.location.origin },
+                playerVars: { autoplay: 1, controls: 0, modestbranding: 1, rel: 0,
+                              iv_load_policy: 3, playsinline: 1, cc_load_policy: 0,
+                              fs: 0, origin: window.location.origin },
                 events: {
                     'onReady': (e) => {
                         try { e.target.unloadModule('captions'); e.target.unloadModule('cc'); } catch (_) {}
@@ -4236,14 +4296,14 @@
         }
 
         _initDrive(onReady, onStateChange) {
-            const customUI = document.getElementById('customUI');
-            customUI.classList.remove('player-ui-hidden');
-            customUI.style.pointerEvents = 'none'; 
-
+            // Esconde APENAS os controles que conflitam com o player do Google
             document.querySelector('.player-controls').style.display = 'none';
             document.querySelector('.center-play-btn').style.display = 'none';
+            
+            // Mostra a máscara para cobrir o botão "Abrir no Google Drive"
             document.getElementById('driveMask').style.display = 'block';
             document.getElementById('playerWrapper').classList.add('drive-mode');
+            document.getElementById('customUI').classList.remove('player-ui-hidden');
 
             const iframe = document.createElement('iframe');
             iframe.src = `https://drive.google.com/file/d/${this.video.driveFileId}/preview`;
@@ -4260,6 +4320,7 @@
             }, 1000);
         }
 
+        // Métodos de controle (só o YouTube usa, o Drive é nativo)
         playVideo() { if (this.type === 'youtube') { this.player.playVideo(); } }
         pauseVideo() { if (this.type === 'youtube') { this.player.pauseVideo(); } }
         seekTo(seconds, allowSeekAhead) { if (this.type === 'youtube') { this.player.seekTo(seconds, allowSeekAhead); } }
@@ -4303,69 +4364,7 @@
         iframe.setAttribute('scrolling', 'no');
         iframe.setAttribute('frameborder', '0');
         iframe.style.cssText = 'display:block; border:0; position:absolute; top:0; left:0; width:100%; height:100%; overflow:hidden;';
-        iframe.srcdoc = `<!DOCTYPE html><html><head><meta charset="utf-8"><style>html,body{margin:0;padding:0;overflow:hidden;width:100%;height:100%;background:transparent;display:flex;align-items:center;justify-content:center;}
-        /* PATCH FINAL: Organização do Player Drive no Mobile */
-        @media (max-width: 900px) {
-            .player-wrapper.drive-mode {
-                aspect-ratio: 16 / 9 !important;
-                height: auto !important;
-                max-height: 45vh !important;
-                margin-bottom: 15px !important;
-            }
-            
-            /* Esconde o título para dar espaço */
-            .drive-mode .player-video-title {
-                display: none !important;
-            }
-
-            /* Move o botão fechar para a parte de baixo à esquerda */
-            .drive-mode .close-player-btn {
-                top: auto !important;
-                bottom: 10px !important;
-                left: 10px !important;
-                width: 35px !important;
-                height: 35px !important;
-                background: rgba(0,0,0,0.8) !important;
-                z-index: 50 !important;
-            }
-
-            /* Move os botões de curtir/compartilhar para a parte de baixo à direita */
-            .drive-mode .player-vote-container {
-                top: auto !important;
-                bottom: 10px !important;
-                right: 10px !important;
-                flex-direction: row !important;
-                background: rgba(0,0,0,0.8) !important;
-                padding: 5px 10px !important;
-                min-width: auto !important;
-                gap: 10px !important;
-                border-radius: 8px !important;
-                z-index: 50 !important;
-            }
-            
-            .drive-mode .player-vote-container > div {
-                gap: 5px !important;
-            }
-            
-            .drive-mode .player-vote-container .player-vote-btn {
-                padding: 5px 8px !important;
-                font-size: 0.8rem !important;
-            }
-            
-            .drive-mode #sharePlayerBtn {
-                width: auto !important;
-                padding: 5px 10px !important;
-            }
-
-            /* Ajusta a máscara do botão do Google para não tampar o vídeo todo */
-            .drive-mode #driveMask {
-                width: 80px !important;
-                height: 40px !important;
-                top: 0 !important;
-                right: 0 !important;
-            }
-        }
-    </style></head><body><script type="text/javascript">atOptions=${JSON.stringify(opts)};<\/script><script type="text/javascript" src="${scriptSrc}"><\/script></body></html>`;
+        iframe.srcdoc = `<!DOCTYPE html><html><head><meta charset="utf-8"><style>html,body{margin:0;padding:0;overflow:hidden;width:100%;height:100%;background:transparent;display:flex;align-items:center;justify-content:center;}</style></head><body><script type="text/javascript">atOptions=${JSON.stringify(opts)};<\/script><script type="text/javascript" src="${scriptSrc}"><\/script></body></html>`;
         container.appendChild(iframe);
     }
     function closeAdAndPlay() {
@@ -4628,6 +4627,8 @@
     function showControls() { customUI.classList.remove('player-ui-hidden'); playerWrapper.classList.remove('hide-shadows'); resetControlsTimer(); }
     function showControlsNoTimer() { customUI.classList.remove('player-ui-hidden'); playerWrapper.classList.remove('hide-shadows'); clearTimeout(controlsTimeout); }
     function hideControls() { if (isEnded || isSeeking) return; customUI.classList.add('player-ui-hidden'); playerWrapper.classList.add('hide-shadows'); }
+    
+    // PATCH: Garante que os controles não sumam no Google Drive
     function resetControlsTimer() {
         clearTimeout(controlsTimeout);
         if (isEnded || isSeeking) return;
@@ -4637,6 +4638,7 @@
         }
         controlsTimeout = setTimeout(hideControls, 5500);
     }
+    
     if (window.matchMedia('(pointer: fine)').matches) {
         playerWrapper.addEventListener('mousemove', showControls);
         playerWrapper.addEventListener('mouseleave', () => resetControlsTimer());
@@ -4716,7 +4718,7 @@
         stopWatchStatusHeartbeat();
         reportWatchStatus('none');
         closeComments();
-        document.getElementById('driveMask').style.display = 'none'; // Reseta a máscara ao fechar
+        document.getElementById('driveMask').style.display = 'none';
     }
     document.getElementById('closePlayerBtn').addEventListener('click', closePlayer);
     fullscreenBtn.addEventListener('click', () => {
