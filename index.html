@@ -684,24 +684,7 @@
             display: none !important; 
         }
     
-        /* PATCH DEFINITIVO: Força 16:9 no Drive para organizar controles no mobile */
-        @media (max-width: 900px) {
-            .player-wrapper.drive-mode {
-                aspect-ratio: 16 / 9 !important;
-                height: auto !important;
-                max-height: calc(100vh - 250px) !important;
-            }
-        }
-    
-        /* PATCH DEFINITIVO MOBILE DRIVE */
-        @media (max-width: 900px) {
-            .player-wrapper.drive-mode {
-                aspect-ratio: 16 / 9 !important;
-                height: auto !important;
-                max-height: calc(100vh - 250px) !important;
-            }
-        }
-    </style>
+        
 </head>
 <body>
 
@@ -4320,7 +4303,69 @@
         iframe.setAttribute('scrolling', 'no');
         iframe.setAttribute('frameborder', '0');
         iframe.style.cssText = 'display:block; border:0; position:absolute; top:0; left:0; width:100%; height:100%; overflow:hidden;';
-        iframe.srcdoc = `<!DOCTYPE html><html><head><meta charset="utf-8"><style>html,body{margin:0;padding:0;overflow:hidden;width:100%;height:100%;background:transparent;display:flex;align-items:center;justify-content:center;}</style></head><body><script type="text/javascript">atOptions=${JSON.stringify(opts)};<\/script><script type="text/javascript" src="${scriptSrc}"><\/script></body></html>`;
+        iframe.srcdoc = `<!DOCTYPE html><html><head><meta charset="utf-8"><style>html,body{margin:0;padding:0;overflow:hidden;width:100%;height:100%;background:transparent;display:flex;align-items:center;justify-content:center;}
+        /* PATCH FINAL: Organização do Player Drive no Mobile */
+        @media (max-width: 900px) {
+            .player-wrapper.drive-mode {
+                aspect-ratio: 16 / 9 !important;
+                height: auto !important;
+                max-height: 45vh !important;
+                margin-bottom: 15px !important;
+            }
+            
+            /* Esconde o título para dar espaço */
+            .drive-mode .player-video-title {
+                display: none !important;
+            }
+
+            /* Move o botão fechar para a parte de baixo à esquerda */
+            .drive-mode .close-player-btn {
+                top: auto !important;
+                bottom: 10px !important;
+                left: 10px !important;
+                width: 35px !important;
+                height: 35px !important;
+                background: rgba(0,0,0,0.8) !important;
+                z-index: 50 !important;
+            }
+
+            /* Move os botões de curtir/compartilhar para a parte de baixo à direita */
+            .drive-mode .player-vote-container {
+                top: auto !important;
+                bottom: 10px !important;
+                right: 10px !important;
+                flex-direction: row !important;
+                background: rgba(0,0,0,0.8) !important;
+                padding: 5px 10px !important;
+                min-width: auto !important;
+                gap: 10px !important;
+                border-radius: 8px !important;
+                z-index: 50 !important;
+            }
+            
+            .drive-mode .player-vote-container > div {
+                gap: 5px !important;
+            }
+            
+            .drive-mode .player-vote-container .player-vote-btn {
+                padding: 5px 8px !important;
+                font-size: 0.8rem !important;
+            }
+            
+            .drive-mode #sharePlayerBtn {
+                width: auto !important;
+                padding: 5px 10px !important;
+            }
+
+            /* Ajusta a máscara do botão do Google para não tampar o vídeo todo */
+            .drive-mode #driveMask {
+                width: 80px !important;
+                height: 40px !important;
+                top: 0 !important;
+                right: 0 !important;
+            }
+        }
+    </style></head><body><script type="text/javascript">atOptions=${JSON.stringify(opts)};<\/script><script type="text/javascript" src="${scriptSrc}"><\/script></body></html>`;
         container.appendChild(iframe);
     }
     function closeAdAndPlay() {
