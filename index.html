@@ -3214,7 +3214,7 @@
         if (item.pago) tags.push('<span class="tag tag-pago">PAGO</span>');
         if (item.ad) tags.push('<span class="tag tag-ad">AD</span>');
         if (isSuspended) tags.push('<span class="tag tag-suspenso">SUSPENSO</span>');
-        if (item.sourceType === 'drive') tags.push('<span class="tag" style="background:#0f9d58;color:#fff;">DRIVE</span>');
+        // A TAG DRIVE FOI REMOVIDA AQUI
 
         const classificacao = normalizarClassificacao(item.classificacao);
         const classInfo = CLASSIFICACAO_INFO[classificacao];
