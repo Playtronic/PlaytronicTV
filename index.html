@@ -687,8 +687,8 @@
         /* PATCH: Ajuste do Player do Drive no Mobile */
         @media (max-width: 900px) {
             .player-wrapper.drive-mode {
-                aspect-ratio: auto !important;
-                height: 60vh; /* Deixa o player mais alto no celular */
+                aspect-ratio: 16 / 9 !important;
+                height: auto !important;
                 max-height: 70vh !important;
             }
         }
@@ -4246,23 +4246,51 @@
         }
 
         _initDrive(onReady, onStateChange) {
-            // Esconde APENAS os controles que conflitam com o player do Google
+            // Se o admin preencheu a "URL de Reprodução" (Proxy), usa o Player HTML5 customizado
+            if (this.video.playUrl) {
+                document.querySelector('.player-controls').style.display = 'flex';
+                document.querySelector('.center-play-btn').style.display = 'flex';
+                document.getElementById('driveMask').style.display = 'none';
+                document.getElementById('playerWrapper').classList.remove('drive-mode');
+
+                const videoEl = document.createElement('video');
+                videoEl.src = this.video.playUrl;
+                videoEl.controls = false; // Usa os controles customizados bonitos
+                videoEl.autoplay = true;
+                videoEl.playsInline = true;
+                videoEl.crossOrigin = 'anonymous';
+                videoEl.style.cssText = 'width:100%; height:100%; position:absolute; top:0; left:0; z-index:1; pointer-events: auto; background:#000; object-fit:contain;';
+
+                this.container.innerHTML = '';
+                this.container.appendChild(videoEl);
+                this.player = videoEl;
+                this._isVideoTag = true;
+
+                videoEl.addEventListener('loadedmetadata', () => {
+                    onReady({ target: this });
+                });
+                videoEl.addEventListener('play', () => onStateChange({ data: 1 }));
+                videoEl.addEventListener('pause', () => onStateChange({ data: 2 }));
+                videoEl.addEventListener('ended', () => onStateChange({ data: 0 }));
+                return;
+            }
+
+            // MODO PADRÃO: Iframe nativo do Google Drive
             document.querySelector('.player-controls').style.display = 'none';
             document.querySelector('.center-play-btn').style.display = 'none';
             
-            // Mostra a máscara para cobrir o botão "Abrir no Google Drive"
             document.getElementById('driveMask').style.display = 'block';
             document.getElementById('playerWrapper').classList.add('drive-mode');
 
             const iframe = document.createElement('iframe');
             iframe.src = `https://drive.google.com/file/d/${this.video.driveFileId}/preview`;
-            iframe.style.cssText = 'width:100%; height:100%; border:none; position:absolute; top:0; left:0; z-index:1; pointer-events: auto;';
+            iframe.style.cssText = 'width:100%; height:100%; border:none; position:absolute; top:0; left:0; z-index:1; pointer-events: auto; background:#000;';
             iframe.allow = 'autoplay; fullscreen';
-            /* sandbox removido para permitir play */ // Bloqueia redirects/popups
 
             this.container.innerHTML = '';
             this.container.appendChild(iframe);
             this.player = iframe;
+            this._isVideoTag = false;
 
             // Simula o carregamento para destravar a tela e contar a view
             setTimeout(() => {
@@ -4271,15 +4299,41 @@
             }, 1000);
         }
 
-        // Métodos de controle (só o YouTube usa, o Drive é nativo)
-        playVideo() { if (this.type === 'youtube') { this.player.playVideo(); } }
-        pauseVideo() { if (this.type === 'youtube') { this.player.pauseVideo(); } }
-        seekTo(seconds, allowSeekAhead) { if (this.type === 'youtube') { this.player.seekTo(seconds, allowSeekAhead); } }
-        getCurrentTime() { return this.type === 'youtube' ? this.player.getCurrentTime() || 0 : 0; }
-        getDuration() { return this.type === 'youtube' ? this.player.getDuration() || 0 : 0; }
-        setVolume(vol) { if (this.type === 'youtube') { this.player.setVolume(vol); } }
-        mute() { if (this.type === 'youtube') { this.player.mute(); } }
-        unMute() { if (this.type === 'youtube') { this.player.unMute(); } }
+        // Métodos de controle atualizados para suportar o Player HTML5 e o YouTube
+        playVideo() { 
+            if (this.type === 'youtube') { this.player.playVideo(); } 
+            else if (this._isVideoTag) { this.player.play().catch(e=>console.warn('Autoplay bloqueado', e)); } 
+        }
+        pauseVideo() { 
+            if (this.type === 'youtube') { this.player.pauseVideo(); } 
+            else if (this._isVideoTag) { this.player.pause(); } 
+        }
+        seekTo(seconds, allowSeekAhead) { 
+            if (this.type === 'youtube') { this.player.seekTo(seconds, allowSeekAhead); } 
+            else if (this._isVideoTag) { this.player.currentTime = seconds; } 
+        }
+        getCurrentTime() { 
+            if (this.type === 'youtube') return this.player.getCurrentTime() || 0; 
+            if (this._isVideoTag) return this.player.currentTime || 0; 
+            return 0; 
+        }
+        getDuration() { 
+            if (this.type === 'youtube') return this.player.getDuration() || 0; 
+            if (this._isVideoTag) return this.player.duration || 0; 
+            return 0; 
+        }
+        setVolume(vol) { 
+            if (this.type === 'youtube') { this.player.setVolume(vol); } 
+            else if (this._isVideoTag) { this.player.volume = vol / 100; } 
+        }
+        mute() { 
+            if (this.type === 'youtube') { this.player.mute(); } 
+            else if (this._isVideoTag) { this.player.muted = true; } 
+        }
+        unMute() { 
+            if (this.type === 'youtube') { this.player.unMute(); } 
+            else if (this._isVideoTag) { this.player.muted = false; } 
+        }
         unloadModule() { }
         destroy() {
             if (this.type === 'youtube') { try { this.player.destroy(); } catch (_) {} }
