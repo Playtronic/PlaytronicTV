@@ -1,3 +1,8 @@
+Aqui está o código completo e reescrito. Removi toda a lógica de embed/proxy do Google Drive (como iframes, máscaras, PlayerAdapter para Drive, etc.). 
+
+Agora, o sistema detecta automaticamente se a URL inserida é do Google Drive. Se for, ele **exige obrigatoriamente o preenchimento da miniatura** e, ao clicar em "Assistir", o vídeo será aberto diretamente em uma nova aba do navegador com a URL `/preview`.
+
+```html
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -123,7 +128,6 @@
         .admin-btn.delete { background: rgba(231,76,60,0.92); }
         .admin-btn.delete:hover { background: #c0392b; transform: scale(1.08); }
         
-        /* ESTILOS PARA SUSPENSÃO */
         .admin-btn.suspend { background: rgba(245,158,11,0.92); color: #000; }
         .admin-btn.suspend:hover { background: #f59e0b; transform: scale(1.08); }
         .admin-btn.unsuspend { background: rgba(34,197,94,0.92); color: #000; }
@@ -242,35 +246,6 @@
         .player-wrapper::after { content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 100px; background: linear-gradient(to top, #000 0%, #000 50%, transparent 100%); z-index: 5; pointer-events: none; transition: opacity 0.4s ease; }
         .player-wrapper.hide-shadows::before, .player-wrapper.hide-shadows::after { opacity: 0; }
         .player-wrapper iframe { width: 100%; height: 100%; display: block; border: none; position: absolute; top: 0; left: 0; z-index: 1; pointer-events: none; }
-
-        /* ── HTML5 <video> no player-wrapper (Drive) ── */
-        .player-wrapper video {
-            width: 100%; height: 100%; display: block;
-            border: none; position: absolute; top: 0; left: 0;
-            z-index: 1; pointer-events: none;
-            background: #000; object-fit: contain;
-        }
-        .player-wrapper video::-webkit-media-controls,
-        .player-wrapper video::-webkit-media-controls-enclosure,
-        .player-wrapper video::-webkit-media-controls-panel,
-        .player-wrapper video::-webkit-media-controls-play-button,
-        .player-wrapper video::-webkit-media-controls-start-playback-button {
-            display: none !important; -webkit-appearance: none !important;
-        }
-
-        /* MÁSCARA PARA ESCONDER O BOTÃO DO GOOGLE DRIVE */
-        .drive-mask {
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            width: 100%;
-            height: 60px; /* Cobre toda a barra superior do Drive */
-            z-index: 10; /* Fica acima do iframe, abaixo dos botões customizados */
-            display: none;
-            background: transparent;
-            cursor: default;
-        }
 
         .custom-ui { position: absolute; inset: 0; z-index: 20; pointer-events: none; transition: opacity 0.4s ease, visibility 0.4s ease; }
         .custom-ui.player-ui-hidden { opacity: 0 !important; visibility: hidden !important; }
@@ -678,38 +653,6 @@
             #playerMobileBottom { display: none !important; }
             #commentsSection { display: flex; order: 3; margin-top: 10px; width: 100%; }
         }
-    
-        /* PATCH: Esconder sombras no Google Drive */
-        .player-wrapper.drive-mode::before, 
-        .player-wrapper.drive-mode::after { 
-            display: none !important; 
-        }
-    
-        /* PATCH: Ajuste do Player do Drive no Mobile */
-        @media (max-width: 900px) {
-            .player-wrapper.drive-mode {
-                aspect-ratio: 16 / 9 !important;
-                width: 100% !important;
-                height: auto !important; 
-                max-height: none !important;
-                background: #000;
-                border-radius: 0;
-                overflow: hidden;
-            }
-            .player-wrapper.drive-mode iframe {
-                width: 100% !important;
-                height: 100% !important;
-                position: absolute;
-                top: 0;
-                left: 0;
-                border: none;
-                pointer-events: auto !important;
-            }
-            /* Desativa a máscara no celular para não bloquear os toques do player */
-            #driveMask {
-                display: none !important;
-            }
-        }
     </style>
 </head>
 <body>
@@ -870,25 +813,17 @@
 
         <label>Tipo de Fonte</label>
         <select id="videoSourceTypeInput">
-            <option value="youtube">YouTube</option>
-            <option value="drive">Google Drive</option>
+            <option value="youtube">YouTube (Player Interno)</option>
+            <option value="drive">Google Drive (Abre em nova aba)</option>
         </select>
 
-        <label id="videoUrlLabel">URL do YouTube</label>
-        <input type="text" id="videoUrlInput" placeholder="https://www.youtube.com/watch?v=...">
+        <label id="videoUrlLabel">URL do Vídeo</label>
+        <input type="text" id="videoUrlInput" placeholder="https://...">
         <div class="url-hint" id="urlHint"></div>
 
-        <div id="driveFieldsGroup" style="display: none;">
-            <label>URL de Reprodução (opcional)</label>
-            <input type="text" id="videoPlayUrlInput" placeholder="https://seu-proxy.com/stream/...">
-            <div class="url-hint" style="color: #94a3b8;">
-                Deixe vazio para usar o link direto do Drive (funciona para arquivos &lt; 100MB).
-                Para arquivos grandes, cole aqui a URL do seu proxy/API (Cloudflare Worker, Cloud Function, etc).
-            </div>
-        </div>
-
-        <label>Miniatura Personalizada (URL, opcional)</label>
+        <label id="videoThumbnailLabel">Miniatura Personalizada (URL)</label>
         <input type="text" id="videoThumbnailUrlInput" placeholder="https://... (deixe vazio para gerar automaticamente)">
+        <div class="url-hint" id="thumbnailHint" style="color: #fbbf24; display: none;">A miniatura é obrigatória para vídeos do Google Drive.</div>
 
         <label>Título</label>
         <input type="text" id="videoTitleInput" placeholder="Título do vídeo">
@@ -1099,8 +1034,6 @@
                 </div>
             </div>
             <div id="youtubePlayer"></div>
-            <!-- MÁSCARA PARA ESCONDER O BOTÃO DO GOOGLE DRIVE -->
-            <div id="driveMask" class="drive-mask"></div>
         </div>
         <div class="player-mobile-banner" id="playerMobileTop"></div>
         <div id="player-bottom-ad">
@@ -1195,7 +1128,7 @@
         </div>
         <h2>Classificação Normativa ANCINE</h2>
         <p>No Brasil, a duração de uma obra audiovisual segue critérios legais determinados pela legislação nacional.</p>
-<p>Abaixo, confira a classificação normativa da Agência Nacional do Cinema (ANCINE), baseada na Medida Provisória nº 2.228-1/2001, que define os formatos de acordo com o tempo de execução:</p>
+        <p>Abaixo, confira a classificação normativa da Agência Nacional do Cinema (ANCINE), baseada na Medida Provisória nº 2.228-1/2001, que define os formatos de acordo com o tempo de execução:</p>
         <ul>
             <li><strong>Curta-Metragem:</strong> Obra audiovisual com duração igual ou inferior a 15 minutos.</li>
             <li><strong>Média-Metragem:</strong> Obra audiovisual com duração superior a 15 minutos e igual ou inferior a 70 minutos.</li>
@@ -1275,7 +1208,6 @@
     let expandedComments = new Set();
     let replyDrafts = {};
 
-    /* ⬇️ WATCH STATUS (painel Desempenho) ⬇️ */
     let watchStatusCache = {};
     let watchStatusListener = null;
     let watchStatusHeartbeat = null;
@@ -1562,33 +1494,35 @@
         return null;
     }
 
-    // ────────────────────────────────────────────────────────────
-    // HELPERS DO GOOGLE DRIVE
-    // ────────────────────────────────────────────────────────────
     function extractDriveId(url) {
         if (!url) return null;
-        url = url.trim();
-        if (/^[a-zA-Z0-9_-]{25,}$/.test(url) && !url.includes('/')) return url;
         let m = url.match(/\/file\/d\/([a-zA-Z0-9_-]{10,})/);
         if (m) return m[1];
         m = url.match(/[?&]id=([a-zA-Z0-9_-]{10,})/);
-        if (m) return m[1];
-        m = url.match(/\/d\/([a-zA-Z0-9_-]{10,})/);
         if (m) return m[1];
         return null;
     }
 
     function getVideoThumbnail(video) {
         if (video.thumbnailUrl && String(video.thumbnailUrl).trim()) return video.thumbnailUrl.trim();
-        if (video.sourceType === 'drive' && video.driveFileId) {
-            return `https://drive.google.com/thumbnail?id=${encodeURIComponent(video.driveFileId)}&sz=w400`;
+        if (video.sourceType === 'drive') {
+            // Fallback de segurança, mas a miniatura agora é obrigatória no cadastro
+            return `https://drive.google.com/thumbnail?id=${encodeURIComponent(video.youtubeId.replace('drive_', ''))}&sz=w400`;
         }
         return `https://img.youtube.com/vi/${video.youtubeId}/mqdefault.jpg`;
     }
 
     function playVideo(video) {
         if (!video) return;
-        if (video.sourceType === 'drive') { openPlayer(video); return; }
+        
+        if (video.sourceType === 'drive') {
+            // Abre a URL do Google Drive em uma nova aba
+            const driveId = video.youtubeId.replace('drive_', '');
+            const url = `https://drive.google.com/file/d/${driveId}/preview`;
+            window.open(url, '_blank');
+            return;
+        }
+
         if (video.abrirNoYoutube) { openYouTubeVideo(video); return; }
         openPlayer(video);
     }
@@ -1682,7 +1616,7 @@
 
     function isTVReady() {
         if (videos.length === 0) return false;
-        return videos.some(v => !v.abrirNoYoutube && Number(v.duracaoSegundos) > 0 && !v.isSuspended);
+        return videos.some(v => v.sourceType !== 'drive' && !v.abrirNoYoutube && Number(v.duracaoSegundos) > 0 && !v.isSuspended);
     }
 
     function setupPresence(user) {
@@ -3348,7 +3282,7 @@
         watchBtn.addEventListener('click', () => {
             if (isSuspended && !isAdmin()) { alert('Este vídeo está temporariamente suspenso.'); return; }
             if (isPago && !catalogSubscription.active) { openPixLightbox(); return; }
-            if (!catalogSubscription.active) { showAdInterstitial(item); return; }
+            if (!catalogSubscription.active && item.sourceType !== 'drive') { showAdInterstitial(item); return; }
             playVideo(item);
         });
         return card;
@@ -3474,21 +3408,29 @@
     const videoClassificacaoInput = document.getElementById('videoClassificacaoInput');
     const videoAbrirNoYoutubeInput = document.getElementById('videoAbrirNoYoutubeInput');
     const videoSourceTypeInput = document.getElementById('videoSourceTypeInput');
-    const videoPlayUrlInput = document.getElementById('videoPlayUrlInput');
     const videoThumbnailUrlInput = document.getElementById('videoThumbnailUrlInput');
-    const driveFieldsGroup = document.getElementById('driveFieldsGroup');
     const abrirNoYoutubeGroup = document.getElementById('abrirNoYoutubeGroup');
     const videoUrlLabel = document.getElementById('videoUrlLabel');
     const urlHint = document.getElementById('urlHint');
+    const thumbnailHint = document.getElementById('thumbnailHint');
 
     function updateVideoModalSourceUI() {
         const isDrive = videoSourceTypeInput.value === 'drive';
-        driveFieldsGroup.style.display = isDrive ? 'block' : 'none';
         abrirNoYoutubeGroup.style.display = isDrive ? 'none' : 'flex';
         videoUrlLabel.textContent = isDrive ? 'URL do Google Drive' : 'URL do YouTube';
         videoUrlInput.placeholder = isDrive
             ? 'https://drive.google.com/file/d/.../view'
             : 'https://www.youtube.com/watch?v=...';
+        
+        if (isDrive) {
+            thumbnailHint.style.display = 'block';
+            videoThumbnailUrlInput.placeholder = 'https://... (Obrigatório para Drive)';
+            videoThumbnailUrlInput.style.borderColor = '#fbbf24';
+        } else {
+            thumbnailHint.style.display = 'none';
+            videoThumbnailUrlInput.placeholder = 'https://... (deixe vazio para gerar automaticamente)';
+            videoThumbnailUrlInput.style.borderColor = '';
+        }
     }
 
     videoSourceTypeInput.addEventListener('change', () => {
@@ -3504,16 +3446,20 @@
             urlHint.className = 'url-hint';
             return;
         }
-        if (videoSourceTypeInput.value === 'drive') {
+        if (value.includes('drive.google.com')) {
+            videoSourceTypeInput.value = 'drive';
+            updateVideoModalSourceUI();
             const id = extractDriveId(value);
             if (id) {
                 urlHint.textContent = `File ID detectado: ${id}`;
                 urlHint.className = 'url-hint ok';
             } else {
-                urlHint.textContent = 'URL do Drive inválida. Cole o link de compartilhamento (…/file/d/ID/view).';
+                urlHint.textContent = 'URL do Drive inválida.';
                 urlHint.className = 'url-hint warn';
             }
         } else {
+            videoSourceTypeInput.value = 'youtube';
+            updateVideoModalSourceUI();
             const id = extractYouTubeId(value);
             if (id) {
                 urlHint.textContent = `ID detectado: ${id}`;
@@ -3534,7 +3480,6 @@
             videoModalSub.textContent = 'O vídeo ficará visível para todos os usuários.';
             videoSourceTypeInput.value = 'youtube';
             videoUrlInput.value = '';
-            videoPlayUrlInput.value = '';
             videoThumbnailUrlInput.value = '';
             videoTitleInput.value = '';
             videoProdutoraInput.value = '';
@@ -3551,13 +3496,10 @@
             videoSourceTypeInput.value = st;
 
             if (st === 'drive') {
-                videoUrlInput.value = video.driveFileId
-                    ? `https://drive.google.com/file/d/${video.driveFileId}/view`
-                    : '';
-                videoPlayUrlInput.value = video.playUrl || '';
+                const id = video.youtubeId.replace('drive_', '');
+                videoUrlInput.value = `https://drive.google.com/file/d/${id}/view`;
             } else {
                 videoUrlInput.value = `https://www.youtube.com/watch?v=${video.youtubeId}`;
-                videoPlayUrlInput.value = '';
             }
             videoThumbnailUrlInput.value = video.thumbnailUrl || '';
             videoTitleInput.value = video.titulo || '';
@@ -3591,7 +3533,6 @@
         const marker = markerEl ? markerEl.value : '';
         const pago = marker === 'pago', ad = marker === 'ad';
         const abrirNoYoutube = sourceType === 'youtube' && !!videoAbrirNoYoutubeInput.checked;
-        const playUrlRaw = videoPlayUrlInput.value.trim();
         const thumbnailRaw = videoThumbnailUrlInput.value.trim();
 
         if (!urlRaw) return alert('Informe a URL.');
@@ -3609,6 +3550,11 @@
             if (!fileId) return alert('URL do Google Drive inválida.');
             driveFileId = fileId;
             youtubeId = 'drive_' + fileId;
+            
+            // NOVA VALIDAÇÃO: Miniatura obrigatória para GDrive
+            if (!thumbnailRaw) {
+                return alert('A miniatura é OBRIGATÓRIA para vídeos do Google Drive. Por favor, insira a URL da imagem.');
+            }
         } else {
             youtubeId = extractYouTubeId(urlRaw);
             if (!youtubeId) return alert('URL do YouTube inválida.');
@@ -3631,12 +3577,8 @@
             };
             if (sourceType === 'youtube') {
                 payload.abrirNoYoutube = !!abrirNoYoutube;
-                payload.driveFileId = null;
-                payload.playUrl = null;
             } else {
-                payload.driveFileId = driveFileId;
                 payload.abrirNoYoutube = false;
-                payload.playUrl = playUrlRaw || null;
             }
             payload.thumbnailUrl = thumbnailRaw || null;
 
@@ -4221,302 +4163,9 @@
     window.onYouTubeIframeAPIReady = function() {};
 
     // ────────────────────────────────────────────────────────────
-    // PLAYER ADAPTER — unifica YouTube (YT.Player) e Drive (iframe)
+    // YOUTUBE PLAYER (Apenas para vídeos do YouTube)
     // ────────────────────────────────────────────────────────────
-    class PlayerAdapter {
-        constructor(video, container) {
-            this.video = video;
-            this.container = container;
-            this.type = video.sourceType === 'drive' ? 'drive' : 'youtube';
-            this.player = null;
-            this._ready = false;
-        }
-
-        init(onReady, onStateChange) {
-            if (this.type === 'youtube') this._initYouTube(onReady, onStateChange);
-            else this._initDrive(onReady, onStateChange);
-        }
-
-        _initYouTube(onReady, onStateChange) {
-            // Mostra os controles customizados para o YouTube
-            document.querySelector('.player-controls').style.display = 'flex';
-            document.querySelector('.center-play-btn').style.display = 'flex';
-            document.getElementById('driveMask').style.display = 'none';
-            document.getElementById('playerWrapper').classList.remove('drive-mode');
-
-            this.container.innerHTML = '<div id="ytPlayerDiv" style="width:100%; height:100%;"></div>';
-            this.player = new YT.Player('ytPlayerDiv', {
-                height: '100%', width: '100%', videoId: this.video.youtubeId,
-                playerVars: { autoplay: 1, controls: 0, modestbranding: 1, rel: 0,
-                              iv_load_policy: 3, playsinline: 1, cc_load_policy: 0,
-                              fs: 0, origin: window.location.origin },
-                events: {
-                    'onReady': (e) => {
-                        try { e.target.unloadModule('captions'); e.target.unloadModule('cc'); } catch (_) {}
-                        onReady(e);
-                    },
-                    'onStateChange': (e) => {
-                        if (e.data === 3) { try { e.target.unloadModule('captions'); e.target.unloadModule('cc'); } catch (_) {} }
-                        onStateChange(e);
-                    }
-                }
-            });
-        }
-
-        _initDrive(onReady, onStateChange) {
-            // Se o admin preencheu a "URL de Reprodução" (Proxy), usa o Player HTML5 customizado
-            if (this.video.playUrl) {
-                document.querySelector('.player-controls').style.display = 'flex';
-                document.querySelector('.center-play-btn').style.display = 'flex';
-                document.getElementById('driveMask').style.display = 'none';
-                document.getElementById('playerWrapper').classList.remove('drive-mode');
-
-                const videoEl = document.createElement('video');
-                videoEl.src = this.video.playUrl;
-                videoEl.controls = false; // Usa os controles customizados bonitos
-                videoEl.autoplay = true;
-                videoEl.playsInline = true;
-                videoEl.crossOrigin = 'anonymous';
-                videoEl.style.cssText = 'width:100%; height:100%; position:absolute; top:0; left:0; z-index:1; pointer-events: auto; background:#000; object-fit:contain;';
-
-                this.container.innerHTML = '';
-                this.container.appendChild(videoEl);
-                this.player = videoEl;
-                this._isVideoTag = true;
-
-                videoEl.addEventListener('loadedmetadata', () => {
-                    onReady({ target: this });
-                });
-                videoEl.addEventListener('play', () => onStateChange({ data: 1 }));
-                videoEl.addEventListener('pause', () => onStateChange({ data: 2 }));
-                videoEl.addEventListener('ended', () => onStateChange({ data: 0 }));
-                return;
-            }
-
-            // MODO PADRÃO: Iframe nativo do Google Drive
-            document.querySelector('.player-controls').style.display = 'none';
-            document.querySelector('.center-play-btn').style.display = 'none';
-            
-            const mask = document.getElementById('driveMask');
-            const isMobile = window.matchMedia('(max-width: 900px)').matches;
-
-            // NO MOBILE: Não ativa a máscara para não travar os controles do Drive
-            if (isMobile) {
-                mask.style.display = 'none';
-            } else {
-                mask.style.display = 'block';
-            }
-
-            document.getElementById('playerWrapper').classList.add('drive-mode');
-
-            const iframe = document.createElement('iframe');
-            iframe.src = `https://drive.google.com/file/d/${this.video.driveFileId}/preview`;
-            iframe.style.cssText = 'width:100%; height:100%; border:none; position:absolute; top:0; left:0; z-index:1; pointer-events: auto; background:#000;';
-            iframe.allow = 'autoplay; fullscreen';
-
-            this.container.innerHTML = '';
-            this.container.appendChild(iframe);
-            this.player = iframe;
-            this._isVideoTag = false;
-
-            // Simula o carregamento para destravar a tela e contar a view
-            setTimeout(() => {
-                onReady({ target: this });
-                onStateChange({ data: 1 }); // Finge que está tocando
-            }, 1000);
-        }
-
-        // Métodos de controle atualizados para suportar o Player HTML5 e o YouTube
-        playVideo() { 
-            if (this.type === 'youtube') { this.player.playVideo(); } 
-            else if (this._isVideoTag) { this.player.play().catch(e=>console.warn('Autoplay bloqueado', e)); } 
-        }
-        pauseVideo() { 
-            if (this.type === 'youtube') { this.player.pauseVideo(); } 
-            else if (this._isVideoTag) { this.player.pause(); } 
-        }
-        seekTo(seconds, allowSeekAhead) { 
-            if (this.type === 'youtube') { this.player.seekTo(seconds, allowSeekAhead); } 
-            else if (this._isVideoTag) { this.player.currentTime = seconds; } 
-        }
-        getCurrentTime() { 
-            if (this.type === 'youtube') return this.player.getCurrentTime() || 0; 
-            if (this._isVideoTag) return this.player.currentTime || 0; 
-            return 0; 
-        }
-        getDuration() { 
-            if (this.type === 'youtube') return this.player.getDuration() || 0; 
-            if (this._isVideoTag) return this.player.duration || 0; 
-            return 0; 
-        }
-        setVolume(vol) { 
-            if (this.type === 'youtube') { this.player.setVolume(vol); } 
-            else if (this._isVideoTag) { this.player.volume = vol / 100; } 
-        }
-        mute() { 
-            if (this.type === 'youtube') { this.player.mute(); } 
-            else if (this._isVideoTag) { this.player.muted = true; } 
-        }
-        unMute() { 
-            if (this.type === 'youtube') { this.player.unMute(); } 
-            else if (this._isVideoTag) { this.player.muted = false; } 
-        }
-        unloadModule() { }
-        destroy() {
-            if (this.type === 'youtube') { try { this.player.destroy(); } catch (_) {} }
-            this.player = null;
-        }
-    }
-
-    function setPlayPauseVisual(playing) {
-        const playIcon = centerPlayPauseBtn.querySelector('.icon-play');
-        const pauseIcon = centerPlayPauseBtn.querySelector('.icon-pause');
-        if (!playIcon || !pauseIcon) return;
-        if (playing) { playIcon.style.display = 'none'; pauseIcon.style.display = 'block'; centerPlayPauseBtn.classList.add('playing-state'); }
-        else { playIcon.style.display = 'block'; pauseIcon.style.display = 'none'; centerPlayPauseBtn.classList.remove('playing-state'); }
-    }
-    const adModal = document.getElementById('adInterstitialModal');
-    const closeAdBtn = document.getElementById('closeInterstitialBtn');
-    const adTimerText = document.getElementById('adTimerText');
-    const adCenterWrapper = document.getElementById('adCenterWrapper');
-    let pendingVideo = null;
-    let adTimerInterval = null;
-    function mountStandardAd(container, opts, scriptSrc) {
-        if (!container) return;
-        container.innerHTML = '';
-        const iframe = document.createElement('iframe');
-        iframe.setAttribute('scrolling', 'no');
-        iframe.setAttribute('frameborder', '0');
-        iframe.style.cssText = 'display:block; border:0; position:absolute; top:0; left:0; width:100%; height:100%; overflow:hidden;';
-        iframe.srcdoc = `<!DOCTYPE html><html><head><meta charset="utf-8"><style>html,body{margin:0;padding:0;overflow:hidden;width:100%;height:100%;background:transparent;display:flex;align-items:center;justify-content:center;}</style></head><body><script type="text/javascript">atOptions=${JSON.stringify(opts)};<\/script><script type="text/javascript" src="${scriptSrc}"><\/script></body></html>`;
-        container.appendChild(iframe);
-    }
-    function closeAdAndPlay() {
-        if (!pendingVideo || !adModal.classList.contains('active')) return;
-        adModal.classList.remove('active');
-        document.body.classList.remove('ad-modal-open');
-        if (adYtPlayer) { try { adYtPlayer.stopVideo(); adYtPlayer.destroy(); } catch(e){} adYtPlayer = null; }
-        clearInterval(adTimerInterval);
-        if (isAdmin()) adminContainer.style.display = 'flex';
-        const v = pendingVideo; pendingVideo = null;
-        playVideo(v);
-    }
-    function injectLeftNativeAd() {
-        const container = document.getElementById('adNativeLeft');
-        if (!container) return;
-        container.innerHTML = '';
-        const adDiv = document.createElement('div');
-        adDiv.id = 'container-efe34bd92ca74a51f85465ca14314dc7';
-        container.appendChild(adDiv);
-        const script = document.createElement('script');
-        script.async = true;
-        script.setAttribute('data-cfasync', 'false');
-        script.src = 'https://dcengg.org/21/efe34bd92ca74a51f85465ca14314dc7';
-        container.appendChild(script);
-    }
-    function injectRightStandardAd() {
-        const container = document.getElementById('adNativeRight');
-        if (!container) return;
-        container.innerHTML = '';
-        const iframe = document.createElement('iframe');
-        iframe.setAttribute('scrolling', 'no');
-        iframe.setAttribute('frameborder', '0');
-        iframe.style.cssText = 'display:block; border:0; position:absolute; top:0; left:0; width:100%; height:100%; overflow:hidden;';
-        iframe.srcdoc = `<!DOCTYPE html><html><head><meta charset="utf-8"><style>html,body{margin:0;padding:0;overflow:hidden;width:100%;height:100%;background:transparent;display:flex;align-items:center;justify-content:center;}</style></head><body><script type="text/javascript">atOptions = {'key' : '0b2a1dd49cefbcb5c3f10330c969042c','format' : 'iframe','height' : 600,'width' : 160,'params' : {}};<\/script><script type="text/javascript" src="https://dcengg.org/22/0b2a1dd49cefbcb5c3f10330c969042c"><\/script></body></html>`;
-        container.appendChild(iframe);
-    }
-    async function showAdInterstitial(video) {
-        if (catalogSubscription.active) {
-            playVideo(video);
-            return;
-        }
-        closeAdBtn.disabled = true; closeAdBtn.classList.remove('active');
-        if (adTimerInterval) clearInterval(adTimerInterval);
-        if (isAdmin()) adminContainer.style.display = 'none';
-        let activePaidAds = [];
-        try {
-            const snap = await db.collection('paid_ads').where('expiresAt', '>', Date.now()).get();
-            snap.forEach(doc => activePaidAds.push({ id: doc.id, ...doc.data() }));
-        } catch (e) {}
-        if (activePaidAds.length === 0 && adBanners.length === 0 && !video.ad) {
-            if (isAdmin()) adminContainer.style.display = 'flex';
-            playVideo(video);
-            return;
-        }
-        pendingVideo = video;
-        adModal.classList.add('active');
-        document.body.classList.add('ad-modal-open');
-        adCenterWrapper.innerHTML = '';
-        document.getElementById('adNativeLeft').innerHTML = '';
-        document.getElementById('adNativeRight').innerHTML = '';
-        document.getElementById('adMobileTop').innerHTML = '';
-        document.getElementById('adMobileBottom').innerHTML = '';
-        const isLandscape = window.matchMedia('(max-width: 900px) and (orientation: landscape)').matches;
-        const isPortrait = window.matchMedia('(max-width: 900px) and (orientation: portrait)').matches;
-        if (isLandscape) {
-            mountStandardAd(document.getElementById('adNativeRight'), { key: '51efcb0e502dffc7c8c25030a1155128', format: 'iframe', height: 250, width: 300, params: {} }, 'https://dcengg.org/22/51efcb0e502dffc7c8c25030a1155128');
-        } else if (isPortrait) {
-            mountStandardAd(document.getElementById('adMobileTop'), { key: 'c7c3c36fda809c5dd35ae6ed9c4890ca', format: 'iframe', height: 50, width: 320, params: {} }, 'https://dcengg.org/22/c7c3c36fda809c5dd35ae6ed9c4890ca');
-            mountStandardAd(document.getElementById('adMobileBottom'), { key: '51efcb0e502dffc7c8c25030a1155128', format: 'iframe', height: 250, width: 300, params: {} }, 'https://dcengg.org/22/51efcb0e502dffc7c8c25030a1155128');
-        } else {
-            injectLeftNativeAd();
-            injectRightStandardAd();
-        }
-        if (adYtPlayer) { try { adYtPlayer.stopVideo(); adYtPlayer.destroy(); } catch(e){} adYtPlayer = null; }
-        if (activePaidAds.length > 0) {
-            activePaidAds.sort((a, b) => (a.lastShownAt || 0) - (b.lastShownAt || 0));
-            const chosenAd = activePaidAds[0];
-            if (chosenAd) {
-                fetch(CF_BASE + '/incrementAdViews', {
-                    method: 'POST', headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ adId: chosenAd.id }), keepalive: true
-                }).catch(() => {});
-            }
-            adCenterWrapper.innerHTML = `<div id="ad-youtube-player" style="width:100%; height:100%; position:absolute; top:0; left:0;"></div>`;
-            adYtPlayer = new YT.Player('ad-youtube-player', {
-                videoId: chosenAd.videoId,
-                playerVars: { autoplay: 1, controls: 0, modestbranding: 1, rel: 0, showinfo: 0, iv_load_policy: 3, playsinline: 1, cc_load_policy: 0, disablekb: 1, origin: window.location.origin },
-                events: {
-                    'onReady': (ev) => ev.target.playVideo(),
-                    'onStateChange': (ev) => { if (ev.data === 0) closeAdAndPlay(); }
-                }
-            });
-        } else if (adBanners.length > 0) {
-            if (currentAdBannerIndex >= adBanners.length) currentAdBannerIndex = 0;
-            const ad = adBanners[currentAdBannerIndex];
-            adCenterWrapper.innerHTML = `<img src="${ad.src}" alt="Publicidade" style="width:100%; height:100%; object-fit:contain;">`;
-            fetch(CF_BASE + '/incrementInternalAdViews', {
-                method: 'POST', headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ adSrc: ad.src.trim() }), keepalive: true
-            }).catch(() => {});
-            currentAdBannerIndex = (currentAdBannerIndex + 1) % adBanners.length;
-        }
-        let timeLeft = activePaidAds.length > 0 ? 15 : 6;
-        adTimerText.textContent = `Aguarde ${timeLeft}s...`;
-        clearInterval(adTimerInterval);
-        adTimerInterval = setInterval(() => {
-            timeLeft--;
-            if (timeLeft > 0) adTimerText.textContent = `Aguarde ${timeLeft}s...`;
-            else {
-                clearInterval(adTimerInterval);
-                adTimerText.textContent = 'Pronto!';
-                closeAdBtn.disabled = false; closeAdBtn.classList.add('active');
-                closeAdBtn.textContent = 'Fechar e Assistir ▶';
-            }
-        }, 1000);
-    }
-    closeAdBtn.addEventListener('click', () => { if (!closeAdBtn.disabled) closeAdAndPlay(); });
-    document.getElementById('adSubscribeBtn').addEventListener('click', () => {
-        adModal.classList.remove('active');
-        document.body.classList.remove('ad-modal-open');
-        if (isAdmin()) adminContainer.style.display = 'flex';
-        if (adYtPlayer) { try { adYtPlayer.stopVideo(); adYtPlayer.destroy(); } catch(e){} adYtPlayer = null; }
-        clearInterval(adTimerInterval);
-        pendingVideo = null;
-        openPixLightbox();
-    });
-
-    async function openPlayer(video) {
+    function openPlayer(video) {
         if (!currentUser) {
             try { await auth.signInWithPopup(new firebase.auth.GoogleAuthProvider()); }
             catch (err) { if (err.code !== 'auth/popup-closed-by-user') alert('Erro: ' + err.message); return; }
@@ -4565,8 +4214,27 @@
         const container = document.getElementById('youtubePlayer');
         container.innerHTML = '';
 
-        player = new PlayerAdapter(video, container);
-        player.init(onPlayerReady, onPlayerStateChange);
+        // Inicializa YouTube
+        document.querySelector('.player-controls').style.display = 'flex';
+        document.querySelector('.center-play-btn').style.display = 'flex';
+
+        container.innerHTML = '<div id="ytPlayerDiv" style="width:100%; height:100%;"></div>';
+        player = new YT.Player('ytPlayerDiv', {
+            height: '100%', width: '100%', videoId: video.youtubeId,
+            playerVars: { autoplay: 1, controls: 0, modestbranding: 1, rel: 0,
+                          iv_load_policy: 3, playsinline: 1, cc_load_policy: 0,
+                          fs: 0, origin: window.location.origin },
+            events: {
+                'onReady': (e) => {
+                    try { e.target.unloadModule('captions'); e.target.unloadModule('cc'); } catch (_) {}
+                    onPlayerReady(e);
+                },
+                'onStateChange': (e) => {
+                    if (e.data === 3) { try { e.target.unloadModule('captions'); e.target.unloadModule('cc'); } catch (_) {} }
+                    onPlayerStateChange(e);
+                }
+            }
+        });
 
         const shareBtn = document.getElementById('sharePlayerBtn');
         if (shareBtn) {
@@ -4579,6 +4247,7 @@
 
         openComments(video.youtubeId);
     }
+
     window.addEventListener('resize', () => {
         if (document.getElementById('adInterstitialModal').classList.contains('active')) {
             const isLandscape = window.matchMedia('(max-width: 900px) and (orientation: landscape)').matches;
@@ -4731,7 +4400,6 @@
         stopWatchStatusHeartbeat();
         reportWatchStatus('none');
         closeComments();
-        document.getElementById('driveMask').style.display = 'none'; // Reseta a máscara ao fechar
     }
     document.getElementById('closePlayerBtn').addEventListener('click', closePlayer);
     fullscreenBtn.addEventListener('click', () => {
@@ -4825,7 +4493,7 @@
                 deepLinkProcessed = true;
                 history.replaceState(null, '', window.location.pathname + window.location.search);
                 if (video.pago && !catalogSubscription.active) openPixLightbox();
-                else if (!catalogSubscription.active) showAdInterstitial(video);
+                else if (!catalogSubscription.active && video.sourceType !== 'drive') showAdInterstitial(video);
                 else playVideo(video);
             }
         }
@@ -4856,7 +4524,7 @@
 
     function buildTVPlaylist() {
         return videos
-            .filter(v => !v.abrirNoYoutube && Number(v.duracaoSegundos) > 15 && /^[a-zA-Z0-9_-]{11}$/.test(v.youtubeId || '') && !v.isSuspended)
+            .filter(v => v.sourceType !== 'drive' && !v.abrirNoYoutube && Number(v.duracaoSegundos) > 15 && /^[a-zA-Z0-9_-]{11}$/.test(v.youtubeId || '') && !v.isSuspended)
             .sort((a, b) => {
                 const orderA = a.order || 0;
                 const orderB = b.order || 0;
@@ -5094,3 +4762,4 @@
 </script>
 </body>
 </html>
+```   
