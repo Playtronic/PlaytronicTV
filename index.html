@@ -688,10 +688,10 @@
         /* PATCH: Ajuste do Player do Drive no Mobile */
         @media (max-width: 900px) {
             .player-wrapper.drive-mode {
-                aspect-ratio: auto !important;
+                aspect-ratio: 16 / 9 !important;
                 width: 100% !important;
-                height: 56.25vw !important; /* Força proporção 16:9 exata no celular */
-                max-height: 70vh !important;
+                height: auto !important; 
+                max-height: none !important;
                 background: #000;
                 border-radius: 0;
                 overflow: hidden;
@@ -703,6 +703,7 @@
                 top: 0;
                 left: 0;
                 border: none;
+                pointer-events: auto !important;
             }
             /* Desativa a máscara no celular para não bloquear os toques do player */
             #driveMask {
@@ -710,63 +711,7 @@
             }
         }
     </style>
-
-    <style>
-        /* === PATCH DEFINITIVO: CORREÇÃO DO DRIVE NO MOBILE === */
-        @media (max-width: 900px) {
-            .player-wrapper.drive-mode {
-                aspect-ratio: auto !important;
-                width: 100% !important;
-                height: 56.25vw !important; /* Trava a proporção 16:9 exata no celular */
-                max-height: 70vh !important;
-                background: #000 !important;
-                border-radius: 0 !important;
-                overflow: hidden !important;
-                position: relative !important;
-            }
-            .player-wrapper.drive-mode iframe {
-                width: 100% !important;
-                height: 100% !important;
-                position: absolute !important;
-                top: 0 !important;
-                left: 0 !important;
-                border: none !important;
-            }
-            /* Desativa a máscara no celular para o usuário conseguir tocar nos controles do Drive */
-            #driveMask {
-                display: none !important;
-            }
-        }
-    </style>
-    
-    <!-- PATCH V6: CORREÇÃO DRIVE MOBILE -->
-    <style>
-        @media (max-width: 900px) {
-            .player-wrapper.drive-mode {
-                aspect-ratio: 16 / 9 !important;
-                width: 100% !important;
-                height: auto !important;
-                max-height: none !important;
-                position: relative !important;
-                overflow: hidden !important;
-                background: #000 !important;
-            }
-            .player-wrapper.drive-mode iframe {
-                position: absolute !important;
-                top: 0 !important; 
-                left: 0 !important;
-                width: 100% !important; 
-                height: 100% !important;
-                border: none !important;
-                pointer-events: auto !important;
-            }
-            #driveMask {
-                display: none !important;
-                pointer-events: none !important;
-            }
-        }
-    </style>
-    </head>
+</head>
 <body>
 
 <header class="header">
@@ -4319,65 +4264,67 @@
         }
 
         _initDrive(onReady, onStateChange) {
-                // Se o admin preencheu a "URL de Reprodução" (Proxy), usa o Player HTML5 customizado
-                if (this.video.playUrl) {
-                    document.querySelector('.player-controls').style.display = 'flex';
-                    document.querySelector('.center-play-btn').style.display = 'flex';
-                    document.getElementById('driveMask').style.display = 'none';
-                    document.getElementById('playerWrapper').classList.remove('drive-mode');
+            // Se o admin preencheu a "URL de Reprodução" (Proxy), usa o Player HTML5 customizado
+            if (this.video.playUrl) {
+                document.querySelector('.player-controls').style.display = 'flex';
+                document.querySelector('.center-play-btn').style.display = 'flex';
+                document.getElementById('driveMask').style.display = 'none';
+                document.getElementById('playerWrapper').classList.remove('drive-mode');
 
-                    const videoEl = document.createElement('video');
-                    videoEl.src = this.video.playUrl;
-                    videoEl.controls = false; 
-                    videoEl.autoplay = true;
-                    videoEl.playsInline = true;
-                    videoEl.crossOrigin = 'anonymous';
-                    videoEl.style.cssText = 'width:100%; height:100%; position:absolute; top:0; left:0; z-index:1; pointer-events: auto; background:#000; object-fit:contain;';
-
-                    this.container.innerHTML = '';
-                    this.container.appendChild(videoEl);
-                    this.player = videoEl;
-                    this._isVideoTag = true;
-
-                    videoEl.addEventListener('loadedmetadata', () => {
-                        onReady({ target: this });
-                    });
-                    videoEl.addEventListener('play', () => onStateChange({ data: 1 }));
-                    videoEl.addEventListener('pause', () => onStateChange({ data: 2 }));
-                    videoEl.addEventListener('ended', () => onStateChange({ data: 0 }));
-                    return;
-                }
-
-                // MODO PADRÃO: Iframe nativo do Google Drive
-                document.querySelector('.player-controls').style.display = 'none';
-                document.querySelector('.center-play-btn').style.display = 'none';
-                
-                const mask = document.getElementById('driveMask');
-                const isMobile = window.matchMedia('(max-width: 900px)').matches;
-
-                // NO MOBILE: Não ativa a máscara para não travar os controles do Drive
-                if (mask) {
-                    mask.style.display = isMobile ? 'none' : 'block';
-                }
-
-                document.getElementById('playerWrapper').classList.add('drive-mode');
-
-                const iframe = document.createElement('iframe');
-                iframe.src = `https://drive.google.com/file/d/${this.video.driveFileId}/preview`;
-                iframe.style.cssText = 'width:100%; height:100%; border:none; position:absolute; top:0; left:0; z-index:1; pointer-events: auto; background:#000;';
-                iframe.allow = 'autoplay; fullscreen';
+                const videoEl = document.createElement('video');
+                videoEl.src = this.video.playUrl;
+                videoEl.controls = false; // Usa os controles customizados bonitos
+                videoEl.autoplay = true;
+                videoEl.playsInline = true;
+                videoEl.crossOrigin = 'anonymous';
+                videoEl.style.cssText = 'width:100%; height:100%; position:absolute; top:0; left:0; z-index:1; pointer-events: auto; background:#000; object-fit:contain;';
 
                 this.container.innerHTML = '';
-                this.container.appendChild(iframe);
-                this.player = iframe;
-                this._isVideoTag = false;
+                this.container.appendChild(videoEl);
+                this.player = videoEl;
+                this._isVideoTag = true;
 
-                // Simula o carregamento para destravar a tela e contar a view
-                setTimeout(() => {
+                videoEl.addEventListener('loadedmetadata', () => {
                     onReady({ target: this });
-                    onStateChange({ data: 1 }); // Finge que está tocando
-                }, 1000);
+                });
+                videoEl.addEventListener('play', () => onStateChange({ data: 1 }));
+                videoEl.addEventListener('pause', () => onStateChange({ data: 2 }));
+                videoEl.addEventListener('ended', () => onStateChange({ data: 0 }));
+                return;
             }
+
+            // MODO PADRÃO: Iframe nativo do Google Drive
+            document.querySelector('.player-controls').style.display = 'none';
+            document.querySelector('.center-play-btn').style.display = 'none';
+            
+            const mask = document.getElementById('driveMask');
+            const isMobile = window.matchMedia('(max-width: 900px)').matches;
+
+            // NO MOBILE: Não ativa a máscara para não travar os controles do Drive
+            if (isMobile) {
+                mask.style.display = 'none';
+            } else {
+                mask.style.display = 'block';
+            }
+
+            document.getElementById('playerWrapper').classList.add('drive-mode');
+
+            const iframe = document.createElement('iframe');
+            iframe.src = `https://drive.google.com/file/d/${this.video.driveFileId}/preview`;
+            iframe.style.cssText = 'width:100%; height:100%; border:none; position:absolute; top:0; left:0; z-index:1; pointer-events: auto; background:#000;';
+            iframe.allow = 'autoplay; fullscreen';
+
+            this.container.innerHTML = '';
+            this.container.appendChild(iframe);
+            this.player = iframe;
+            this._isVideoTag = false;
+
+            // Simula o carregamento para destravar a tela e contar a view
+            setTimeout(() => {
+                onReady({ target: this });
+                onStateChange({ data: 1 }); // Finge que está tocando
+            }, 1000);
+        }
 
         // Métodos de controle atualizados para suportar o Player HTML5 e o YouTube
         playVideo() { 
@@ -4441,56 +4388,7 @@
         iframe.setAttribute('scrolling', 'no');
         iframe.setAttribute('frameborder', '0');
         iframe.style.cssText = 'display:block; border:0; position:absolute; top:0; left:0; width:100%; height:100%; overflow:hidden;';
-        iframe.srcdoc = `<!DOCTYPE html><html><head><meta charset="utf-8"><style>html,body{margin:0;padding:0;overflow:hidden;width:100%;height:100%;background:transparent;display:flex;align-items:center;justify-content:center;}</style></head><body><script type="text/javascript">atOptions=${JSON.stringify(opts)};<\/script><script type="text/javascript" src="${scriptSrc}"><\/script>
-    <!-- PATCH V6: OVERRIDE DO PLAYER DRIVE -->
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // Tempo para garantir que a classe original já foi carregada
-            setTimeout(function() {
-                if (typeof PlayerAdapter !== 'undefined') {
-                    const originalInit = PlayerAdapter.prototype._initDrive;
-                    
-                    // Sobrescreve a função
-                    PlayerAdapter.prototype._initDrive = function(onReady, onStateChange) {
-                        // Se for proxy, usa o original
-                        if (this.video.playUrl) {
-                            return originalInit.call(this, onReady, onStateChange);
-                        }
-
-                        // MODO PADRÃO: Iframe nativo do Google Drive
-                        document.querySelector('.player-controls').style.display = 'none';
-                        document.querySelector('.center-play-btn').style.display = 'none';
-                        
-                        // Destrói a máscara preta completamente
-                        var mask = document.getElementById('driveMask');
-                        if (mask) {
-                            mask.style.display = 'none';
-                            mask.style.pointerEvents = 'none';
-                        }
-
-                        document.getElementById('playerWrapper').classList.add('drive-mode');
-
-                        var iframe = document.createElement('iframe');
-                        iframe.src = 'https://drive.google.com/file/d/' + this.video.driveFileId + '/preview';
-                        iframe.style.cssText = 'width:100%; height:100%; border:none; position:absolute; top:0; left:0; z-index:1; pointer-events: auto; background:#000;';
-                        iframe.allow = 'autoplay; fullscreen';
-
-                        this.container.innerHTML = '';
-                        this.container.appendChild(iframe);
-                        this.player = iframe;
-                        this._isVideoTag = false;
-
-                        var self = this;
-                        setTimeout(function() {
-                            onReady({ target: self });
-                            onStateChange({ data: 1 });
-                        }, 1000);
-                    };
-                }
-            }, 1000);
-        });
-    </script>
-    </body></html>`;
+        iframe.srcdoc = `<!DOCTYPE html><html><head><meta charset="utf-8"><style>html,body{margin:0;padding:0;overflow:hidden;width:100%;height:100%;background:transparent;display:flex;align-items:center;justify-content:center;}</style></head><body><script type="text/javascript">atOptions=${JSON.stringify(opts)};<\/script><script type="text/javascript" src="${scriptSrc}"><\/script></body></html>`;
         container.appendChild(iframe);
     }
     function closeAdAndPlay() {
