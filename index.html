@@ -806,19 +806,15 @@
         <h2 id="videoModalTitle">Adicionar Vídeo</h2>
         <p class="modal-sub" id="videoModalSub"></p>
 
-        <label>Tipo de Fonte</label>
-        <select id="videoSourceTypeInput">
-            <option value="youtube">YouTube (Player Interno)</option>
-            <option value="drive">Google Drive (Abre em nova aba)</option>
-        </select>
-
         <label id="videoUrlLabel">URL do Vídeo</label>
         <input type="text" id="videoUrlInput" placeholder="https://...">
         <div class="url-hint" id="urlHint"></div>
 
-        <label id="videoThumbnailLabel">Miniatura Personalizada (URL)</label>
-        <input type="text" id="videoThumbnailUrlInput" placeholder="https://... (deixe vazio para gerar automaticamente)">
-        <div class="url-hint" id="thumbnailHint" style="color: #fbbf24; display: none;">A miniatura é obrigatória para vídeos do Google Drive.</div>
+        <div id="thumbnailContainer" style="display: none;">
+            <label id="videoThumbnailLabel">Miniatura Personalizada (URL)</label>
+            <input type="text" id="videoThumbnailUrlInput" placeholder="https://... (Obrigatório para Drive)">
+            <div class="url-hint" id="thumbnailHint" style="color: #fbbf24; display: none;">A miniatura é obrigatória para vídeos do Google Drive.</div>
+        </div>
 
         <label>Título</label>
         <input type="text" id="videoTitleInput" placeholder="Título do vídeo">
@@ -842,8 +838,8 @@
             <label><input type="radio" name="videoMarker" value="ad"> AD</label>
         </div>
 
-        <div class="modal-checkbox-row yt-checkbox-row" id="abrirNoYoutubeGroup">
-            <label><input type="checkbox" id="videoAbrirNoYoutubeInput"> ↗ Abrir no YouTube (para vídeos que bloqueiam incorporação)</label>
+        <div class="modal-checkbox-row yt-checkbox-row" id="abrirNoYoutubeGroup" style="display: none;">
+            <label><input type="checkbox" id="videoAbrirNoYoutubeInput"> ↗ Abrir no YouTube</label>
         </div>
 
         <div class="modal-actions">
@@ -3400,48 +3396,33 @@
     const videoAnoInput = document.getElementById('videoAnoInput');
     const videoClassificacaoInput = document.getElementById('videoClassificacaoInput');
     const videoAbrirNoYoutubeInput = document.getElementById('videoAbrirNoYoutubeInput');
-    const videoSourceTypeInput = document.getElementById('videoSourceTypeInput');
     const videoThumbnailUrlInput = document.getElementById('videoThumbnailUrlInput');
     const abrirNoYoutubeGroup = document.getElementById('abrirNoYoutubeGroup');
+    const thumbnailContainer = document.getElementById('thumbnailContainer');
     const videoUrlLabel = document.getElementById('videoUrlLabel');
     const urlHint = document.getElementById('urlHint');
     const thumbnailHint = document.getElementById('thumbnailHint');
 
-    function updateVideoModalSourceUI() {
-        const isDrive = videoSourceTypeInput.value === 'drive';
-        abrirNoYoutubeGroup.style.display = isDrive ? 'none' : 'flex';
-        videoUrlLabel.textContent = isDrive ? 'URL do Google Drive' : 'URL do YouTube';
-        videoUrlInput.placeholder = isDrive
-            ? 'https://drive.google.com/file/d/.../view'
-            : 'https://www.youtube.com/watch?v=...';
-        
-        if (isDrive) {
-            thumbnailHint.style.display = 'block';
-            videoThumbnailUrlInput.placeholder = 'https://... (Obrigatório para Drive)';
-            videoThumbnailUrlInput.style.borderColor = '#fbbf24';
-        } else {
-            thumbnailHint.style.display = 'none';
-            videoThumbnailUrlInput.placeholder = 'https://... (deixe vazio para gerar automaticamente)';
-            videoThumbnailUrlInput.style.borderColor = '';
-        }
-    }
-
-    videoSourceTypeInput.addEventListener('change', () => {
-        updateVideoModalSourceUI();
-        urlHint.textContent = '';
-        urlHint.className = 'url-hint';
-    });
-
     videoUrlInput.addEventListener('input', () => {
         const value = videoUrlInput.value.trim();
+        
         if (!value) {
             urlHint.textContent = '';
             urlHint.className = 'url-hint';
+            thumbnailContainer.style.display = 'none';
+            abrirNoYoutubeGroup.style.display = 'none';
+            videoUrlLabel.textContent = 'URL do Vídeo';
             return;
         }
+
         if (value.includes('drive.google.com')) {
-            videoSourceTypeInput.value = 'drive';
-            updateVideoModalSourceUI();
+            videoUrlLabel.textContent = 'URL do Google Drive';
+            thumbnailContainer.style.display = 'block';
+            abrirNoYoutubeGroup.style.display = 'none';
+            thumbnailHint.style.display = 'block';
+            videoThumbnailUrlInput.placeholder = 'https://... (Obrigatório para Drive)';
+            videoThumbnailUrlInput.style.borderColor = '#fbbf24';
+
             const id = extractDriveId(value);
             if (id) {
                 urlHint.textContent = `File ID detectado: ${id}`;
@@ -3450,17 +3431,22 @@
                 urlHint.textContent = 'URL do Drive inválida.';
                 urlHint.className = 'url-hint warn';
             }
-        } else {
-            videoSourceTypeInput.value = 'youtube';
-            updateVideoModalSourceUI();
+        } 
+        else if (extractYouTubeId(value)) {
+            videoUrlLabel.textContent = 'URL do YouTube';
+            thumbnailContainer.style.display = 'none'; 
+            abrirNoYoutubeGroup.style.display = 'flex';
+            
             const id = extractYouTubeId(value);
-            if (id) {
-                urlHint.textContent = `ID detectado: ${id}`;
-                urlHint.className = 'url-hint ok';
-            } else {
-                urlHint.textContent = 'URL do YouTube inválida.';
-                urlHint.className = 'url-hint warn';
-            }
+            urlHint.textContent = `ID detectado: ${id}`;
+            urlHint.className = 'url-hint ok';
+        } 
+        else {
+            videoUrlLabel.textContent = 'URL do Vídeo';
+            thumbnailContainer.style.display = 'none';
+            abrirNoYoutubeGroup.style.display = 'none';
+            urlHint.textContent = 'URL não reconhecida. Use YouTube ou Google Drive.';
+            urlHint.className = 'url-hint warn';
         }
     });
 
@@ -3471,7 +3457,6 @@
         if (mode === 'add') {
             videoModalTitle.textContent = 'Adicionar Vídeo';
             videoModalSub.textContent = 'O vídeo ficará visível para todos os usuários.';
-            videoSourceTypeInput.value = 'youtube';
             videoUrlInput.value = '';
             videoThumbnailUrlInput.value = '';
             videoTitleInput.value = '';
@@ -3480,15 +3465,16 @@
             videoClassificacaoInput.value = 'curta';
             videoAbrirNoYoutubeInput.checked = false;
             document.querySelector('input[name="videoMarker"][value=""]').checked = true;
+            videoUrlLabel.textContent = 'URL do Vídeo';
             urlHint.textContent = '';
             urlHint.className = 'url-hint';
+            thumbnailContainer.style.display = 'none';
+            abrirNoYoutubeGroup.style.display = 'none';
         } else {
             videoModalTitle.textContent = 'Editar Vídeo';
             videoModalSub.textContent = 'Altere as informações.';
-            const st = video.sourceType === 'drive' ? 'drive' : 'youtube';
-            videoSourceTypeInput.value = st;
-
-            if (st === 'drive') {
+            
+            if (video.sourceType === 'drive') {
                 const id = video.youtubeId.replace('drive_', '');
                 videoUrlInput.value = `https://drive.google.com/file/d/${id}/view`;
             } else {
@@ -3503,20 +3489,22 @@
             const currentMarker = video.pago ? 'pago' : (video.ad ? 'ad' : '');
             const markerEl = document.querySelector(`input[name="videoMarker"][value="${currentMarker}"]`);
             if (markerEl) markerEl.checked = true;
+            
+            videoUrlInput.dispatchEvent(new Event('input'));
+            
             urlHint.textContent = `ID atual: ${video.youtubeId}`;
             urlHint.className = 'url-hint ok';
         }
 
-        updateVideoModalSourceUI();
         videoModal.classList.add('active');
         setTimeout(() => videoUrlInput.focus(), 50);
     }
+
     function closeVideoModal() { videoModal.classList.remove('active'); videoModalMode = 'add'; editingVideoKey = null; }
     document.getElementById('cancelVideoBtn').addEventListener('click', closeVideoModal);
     videoModal.addEventListener('click', (e) => { if (e.target === videoModal) closeVideoModal(); });
 
     document.getElementById('confirmVideoBtn').addEventListener('click', async () => {
-        const sourceType = videoSourceTypeInput.value === 'drive' ? 'drive' : 'youtube';
         const urlRaw = videoUrlInput.value.trim();
         const titulo = videoTitleInput.value.trim();
         const produtora = videoProdutoraInput.value.trim();
@@ -3525,7 +3513,6 @@
         const markerEl = document.querySelector('input[name="videoMarker"]:checked');
         const marker = markerEl ? markerEl.value : '';
         const pago = marker === 'pago', ad = marker === 'ad';
-        const abrirNoYoutube = sourceType === 'youtube' && !!videoAbrirNoYoutubeInput.checked;
         const thumbnailRaw = videoThumbnailUrlInput.value.trim();
 
         if (!urlRaw) return alert('Informe a URL.');
@@ -3537,14 +3524,26 @@
             ano = parseInt(anoRaw, 10);
         }
 
-        let youtubeId, driveFileId = null;
+        let sourceType = null;
+        let youtubeId = null;
+
+        if (urlRaw.includes('drive.google.com')) {
+            sourceType = 'drive';
+        } else if (extractYouTubeId(urlRaw)) {
+            sourceType = 'youtube';
+        }
+
+        if (!sourceType) {
+            return alert('URL inválida. Certifique-se de que é um link do YouTube ou do Google Drive.');
+        }
+
+        const abrirNoYoutube = sourceType === 'youtube' && !!videoAbrirNoYoutubeInput.checked;
+
         if (sourceType === 'drive') {
             const fileId = extractDriveId(urlRaw);
             if (!fileId) return alert('URL do Google Drive inválida.');
-            driveFileId = fileId;
             youtubeId = 'drive_' + fileId;
             
-            // NOVA VALIDAÇÃO: Miniatura obrigatória para GDrive
             if (!thumbnailRaw) {
                 return alert('A miniatura é OBRIGATÓRIA para vídeos do Google Drive. Por favor, insira a URL da imagem.');
             }
@@ -4155,10 +4154,7 @@
     let player = null, playerReady = false, progressInterval = null, controlsTimeout = null, isPlaying = false, isEnded = false, isMuted = false, currentVolume = 100, isSeeking = false;
     window.onYouTubeIframeAPIReady = function() {};
 
-    // ────────────────────────────────────────────────────────────
-    // YOUTUBE PLAYER (Apenas para vídeos do YouTube)
-    // ────────────────────────────────────────────────────────────
-    async function openPlayer(video) { // <--- CORREÇÃO AQUI (ADICIONADO async)
+    async function openPlayer(video) {
         if (!currentUser) {
             try { await auth.signInWithPopup(new firebase.auth.GoogleAuthProvider()); }
             catch (err) { if (err.code !== 'auth/popup-closed-by-user') alert('Erro: ' + err.message); return; }
@@ -4207,7 +4203,6 @@
         const container = document.getElementById('youtubePlayer');
         container.innerHTML = '';
 
-        // Inicializa YouTube
         document.querySelector('.player-controls').style.display = 'flex';
         document.querySelector('.center-play-btn').style.display = 'flex';
 
