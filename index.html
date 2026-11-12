@@ -4272,7 +4272,7 @@
 
                 const videoEl = document.createElement('video');
                 videoEl.src = this.video.playUrl;
-                videoEl.controls = false; // Usa os controles customizados bonitos
+                videoEl.controls = false; 
                 videoEl.autoplay = true;
                 videoEl.playsInline = true;
                 videoEl.crossOrigin = 'anonymous';
@@ -4297,7 +4297,14 @@
             document.querySelector('.center-play-btn').style.display = 'none';
             
             const mask = document.getElementById('driveMask');
-            mask.style.display = 'block';
+            const isMobile = window.matchMedia('(max-width: 900px)').matches;
+
+            // NO MOBILE: Não ativa a máscara para não travar os controles do Drive
+            if (!isMobile) {
+                mask.style.display = 'block';
+            } else {
+                mask.style.display = 'none';
+            }
 
             document.getElementById('playerWrapper').classList.add('drive-mode');
 
