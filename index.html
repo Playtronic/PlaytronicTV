@@ -3931,7 +3931,7 @@
     let adVideoId = '';
     let adRateValue = 1.00;
     document.getElementById('openInsertAdBtn').addEventListener('click', async () => {
-        adModal.classList.remove('active');
+        document.getElementById('adInterstitialModal').classList.remove('active');
         document.body.classList.remove('ad-modal-open');
         if (adYtPlayer) { try { adYtPlayer.stopVideo(); adYtPlayer.destroy(); } catch(e){} adYtPlayer = null; }
         insertAdModal.classList.add('active');
@@ -4138,6 +4138,104 @@
     const playerWrapper = document.getElementById('playerWrapper');
     const customUI = document.getElementById('customUI');
     const centerPlayPauseBtn = document.getElementById('centerPlayPauseBtn');
+
+// ===== FUNÇÕES RESTAURADAS PELO PATCHER =====
+function setPlayPauseVisual(playing) {
+    const iconPlay = centerPlayPauseBtn.querySelector('.icon-play');
+    const iconPause = centerPlayPauseBtn.querySelector('.icon-pause');
+    if (iconPlay) iconPlay.style.display = playing ? 'none' : 'block';
+    if (iconPause) iconPause.style.display = playing ? 'block' : 'none';
+}
+
+let _interstitialVideo = null;
+let _interstitialTimer = null;
+
+function showAdInterstitial(video) {
+    _interstitialVideo = video;
+    const modal = document.getElementById('adInterstitialModal');
+    if (!modal) { playVideo(video); return; }
+    modal.classList.add('active');
+    document.body.classList.add('no-scroll');
+
+    const wrapper = document.getElementById('adCenterWrapper');
+    if (wrapper) {
+        if (Array.isArray(adBanners) && adBanners.length > 0) {
+            const banner = adBanners[currentAdBannerIndex % adBanners.length];
+            currentAdBannerIndex = (currentAdBannerIndex + 1) % adBanners.length;
+            const link = banner.link || 'https://playtronicgames.com.br';
+            const src = banner.src || '';
+            wrapper.innerHTML = '<a href="' + escapeHtml(link) + '" target="_blank" rel="noopener" style="display:block;width:100%;height:100%;"><img src="' + escapeHtml(src) + '" style="width:100%;height:100%;object-fit:contain;"></a>';
+        } else {
+            wrapper.innerHTML = '<div style="color:#fff;padding:40px;font-size:1.2rem;text-align:center;">Publicidade</div>';
+        }
+    }
+
+    try { mountStandardAd(document.getElementById('adNativeRight'), { key: '51efcb0e502dffc7c8c25030a1155128', format: 'iframe', height: 250, width: 300, params: {} }, 'https://dcengg.org/22/51efcb0e502dffc7c8c25030a1155128'); } catch(e) {}
+    try { mountStandardAd(document.getElementById('adMobileTop'), { key: 'c7c3c36fda809c5dd35ae6ed9c4890ca', format: 'iframe', height: 50, width: 320, params: {} }, 'https://dcengg.org/22/c7c3c36fda809c5dd35ae6ed9c4890ca'); } catch(e) {}
+    try { mountStandardAd(document.getElementById('adMobileBottom'), { key: '51efcb0e502dffc7c8c25030a1155128', format: 'iframe', height: 250, width: 300, params: {} }, 'https://dcengg.org/22/51efcb0e502dffc7c8c25030a1155128'); } catch(e) {}
+
+    const timerText = document.getElementById('adTimerText');
+    const closeBtn = document.getElementById('closeInterstitialBtn');
+    if (closeBtn) { closeBtn.disabled = true; closeBtn.classList.remove('active'); }
+
+    let seconds = 5;
+    if (timerText) timerText.textContent = 'Aguarde ' + seconds + 's...';
+    if (_interstitialTimer) clearInterval(_interstitialTimer);
+    _interstitialTimer = setInterval(function() {
+        seconds--;
+        if (seconds <= 0) {
+            clearInterval(_interstitialTimer);
+            _interstitialTimer = null;
+            if (timerText) timerText.textContent = 'Pronto!';
+            if (closeBtn) { closeBtn.disabled = false; closeBtn.classList.add('active'); }
+        } else {
+            if (timerText) timerText.textContent = 'Aguarde ' + seconds + 's...';
+        }
+    }, 1000);
+}
+
+function closeInterstitialAndPlay() {
+    if (_interstitialTimer) { clearInterval(_interstitialTimer); _interstitialTimer = null; }
+    const modal = document.getElementById('adInterstitialModal');
+    if (modal) modal.classList.remove('active');
+    document.body.classList.remove('no-scroll');
+    const v = _interstitialVideo;
+    _interstitialVideo = null;
+    if (v) playVideo(v);
+}
+
+function mountStandardAd(el, opts, src) {
+    if (!el) return;
+    const html = '<!DOCTYPE html><html><head><meta charset="utf-8"><style>html,body{margin:0;padding:0;overflow:hidden;background:transparent;width:100%;height:100%;display:flex;align-items:center;justify-content:center;}</style></head><body><script type="text/javascript">atOptions=' + JSON.stringify(opts || {}) + ';<\/script><script type="text/javascript" src="' + escapeHtml(src || '') + '"><\/script></body></html>';
+    el.innerHTML = '';
+    const iframe = document.createElement('iframe');
+    iframe.style.cssText = 'width:100%;height:100%;border:0;display:block;background:transparent;';
+    iframe.setAttribute('frameborder', '0');
+    iframe.setAttribute('scrolling', 'no');
+    iframe.srcdoc = html;
+    el.appendChild(iframe);
+}
+
+function injectLeftNativeAd() {
+    try { const el = document.getElementById('adNativeLeft'); if (el) el.innerHTML = ''; } catch(e) {}
+}
+function injectRightStandardAd() {
+    try { mountStandardAd(document.getElementById('adNativeRight'), { key: '51efcb0e502dffc7c8c25030a1155128', format: 'iframe', height: 250, width: 300, params: {} }, 'https://dcengg.org/22/51efcb0e502dffc7c8c25030a1155128'); } catch(e) {}
+}
+
+document.getElementById('closeInterstitialBtn')?.addEventListener('click', function() {
+    if (document.getElementById('closeInterstitialBtn').disabled) return;
+    closeInterstitialAndPlay();
+});
+document.getElementById('adSubscribeBtn')?.addEventListener('click', function() {
+    if (_interstitialTimer) { clearInterval(_interstitialTimer); _interstitialTimer = null; }
+    _interstitialVideo = null;
+    document.getElementById('adInterstitialModal').classList.remove('active');
+    document.body.classList.remove('no-scroll');
+    openPixLightbox();
+});
+// ===== FIM DAS FUNÇÕES RESTAURADAS =====
+
     const fullscreenBtn = document.getElementById('fullscreenBtn');
     const btnRewind10 = document.getElementById('btnRewind10');
     const btnForward10 = document.getElementById('btnForward10');
