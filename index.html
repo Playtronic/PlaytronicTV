@@ -285,7 +285,7 @@
         .spinner { border: 4px solid rgba(253,187,45,0.2); border-top: 4px solid #fdbb2d; border-radius: 50%; width: 50px; height: 50px; animation: spin 1s linear infinite; margin-bottom: 15px; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
-        #adInterstitialModal { position: fixed; inset: 0; background: linear-gradient(135deg, rgba(11,15,25,0.97) 0%, rgba(26,26,46,0.97) 50%, rgba(22,33,62,0.97) 100%); z-index: 99999; display: none; align-items: center; justify-content: center; backdrop-filter: blur(10px); padding: 20px; gap: 20px; overflow: hidden !important; }
+        #adInterstitialModal { position: fixed; inset: 0; background: linear-gradient(135deg, rgba(11,15,25,0.97) 0%, rgba(26,26,46,0.97) 50%, rgba(22,33,62,0.97) 100%); z-index: 10000005; display: none; align-items: center; justify-content: center; backdrop-filter: blur(10px); padding: 20px; gap: 20px; overflow: hidden !important; }
         #adInterstitialModal.active { display: flex; }
         .ad-center-column { display: flex; flex-direction: column; align-items: center; gap: 15px; width: 100%; max-width: 800px; flex-shrink: 1; max-height: 100%; overflow-y: auto; -ms-overflow-style: none; scrollbar-width: none; }
         .ad-center-column::-webkit-scrollbar { display: none; }
@@ -4155,6 +4155,7 @@ function showAdInterstitial(video) {
     const modal = document.getElementById('adInterstitialModal');
     if (!modal) { playVideo(video); return; }
     modal.classList.add('active');
+    document.body.classList.add('ad-modal-open');
     document.body.classList.add('no-scroll');
 
     const wrapper = document.getElementById('adCenterWrapper');
@@ -4206,6 +4207,7 @@ function closeInterstitialAndPlay() {
     if (_interstitialTimer) { clearInterval(_interstitialTimer); _interstitialTimer = null; }
     const modal = document.getElementById('adInterstitialModal');
     if (modal) modal.classList.remove('active');
+    document.body.classList.remove('ad-modal-open');
     document.body.classList.remove('no-scroll');
     const v = _interstitialVideo;
     _interstitialVideo = null;
@@ -4864,5 +4866,42 @@ document.getElementById('adSubscribeBtn')?.addEventListener('click', function() 
 
     loadCustomAds();
 </script>
+
+<!-- ===== FIX: Header escondido durante o modal de anúncio (by patcher) ===== -->
+<style id="__pl_fix_css__">
+  #adInterstitialModal { z-index: 10000005 !important; }
+  body.ad-modal-open .header,
+  body:has(#adInterstitialModal.active) .header { display: none !important; }
+</style>
+<script id="__pl_fix_js__">
+(function(){
+  'use strict';
+  function run() {
+    var modal = document.getElementById('adInterstitialModal');
+    var header = document.querySelector('header.header') || document.querySelector('.header');
+    if (!modal || !header) { setTimeout(run, 120); return; }
+
+    function sync() {
+      var active = modal.classList.contains('active');
+      if (active) {
+        if (header.style.display !== 'none') header.style.display = 'none';
+        document.body.classList.add('ad-modal-open');
+      } else {
+        if (header.style.display !== '') header.style.display = '';
+        document.body.classList.remove('ad-modal-open');
+      }
+    }
+    sync();
+    try {
+      new MutationObserver(sync).observe(modal, { attributes: true, attributeFilter: ['class','style'] });
+    } catch(e) {}
+    setInterval(sync, 400); // fallback extra à prova de qualquer coisa
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', run);
+  else run();
+})();
+</script>
+<!-- ===== /FIX ===== -->
+
 </body>
 </html>
