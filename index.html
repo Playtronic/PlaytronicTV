@@ -688,12 +688,13 @@
         /* PATCH: Ajuste do Player do Drive no Mobile */
         @media (max-width: 900px) {
             .player-wrapper.drive-mode {
-                aspect-ratio: 16 / 9 !important;
+                aspect-ratio: auto !important;
                 width: 100% !important;
-                height: auto !important;
+                height: 56.25vw !important; /* Força proporção 16:9 exata no celular */
                 max-height: 70vh !important;
                 background: #000;
                 border-radius: 0;
+                overflow: hidden;
             }
             .player-wrapper.drive-mode iframe {
                 width: 100% !important;
@@ -701,10 +702,11 @@
                 position: absolute;
                 top: 0;
                 left: 0;
+                border: none;
             }
-            /* Esconde a barra do topo do player do Google Drive (hack via CSS) */
-            .player-wrapper.drive-mode {
-                clip-path: inset(0 0 0 0); /* Impede que o botão do drive transborde */
+            /* Desativa a máscara no celular para não bloquear os toques do player */
+            #driveMask {
+                display: none !important;
             }
         }
     </style>
