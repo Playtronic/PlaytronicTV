@@ -1,8 +1,3 @@
-Aqui está o código completo e reescrito. Removi toda a lógica de embed/proxy do Google Drive (como iframes, máscaras, PlayerAdapter para Drive, etc.). 
-
-Agora, o sistema detecta automaticamente se a URL inserida é do Google Drive. Se for, ele **exige obrigatoriamente o preenchimento da miniatura** e, ao clicar em "Assistir", o vídeo será aberto diretamente em uma nova aba do navegador com a URL `/preview`.
-
-```html
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -1506,17 +1501,15 @@ Agora, o sistema detecta automaticamente se a URL inserida é do Google Drive. S
     function getVideoThumbnail(video) {
         if (video.thumbnailUrl && String(video.thumbnailUrl).trim()) return video.thumbnailUrl.trim();
         if (video.sourceType === 'drive') {
-            // Fallback de segurança, mas a miniatura agora é obrigatória no cadastro
             return `https://drive.google.com/thumbnail?id=${encodeURIComponent(video.youtubeId.replace('drive_', ''))}&sz=w400`;
         }
         return `https://img.youtube.com/vi/${video.youtubeId}/mqdefault.jpg`;
     }
 
-    function playVideo(video) {
+    async function playVideo(video) {
         if (!video) return;
         
         if (video.sourceType === 'drive') {
-            // Abre a URL do Google Drive em uma nova aba
             const driveId = video.youtubeId.replace('drive_', '');
             const url = `https://drive.google.com/file/d/${driveId}/preview`;
             window.open(url, '_blank');
@@ -4165,7 +4158,7 @@ Agora, o sistema detecta automaticamente se a URL inserida é do Google Drive. S
     // ────────────────────────────────────────────────────────────
     // YOUTUBE PLAYER (Apenas para vídeos do YouTube)
     // ────────────────────────────────────────────────────────────
-    function openPlayer(video) {
+    async function openPlayer(video) { // <--- CORREÇÃO AQUI (ADICIONADO async)
         if (!currentUser) {
             try { await auth.signInWithPopup(new firebase.auth.GoogleAuthProvider()); }
             catch (err) { if (err.code !== 'auth/popup-closed-by-user') alert('Erro: ' + err.message); return; }
@@ -4762,4 +4755,3 @@ Agora, o sistema detecta automaticamente se a URL inserida é do Google Drive. S
 </script>
 </body>
 </html>
-```   
