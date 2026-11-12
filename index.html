@@ -262,9 +262,10 @@
         .drive-mask {
             position: absolute;
             top: 0;
+            left: 0;
             right: 0;
-            width: 80px;
-            height: 80px;
+            width: 100%;
+            height: 60px; /* Cobre toda a barra superior do Drive */
             z-index: 10; /* Fica acima do iframe, abaixo dos botões customizados */
             display: none;
             background: transparent;
@@ -688,8 +689,22 @@
         @media (max-width: 900px) {
             .player-wrapper.drive-mode {
                 aspect-ratio: 16 / 9 !important;
+                width: 100% !important;
                 height: auto !important;
                 max-height: 70vh !important;
+                background: #000;
+                border-radius: 0;
+            }
+            .player-wrapper.drive-mode iframe {
+                width: 100% !important;
+                height: 100% !important;
+                position: absolute;
+                top: 0;
+                left: 0;
+            }
+            /* Esconde a barra do topo do player do Google Drive (hack via CSS) */
+            .player-wrapper.drive-mode {
+                clip-path: inset(0 0 0 0); /* Impede que o botão do drive transborde */
             }
         }
     </style>
@@ -4279,7 +4294,9 @@
             document.querySelector('.player-controls').style.display = 'none';
             document.querySelector('.center-play-btn').style.display = 'none';
             
-            document.getElementById('driveMask').style.display = 'block';
+            const mask = document.getElementById('driveMask');
+            mask.style.display = 'block';
+
             document.getElementById('playerWrapper').classList.add('drive-mode');
 
             const iframe = document.createElement('iframe');
