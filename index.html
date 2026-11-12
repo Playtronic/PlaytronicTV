@@ -4170,9 +4170,17 @@ function showAdInterstitial(video) {
         }
     }
 
-    try { mountStandardAd(document.getElementById('adNativeRight'), { key: '51efcb0e502dffc7c8c25030a1155128', format: 'iframe', height: 250, width: 300, params: {} }, 'https://dcengg.org/22/51efcb0e502dffc7c8c25030a1155128'); } catch(e) {}
-    try { mountStandardAd(document.getElementById('adMobileTop'), { key: 'c7c3c36fda809c5dd35ae6ed9c4890ca', format: 'iframe', height: 50, width: 320, params: {} }, 'https://dcengg.org/22/c7c3c36fda809c5dd35ae6ed9c4890ca'); } catch(e) {}
-    try { mountStandardAd(document.getElementById('adMobileBottom'), { key: '51efcb0e502dffc7c8c25030a1155128', format: 'iframe', height: 250, width: 300, params: {} }, 'https://dcengg.org/22/51efcb0e502dffc7c8c25030a1155128'); } catch(e) {}
+    const _isLandscape = window.matchMedia('(max-width: 900px) and (orientation: landscape)').matches;
+    const _isPortrait  = window.matchMedia('(max-width: 900px) and (orientation: portrait)').matches;
+    if (_isLandscape) {
+        try { mountStandardAd(document.getElementById('adNativeRight'), { key: '51efcb0e502dffc7c8c25030a1155128', format: 'iframe', height: 250, width: 300, params: {} }, 'https://dcengg.org/22/51efcb0e502dffc7c8c25030a1155128'); } catch(e) {}
+    } else if (_isPortrait) {
+        try { mountStandardAd(document.getElementById('adMobileTop'), { key: 'c7c3c36fda809c5dd35ae6ed9c4890ca', format: 'iframe', height: 50, width: 320, params: {} }, 'https://dcengg.org/22/c7c3c36fda809c5dd35ae6ed9c4890ca'); } catch(e) {}
+        try { mountStandardAd(document.getElementById('adMobileBottom'), { key: '51efcb0e502dffc7c8c25030a1155128', format: 'iframe', height: 250, width: 300, params: {} }, 'https://dcengg.org/22/51efcb0e502dffc7c8c25030a1155128'); } catch(e) {}
+    } else {
+        try { injectLeftNativeAd(); } catch(e) {}
+        try { injectRightStandardAd(); } catch(e) {}
+    }
 
     const timerText = document.getElementById('adTimerText');
     const closeBtn = document.getElementById('closeInterstitialBtn');
@@ -4217,10 +4225,20 @@ function mountStandardAd(el, opts, src) {
 }
 
 function injectLeftNativeAd() {
-    try { const el = document.getElementById('adNativeLeft'); if (el) el.innerHTML = ''; } catch(e) {}
+    const container = document.getElementById('adNativeLeft');
+    if (!container) return;
+    container.innerHTML = '';
+    const adDiv = document.createElement('div');
+    adDiv.id = 'container-efe34bd92ca74a51f85465ca14314dc7';
+    container.appendChild(adDiv);
+    const script = document.createElement('script');
+    script.async = true;
+    script.setAttribute('data-cfasync', 'false');
+    script.src = 'https://dcengg.org/21/efe34bd92ca74a51f85465ca14314dc7';
+    container.appendChild(script);
 }
 function injectRightStandardAd() {
-    try { mountStandardAd(document.getElementById('adNativeRight'), { key: '51efcb0e502dffc7c8c25030a1155128', format: 'iframe', height: 250, width: 300, params: {} }, 'https://dcengg.org/22/51efcb0e502dffc7c8c25030a1155128'); } catch(e) {}
+    mountStandardAd(document.getElementById('adNativeRight'), { key: '0b2a1dd49cefbcb5c3f10330c969042c', format: 'iframe', height: 600, width: 160, params: {} }, 'https://dcengg.org/22/0b2a1dd49cefbcb5c3f10330c969042c');
 }
 
 document.getElementById('closeInterstitialBtn')?.addEventListener('click', function() {
