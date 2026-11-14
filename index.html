@@ -3214,7 +3214,6 @@
         if (item.pago) tags.push('<span class="tag tag-pago">PAGO</span>');
         if (item.ad) tags.push('<span class="tag tag-ad">AD</span>');
         if (isSuspended) tags.push('<span class="tag tag-suspenso">SUSPENSO</span>');
-        // A TAG DRIVE FOI REMOVIDA AQUI
 
         const classificacao = normalizarClassificacao(item.classificacao);
         const classInfo = CLASSIFICACAO_INFO[classificacao];
@@ -4139,122 +4138,122 @@
     const customUI = document.getElementById('customUI');
     const centerPlayPauseBtn = document.getElementById('centerPlayPauseBtn');
 
-// ===== FUNÇÕES RESTAURADAS PELO PATCHER =====
-function setPlayPauseVisual(playing) {
-    const iconPlay = centerPlayPauseBtn.querySelector('.icon-play');
-    const iconPause = centerPlayPauseBtn.querySelector('.icon-pause');
-    if (iconPlay) iconPlay.style.display = playing ? 'none' : 'block';
-    if (iconPause) iconPause.style.display = playing ? 'block' : 'none';
-}
-
-let _interstitialVideo = null;
-let _interstitialTimer = null;
-
-function showAdInterstitial(video) {
-    _interstitialVideo = video;
-    const modal = document.getElementById('adInterstitialModal');
-    if (!modal) { playVideo(video); return; }
-    modal.classList.add('active');
-    document.body.classList.add('ad-modal-open');
-    document.body.classList.add('no-scroll');
-
-    const wrapper = document.getElementById('adCenterWrapper');
-    if (wrapper) {
-        if (Array.isArray(adBanners) && adBanners.length > 0) {
-            const banner = adBanners[currentAdBannerIndex % adBanners.length];
-            currentAdBannerIndex = (currentAdBannerIndex + 1) % adBanners.length;
-            const link = banner.link || 'https://playtronicgames.com.br';
-            const src = banner.src || '';
-            wrapper.innerHTML = '<a href="' + escapeHtml(link) + '" target="_blank" rel="noopener" style="display:block;width:100%;height:100%;"><img src="' + escapeHtml(src) + '" style="width:100%;height:100%;object-fit:contain;"></a>';
-        } else {
-            wrapper.innerHTML = '<div style="color:#fff;padding:40px;font-size:1.2rem;text-align:center;">Publicidade</div>';
-        }
+    // ===== FUNÇÕES RESTAURADAS PELO PATCHER =====
+    function setPlayPauseVisual(playing) {
+        const iconPlay = centerPlayPauseBtn.querySelector('.icon-play');
+        const iconPause = centerPlayPauseBtn.querySelector('.icon-pause');
+        if (iconPlay) iconPlay.style.display = playing ? 'none' : 'block';
+        if (iconPause) iconPause.style.display = playing ? 'block' : 'none';
     }
 
-    const _isLandscape = window.matchMedia('(max-width: 900px) and (orientation: landscape)').matches;
-    const _isPortrait  = window.matchMedia('(max-width: 900px) and (orientation: portrait)').matches;
-    if (_isLandscape) {
-        try { mountStandardAd(document.getElementById('adNativeRight'), { key: '51efcb0e502dffc7c8c25030a1155128', format: 'iframe', height: 250, width: 300, params: {} }, 'https://dcengg.org/22/51efcb0e502dffc7c8c25030a1155128'); } catch(e) {}
-    } else if (_isPortrait) {
-        try { mountStandardAd(document.getElementById('adMobileTop'), { key: 'c7c3c36fda809c5dd35ae6ed9c4890ca', format: 'iframe', height: 50, width: 320, params: {} }, 'https://dcengg.org/22/c7c3c36fda809c5dd35ae6ed9c4890ca'); } catch(e) {}
-        try { mountStandardAd(document.getElementById('adMobileBottom'), { key: '51efcb0e502dffc7c8c25030a1155128', format: 'iframe', height: 250, width: 300, params: {} }, 'https://dcengg.org/22/51efcb0e502dffc7c8c25030a1155128'); } catch(e) {}
-    } else {
-        try { injectLeftNativeAd(); } catch(e) {}
-        try { injectRightStandardAd(); } catch(e) {}
+    let _interstitialVideo = null;
+    let _interstitialTimer = null;
+
+    function showAdInterstitial(video) {
+        _interstitialVideo = video;
+        const modal = document.getElementById('adInterstitialModal');
+        if (!modal) { playVideo(video); return; }
+        modal.classList.add('active');
+        document.body.classList.add('ad-modal-open');
+        document.body.classList.add('no-scroll');
+
+        const wrapper = document.getElementById('adCenterWrapper');
+        if (wrapper) {
+            if (Array.isArray(adBanners) && adBanners.length > 0) {
+                const banner = adBanners[currentAdBannerIndex % adBanners.length];
+                currentAdBannerIndex = (currentAdBannerIndex + 1) % adBanners.length;
+                const link = banner.link || 'https://playtronicgames.com.br';
+                const src = banner.src || '';
+                wrapper.innerHTML = '<a href="' + escapeHtml(link) + '" target="_blank" rel="noopener" style="display:block;width:100%;height:100%;"><img src="' + escapeHtml(src) + '" style="width:100%;height:100%;object-fit:contain;"></a>';
+            } else {
+                wrapper.innerHTML = '<div style="color:#fff;padding:40px;font-size:1.2rem;text-align:center;">Publicidade</div>';
+            }
+        }
+
+        const _isLandscape = window.matchMedia('(max-width: 900px) and (orientation: landscape)').matches;
+        const _isPortrait  = window.matchMedia('(max-width: 900px) and (orientation: portrait)').matches;
+        if (_isLandscape) {
+            try { mountStandardAd(document.getElementById('adNativeRight'), { key: '51efcb0e502dffc7c8c25030a1155128', format: 'iframe', height: 250, width: 300, params: {} }, 'https://dcengg.org/22/51efcb0e502dffc7c8c25030a1155128'); } catch(e) {}
+        } else if (_isPortrait) {
+            try { mountStandardAd(document.getElementById('adMobileTop'), { key: 'c7c3c36fda809c5dd35ae6ed9c4890ca', format: 'iframe', height: 50, width: 320, params: {} }, 'https://dcengg.org/22/c7c3c36fda809c5dd35ae6ed9c4890ca'); } catch(e) {}
+            try { mountStandardAd(document.getElementById('adMobileBottom'), { key: '51efcb0e502dffc7c8c25030a1155128', format: 'iframe', height: 250, width: 300, params: {} }, 'https://dcengg.org/22/51efcb0e502dffc7c8c25030a1155128'); } catch(e) {}
+        } else {
+            try { injectLeftNativeAd(); } catch(e) {}
+            try { injectRightStandardAd(); } catch(e) {}
+        }
+
+        const timerText = document.getElementById('adTimerText');
+        const closeBtn = document.getElementById('closeInterstitialBtn');
+        if (closeBtn) { closeBtn.disabled = true; closeBtn.classList.remove('active'); }
+
+        let seconds = 5;
+        if (timerText) timerText.textContent = 'Aguarde ' + seconds + 's...';
+        if (_interstitialTimer) clearInterval(_interstitialTimer);
+        _interstitialTimer = setInterval(function() {
+            seconds--;
+            if (seconds <= 0) {
+                clearInterval(_interstitialTimer);
+                _interstitialTimer = null;
+                if (timerText) timerText.textContent = 'Pronto!';
+                if (closeBtn) { closeBtn.disabled = false; closeBtn.classList.add('active'); }
+            } else {
+                if (timerText) timerText.textContent = 'Aguarde ' + seconds + 's...';
+            }
+        }, 1000);
     }
 
-    const timerText = document.getElementById('adTimerText');
-    const closeBtn = document.getElementById('closeInterstitialBtn');
-    if (closeBtn) { closeBtn.disabled = true; closeBtn.classList.remove('active'); }
+    function closeInterstitialAndPlay() {
+        if (_interstitialTimer) { clearInterval(_interstitialTimer); _interstitialTimer = null; }
+        const modal = document.getElementById('adInterstitialModal');
+        if (modal) modal.classList.remove('active');
+        document.body.classList.remove('ad-modal-open');
+        document.body.classList.remove('no-scroll');
+        const v = _interstitialVideo;
+        _interstitialVideo = null;
+        if (v) playVideo(v);
+    }
 
-    let seconds = 5;
-    if (timerText) timerText.textContent = 'Aguarde ' + seconds + 's...';
-    if (_interstitialTimer) clearInterval(_interstitialTimer);
-    _interstitialTimer = setInterval(function() {
-        seconds--;
-        if (seconds <= 0) {
-            clearInterval(_interstitialTimer);
-            _interstitialTimer = null;
-            if (timerText) timerText.textContent = 'Pronto!';
-            if (closeBtn) { closeBtn.disabled = false; closeBtn.classList.add('active'); }
-        } else {
-            if (timerText) timerText.textContent = 'Aguarde ' + seconds + 's...';
-        }
-    }, 1000);
-}
+    function mountStandardAd(el, opts, src) {
+        if (!el) return;
+        const html = '<!DOCTYPE html><html><head><meta charset="utf-8"><style>html,body{margin:0;padding:0;overflow:hidden;background:transparent;width:100%;height:100%;display:flex;align-items:center;justify-content:center;}</style></head><body><script type="text/javascript">atOptions=' + JSON.stringify(opts || {}) + ';<\/script><script type="text/javascript" src="' + escapeHtml(src || '') + '"><\/script></body></html>';
+        el.innerHTML = '';
+        const iframe = document.createElement('iframe');
+        iframe.style.cssText = 'width:100%;height:100%;border:0;display:block;background:transparent;';
+        iframe.setAttribute('frameborder', '0');
+        iframe.setAttribute('scrolling', 'no');
+        iframe.srcdoc = html;
+        el.appendChild(iframe);
+    }
 
-function closeInterstitialAndPlay() {
-    if (_interstitialTimer) { clearInterval(_interstitialTimer); _interstitialTimer = null; }
-    const modal = document.getElementById('adInterstitialModal');
-    if (modal) modal.classList.remove('active');
-    document.body.classList.remove('ad-modal-open');
-    document.body.classList.remove('no-scroll');
-    const v = _interstitialVideo;
-    _interstitialVideo = null;
-    if (v) playVideo(v);
-}
+    function injectLeftNativeAd() {
+        const container = document.getElementById('adNativeLeft');
+        if (!container) return;
+        container.innerHTML = '';
+        const adDiv = document.createElement('div');
+        adDiv.id = 'container-efe34bd92ca74a51f85465ca14314dc7';
+        container.appendChild(adDiv);
+        const script = document.createElement('script');
+        script.async = true;
+        script.setAttribute('data-cfasync', 'false');
+        script.src = 'https://dcengg.org/21/efe34bd92ca74a51f85465ca14314dc7';
+        container.appendChild(script);
+    }
+    function injectRightStandardAd() {
+        mountStandardAd(document.getElementById('adNativeRight'), { key: '0b2a1dd49cefbcb5c3f10330c969042c', format: 'iframe', height: 600, width: 160, params: {} }, 'https://dcengg.org/22/0b2a1dd49cefbcb5c3f10330c969042c');
+    }
 
-function mountStandardAd(el, opts, src) {
-    if (!el) return;
-    const html = '<!DOCTYPE html><html><head><meta charset="utf-8"><style>html,body{margin:0;padding:0;overflow:hidden;background:transparent;width:100%;height:100%;display:flex;align-items:center;justify-content:center;}</style></head><body><script type="text/javascript">atOptions=' + JSON.stringify(opts || {}) + ';<\/script><script type="text/javascript" src="' + escapeHtml(src || '') + '"><\/script></body></html>';
-    el.innerHTML = '';
-    const iframe = document.createElement('iframe');
-    iframe.style.cssText = 'width:100%;height:100%;border:0;display:block;background:transparent;';
-    iframe.setAttribute('frameborder', '0');
-    iframe.setAttribute('scrolling', 'no');
-    iframe.srcdoc = html;
-    el.appendChild(iframe);
-}
-
-function injectLeftNativeAd() {
-    const container = document.getElementById('adNativeLeft');
-    if (!container) return;
-    container.innerHTML = '';
-    const adDiv = document.createElement('div');
-    adDiv.id = 'container-efe34bd92ca74a51f85465ca14314dc7';
-    container.appendChild(adDiv);
-    const script = document.createElement('script');
-    script.async = true;
-    script.setAttribute('data-cfasync', 'false');
-    script.src = 'https://dcengg.org/21/efe34bd92ca74a51f85465ca14314dc7';
-    container.appendChild(script);
-}
-function injectRightStandardAd() {
-    mountStandardAd(document.getElementById('adNativeRight'), { key: '0b2a1dd49cefbcb5c3f10330c969042c', format: 'iframe', height: 600, width: 160, params: {} }, 'https://dcengg.org/22/0b2a1dd49cefbcb5c3f10330c969042c');
-}
-
-document.getElementById('closeInterstitialBtn')?.addEventListener('click', function() {
-    if (document.getElementById('closeInterstitialBtn').disabled) return;
-    closeInterstitialAndPlay();
-});
-document.getElementById('adSubscribeBtn')?.addEventListener('click', function() {
-    if (_interstitialTimer) { clearInterval(_interstitialTimer); _interstitialTimer = null; }
-    _interstitialVideo = null;
-    document.getElementById('adInterstitialModal').classList.remove('active');
-    document.body.classList.remove('no-scroll');
-    openPixLightbox();
-});
-// ===== FIM DAS FUNÇÕES RESTAURADAS =====
+    document.getElementById('closeInterstitialBtn')?.addEventListener('click', function() {
+        if (document.getElementById('closeInterstitialBtn').disabled) return;
+        closeInterstitialAndPlay();
+    });
+    document.getElementById('adSubscribeBtn')?.addEventListener('click', function() {
+        if (_interstitialTimer) { clearInterval(_interstitialTimer); _interstitialTimer = null; }
+        _interstitialVideo = null;
+        document.getElementById('adInterstitialModal').classList.remove('active');
+        document.body.classList.remove('no-scroll');
+        openPixLightbox();
+    });
+    // ===== FIM DAS FUNÇÕES RESTAURADAS =====
 
     const fullscreenBtn = document.getElementById('fullscreenBtn');
     const btnRewind10 = document.getElementById('btnRewind10');
@@ -4336,7 +4335,7 @@ document.getElementById('adSubscribeBtn')?.addEventListener('click', function() 
                     onPlayerReady(e);
                 },
                 'onStateChange': (e) => {
-                    if (e.data === 3) { try { e.target.unloadModule('captions'); e.target.unloadModule('cc'); } catch (_) {} }
+                    if (e.data === 1 || e.data === 3) { try { e.target.unloadModule('captions'); e.target.unloadModule('cc'); } catch (_) {} }
                     onPlayerStateChange(e);
                 }
             }
@@ -4785,6 +4784,7 @@ document.getElementById('adSubscribeBtn')?.addEventListener('click', function() 
             playerVars: { autoplay: 1, controls: 0, disablekb: 1, modestbranding: 1, rel: 0, iv_load_policy: 3, playsinline: 1, fs: 0, cc_load_policy: 0, origin: window.location.origin },
             events: {
                 onReady: (ev) => {
+                    try { ev.target.unloadModule('captions'); ev.target.unloadModule('cc'); } catch(e) {}
                     tvPlayerReady = true;
                     document.getElementById('tvLoading').style.display = 'none';
                     const freshPos = computeTVPosition(tvPlaylist, tvTotalDuration);
@@ -4798,6 +4798,9 @@ document.getElementById('adSubscribeBtn')?.addEventListener('click', function() 
                     reportTVStatus('playing', pos.video.titulo || 'TV ao Vivo');
                 },
                 onStateChange: (event) => {
+                    if (event.data === 1 || event.data === 3) {
+                        try { event.target.unloadModule('captions'); event.target.unloadModule('cc'); } catch(e) {}
+                    }
                     if (event.data === 1) document.getElementById('tvLoading').style.display = 'none';
                 },
                 onError: () => {
