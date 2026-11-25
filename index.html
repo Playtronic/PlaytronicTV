@@ -146,12 +146,7 @@
         .tag-curta { background: #f59e0b; color: #000; }
         .tag-media { background: #8b5cf6; color: #fff; }
         .tag-longa { background: #ec4899; color: #fff; }
-        .tag-secreto {
-            background: linear-gradient(135deg, #7c3aed, #a78bfa);
-            color: #fff;
-            font-weight: 800;
-            letter-spacing: 0.5px;
-        }
+
         .card.secret-locked .card-poster::before {
             content: '🔒';
             position: absolute;
@@ -995,20 +990,20 @@
         <h2>Inserir um Anúncio</h2>
         <div id="adInsertStep1">
 
+            <label>URL do vídeo do YouTube <span class="yt-required-badge">OBRIGATÓRIO</span></label>
+            <input type="text" id="newAdYoutubeUrl" placeholder="https://www.youtube.com/watch?v=...">
+            <div class="url-hint" id="adYoutubeHint"></div>
+
             <div class="ad-info-box">
                 <h4>📋 Como funciona o anúncio</h4>
                 <ul>
                     <li>O comercial <strong>precisa ser um vídeo do YouTube</strong> (link público ou não listado).</li>
                     <li>Será exibido <strong>apenas para não assinantes</strong> por <strong>24 horas</strong> a partir da aprovação do PIX.</li>
                     <li>O espectador poderá <strong>pular o anúncio após 15 segundos</strong>.</li>
-                    <li>O valor é <strong>calculado pela duração do vídeo</strong> × tarifa por segundo (definida pelo administrador em 💰 Preços).</li>
+                    <li>O valor é <strong>calculado pela duração do vídeo</strong> × tarifa por segundo.</li>
                     <li>Após as 24h, o anúncio é removido automaticamente.</li>
                 </ul>
             </div>
-
-            <label>URL do vídeo do YouTube <span class="yt-required-badge">OBRIGATÓRIO</span></label>
-            <input type="text" id="newAdYoutubeUrl" placeholder="https://www.youtube.com/watch?v=...">
-            <div class="url-hint" id="adYoutubeHint"></div>
             <div id="adCalcResult" style="display: none; text-align: center; margin: 20px 0; background: rgba(0,0,0,0.25); padding: 18px; border-radius: 10px; border: 1px solid rgba(253,187,45,0.3);">
                 <p style="color: #cbd5e1; font-size: 0.9rem; margin-bottom: 6px;">Valor a pagar pelo anúncio:</p>
                 <div style="color: #fdbb2d; font-size: 2.2rem; font-weight: 800; letter-spacing: 1px;" id="adCalculatedPrice">R$ 0,00</div>
@@ -3299,7 +3294,6 @@
         const tags = [];
         if (item.pago) tags.push('<span class="tag tag-pago">PAGO</span>');
         if (item.ad) tags.push('<span class="tag tag-ad">AD</span>');
-        if (isSecreto) tags.push('<span class="tag tag-secreto">🔒 SECRETO</span>');
         if (isSuspended) tags.push('<span class="tag tag-suspenso">SUSPENSO</span>');
 
         const classificacao = normalizarClassificacao(item.classificacao);
