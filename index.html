@@ -838,6 +838,12 @@
             <label><input type="radio" name="videoMarker" value="ad"> AD</label>
         </div>
 
+        <div class="modal-checkbox-row" style="margin-top:10px;">
+            <label><input type="radio" name="videoVisibility" value="public" checked> Público</label>
+            <label><input type="radio" name="videoVisibility" value="secret"> Secreto</label>
+        </div>
+        <p class="url-hint">Vídeos secretos ficam ocultos do catálogo e da programação pública. Somente administradores podem visualizá-los.</p>
+
         <div class="modal-checkbox-row yt-checkbox-row" id="abrirNoYoutubeGroup" style="display: none;">
             <label><input type="checkbox" id="videoAbrirNoYoutubeInput"> ↗ Abrir no YouTube</label>
         </div>
@@ -926,10 +932,12 @@
 <div class="modal-overlay" id="insertAdModal">
     <div class="modal">
         <h2>Inserir um Anúncio</h2>
+        <p class="modal-sub">Cadastre um comercial em vídeo hospedado no YouTube. Após a confirmação do pagamento, o anúncio será exibido aos usuários não assinantes durante 24 horas. Durante a exibição, o público poderá pular o comercial após 15 segundos.</p>
         <div id="adInsertStep1">
-            <label>URL do vídeo do YouTube</label>
+            <label>Link do vídeo comercial no YouTube</label>
             <input type="text" id="newAdYoutubeUrl" placeholder="https://www.youtube.com/watch?v=...">
-            <div class="url-hint" id="adYoutubeHint"></div>
+            <div class="url-hint" id="adYoutubeHint">Use um link válido do YouTube. O vídeo comercial pode ter até 5 minutos.</div>
+            <p style="font-size:0.82rem;color:#cbd5e1;line-height:1.5;margin-top:10px;">O preço é calculado pelo tamanho do comercial (duração total do vídeo): a duração em segundos é multiplicada pela tarifa por segundo configurada pela plataforma. O valor final será mostrado antes da geração do PIX.</p>
             <div id="adCalcResult" style="display: none; text-align: center; margin: 20px 0; background: rgba(0,0,0,0.2); padding: 15px; border-radius: 8px;">
                 <p style="color: #cbd5e1; font-size: 0.9rem;">Valor a pagar:</p>
                 <div style="color: #fdbb2d; font-size: 2rem; font-weight: 800;" id="adCalculatedPrice">R$ 0,00</div>
@@ -1504,6 +1512,7 @@
 
     async function playVideo(video) {
         if (!video) return;
+        if (video.secreto && !isAdmin()) { alert('Este vídeo é secreto e não está disponível publicamente.'); return; }
         
         if (video.sourceType === 'drive') {
             const driveId = video.youtubeId.replace('drive_', '');
@@ -1783,7 +1792,9 @@
         await markNotificationRead(notifId);
         if (notif.videoId) {
             const video = videos.find(v => v.youtubeId === notif.videoId);
-            if (video && (!video.isSuspended || isAdmin())) {
+            if (video && video.secreto && !isAdmin()) {
+                alert('Este vídeo é secreto e não está disponível publicamente.');
+            } else if (video && (!video.isSuspended || isAdmin())) {
                 closeNotificationsModal();
                 userCard.classList.remove('active');
                 playVideo(video);
@@ -3213,6 +3224,7 @@
         const tags = [];
         if (item.pago) tags.push('<span class="tag tag-pago">PAGO</span>');
         if (item.ad) tags.push('<span class="tag tag-ad">AD</span>');
+        if (item.secreto && isAdmin()) tags.push('<span class="tag" style="background:#7c3aed;color:#fff;">SECRETO</span>');
         if (isSuspended) tags.push('<span class="tag tag-suspenso">SUSPENSO</span>');
 
         const classificacao = normalizarClassificacao(item.classificacao);
@@ -3281,7 +3293,7 @@
         
         let baseVideos = videos;
         if (!isAdmin()) {
-            baseVideos = videos.filter(v => !v.isSuspended);
+            baseVideos = videos.filter(v => !v.isSuspended && !v.secreto);
         }
 
         let filtered = baseVideos;
@@ -3462,6 +3474,7 @@
             videoProdutoraInput.value = '';
             videoAnoInput.value = '';
             videoClassificacaoInput.value = 'curta';
+            document.querySelector('input[name="videoVisibility"][value="public"]').checked = true;
             videoAbrirNoYoutubeInput.checked = false;
             document.querySelector('input[name="videoMarker"][value=""]').checked = true;
             videoUrlLabel.textContent = 'URL do Vídeo';
@@ -3484,6 +3497,8 @@
             videoProdutoraInput.value = video.produtora || '';
             videoAnoInput.value = video.ano != null ? String(video.ano) : '';
             videoClassificacaoInput.value = normalizarClassificacao(video.classificacao);
+            document.querySelector('input[name="videoVisibility"][value="secret"]').checked = !!video.secreto;
+            document.querySelector('input[name="videoVisibility"][value="public"]').checked = !video.secreto;
             videoAbrirNoYoutubeInput.checked = !!video.abrirNoYoutube;
             const currentMarker = video.pago ? 'pago' : (video.ad ? 'ad' : '');
             const markerEl = document.querySelector(`input[name="videoMarker"][value="${currentMarker}"]`);
@@ -3512,6 +3527,7 @@
         const markerEl = document.querySelector('input[name="videoMarker"]:checked');
         const marker = markerEl ? markerEl.value : '';
         const pago = marker === 'pago', ad = marker === 'ad';
+        const secreto = document.querySelector('input[name="videoVisibility"]:checked')?.value === 'secret';
         const thumbnailRaw = videoThumbnailUrlInput.value.trim();
 
         if (!urlRaw) return alert('Informe a URL.');
@@ -3563,6 +3579,7 @@
                 ano,
                 pago: !!pago,
                 ad: !!ad,
+                secreto: !!secreto,
                 classificacao,
                 sourceType
             };
@@ -4591,6 +4608,10 @@
             let video = videos.find(v => v.key === identifier);
             if (!video) video = videos.find(v => v.youtubeId === identifier);
             if (video) {
+                if (video.secreto && !isAdmin()) {
+                    alert('Este vídeo é secreto e não está disponível publicamente.');
+                    return;
+                }
                 if (video.isSuspended && !isAdmin()) {
                     alert('Este vídeo está temporariamente indisponível.');
                     return;
@@ -4629,7 +4650,7 @@
 
     function buildTVPlaylist() {
         return videos
-            .filter(v => v.sourceType !== 'drive' && !v.abrirNoYoutube && Number(v.duracaoSegundos) > 15 && /^[a-zA-Z0-9_-]{11}$/.test(v.youtubeId || '') && !v.isSuspended)
+            .filter(v => v.sourceType !== 'drive' && !v.abrirNoYoutube && Number(v.duracaoSegundos) > 15 && /^[a-zA-Z0-9_-]{11}$/.test(v.youtubeId || '') && !v.isSuspended && !v.secreto)
             .sort((a, b) => {
                 const orderA = a.order || 0;
                 const orderB = b.order || 0;
